@@ -27,7 +27,8 @@ namespace tr {
 
     class FileInfo      // interface
     {
-        virtual void load(VirtualLoader& loader);
+        virtual void load(VirtualLoader& loader) = 0;
+        virtual bool needsOriginalFile() const = 0;
         virtual ~FileInfo() = default;
     };
 
