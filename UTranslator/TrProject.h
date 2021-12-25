@@ -8,6 +8,9 @@
 #include <memory>
 #include <atomic>
 
+// Translator
+#include "TrFile.h"
+
 namespace tr {
 
     class Group;
@@ -62,6 +65,7 @@ namespace tr {
     public:
         std::vector<std::shared_ptr<Group>> groups;
         std::vector<std::shared_ptr<Text>> texts;
+        std::shared_ptr<FileInfo> linkedFile;
         Group(File& owner, const Key&) : Entity({}, std::shared_ptr<File>(&owner)) {}
     private:
         friend class tr::File;
