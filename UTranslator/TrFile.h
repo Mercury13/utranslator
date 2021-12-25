@@ -38,9 +38,8 @@ namespace tr {
         virtual bool nextText() = 0;
         virtual QString id() = 0;
         virtual QString idChain(QChar separator) = 0;
-        /// @warning  Right now we export single-language data only,
-        ///           but DO NOT use for dual-language one!
-        ///           Use original() and translation() instead!
+        /// @warning  DO NOT use for dual-language data!
+        ///           Use original() and translation() instead.
         virtual QString text() = 0;
         virtual QString original() = 0;
         virtual QString translation() = 0;
