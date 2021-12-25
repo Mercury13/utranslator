@@ -56,8 +56,7 @@ namespace tr {
     class FileInfo      // interface
     {
     public:
-        virtual void load(Loader& loader) = 0;
-
+        virtual void doImport(Loader& loader) = 0;
         virtual void doExport(Walker& walker) = 0;
 
         ///
