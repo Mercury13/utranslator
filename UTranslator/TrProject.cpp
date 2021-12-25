@@ -30,3 +30,12 @@ void tr::UiObject::checkCanary() const
     if (canary != goodCanary())
         throw std::logic_error("[UiObject.checkCanary] Canary is dead, pointer to nowhere!");
 }
+
+
+///// Project //////////////////////////////////////////////////////////////////
+
+
+void tr::Project::clear()
+{
+    *this = Project();
+}

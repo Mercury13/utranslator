@@ -83,7 +83,10 @@ namespace tr {
     struct Project : public UiObject
     {
         PrjType type = PrjType::ORIGINAL;
+        QString fname;
         std::vector<std::shared_ptr<File>> files;
+
+        void clear();
     };
 
 }   // namespace tr
