@@ -33,7 +33,7 @@
     <item>
      <widget class="QStackedWidget" name="stackMain">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="pageMain">
        <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -84,7 +84,10 @@
            </layout>
           </widget>
           <widget class="QWidget" name="wiEditor" native="true">
-           <layout class="QGridLayout" name="gridLayout">
+           <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="2,1">
+            <property name="spacing">
+             <number>4</number>
+            </property>
             <property name="leftMargin">
              <number>4</number>
             </property>
@@ -94,26 +97,79 @@
             <property name="rightMargin">
              <number>4</number>
             </property>
-            <item row="1" column="0">
-             <widget class="QGroupBox" name="grpTranslation">
-              <property name="title">
-               <string>Translation</string>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_5">
+              <property name="spacing">
+               <number>0</number>
               </property>
-             </widget>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QGroupBox" name="grpOriginal">
+                <property name="title">
+                 <string>Original</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QGroupBox" name="grpTranslation">
+                <property name="title">
+                 <string>[Translation]</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QGroupBox" name="grpComment">
+                <property name="title">
+                 <string>Comment</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
-            <item row="0" column="0">
-             <widget class="QGroupBox" name="grpOriginal">
-              <property name="title">
-               <string>Original</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QGroupBox" name="grpComment">
-              <property name="title">
-               <string>Comment</string>
-              </property>
-             </widget>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_6">
+              <item>
+               <widget class="QGroupBox" name="grpContext">
+                <property name="title">
+                 <string>Context</string>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_7">
+                 <property name="spacing">
+                  <number>0</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QTextBrowser" name="browContext">
+                   <property name="styleSheet">
+                    <string notr="true">QTextBrowser {
+  background-color:palette(button);
+}</string>
+                   </property>
+                   <property name="frameShape">
+                    <enum>QFrame::NoFrame</enum>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+             </layout>
             </item>
            </layout>
           </widget>
