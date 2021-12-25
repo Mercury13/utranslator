@@ -1,4 +1,4 @@
-# UTtranslator: translation tool for Unicodia
+# UTranslator: translation tool for Unicodia
 
 A simple program for: a) making original text; b) translating it.
 
