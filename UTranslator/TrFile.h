@@ -16,19 +16,50 @@ namespace tr {
         /// Goes one group up
         virtual void goUp() = 0;
         /// Adds text at relative position, DOES NOT go to newly-created groups
-        virtual void addTextAtRel(std::span<const QString> ids, const QString& original) = 0;
+        virtual void addTextAtRel(
+                std::span<const QString> ids,
+                const QString& original,
+                const QString& comment) = 0;
         /// Virtual dtor
         virtual ~VirtualLoader() = default;
 
         // Utils
-        virtual void addText(const QString& id, const QString& original)
-            { addTextAtRel(std::span<const QString>(&id, 1), original); }
+        virtual void addText(const QString& id, const QString& original, const QString& comment)
+            { addTextAtRel(std::span<const QString>(&id, 1), original, comment); }
+    };
+
+    class Walker
+    {
+    public:
+        virtual ~Walker() = default;
+        virtual bool nextGroup() = 0;
+        virtual bool enter() = 0;
+        virtual void leave() = 0;
+        virtual bool nextText() = 0;
+        virtual QString id() = 0;
+        virtual QString idChain(QChar separator) = 0;
+        virtual bool findTextAtRel(std::span<const QString> ids) = 0;
+        /// @warning  Right now we export single-language data only,
+        ///           but DO NOT use for dual-language one
+        virtual QString text() = 0;
+
+        // Utils
+        virtual bool findText(const QString& id)
+            { return findTextAtRel(std::span<const QString>(&id, 1)); }
     };
 
     class FileInfo      // interface
     {
+    public:
         virtual void load(VirtualLoader& loader) = 0;
-        virtual bool needsOriginalFile() const = 0;
+
+        virtual void doExport(Walker& walker) = 0;
+
+        ///
+        /// \return [+] needs file and cannot run if it’s absent (e.g. Qt form)
+        ///         [−] creates file from scratch (e.g. simple text/binary file, Transifex XLIFF)
+        ///
+        virtual bool needsFile() const = 0;
         virtual ~FileInfo() = default;
     };
 
