@@ -40,8 +40,10 @@ namespace tr {
         virtual QString idChain(QChar separator) = 0;
         /// @warning  Right now we export single-language data only,
         ///           but DO NOT use for dual-language one!
-        ///           There will be original() and translation()
+        ///           Use original() and translation() instead!
         virtual QString text() = 0;
+        virtual QString original() = 0;
+        virtual QString translation() = 0;
         /// @return [+] id(), idChain(), text(),
         ///         and in the future original() and translation()
         ///         will temporarily show info on what we found
