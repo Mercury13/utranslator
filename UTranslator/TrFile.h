@@ -61,7 +61,7 @@ namespace tr {
         virtual void doExport(Walker& walker) = 0;
 
         ///
-        /// \return [+] needs file and cannot run if it’s absent (e.g. Qt form)
+        /// \return [+] needs file and cannot export if it’s absent (e.g. Qt form)
         ///         [−] creates file from scratch (e.g. simple text/binary file, Transifex XLIFF)
         ///
         virtual bool needsFile() const = 0;
