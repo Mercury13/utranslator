@@ -6,4 +6,4 @@ As it is designed for open-source projects, no patch translations here.
 
 ## Why?
 
-Most of Unicodia’s texts are wiki.
+Most of Unicodia’s texts are wiki. So it is hard to edit them in marked-up format like XML.
