@@ -8,7 +8,7 @@
 
 namespace tr {
 
-    class VirtualLoader     // interface
+    class Loader     // interface
     {
     public:
         /// Adds group, goes to it
@@ -21,7 +21,7 @@ namespace tr {
                 const QString& original,
                 const QString& comment) = 0;
         /// Virtual dtor
-        virtual ~VirtualLoader() = default;
+        virtual ~Loader() = default;
 
         // Utils
         virtual void addText(const QString& id, const QString& original, const QString& comment)
@@ -52,7 +52,7 @@ namespace tr {
     class FileInfo      // interface
     {
     public:
-        virtual void load(VirtualLoader& loader) = 0;
+        virtual void load(Loader& loader) = 0;
 
         virtual void doExport(Walker& walker) = 0;
 
