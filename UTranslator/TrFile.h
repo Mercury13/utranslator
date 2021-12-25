@@ -43,8 +43,7 @@ namespace tr {
         virtual QString text() = 0;
         virtual QString original() = 0;
         virtual QString translation() = 0;
-        /// @return [+] id(), idChain(), text(),
-        ///         and in the future original() and translation()
+        /// @return [+] id(), idChain(), text(), original(), translation()
         ///         will temporarily show info on what we found
         ///         [-] not found, nothing happens
         virtual bool findTextAtRel(std::span<const QString> ids) = 0;
