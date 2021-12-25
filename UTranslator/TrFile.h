@@ -40,7 +40,8 @@ namespace tr {
         virtual QString idChain(QChar separator) = 0;
         virtual bool findTextAtRel(std::span<const QString> ids) = 0;
         /// @warning  Right now we export single-language data only,
-        ///           but DO NOT use for dual-language one
+        ///           but DO NOT use for dual-language one!
+        ///           There will be original() and translation()
         virtual QString text() = 0;
 
         // Utils
