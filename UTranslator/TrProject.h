@@ -18,6 +18,7 @@ namespace tr {
     {
     public:
         struct Temp {
+            int index = -1;
             bool isExpanded;
         } temp;
         UiObject();
@@ -67,7 +68,7 @@ namespace tr {
 
     enum class PrjType { ORIGINAL, TRANSLATION };
 
-    struct Project
+    struct Project : public UiObject
     {
         PrjType type;
         std::vector<std::shared_ptr<File>> files;
