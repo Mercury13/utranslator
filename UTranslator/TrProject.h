@@ -17,10 +17,11 @@ namespace tr {
     class UiObject : public std::enable_shared_from_this<UiObject>
     {
     public:
-        struct Temp {
+        struct Cache {
             int index = -1;
-            bool isExpanded;
-        } temp;
+            bool isExpanded = false;
+            bool isDeleted = false;
+        } cache;
         UiObject();
         ~UiObject();
         void checkCanary() const;
@@ -40,6 +41,8 @@ namespace tr {
         QString id, comment;
         std::shared_ptr<Group> group() { return fGroup.lock(); }
         std::shared_ptr<File> file() { return fFile.lock(); }
+        Entity(std::weak_ptr<Group> aGroup, std::weak_ptr<File> aFile)
+            : fGroup(std::move(aGroup)), fFile(std::move(aFile)) {}
     protected:
         std::weak_ptr<Group> fGroup;
         std::weak_ptr<File> fFile;
@@ -53,24 +56,33 @@ namespace tr {
 
     class Group : public Entity
     {
+    private:
+        // passkey idiom
+        struct Key {};
     public:
         std::vector<std::shared_ptr<Group>> groups;
         std::vector<std::shared_ptr<Text>> texts;
+        Group(File& owner, const Key&) : Entity({}, std::shared_ptr<File>(&owner)) {}
+    private:
+        friend class tr::File;
     };
 
     class File : public UiObject
     {
     public:
         std::shared_ptr<Project> project() { return fProject.lock(); }
+        Group& root() { return *fRoot; }
+        const Group& root() const { return *fRoot; }
     protected:
         std::weak_ptr<Project> fProject;
+        std::shared_ptr<Group> fRoot = std::make_shared<Group>(*this, Group::Key());
     };
 
     enum class PrjType { ORIGINAL, TRANSLATION };
 
     struct Project : public UiObject
     {
-        PrjType type;
+        PrjType type = PrjType::ORIGINAL;
         std::vector<std::shared_ptr<File>> files;
     };
 
