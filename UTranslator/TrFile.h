@@ -38,11 +38,15 @@ namespace tr {
         virtual bool nextText() = 0;
         virtual QString id() = 0;
         virtual QString idChain(QChar separator) = 0;
-        virtual bool findTextAtRel(std::span<const QString> ids) = 0;
         /// @warning  Right now we export single-language data only,
         ///           but DO NOT use for dual-language one!
         ///           There will be original() and translation()
         virtual QString text() = 0;
+        /// @return [+] id(), idChain(), text(),
+        ///         and in the future original() and translation()
+        ///         will temporarily show info on what we found
+        ///         [-] not found, nothing happens
+        virtual bool findTextAtRel(std::span<const QString> ids) = 0;
 
         // Utils
         virtual bool findText(const QString& id)
