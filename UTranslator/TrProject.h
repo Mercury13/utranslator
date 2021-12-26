@@ -65,7 +65,7 @@ namespace tr {
     public:
         std::vector<std::shared_ptr<Group>> groups;
         std::vector<std::shared_ptr<Text>> texts;
-        std::unique_ptr<FileInfo> linkedFile;
+        std::unique_ptr<tf::FileInfo> linkedFile;
         Group(File& owner, const Key&) : Entity({}, std::shared_ptr<File>(&owner)) {}
     private:
         friend class tr::File;
@@ -77,7 +77,7 @@ namespace tr {
         std::shared_ptr<Project> project() { return fProject.lock(); }
         Group& root() { return *fRoot; }
         const Group& root() const { return *fRoot; }
-        std::unique_ptr<FileInfo> fileInfo;
+        std::unique_ptr<tf::FileInfo> fileInfo;
     protected:
         std::weak_ptr<Project> fProject;
         std::shared_ptr<Group> fRoot = std::make_shared<Group>(*this, Group::Key());

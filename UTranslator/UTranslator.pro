@@ -9,9 +9,13 @@ SOURCES += \
     FmMain.cpp
 
 HEADERS += \
+    ../Libs/SelfMade/u_TypedFlags.h \
     FmMain.h \
     TrFile.h \
     TrProject.h
+
+INCLUDEPATH += \
+    ../Libs/SelfMade
 
 FORMS += \
     FmMain.ui

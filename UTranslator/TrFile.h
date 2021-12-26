@@ -6,7 +6,11 @@
 // STL
 #include <span>
 
-namespace tr {
+// Libs
+#include "u_TypedFlags.h"
+
+
+namespace tf {
 
     class Loader     // interface
     {
@@ -55,18 +59,34 @@ namespace tr {
             { return findTextAtRel(std::span<const QString>(&id, 1)); }
     };
 
-    class FileInfo      // interface
+    enum class Fcap {
+        IMPORT = 1,
+        EXPORT = 2,
+        /// [+] needs file and cannot export if it’s absent (e.g. Qt form)
+        /// [−] creates file from scratch (e.g. simple text/binary file, Transifex XLIFF)
+        NEEDS_FILE = 4,
+    };
+    DEFINE_ENUM_OPS(Fcap)
+
+    class FileInfo
     {
     public:
+        // do not want to extract interface, as we work with files only
+        QString filePath;
+
         virtual void doImport(Loader& loader) = 0;
         virtual void doExport(Walker& walker) = 0;
 
-        ///
-        /// \return [+] needs file and cannot export if it’s absent (e.g. Qt form)
-        ///         [−] creates file from scratch (e.g. simple text/binary file, Transifex XLIFF)
-        ///
-        virtual bool needsFile() const = 0;
+        virtual Flags<Fcap> caps() const noexcept = 0;
         virtual ~FileInfo() = default;
+    };
+
+    class EnumText final : public FileInfo
+    {
+        void doImport(Loader& loader);
+        void doExport(Walker&) {}
+
+        Flags<Fcap> caps() const noexcept { return Fcap::IMPORT; }
     };
 
 }   // namespace tr
