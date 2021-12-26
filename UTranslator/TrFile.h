@@ -24,11 +24,11 @@ namespace tr {
         virtual ~Loader() = default;
 
         // Utils
-        virtual void addText(const QString& id, const QString& original, const QString& comment)
+        void addText(const QString& id, const QString& original, const QString& comment)
             { addTextAtRel(std::span<const QString>(&id, 1), original, comment); }
     };
 
-    class Walker
+    class Walker    // interface
     {
     public:
         virtual ~Walker() = default;
@@ -41,6 +41,8 @@ namespace tr {
         /// @warning  DO NOT use for dual-language data!
         ///           Use original() and translation() instead.
         virtual QString text() = 0;
+        /// @warning  DO NOT use for single-language data!
+        ///           Use text() instead.
         virtual QString original() = 0;
         virtual QString translation() = 0;
         /// @return [+] id(), idChain(), text(), original(), translation()
@@ -49,7 +51,7 @@ namespace tr {
         virtual bool findTextAtRel(std::span<const QString> ids) = 0;
 
         // Utils
-        virtual bool findText(const QString& id)
+        bool findText(const QString& id)
             { return findTextAtRel(std::span<const QString>(&id, 1)); }
     };
 
