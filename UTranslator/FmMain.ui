@@ -259,7 +259,18 @@
     <addaction name="acSave"/>
     <addaction name="acSaveAs"/>
    </widget>
+   <widget class="QMenu" name="menu_Original">
+    <property name="title">
+     <string>&amp;Original</string>
+    </property>
+    <addaction name="acAddHostedFile"/>
+    <addaction name="acAddExternalFile"/>
+    <addaction name="separator"/>
+    <addaction name="acMoveUp"/>
+    <addaction name="acMoveDown"/>
+   </widget>
    <addaction name="menu_File"/>
+   <addaction name="menu_Original"/>
   </widget>
   <action name="acNew">
    <property name="text">
@@ -288,6 +299,32 @@
   <action name="acSaveAs">
    <property name="text">
     <string>Save &amp;as…</string>
+   </property>
+  </action>
+  <action name="acAddHostedFile">
+   <property name="text">
+    <string>Add &amp;hosted file…</string>
+   </property>
+  </action>
+  <action name="acAddExternalFile">
+   <property name="text">
+    <string>Add &amp;external file…</string>
+   </property>
+  </action>
+  <action name="acMoveUp">
+   <property name="text">
+    <string>Move up</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+'</string>
+   </property>
+  </action>
+  <action name="acMoveDown">
+   <property name="text">
+    <string>Move down</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+/</string>
    </property>
   </action>
  </widget>
