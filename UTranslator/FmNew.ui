@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>FmNew</class>
+ <widget class="QDialog" name="FmNew">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>279</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>New project</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QTabWidget" name="tabs">
+     <widget class="QWidget" name="tabOriginal">
+      <attribute name="title">
+       <string>Original</string>
+      </attribute>
+      <layout class="QFormLayout" name="formLayout">
+       <item row="0" column="0">
+        <widget class="QLabel" name="lbOrigLang">
+         <property name="text">
+          <string>Language</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="1">
+        <widget class="QComboBox" name="edOrigLang">
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+         <property name="maxVisibleItems">
+          <number>20</number>
+         </property>
+         <item>
+          <property name="text">
+           <string>cz</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>cn</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>de</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>en</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>es</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>fr</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>hi</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>jp</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ru</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>uk</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

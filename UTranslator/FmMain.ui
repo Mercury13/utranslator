@@ -133,6 +133,9 @@
             </item>
             <item>
              <layout class="QVBoxLayout" name="verticalLayout_6">
+              <property name="spacing">
+               <number>0</number>
+              </property>
               <item>
                <widget class="QGroupBox" name="grpContext">
                 <property name="title">
@@ -163,6 +166,59 @@
                    </property>
                    <property name="frameShape">
                     <enum>QFrame::NoFrame</enum>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QGroupBox" name="grpCompatId">
+                <property name="title">
+                 <string>Compatibility ID</string>
+                </property>
+                <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,0">
+                 <property name="spacing">
+                  <number>2</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QLineEdit" name="edCompatId">
+                   <property name="styleSheet">
+                    <string notr="true">background-color: palette(button)</string>
+                   </property>
+                   <property name="readOnly">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="btEditCompatId">
+                   <property name="minimumSize">
+                    <size>
+                     <width>5</width>
+                     <height>5</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>25</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>…</string>
                    </property>
                   </widget>
                  </item>
@@ -266,6 +322,10 @@
     <addaction name="acAddHostedFile"/>
     <addaction name="acAddExternalFile"/>
     <addaction name="separator"/>
+    <addaction name="acAddHostedGroup"/>
+    <addaction name="acAddExternalGroup"/>
+    <addaction name="acAddString"/>
+    <addaction name="separator"/>
     <addaction name="acMoveUp"/>
     <addaction name="acMoveDown"/>
    </widget>
@@ -325,6 +385,27 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+/</string>
+   </property>
+  </action>
+  <action name="acAddHostedGroup">
+   <property name="text">
+    <string>Add hosted group</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+G</string>
+   </property>
+  </action>
+  <action name="acAddExternalGroup">
+   <property name="text">
+    <string>Add external group…</string>
+   </property>
+  </action>
+  <action name="acAddString">
+   <property name="text">
+    <string>Add string</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+J</string>
    </property>
   </action>
  </widget>
