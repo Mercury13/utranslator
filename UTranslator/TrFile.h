@@ -15,11 +15,12 @@ namespace tf {
     class Loader     // interface
     {
     public:
-        /// Adds group, goes to it
+        /// Adds group, GOES to it
         virtual void addGroup(const QString& id) = 0;
         /// Goes one group up
         virtual void goUp() = 0;
         /// Adds text at relative position, DOES NOT go to newly-created groups
+        /// @param [in] ids   relative path, often one id
         virtual void addTextAtRel(
                 std::span<const QString> ids,
                 const QString& original,
@@ -36,6 +37,7 @@ namespace tf {
     {
     public:
         virtual ~Walker() = default;
+        /// Groups and texts are mutually-exclusive things
         virtual bool nextGroup() = 0;
         virtual bool enter() = 0;
         virtual void leave() = 0;
@@ -68,11 +70,15 @@ namespace tf {
     };
     DEFINE_ENUM_OPS(Fcap)
 
+    ///
+    /// \brief The FileInfo class
+    ///   Common ancestor for file import/export
+    ///
     class FileInfo
     {
     public:
         // do not want to extract interface, as we work with files only
-        QString filePath;
+        QString fname;
 
         virtual void doImport(Loader& loader) = 0;
         virtual void doExport(Walker& walker) = 0;
@@ -81,12 +87,20 @@ namespace tf {
         virtual ~FileInfo() = default;
     };
 
+    ///
+    /// \brief The EnumText class
+    ///   Simple type of file:
+    ///     This is string one        << id=1
+    ///     And this string two       << id=2
+    ///     String three              << id=3
+    ///
     class EnumText final : public FileInfo
     {
-        void doImport(Loader& loader);
-        void doExport(Walker&) {}
+        void doImport(Loader& loader) override;
+        void doExport(Walker&) override {}
 
-        Flags<Fcap> caps() const noexcept { return Fcap::IMPORT; }
+        /// @todo [urgent] can export too, but let’s import somehow
+        Flags<Fcap> caps() const noexcept override { return Fcap::IMPORT; }
     };
 
 }   // namespace tr
