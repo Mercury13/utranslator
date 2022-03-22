@@ -141,6 +141,7 @@ void FmMain::doNew()
 {
     if (auto result = fmNew.ensure(this).exec(0)) {
         project = std::make_shared<tr::Project>(std::move(*result));
+        project->doShare(project);
         project->addTestOriginal();
         treeModel.setProject(project);
         ui->stackMain->setCurrentWidget(ui->pageMain);
