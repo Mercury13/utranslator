@@ -145,7 +145,8 @@ namespace tr {
     };
 
     class Project final :
-            public UiObject
+            public UiObject,
+            private std::enable_shared_from_this<Project>
     {
     public:
         PrjInfo info;
@@ -160,7 +161,6 @@ namespace tr {
         Project() = default;
         Project(PrjInfo&& aInfo) : info(std::move(aInfo)) {}
         void clear();
-        void doShare(const std::shared_ptr<Project>& x) { fSelf = x; }
         std::shared_ptr<Project> self();
 
         ObjType type() const override { return ObjType::PROJECT; }
@@ -172,8 +172,6 @@ namespace tr {
         // Adds a file in the end of project
         std::shared_ptr<File> addFile();
         std::shared_ptr<File> addFile(std::u8string_view name);
-    private:
-        std::weak_ptr<Project> fSelf;
     };
 
 }   // namespace tr

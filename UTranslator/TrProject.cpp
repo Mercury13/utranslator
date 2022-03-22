@@ -123,10 +123,12 @@ void tr::Project::clear()
 
 std::shared_ptr<tr::Project> tr::Project::self()
 {
-    if (auto lk = fSelf.lock())
-        return lk;
-    // Aliasing ctor
-    return std::shared_ptr<Project>(std::shared_ptr<int>{}, this);
+    try {
+        return shared_from_this();
+    } catch (const std::bad_weak_ptr&) {
+        // Uncontrolled by shared — use aliasing ctor
+        return std::shared_ptr<Project>(std::shared_ptr<int>{}, this);
+    }
 }
 
 
