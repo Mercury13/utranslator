@@ -70,7 +70,7 @@ std::shared_ptr<tr::Text> tr::VirtualGroup::addText(
         std::u8string id, std::u8string original)
 {
     auto index = nChildren();
-    auto r = std::make_shared<Text>(self, index, Key{});
+    auto r = std::make_shared<Text>(fSelf, index, Key{});
     r->id = std::move(id);
     r->original = std::move(original);
     children.push_back(r);
@@ -134,7 +134,7 @@ std::shared_ptr<tr::File> tr::Project::addFile()
 {
     auto index = nChildren();
     auto r = std::make_shared<File>(self(), index, Key{});
-    r->self = r;
+    r->fSelf = r;
     files.push_back(r);
     return r;
 }

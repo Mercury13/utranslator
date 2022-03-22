@@ -22,6 +22,16 @@ namespace tr {
 
     class Entity;
 
+    template <class T>
+    class Self
+    {
+    public:
+        Self() = default;
+        Self(const Self&) {}
+        Self& operator = (const Self&) { return *this; }
+        std::weak_ptr<T> fSelf;
+    };
+
     class UiObject
     {
     public:
@@ -48,7 +58,9 @@ namespace tr {
 
         // Do nothing: cache is cache, and canary depends on pointer
         UiObject(const UiObject&) : UiObject() {}
+        UiObject(UiObject&&) noexcept : UiObject() {}
         UiObject& operator=(const UiObject&) { return *this; }
+        UiObject& operator=(UiObject&&) noexcept { return *this; }
     protected:
         std::atomic<uint32_t> canary  = 0;
 
@@ -66,7 +78,7 @@ namespace tr {
         std::u8string_view idColumn() const override { return id; }
     };
 
-    class VirtualGroup : public Entity
+    class VirtualGroup : public Entity, private Self<VirtualGroup>
     {
     private:
         using Super = Entity;
@@ -83,7 +95,6 @@ namespace tr {
 
         std::shared_ptr<Text> addText(std::u8string id, std::u8string original);
     protected:
-        std::weak_ptr<VirtualGroup> self;
         friend class Project;
     };
 
@@ -144,8 +155,7 @@ namespace tr {
         std::weak_ptr<Project> fProject;
     };
 
-    class Project final :
-            public UiObject
+    class Project final : public UiObject, private Self<Project>
     {
     public:
         PrjInfo info;
@@ -158,10 +168,11 @@ namespace tr {
         void addTestOriginal();
 
         Project() = default;
-        Project(PrjInfo&& aInfo) : info(std::move(aInfo)) {}
+        Project(PrjInfo&& aInfo) noexcept : info(std::move(aInfo)) {}
+
         void clear();
         void doShare(const std::shared_ptr<Project>& x) { fSelf = x; }
-        std::shared_ptr<Project> self();
+        std::shared_ptr<tr::Project> self();
 
         ObjType type() const override { return ObjType::PROJECT; }
         size_t nChildren() const override { return files.size(); };
@@ -172,8 +183,6 @@ namespace tr {
         // Adds a file in the end of project
         std::shared_ptr<File> addFile();
         std::shared_ptr<File> addFile(std::u8string_view name);
-    private:
-        std::weak_ptr<Project> fSelf;
     };
 
 }   // namespace tr
