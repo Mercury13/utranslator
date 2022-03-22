@@ -1,6 +1,8 @@
 #include "FmNew.h"
 #include "ui_FmNew.h"
 
+#include <QDialogButtonBox>
+
 FmNew::FmNew(QWidget *parent) :
     QDialog(parent, Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint),
     ui(new Ui::FmNew)
@@ -9,6 +11,10 @@ FmNew::FmNew(QWidget *parent) :
 
     // Initial setup
     ui->edOrigLang->setCurrentText("en");
+
+    // Accept/reject
+    connect(ui->buttonBox, &QDialogButtonBox::accepted, this, This::accept);
+    connect(ui->buttonBox, &QDialogButtonBox::rejected, this, This::reject);
 }
 
 FmNew::~FmNew()

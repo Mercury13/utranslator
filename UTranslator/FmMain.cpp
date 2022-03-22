@@ -27,15 +27,15 @@ void PrjTreeModel::setProject(std::shared_ptr<tr::Project> aProject)
     endResetModel();
 }
 
-std::shared_ptr<tr::UiObject> PrjTreeModel::toObj(const QModelIndex& index) const
+tr::UiObject* PrjTreeModel::toObj(const QModelIndex& index) const
 {
     auto ptr = index.internalPointer();
     if (!ptr) {
         if (project)
             project->checkCanary();
-        return project;
+        return project.get();
     }
-    std::shared_ptr<tr::UiObject> r { static_cast<tr::UiObject*>(ptr) };
+    auto r = static_cast<tr::UiObject*>(ptr);
     r->checkCanary();
     return r;
 }
@@ -94,7 +94,7 @@ QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case Qt::DisplayRole: {
             auto obj = toObj(index);
-            switch (index.row()) {
+            switch (index.column()) {
             case COL_ID:
                 return str::toQ(obj->idColumn());
             case COL_ORIG:
@@ -126,6 +126,10 @@ FmMain::FmMain(QWidget *parent)
 
     // Model
     ui->treeStrings->setModel(&treeModel);
+
+    // Signals/slots
+    connect(ui->acNew, &QAction::triggered, this, &This::doNew);
+    connect(ui->btStartNew, &QPushButton::clicked, this, &This::doNew);
 }
 
 FmMain::~FmMain()
@@ -137,6 +141,7 @@ void FmMain::doNew()
 {
     if (auto result = fmNew.ensure(this).exec(0)) {
         project = std::make_shared<tr::Project>(std::move(*result));
+        project->doShare(project);
         project->addTestOriginal();
         treeModel.setProject(project);
         ui->stackMain->setCurrentWidget(ui->pageMain);

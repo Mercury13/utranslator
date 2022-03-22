@@ -19,7 +19,7 @@ class PrjTreeModel final : public QAbstractItemModel
 private:
     using Super = QAbstractItemModel;
 public:
-    std::shared_ptr<tr::UiObject> toObj(const QModelIndex& index) const;
+    tr::UiObject* toObj(const QModelIndex& index) const;
     QModelIndex toIndex(const tr::UiObject& obj, int col) const;
     QModelIndex toIndex(const tr::UiObject* p, int col) const;
     QModelIndex toIndex(const std::shared_ptr<tr::UiObject>& p, int col) const
@@ -57,7 +57,8 @@ public:
 class FmMain : public QMainWindow
 {
     Q_OBJECT
-
+    using Super = QMainWindow;
+    using This = FmMain;
 public:
     FmMain(QWidget *parent = nullptr);
     ~FmMain() override;

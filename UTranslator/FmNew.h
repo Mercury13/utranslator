@@ -12,6 +12,7 @@ class FmNew : public QDialog
 {
     Q_OBJECT
     using Super = QDialog;
+    using This = FmNew;
 public:
     explicit FmNew(QWidget *parent = nullptr);
     ~FmNew() override;
