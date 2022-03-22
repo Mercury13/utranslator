@@ -36,7 +36,10 @@ namespace tr {
         virtual std::shared_ptr<UiObject> parent() const = 0;
         virtual size_t nChildren() const = 0;
         virtual std::shared_ptr<UiObject> child(size_t i) const = 0;
-        virtual std::u8string idColumn() const = 0;
+        virtual std::u8string_view idColumn() const = 0;
+        /// @todo [architecture] How to invent parallel VMT?
+        virtual std::u8string_view origColumn() const { return {}; }
+        virtual std::u8string_view translColumn() const { return {}; }
 
         void checkCanary() const;
         void recache();
@@ -61,7 +64,7 @@ namespace tr {
         Entity(std::weak_ptr<Group> aGroup, std::weak_ptr<File> aFile)
             : fParentGroup(std::move(aGroup)), fFile(std::move(aFile)) {}
 
-        std::u8string idColumn() const override { return id; }
+        std::u8string_view idColumn() const override { return id; }
         std::shared_ptr<UiObject> parent() const override;
     protected:
         std::weak_ptr<Group> fParentGroup;
@@ -80,6 +83,9 @@ namespace tr {
         ObjType type() const override { return ObjType::TEXT; }
         size_t nChildren() const override { return 0; };
         std::shared_ptr<UiObject> child(size_t) const override { return {}; }
+        std::u8string_view origColumn() const override { return original; }
+        std::u8string_view translColumn() const override
+            { return translation.has_value() ? *translation : std::u8string_view{}; }
     };
 
     class Group : public Entity
@@ -131,7 +137,7 @@ namespace tr {
         size_t nChildren() const override { return files.size(); };
         std::shared_ptr<UiObject> child(size_t i) const override;
         std::shared_ptr<UiObject> parent() const override { return {}; }
-        std::u8string idColumn() const override { return {}; }
+        std::u8string_view idColumn() const override { return {}; }
     };
 
 }   // namespace tr

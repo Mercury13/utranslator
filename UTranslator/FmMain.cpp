@@ -98,9 +98,9 @@ QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
             case COL_ID:
                 return str::toQ(obj->idColumn());
             case COL_ORIG:
-                return "[Original]";
+                return str::toQ(obj->origColumn());
             case COL_TRANSL:
-                return "[Translation]";
+                return str::toQ(obj->translColumn());
             default:
                 return {};
             }
