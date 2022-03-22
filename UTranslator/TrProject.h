@@ -1,8 +1,5 @@
 #pragma once
 
-// Qt
-#include <QString>
-
 // STL
 #include <vector>
 #include <memory>
@@ -10,6 +7,7 @@
 
 // Translator
 #include "TrFile.h"
+#include "TrDefines.h"
 
 namespace tr {
 
@@ -83,14 +81,14 @@ namespace tr {
         std::shared_ptr<Group> fRoot = std::make_shared<Group>(*this, Group::Key());
     };
 
-    enum class PrjType { ORIGINAL, TRANSLATION };
-
     struct Project : public UiObject
     {
-        PrjType type = PrjType::ORIGINAL;
+        PrjInfo info;
         QString fname;
         std::vector<std::shared_ptr<File>> files;
 
+        Project() = default;
+        Project(PrjInfo&& aInfo) : info(std::move(aInfo)) {}
         void clear();
     };
 
