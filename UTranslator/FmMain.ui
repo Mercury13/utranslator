@@ -57,6 +57,9 @@
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
+          <property name="childrenCollapsible">
+           <bool>false</bool>
+          </property>
           <widget class="QWidget" name="wiTree" native="true">
            <layout class="QVBoxLayout" name="verticalLayout_2">
             <property name="spacing">
@@ -391,6 +394,8 @@
     <addaction name="separator"/>
     <addaction name="acMoveUp"/>
     <addaction name="acMoveDown"/>
+    <addaction name="separator"/>
+    <addaction name="acDelete"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_Original"/>
@@ -469,6 +474,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+J</string>
+   </property>
+  </action>
+  <action name="acDelete">
+   <property name="text">
+    <string>Delete</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Del</string>
    </property>
   </action>
  </widget>

@@ -118,8 +118,11 @@ FmMain::FmMain(QWidget *parent)
 {
     ui->setupUi(this);
 
-    // Setup layout
-    ui->splitMain->setSizes({1, 1});
+    // Splitter
+    auto h = height();
+    ui->splitMain->setSizes({ h, 1 });
+    ui->splitMain->setStretchFactor(0, 2);
+    ui->splitMain->setStretchFactor(1, 1);
 
     // Stack
     ui->stackMain->setCurrentWidget(ui->pageStart);
