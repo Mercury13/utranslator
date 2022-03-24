@@ -4,24 +4,25 @@ CONFIG += c++2a
 
 SOURCES += \
     ../Libs/SelfMade/u_Qstrings.cpp \
+    TrProject/TrDefines.cpp \
+    TrProject/TrFile.cpp \
+    TrProject/TrProject.cpp \
     FmNew.cpp \
-    TrDefines.cpp \
-    TrFile.cpp \
-    TrProject.cpp \
     main.cpp \
     FmMain.cpp
 
 HEADERS += \
     ../Libs/SelfMade/u_Qstrings.h \
     ../Libs/SelfMade/u_TypedFlags.h \
+    TrProject/TrDefines.h \
+    TrProject/TrFile.h \
+    TrProject/TrProject.h \
     FmMain.h \
-    FmNew.h \
-    TrDefines.h \
-    TrFile.h \
-    TrProject.h
+    FmNew.h
 
 INCLUDEPATH += \
-    ../Libs/SelfMade
+    ../Libs/SelfMade \
+    TrProject
 
 FORMS += \
     FmMain.ui \
