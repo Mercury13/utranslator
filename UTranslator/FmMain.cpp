@@ -127,6 +127,9 @@ FmMain::FmMain(QWidget *parent)
     // Stack
     ui->stackMain->setCurrentWidget(ui->pageStart);
 
+    // Helps
+    ui->wiOriginalHelp->hide();
+
     // Model
     ui->treeStrings->setModel(&treeModel);
 

@@ -78,6 +78,60 @@
              <number>0</number>
             </property>
             <item>
+             <widget class="QWidget" name="wiOriginalHelp" native="true">
+              <layout class="QVBoxLayout" name="verticalLayout_12">
+               <property name="spacing">
+                <number>2</number>
+               </property>
+               <property name="topMargin">
+                <number>2</number>
+               </property>
+               <property name="bottomMargin">
+                <number>2</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="btNowYouCan">
+                 <property name="text">
+                  <string>Now you can…</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <layout class="QGridLayout" name="gridLayout" columnstretch="0,1">
+                 <item row="0" column="0">
+                  <widget class="QPushButton" name="btAddHostedFile">
+                   <property name="text">
+                    <string>Add hosted file…</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <widget class="QLabel" name="label_2">
+                   <property name="text">
+                    <string>This project is the original. The branch will be editable.</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QPushButton" name="btAddExternalFile">
+                   <property name="text">
+                    <string>Add external file…</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QLabel" name="label_3">
+                   <property name="text">
+                    <string>Another file is the original. Cannot edit.</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
              <widget class="QTreeView" name="treeStrings">
               <property name="frameShape">
                <enum>QFrame::NoFrame</enum>
@@ -391,11 +445,11 @@
     <addaction name="acAddHostedGroup"/>
     <addaction name="acAddExternalGroup"/>
     <addaction name="acAddString"/>
+    <addaction name="acDelete"/>
     <addaction name="separator"/>
     <addaction name="acMoveUp"/>
     <addaction name="acMoveDown"/>
     <addaction name="separator"/>
-    <addaction name="acDelete"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_Original"/>
@@ -463,11 +517,6 @@
     <string>Ctrl+G</string>
    </property>
   </action>
-  <action name="acAddExternalGroup">
-   <property name="text">
-    <string>Add external group…</string>
-   </property>
-  </action>
   <action name="acAddString">
    <property name="text">
     <string>Add string</string>
@@ -482,6 +531,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Del</string>
+   </property>
+  </action>
+  <action name="acAddExternalGroup">
+   <property name="text">
+    <string>Add external group…</string>
    </property>
   </action>
  </widget>

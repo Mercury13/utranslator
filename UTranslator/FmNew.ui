@@ -17,6 +17,13 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
+      <widget class="QLabel" name="lbType">
+       <property name="text">
+        <string>Project type</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QRadioButton" name="radioOriginal">
        <property name="text">
         <string>Original</string>
@@ -25,6 +32,19 @@
         <bool>true</bool>
        </property>
       </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>10</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>
