@@ -78,6 +78,27 @@ std::shared_ptr<tr::Text> tr::VirtualGroup::addText(
 }
 
 
+std::shared_ptr<tr::Group> tr::VirtualGroup::addGroup(std::u8string id)
+{
+    auto index = nChildren();
+    auto r = std::make_shared<Group>(fSelf, index, Key{});
+    r->fSelf = r;
+    r->id = std::move(id);
+    children.push_back(r);
+    return r;
+}
+
+
+///// Group ////////////////////////////////////////////////////////////////////
+
+
+tr::Group::Group(std::weak_ptr<VirtualGroup> aParent, size_t aIndex, const Key&)
+    : fParentGroup(std::move(aParent))
+{
+    cache.index = aIndex;
+}
+
+
 ///// Text /////////////////////////////////////////////////////////////////////
 
 
@@ -156,8 +177,12 @@ void tr::Project::addTestOriginal()
         file->addText(u8"I", u8"India");
         file->addText(u8"O", u8"Oscar");
         file->addText(u8"U", u8"Uniform");
+        auto group = file->addGroup(u8"Specials");
+            group->addText(u8"Y", u8"Yankee");
     file = addFile(u8"consonant.txt");
         file->addText(u8"B", u8"Bravo");
         file->addText(u8"C", u8"Charlie");
         file->addText(u8"D", u8"Delta");
 }
+
+

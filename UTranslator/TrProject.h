@@ -94,6 +94,7 @@ namespace tr {
         using Super::Super;
 
         std::shared_ptr<Text> addText(std::u8string id, std::u8string original);
+        std::shared_ptr<Group> addGroup(std::u8string id);
     protected:
         friend class Project;
     };
@@ -126,13 +127,11 @@ namespace tr {
         using Super = VirtualGroup;
     public:
         std::unique_ptr<tf::FileInfo> linkedFile;
-        Group(std::shared_ptr<VirtualGroup> owner, const Key&)
-            : fFile(owner->file()),
-              fParentGroup(owner) {}
 
         ObjType type() const override { return ObjType::GROUP; }
         std::shared_ptr<UiObject> parent() const override { return fParentGroup.lock(); }
         std::shared_ptr<File> file() override { return fFile.lock(); }
+        Group(std::weak_ptr<VirtualGroup> aParent, size_t aIndex, const Key&);
     private:
         friend class tr::File;
         std::weak_ptr<File> fFile;
