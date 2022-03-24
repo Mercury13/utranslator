@@ -92,7 +92,7 @@
                <item>
                 <widget class="QLabel" name="btNowYouCan">
                  <property name="text">
-                  <string>Now you can…</string>
+                  <string>You have created an empty original. Now you can…</string>
                  </property>
                 </widget>
                </item>
@@ -535,7 +535,7 @@
   </action>
   <action name="acAddExternalGroup">
    <property name="text">
-    <string>Add external group…</string>
+    <string>Add one-way external group…</string>
    </property>
   </action>
  </widget>
