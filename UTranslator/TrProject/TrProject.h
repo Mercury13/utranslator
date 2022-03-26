@@ -36,9 +36,9 @@ namespace tr {
     {
     public:
         struct Cache {
-            int index = -1;
-            bool isExpanded = false;
-            //bool isDeleted = false;
+            int index = -1;             ///< index in tree
+            //bool isExpanded = false;    ///< [+] was expanded in tree; unused right now
+            //bool isDeleted = false;     ///< [+] deleted from original and left for history; unused right now
         } cache;
         UiObject();
         virtual ~UiObject();
@@ -48,7 +48,7 @@ namespace tr {
         virtual size_t nChildren() const = 0;
         virtual std::shared_ptr<UiObject> child(size_t i) const = 0;
         virtual std::u8string_view idColumn() const = 0;
-        /// @todo [architecture] How to invent parallel VMT?
+        /// @todo [architecture] How to invent parallel VMTs?
         virtual std::u8string_view origColumn() const { return {}; }
         virtual std::u8string_view translColumn() const { return {}; }
 

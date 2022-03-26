@@ -151,5 +151,22 @@ void FmMain::doNew()
         project->addTestOriginal();
         treeModel.setProject(project);
         ui->stackMain->setCurrentWidget(ui->pageMain);
+        ui->treeStrings->setFocus(Qt::FocusReason::OtherFocusReason);
+        adaptLayout();
+    }
+}
+
+
+void FmMain::adaptLayout()
+{
+    switch (project->info.type) {
+    case tr::PrjType::ORIGINAL:
+        ui->wiId->show();
+        ui->grpTranslation->hide();
+        break;
+    case tr::PrjType::FULL_TRANSL:
+        ui->wiId->hide();
+        ui->grpTranslation->show();
+        break;
     }
 }

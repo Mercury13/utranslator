@@ -73,4 +73,6 @@ private:
     std::shared_ptr<tr::Project> project;
 
     Uptr<FmNew> fmNew;
+
+    void adaptLayout();
 };
