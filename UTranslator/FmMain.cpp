@@ -2,6 +2,9 @@
 #include "FmMain.h"
 #include "ui_FmMain.h"
 
+// Qt
+#include <QItemSelectionModel>
+
 // Libs
 #include "u_Qstrings.h"
 
@@ -27,16 +30,16 @@ void PrjTreeModel::setProject(std::shared_ptr<tr::Project> aProject)
     endResetModel();
 }
 
-tr::UiObject* PrjTreeModel::toObj(const QModelIndex& index) const
+tr::UiObject* PrjTreeModel::toObjOr(
+        const QModelIndex& index, tr::UiObject* dflt) const
 {
     auto ptr = index.internalPointer();
-    if (!ptr) {
-        if (project)
-            project->checkCanary();
-        return project.get();
-    }
+    if (!ptr)
+        return dflt;
     auto r = static_cast<tr::UiObject*>(ptr);
     r->checkCanary();
+    if (r->type() == tr::ObjType::PROJECT)
+        return dflt;
     return r;
 }
 
@@ -57,20 +60,20 @@ QModelIndex PrjTreeModel::toIndex(const tr::UiObject* p, int col) const
 QModelIndex PrjTreeModel::index(int row, int col,
             const QModelIndex &parent) const
 {
-    auto obj = toObj(parent);
+    auto obj = toObjOr(parent, project.get());
     auto child = obj->child(row);
     return toIndex(child, col);
 }
 
 QModelIndex PrjTreeModel::parent(const QModelIndex &child) const
 {
-    auto obj = toObj(child);
+    auto obj = toObjOr(child, project.get());
     return toIndex(obj->parent(), DUMMY_COL);
 }
 
 int PrjTreeModel::rowCount(const QModelIndex &parent) const
 {
-    auto obj = toObj(parent);
+    auto obj = toObjOr(parent, project.get());
     return obj->nChildren();
 }
 
@@ -93,7 +96,7 @@ QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
         return {};
     switch (role) {
     case Qt::DisplayRole: {
-            auto obj = toObj(index);
+            auto obj = toObjOr(index, project.get());
             switch (index.column()) {
             case COL_ID:
                 return str::toQ(obj->idColumn());
@@ -133,7 +136,11 @@ FmMain::FmMain(QWidget *parent)
     // Model
     ui->treeStrings->setModel(&treeModel);
 
-    // Signals/slots
+    // Signals/slots: tree etc.
+    connect(ui->treeStrings->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, &This::treeCurrentChanged);
+
+    // Signals/slots: menu
     connect(ui->acNew, &QAction::triggered, this, &This::doNew);
     connect(ui->btStartNew, &QPushButton::clicked, this, &This::doNew);
 }
@@ -170,5 +177,16 @@ void FmMain::adaptLayout()
         ui->grpTranslation->show();
         ui->menuOriginal->setEnabled(false);
         break;
+    }
+}
+
+
+void FmMain::treeCurrentChanged(const QModelIndex& current)
+{
+    auto obj = treeModel.toObjOr(current, nullptr);
+    if (!obj) {
+        // bad
+    } else {
+
     }
 }

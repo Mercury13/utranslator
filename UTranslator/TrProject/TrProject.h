@@ -32,7 +32,25 @@ namespace tr {
         std::weak_ptr<T> fSelf;
     };
 
-    class UiObject
+    class CanaryObject
+    {
+    public:
+        // Do nothing: canary depends on pointer
+        CanaryObject();
+        CanaryObject(const CanaryObject&) : CanaryObject() {}
+        CanaryObject(CanaryObject&&) noexcept : CanaryObject() {}
+        CanaryObject& operator=(const CanaryObject&) { return *this; }
+        CanaryObject& operator=(CanaryObject&&) noexcept { return *this; }
+        /// No virtual dtor here!
+        ~CanaryObject();
+        /// Checks whether canary is OK
+        void checkCanary() const;
+    protected:
+        std::atomic<uint32_t> canary  = 0;
+        uint32_t goodCanary() const;
+    };
+
+    class UiObject : public CanaryObject
     {
     public:
         struct Cache {
@@ -40,8 +58,8 @@ namespace tr {
             //bool isExpanded = false;    ///< [+] was expanded in tree; unused right now
             //bool isDeleted = false;     ///< [+] deleted from original and left for history; unused right now
         } cache;
-        UiObject();
-        virtual ~UiObject();
+        // Just here we use virtual dtor!
+        virtual ~UiObject() = default;
 
         virtual ObjType type() const = 0;
         virtual std::shared_ptr<UiObject> parent() const = 0;
@@ -52,19 +70,10 @@ namespace tr {
         virtual std::u8string_view origColumn() const { return {}; }
         virtual std::u8string_view translColumn() const { return {}; }
 
-        void checkCanary() const;
         void recache();
         void recursiveRecache();
 
-        // Do nothing: cache is cache, and canary depends on pointer
-        UiObject(const UiObject&) : UiObject() {}
-        UiObject(UiObject&&) noexcept : UiObject() {}
-        UiObject& operator=(const UiObject&) { return *this; }
-        UiObject& operator=(UiObject&&) noexcept { return *this; }
     protected:
-        std::atomic<uint32_t> canary  = 0;
-
-        uint32_t goodCanary() const;
         // passkey idiom
         struct Key {};
     };

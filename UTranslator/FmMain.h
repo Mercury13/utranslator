@@ -19,7 +19,10 @@ class PrjTreeModel final : public QAbstractItemModel
 private:
     using Super = QAbstractItemModel;
 public:
-    tr::UiObject* toObj(const QModelIndex& index) const;
+    /// Converts index to object
+    /// @param [in] index   QAIM index
+    /// @param [in] dflt    What’s instead of root
+    tr::UiObject* toObjOr(const QModelIndex& index, tr::UiObject* dflt) const;
     QModelIndex toIndex(const tr::UiObject& obj, int col) const;
     QModelIndex toIndex(const tr::UiObject* p, int col) const;
     QModelIndex toIndex(const std::shared_ptr<tr::UiObject>& p, int col) const
@@ -63,7 +66,11 @@ public:
     FmMain(QWidget *parent = nullptr);
     ~FmMain() override;
 
-public slots:
+private slots:
+    // Tree etc.
+    void treeCurrentChanged(const QModelIndex& current);
+
+    // Menu
     void doNew();
 
 private:

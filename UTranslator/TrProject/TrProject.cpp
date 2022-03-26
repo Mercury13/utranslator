@@ -2,21 +2,15 @@
 
 #include <bit>
 
-///// UiObject /////////////////////////////////////////////////////////////////
+///// CanaryObject /////////////////////////////////////////////////////////////
 
-tr::UiObject::UiObject()
+tr::CanaryObject::CanaryObject()
 {
     canary = goodCanary();
 }
 
 
-tr::UiObject::~UiObject()
-{
-    canary = 0;
-}
-
-
-uint32_t tr::UiObject::goodCanary() const
+uint32_t tr::CanaryObject::goodCanary() const
 {
     static constexpr size_t ALIGNMENT = alignof (uintptr_t);
     static constexpr size_t N_BITS = std::countr_zero(ALIGNMENT);
@@ -25,11 +19,20 @@ uint32_t tr::UiObject::goodCanary() const
 }
 
 
-void tr::UiObject::checkCanary() const
+void tr::CanaryObject::checkCanary() const
 {
     if (canary != goodCanary())
         throw std::logic_error("[UiObject.checkCanary] Canary is dead, pointer to nowhere!");
 }
+
+
+tr::CanaryObject::~CanaryObject()
+{
+    canary = 0;
+}
+
+
+///// UiObject /////////////////////////////////////////////////////////////////
 
 
 void tr::UiObject::recache()
