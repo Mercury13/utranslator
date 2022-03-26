@@ -73,9 +73,9 @@ std::shared_ptr<tr::Text> tr::VirtualGroup::addText(
         std::u8string id, std::u8string original)
 {
     auto index = nChildren();
-    auto r = std::make_shared<Text>(fSelf, index, Key{});
+    auto r = std::make_shared<Text>(fSelf, index, PassKey{});
     r->id = std::move(id);
-    r->original = std::move(original);
+    r->tr.original = std::move(original);
     children.push_back(r);
     return r;
 }
@@ -84,7 +84,7 @@ std::shared_ptr<tr::Text> tr::VirtualGroup::addText(
 std::shared_ptr<tr::Group> tr::VirtualGroup::addGroup(std::u8string id)
 {
     auto index = nChildren();
-    auto r = std::make_shared<Group>(fSelf, index, Key{});
+    auto r = std::make_shared<Group>(fSelf, index, PassKey{});
     r->fSelf = r;
     r->id = std::move(id);
     children.push_back(r);
@@ -92,10 +92,18 @@ std::shared_ptr<tr::Group> tr::VirtualGroup::addGroup(std::u8string id)
 }
 
 
+std::shared_ptr<tr::Project> tr::VirtualGroup::project()
+{
+    if (auto f = file())
+        return f->project();
+    return nullptr;
+}
+
+
 ///// Group ////////////////////////////////////////////////////////////////////
 
 
-tr::Group::Group(std::weak_ptr<VirtualGroup> aParent, size_t aIndex, const Key&)
+tr::Group::Group(std::weak_ptr<VirtualGroup> aParent, size_t aIndex, const PassKey&)
     : fParentGroup(std::move(aParent))
 {
     cache.index = aIndex;
@@ -105,10 +113,26 @@ tr::Group::Group(std::weak_ptr<VirtualGroup> aParent, size_t aIndex, const Key&)
 ///// Text /////////////////////////////////////////////////////////////////////
 
 
-tr::Text::Text(std::weak_ptr<VirtualGroup> aParent, size_t aIndex, const Key&)
+tr::Text::Text(std::weak_ptr<VirtualGroup> aParent, size_t aIndex, const PassKey&)
     : fParentGroup(std::move(aParent))
 {
     cache.index = aIndex;
+}
+
+
+std::shared_ptr<tr::File> tr::Text::file()
+{
+    if (auto lk = fParentGroup.lock())
+        return lk->file();
+    return nullptr;
+}
+
+
+std::shared_ptr<tr::Project> tr::Text::project()
+{
+    if (auto f = file())
+        return f->project();
+    return nullptr;
 }
 
 
@@ -117,7 +141,7 @@ tr::Text::Text(std::weak_ptr<VirtualGroup> aParent, size_t aIndex, const Key&)
 
 tr::File::File(
         std::weak_ptr<tr::Project> aProject,
-        size_t aIndex, const Key&)
+        size_t aIndex, const PassKey&)
     : fProject(std::move(aProject))
 {
     cache.index = aIndex;
@@ -157,7 +181,7 @@ std::shared_ptr<tr::Project> tr::Project::self()
 std::shared_ptr<tr::File> tr::Project::addFile()
 {
     auto index = nChildren();
-    auto r = std::make_shared<File>(self(), index, Key{});
+    auto r = std::make_shared<File>(self(), index, PassKey{});
     r->fSelf = r;
     files.push_back(r);
     return r;
@@ -189,3 +213,9 @@ void tr::Project::addTestOriginal()
 }
 
 
+void tr::Project::doShare(const std::shared_ptr<Project>& x)
+{
+    if (x && x.get() != this)
+        throw std::logic_error("[Project.doShare] x should be null, or point to the project itself!");
+    fSelf = x;
+}

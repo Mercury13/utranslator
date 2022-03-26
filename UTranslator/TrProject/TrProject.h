@@ -28,7 +28,9 @@ namespace tr {
     public:
         Self() = default;
         Self(const Self&) {}
+        Self(Self&&) {}
         Self& operator = (const Self&) { return *this; }
+        Self& operator = (Self&&) { return *this; }
         std::weak_ptr<T> fSelf;
     };
 
@@ -50,11 +52,25 @@ namespace tr {
         uint32_t goodCanary() const;
     };
 
+    struct Comments {
+        std::u8string authors, translators;
+    };
+
+    struct Translatable {
+        std::u8string original;     ///< Current original string
+        std::optional<std::u8string>
+                    knownOriginal,  ///< Known original string we translated
+                    translation;    ///< Translation for known original (if present) or original
+        std::u8string_view translationSv() const
+            { return translation ? *translation : std::u8string_view(); }
+    };
+
     class UiObject : public CanaryObject
     {
     public:
         struct Cache {
             int index = -1;             ///< index in tree
+            bool isModified = false;    ///< modified
             //bool isExpanded = false;    ///< [+] was expanded in tree; unused right now
             //bool isDeleted = false;     ///< [+] deleted from original and left for history; unused right now
         } cache;
@@ -70,32 +86,40 @@ namespace tr {
         virtual std::u8string_view origColumn() const { return {}; }
         virtual std::u8string_view translColumn() const { return {}; }
 
+        /// @return  ptr to comments, or null
+        virtual Comments* comments() { return nullptr; }
+        /// @return  ptr to original/translation, or null
+        virtual Translatable* translatable() { return nullptr; }
+        /// @return ptr to project
+        virtual std::shared_ptr<Project> project() = 0;
+
         void recache();
         void recursiveRecache();
 
     protected:
         // passkey idiom
-        struct Key {};
+        struct PassKey {};
     };
 
     class Entity : public UiObject
     {
     public:
-        std::u8string id,               ///< Identifier of group or string
-                      authorsComment;   ///< Author’s comment
+        std::u8string id;               ///< Identifier of group or string
+        Comments comm;
 
         std::u8string_view idColumn() const override { return id; }
+        Comments* comments() override { return &comm; }
+
+        // New virtual
+        virtual std::shared_ptr<File> file() = 0;
     };
 
-    class VirtualGroup : public Entity, private Self<VirtualGroup>
+    class VirtualGroup : public Entity, protected Self<VirtualGroup>
     {
     private:
         using Super = Entity;
     public:
         std::vector<std::shared_ptr<UiObject>> children;
-
-        // New virtual
-        virtual std::shared_ptr<File> file() = 0;
 
         size_t nChildren() const override { return children.size(); };
         std::shared_ptr<UiObject> child(size_t i) const override;
@@ -104,6 +128,7 @@ namespace tr {
 
         std::shared_ptr<Text> addText(std::u8string id, std::u8string original);
         std::shared_ptr<Group> addGroup(std::u8string id);
+        std::shared_ptr<Project> project() override;
     protected:
         friend class Project;
     };
@@ -111,21 +136,20 @@ namespace tr {
     class Text final : public Entity
     {
     public:
-        std::u8string original;     ///< Current original string
-        std::optional<std::u8string>
-                    knownOriginal,  ///< Known original string we translated
-                    translation;    ///< Translation for known original (if present) or original
-        std::u8string translatorsComment;   ///< Translator’s comment
+        Translatable tr;
 
         ObjType type() const override { return ObjType::TEXT; }
         size_t nChildren() const override { return 0; };
         std::shared_ptr<UiObject> child(size_t) const override { return {}; }
-        std::u8string_view origColumn() const override { return original; }
+        std::u8string_view origColumn() const override { return tr.original; }
         std::u8string_view translColumn() const override
-            { return translation.has_value() ? *translation : std::u8string_view{}; }
+            { return tr.translation.has_value() ? *tr.translation : std::u8string_view{}; }
         std::shared_ptr<UiObject> parent() const override { return fParentGroup.lock(); }
+        std::shared_ptr<File> file() override;
 
-        Text(std::weak_ptr<VirtualGroup> aParent, size_t aIndex, const Key&);
+        Text(std::weak_ptr<VirtualGroup> aParent, size_t aIndex, const PassKey&);
+        Translatable* translatable() override { return &tr; }
+        std::shared_ptr<Project> project() override;
     private:
         std::weak_ptr<VirtualGroup> fParentGroup;
     };
@@ -140,7 +164,7 @@ namespace tr {
         ObjType type() const override { return ObjType::GROUP; }
         std::shared_ptr<UiObject> parent() const override { return fParentGroup.lock(); }
         std::shared_ptr<File> file() override { return fFile.lock(); }
-        Group(std::weak_ptr<VirtualGroup> aParent, size_t aIndex, const Key&);
+        Group(std::weak_ptr<VirtualGroup> aParent, size_t aIndex, const PassKey&);
     private:
         friend class tr::File;
         std::weak_ptr<File> fFile;
@@ -150,15 +174,15 @@ namespace tr {
     class File final : public VirtualGroup
     {
     public:
-        std::shared_ptr<Project> project() { return fProject.lock(); }
+        std::shared_ptr<Project> project() override { return fProject.lock(); }
         std::unique_ptr<tf::FileInfo> fileInfo;
 
         ObjType type() const override { return ObjType::FILE; }
         std::shared_ptr<UiObject> parent() const override;
         std::shared_ptr<File> file() override
-            { return std::shared_ptr<File>{this}; }
+            { return std::dynamic_pointer_cast<File>(fSelf.lock()); }
 
-        File(std::weak_ptr<Project> aProject, size_t aIndex, const Key&);
+        File(std::weak_ptr<Project> aProject, size_t aIndex, const PassKey&);
     protected:
         std::weak_ptr<Project> fProject;
     };
@@ -179,14 +203,16 @@ namespace tr {
         Project(PrjInfo&& aInfo) noexcept : info(std::move(aInfo)) {}
 
         void clear();
-        void doShare(const std::shared_ptr<Project>& x) { fSelf = x; }
-        std::shared_ptr<tr::Project> self();
+        void doShare(const std::shared_ptr<Project>& x);
+        /// @return  maybe aliased s_p, but never null
+        std::shared_ptr<Project> self();
 
         ObjType type() const override { return ObjType::PROJECT; }
         size_t nChildren() const override { return files.size(); };
         std::shared_ptr<UiObject> child(size_t i) const override;
         std::shared_ptr<UiObject> parent() const override { return {}; }
         std::u8string_view idColumn() const override { return {}; }
+        std::shared_ptr<Project> project() override { return self(); }
 
         // Adds a file in the end of project
         std::shared_ptr<File> addFile();

@@ -43,6 +43,15 @@ tr::UiObject* PrjTreeModel::toObjOr(
     return r;
 }
 
+tr::UiObject* PrjTreeModel::toObj(const QModelIndex& index) const
+{
+    auto r = toObjOr(index, project.get());
+    if (!r)
+        throw std::logic_error("[toObj] Somehow got nullptr");
+    return r;
+}
+
+
 QModelIndex PrjTreeModel::toIndex(const tr::UiObject& obj, int col) const
 {
     if (obj.type() == tr::ObjType::PROJECT)
@@ -60,20 +69,20 @@ QModelIndex PrjTreeModel::toIndex(const tr::UiObject* p, int col) const
 QModelIndex PrjTreeModel::index(int row, int col,
             const QModelIndex &parent) const
 {
-    auto obj = toObjOr(parent, project.get());
+    auto obj = toObj(parent);
     auto child = obj->child(row);
     return toIndex(child, col);
 }
 
 QModelIndex PrjTreeModel::parent(const QModelIndex &child) const
 {
-    auto obj = toObjOr(child, project.get());
+    auto obj = toObj(child);
     return toIndex(obj->parent(), DUMMY_COL);
 }
 
 int PrjTreeModel::rowCount(const QModelIndex &parent) const
 {
-    auto obj = toObjOr(parent, project.get());
+    auto obj = toObj(parent);
     return obj->nChildren();
 }
 
@@ -96,7 +105,7 @@ QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
         return {};
     switch (role) {
     case Qt::DisplayRole: {
-            auto obj = toObjOr(index, project.get());
+            auto obj = toObj(index);
             switch (index.column()) {
             case COL_ID:
                 return str::toQ(obj->idColumn());
@@ -181,12 +190,53 @@ void FmMain::adaptLayout()
 }
 
 
-void FmMain::treeCurrentChanged(const QModelIndex& current)
+void FmMain::treeCurrentChanged(
+        const QModelIndex& current, const QModelIndex& former)
 {
-    auto obj = treeModel.toObjOr(current, nullptr);
-    if (!obj) {
-        // bad
-    } else {
+    auto formerObj = treeModel.toObj(former);
+    auto currentObj = treeModel.toObj(current);
 
+    if (auto currentPrj = currentObj->project()) {
+        if (formerObj->project() == currentPrj)
+            saveObject(*formerObj);
+        loadObject(*currentObj);
     }
+}
+
+
+void FmMain::loadObject(tr::UiObject& obj)
+{
+    ui->edId->setText(str::toQ(obj.idColumn()));
+    // Original/translation
+    if (auto tr = obj.translatable()) {
+        ui->grpOriginal->setEnabled(true);
+        ui->grpTranslation->setEnabled(true);
+        ui->memoOriginal->setPlainText(str::toQ(tr->original));
+        ui->memoTranslation->setPlainText(str::toQ(tr->translationSv()));
+    } else {
+        ui->grpOriginal->setEnabled(false);
+        ui->grpTranslation->setEnabled(false);
+        ui->memoOriginal->clear();
+        ui->memoTranslation->clear();
+    }
+    // Comment
+    if (auto comm = obj.comments()) {
+        ui->grpComment->setEnabled(true);
+        if (project->info.type == tr::PrjType::ORIGINAL) {  // original
+            ui->memoComment->setPlainText(str::toQ(comm->authors));
+        } else {    // both full and patch translation
+            ui->memoComment->setPlainText(str::toQ(comm->translators));
+        }
+    } else {
+        ui->grpComment->setEnabled(false);
+        ui->memoComment->clear();
+    }
+}
+
+
+void FmMain::saveObject(tr::UiObject& obj)
+{
+    /// @todo [urgent] saveObject
+    auto tr = obj.translatable();
+    auto comm = obj.comments();
 }

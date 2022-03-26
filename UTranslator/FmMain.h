@@ -23,6 +23,10 @@ public:
     /// @param [in] index   QAIM index
     /// @param [in] dflt    What’s instead of root
     tr::UiObject* toObjOr(const QModelIndex& index, tr::UiObject* dflt) const;
+
+    /// Equiv. to toObjOr(index, project.get())
+    /// Never nullptr.
+    tr::UiObject* toObj(const QModelIndex& index) const;
     QModelIndex toIndex(const tr::UiObject& obj, int col) const;
     QModelIndex toIndex(const tr::UiObject* p, int col) const;
     QModelIndex toIndex(const std::shared_ptr<tr::UiObject>& p, int col) const
@@ -68,7 +72,8 @@ public:
 
 private slots:
     // Tree etc.
-    void treeCurrentChanged(const QModelIndex& current);
+    void treeCurrentChanged(
+            const QModelIndex& current, const QModelIndex& former);
 
     // Menu
     void doNew();
@@ -84,4 +89,8 @@ private:
     /// Adapts window’s layout to project type:
     /// original / full translation / (someday) patch translation
     void adaptLayout();
+
+    /// Loads an UI object
+    void loadObject(tr::UiObject& obj);
+    void saveObject(tr::UiObject& obj);
 };
