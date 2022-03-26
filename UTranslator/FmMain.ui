@@ -524,7 +524,7 @@
   </action>
   <action name="acAddHostedFile">
    <property name="text">
-    <string>Add &amp;hosted file…</string>
+    <string>Add &amp;hosted file</string>
    </property>
   </action>
   <action name="acAddExternalFile">
@@ -534,7 +534,7 @@
   </action>
   <action name="acMoveUp">
    <property name="text">
-    <string>Move up</string>
+    <string>Move &amp;up</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+'</string>
@@ -542,7 +542,7 @@
   </action>
   <action name="acMoveDown">
    <property name="text">
-    <string>Move down</string>
+    <string>Move &amp;down</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+/</string>
@@ -550,7 +550,7 @@
   </action>
   <action name="acAddHostedGroup">
    <property name="text">
-    <string>Add hosted group</string>
+    <string>Add hosted &amp;group</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+G</string>
@@ -558,7 +558,7 @@
   </action>
   <action name="acAddString">
    <property name="text">
-    <string>Add string</string>
+    <string>Add &amp;string</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+J</string>
@@ -566,7 +566,7 @@
   </action>
   <action name="acDelete">
    <property name="text">
-    <string>Delete</string>
+    <string>&amp;Delete</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Del</string>
@@ -574,7 +574,7 @@
   </action>
   <action name="acAddExternalGroup">
    <property name="text">
-    <string>Add one-way external group…</string>
+    <string>Add &amp;one-way external group…</string>
    </property>
   </action>
   <action name="acGoBack">

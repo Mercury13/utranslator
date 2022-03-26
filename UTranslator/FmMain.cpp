@@ -99,6 +99,10 @@ int PrjTreeModel::columnCount(const QModelIndex &) const
     return N_TRANSL;
 }
 
+namespace {
+    const QColor BG_MODIFIED { 0xFAF0E6 };
+}
+
 QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
 {
     if (!project)
@@ -113,6 +117,25 @@ QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
                 return str::toQ(obj->origColumn());
             case COL_TRANSL:
                 return str::toQ(obj->translColumn());
+            default:
+                return {};
+            }
+        }
+    case Qt::BackgroundRole: {
+            auto obj = toObj(index);
+            switch (index.column()) {
+            case COL_ID:
+                if (obj->cache.mod.id)
+                    return BG_MODIFIED;
+                return {};
+            case COL_ORIG:
+                if (obj->cache.mod.original)
+                    return BG_MODIFIED;
+                return {};
+            case COL_TRANSL:
+                if (obj->cache.mod.translation)
+                    return BG_MODIFIED;
+                return {};
             default:
                 return {};
             }
@@ -236,10 +259,19 @@ void FmMain::loadObject(tr::UiObject& obj)
 
 namespace {
 
-    std::u8string_view toText(const QString& x, std::string& cache)
+    ///  Turns CR and CR+LF to LF
+    void normalizeEol(QString& x)
     {
+        if (x.indexOf('\r') >= 0) {
+            x.replace("\r\n", "\n");
+            x.replace('\r', '\n');
+        }
+    }
+
+    std::u8string_view toText(QString x, std::string& cache)
+    {
+        normalizeEol(x);
         cache = x.toStdString();
-        //str::normalizeEol(cache);
         return { reinterpret_cast<const char8_t*>(cache.data()), cache.length() };
     }
 
