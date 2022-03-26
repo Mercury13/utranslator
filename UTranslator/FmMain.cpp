@@ -38,7 +38,7 @@ tr::UiObject* PrjTreeModel::toObjOr(
         return dflt;
     auto r = static_cast<tr::UiObject*>(ptr);
     r->checkCanary();
-    if (r->type() == tr::ObjType::PROJECT)
+    if (r->objType() == tr::ObjType::PROJECT)
         return dflt;
     return r;
 }
@@ -54,7 +54,7 @@ tr::UiObject* PrjTreeModel::toObj(const QModelIndex& index) const
 
 QModelIndex PrjTreeModel::toIndex(const tr::UiObject& obj, int col) const
 {
-    if (obj.type() == tr::ObjType::PROJECT)
+    if (obj.objType() == tr::ObjType::PROJECT)
         return {};
     return createIndex(obj.cache.index, col, &obj);
 }
@@ -234,9 +234,31 @@ void FmMain::loadObject(tr::UiObject& obj)
 }
 
 
+namespace {
+
+    std::u8string_view toText(const QString& x, std::string& cache)
+    {
+        cache = x.toStdString();
+        //str::normalizeEol(cache);
+        return { reinterpret_cast<const char8_t*>(cache.data()), cache.length() };
+    }
+
+}   // anon namespace
+
+
 void FmMain::saveObject(tr::UiObject& obj)
 {
     /// @todo [urgent] saveObject
-    auto tr = obj.translatable();
-    auto comm = obj.comments();
+    //auto tr = obj.translatable();
+    //auto comm = obj.comments();
+    std::string cache;
+    switch (project->info.type) {
+    case tr::PrjType::ORIGINAL:
+        obj.setId(str::toU8(ui->edId->text(), cache), tr::Modify::YES);
+        //if (tr)
+        //    tr->original = toStorage(ui->memo)
+        break;
+    case tr::PrjType::FULL_TRANSL:
+        break;
+    }
 }

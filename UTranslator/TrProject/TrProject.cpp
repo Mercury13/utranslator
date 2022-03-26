@@ -58,6 +58,16 @@ void tr::UiObject::recursiveRecache()
 ///// Entity ///////////////////////////////////////////////////////////////////
 
 
+void tr::Entity::setId(std::u8string_view x, tr::Modify wantModify)
+{
+    if (id != x) {
+        id = x;
+        if (wantModify != Modify::NO)
+            cache.isModified = true;
+    }
+}
+
+
 ///// VirtualGroup /////////////////////////////////////////////////////////////
 
 

@@ -65,6 +65,8 @@ namespace tr {
             { return translation ? *translation : std::u8string_view(); }
     };
 
+    enum class Modify { NO, YES };
+
     class UiObject : public CanaryObject
     {
     public:
@@ -77,7 +79,7 @@ namespace tr {
         // Just here we use virtual dtor!
         virtual ~UiObject() = default;
 
-        virtual ObjType type() const = 0;
+        virtual ObjType objType() const = 0;
         virtual std::shared_ptr<UiObject> parent() const = 0;
         virtual size_t nChildren() const = 0;
         virtual std::shared_ptr<UiObject> child(size_t i) const = 0;
@@ -85,6 +87,8 @@ namespace tr {
         /// @todo [architecture] How to invent parallel VMTs?
         virtual std::u8string_view origColumn() const { return {}; }
         virtual std::u8string_view translColumn() const { return {}; }
+        /// @return [+] was changed
+        virtual void setId(std::u8string_view, tr::Modify) {}
 
         /// @return  ptr to comments, or null
         virtual Comments* comments() { return nullptr; }
@@ -109,6 +113,7 @@ namespace tr {
 
         std::u8string_view idColumn() const override { return id; }
         Comments* comments() override { return &comm; }
+        void setId(std::u8string_view x, tr::Modify wantModify) override;
 
         // New virtual
         virtual std::shared_ptr<File> file() = 0;
@@ -138,7 +143,7 @@ namespace tr {
     public:
         Translatable tr;
 
-        ObjType type() const override { return ObjType::TEXT; }
+        ObjType objType() const override { return ObjType::TEXT; }
         size_t nChildren() const override { return 0; };
         std::shared_ptr<UiObject> child(size_t) const override { return {}; }
         std::u8string_view origColumn() const override { return tr.original; }
@@ -161,7 +166,7 @@ namespace tr {
     public:
         std::unique_ptr<tf::FileInfo> linkedFile;
 
-        ObjType type() const override { return ObjType::GROUP; }
+        ObjType objType() const override { return ObjType::GROUP; }
         std::shared_ptr<UiObject> parent() const override { return fParentGroup.lock(); }
         std::shared_ptr<File> file() override { return fFile.lock(); }
         Group(std::weak_ptr<VirtualGroup> aParent, size_t aIndex, const PassKey&);
@@ -177,7 +182,7 @@ namespace tr {
         std::shared_ptr<Project> project() override { return fProject.lock(); }
         std::unique_ptr<tf::FileInfo> fileInfo;
 
-        ObjType type() const override { return ObjType::FILE; }
+        ObjType objType() const override { return ObjType::FILE; }
         std::shared_ptr<UiObject> parent() const override;
         std::shared_ptr<File> file() override
             { return std::dynamic_pointer_cast<File>(fSelf.lock()); }
@@ -207,7 +212,7 @@ namespace tr {
         /// @return  maybe aliased s_p, but never null
         std::shared_ptr<Project> self();
 
-        ObjType type() const override { return ObjType::PROJECT; }
+        ObjType objType() const override { return ObjType::PROJECT; }
         size_t nChildren() const override { return files.size(); };
         std::shared_ptr<UiObject> child(size_t i) const override;
         std::shared_ptr<UiObject> parent() const override { return {}; }
