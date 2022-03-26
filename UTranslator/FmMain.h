@@ -74,5 +74,7 @@ private:
 
     Uptr<FmNew> fmNew;
 
+    /// Adapts window’s layout to project type:
+    /// original / full translation / (someday) patch translation
     void adaptLayout();
 };

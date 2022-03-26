@@ -457,7 +457,7 @@
      <height>20</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menu_File">
+   <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>&amp;File</string>
     </property>
@@ -466,7 +466,7 @@
     <addaction name="acSave"/>
     <addaction name="acSaveAs"/>
    </widget>
-   <widget class="QMenu" name="menu_Original">
+   <widget class="QMenu" name="menuOriginal">
     <property name="title">
      <string>&amp;Original</string>
     </property>
@@ -489,9 +489,9 @@
     <addaction name="acGoBack"/>
     <addaction name="acGoNext"/>
    </widget>
-   <addaction name="menu_File"/>
+   <addaction name="menuFile"/>
    <addaction name="menuGo"/>
-   <addaction name="menu_Original"/>
+   <addaction name="menuOriginal"/>
   </widget>
   <action name="acNew">
    <property name="text">

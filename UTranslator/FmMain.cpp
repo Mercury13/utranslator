@@ -163,10 +163,12 @@ void FmMain::adaptLayout()
     case tr::PrjType::ORIGINAL:
         ui->wiId->show();
         ui->grpTranslation->hide();
+        ui->menuOriginal->setEnabled(true);
         break;
     case tr::PrjType::FULL_TRANSL:
         ui->wiId->hide();
         ui->grpTranslation->show();
+        ui->menuOriginal->setEnabled(false);
         break;
     }
 }
