@@ -100,7 +100,7 @@ int PrjTreeModel::columnCount(const QModelIndex &) const
 }
 
 namespace {
-    const QColor BG_MODIFIED { 0xFAF0E6 };
+    constexpr QColor BG_MODIFIED { 0xFA, 0xF0, 0xE6 };
 }
 
 QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
