@@ -262,3 +262,11 @@ void FmMain::saveObject(tr::UiObject& obj)
         break;
     }
 }
+
+
+void FmMain::saveCurrObject()
+{
+    auto index = ui->treeStrings->currentIndex();
+    auto obj = treeModel.toObj(index);
+    saveObject(*obj);
+}

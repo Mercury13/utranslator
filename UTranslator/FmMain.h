@@ -93,4 +93,5 @@ private:
     /// Loads an UI object
     void loadObject(tr::UiObject& obj);
     void saveObject(tr::UiObject& obj);
+    void saveCurrObject();
 };

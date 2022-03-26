@@ -72,9 +72,13 @@ namespace tr {
     public:
         struct Cache {
             int index = -1;             ///< index in tree
-            bool isModified = false;    ///< modified
             //bool isExpanded = false;    ///< [+] was expanded in tree; unused right now
             //bool isDeleted = false;     ///< [+] deleted from original and left for history; unused right now
+            struct Mod {
+                bool id = false;
+                bool original = false;
+                bool translation = false;
+            } mod;
         } cache;
         // Just here we use virtual dtor!
         virtual ~UiObject() = default;
