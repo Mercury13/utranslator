@@ -85,7 +85,7 @@ namespace tr {
         virtual ObjType objType() const = 0;
         virtual std::shared_ptr<UiObject> parent() const = 0;
         virtual size_t nChildren() const = 0;
-        virtual std::shared_ptr<UiObject> child(size_t i) const = 0;
+        virtual std::shared_ptr<Entity> child(size_t i) const = 0;
         virtual std::u8string_view idColumn() const = 0;
         /// @todo [architecture] How to invent parallel VMTs?
         virtual std::u8string_view origColumn() const { return {}; }
@@ -140,10 +140,10 @@ namespace tr {
     private:
         using Super = Entity;
     public:
-        std::vector<std::shared_ptr<UiObject>> children;
+        std::vector<std::shared_ptr<Entity>> children;
 
         size_t nChildren() const override { return children.size(); };
-        std::shared_ptr<UiObject> child(size_t i) const override;
+        std::shared_ptr<Entity> child(size_t i) const override;
 
         using Super::Super;
 
@@ -161,7 +161,7 @@ namespace tr {
 
         ObjType objType() const override { return ObjType::TEXT; }
         size_t nChildren() const override { return 0; };
-        std::shared_ptr<UiObject> child(size_t) const override { return {}; }
+        std::shared_ptr<Entity> child(size_t) const override { return {}; }
         std::u8string_view origColumn() const override { return tr.original; }
         std::u8string_view translColumn() const override
             { return tr.translation.has_value() ? *tr.translation : std::u8string_view{}; }
@@ -231,7 +231,7 @@ namespace tr {
 
         ObjType objType() const override { return ObjType::PROJECT; }
         size_t nChildren() const override { return files.size(); };
-        std::shared_ptr<UiObject> child(size_t i) const override;
+        std::shared_ptr<Entity> child(size_t i) const override;
         std::shared_ptr<UiObject> parent() const override { return {}; }
         std::u8string_view idColumn() const override { return {}; }
         std::shared_ptr<Project> project() override { return self(); }

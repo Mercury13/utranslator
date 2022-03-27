@@ -2,6 +2,9 @@
 
 #include <bit>
 
+// Libs
+#include "u_Strings.h"
+
 ///// CanaryObject /////////////////////////////////////////////////////////////
 
 tr::CanaryObject::CanaryObject() : canary(goodCanary()) {}
@@ -114,11 +117,22 @@ std::u8string tr::UiObject::makeId(
         std::u8string_view suffix) const
 {
     auto nc = nChildren();
-    auto newIndex = nc + 1;
-    std::vector<size_t> presentIndexes;
+    size_t newIndex = 0;
     for (size_t i = 0; i < nc; ++i) {
         auto ch = child(i);
+        auto sNumber = str::remainderSv(ch->id, prefix, suffix);
+        size_t num;
+        auto chars = str::fromChars(sNumber, num);
+        if (chars.ec != std::errc() && num >= newIndex) {
+            newIndex = num + 1;
+        }
     }
+    char buf[30];
+    std::u8string s;
+    s.append(prefix);
+    s.append(str::toCharsU8(buf, newIndex));
+    s.append(suffix);
+    return s;
 }
 
 
@@ -141,7 +155,7 @@ bool tr::Entity::setId(std::u8string_view x, tr::Modify wantModify)
 ///// VirtualGroup /////////////////////////////////////////////////////////////
 
 
-std::shared_ptr<tr::UiObject> tr::VirtualGroup::child(size_t i) const
+std::shared_ptr<tr::Entity> tr::VirtualGroup::child(size_t i) const
 {
     if (i >= children.size())
         return {};
@@ -240,7 +254,7 @@ std::shared_ptr<tr::UiObject> tr::File::parent() const
 ///// Project //////////////////////////////////////////////////////////////////
 
 
-std::shared_ptr<tr::UiObject> tr::Project::child(size_t i) const
+std::shared_ptr<tr::Entity> tr::Project::child(size_t i) const
 {
     if (i >= files.size())
         return {};
