@@ -24,6 +24,7 @@ namespace tr {
         Pair(std::shared_ptr<T> only) : first(std::move(only)) {}  ///< implicit OK!
         Pair(std::shared_ptr<T> x, std::shared_ptr<T> y)
             : first(std::move(x)), second(std::move(y)) {}
+        /// @return [+] its size is 2  [-] fewer
         bool is2() const { return first && second; }
     };
 
