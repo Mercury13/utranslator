@@ -361,7 +361,7 @@ void FmMain::saveObject(tr::UiObject& obj)
 
 void FmMain::saveCurrObject()
 {
-    auto index = ui->treeStrings->currentIndex();
+    auto index = treeIndex();
     auto obj = treeModel.toObj(index);
     saveObject(*obj);
 }
@@ -409,9 +409,21 @@ void FmMain::addHostedFile()
 }
 
 
+QModelIndex FmMain::treeIndex()
+{
+    auto sel = ui->treeStrings->selectionModel()->selection();
+    if (sel.size() != 1)
+        return {};
+    auto& s0 = sel[0];
+    if (s0.height() > 1)
+        return {};
+    return s0.topLeft();
+}
+
+
 std::optional<std::shared_ptr<tr::VirtualGroup>> FmMain::disambigGroup(std::u8string_view title)
 {
-    auto index = ui->treeStrings->currentIndex();
+    auto index = treeIndex();
     auto obj = treeModel.toObj(index);
     auto pair = obj->additionParents();
     if (pair.is2()) {

@@ -120,4 +120,5 @@ private:
     void reenable();
     /// Returns parent group for addition, probably calling dialog form
     std::optional<std::shared_ptr<tr::VirtualGroup>> disambigGroup(std::u8string_view title);
+    QModelIndex treeIndex();
 };
