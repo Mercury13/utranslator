@@ -24,7 +24,7 @@
    <item>
     <widget class="QRadioButton" name="radio1">
      <property name="text">
-      <string>RadioButton</string>
+      <string>[radio1]</string>
      </property>
      <property name="checked">
       <bool>true</bool>
@@ -34,7 +34,7 @@
    <item>
     <widget class="QRadioButton" name="radio2">
      <property name="text">
-      <string>RadioButton</string>
+      <string>[radio2]</string>
      </property>
     </widget>
    </item>
