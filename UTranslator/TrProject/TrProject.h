@@ -15,6 +15,18 @@
 
 namespace tr {
 
+    template <class T>
+    struct Pair {
+        std::shared_ptr<T> first, second;
+
+        unsigned size() const;
+        Pair() = default;
+        Pair(std::shared_ptr<T> only) : first(std::move(only)) {}  ///< implicit OK!
+        Pair(std::shared_ptr<T> x, std::shared_ptr<T> y)
+            : first(std::move(x)), second(std::move(y)) {}
+        bool is2() const { return first && second; }
+    };
+
     class VirtualGroup;
     class Group;
     class File;
@@ -102,8 +114,8 @@ namespace tr {
         virtual Translatable* translatable() { return nullptr; }
         /// @return  ptr to project
         virtual std::shared_ptr<Project> project() = 0;
-        /// @return  parent group for “Add group” / “Add string”
-        virtual std::shared_ptr<VirtualGroup> additionParent() = 0;
+        /// @return  one or two parent groups for “Add group” / “Add string”
+        virtual Pair<VirtualGroup> additionParents() = 0;
 
         void recache();
         void recursiveRecache();
@@ -155,7 +167,6 @@ namespace tr {
         std::shared_ptr<Text> addText(std::u8string id, std::u8string original);
         std::shared_ptr<Group> addGroup(std::u8string id);
         std::shared_ptr<Project> project() override;
-        std::shared_ptr<VirtualGroup> additionParent() override { return fSelf.lock(); }
     protected:
         friend class Project;
     };
@@ -174,7 +185,7 @@ namespace tr {
         std::u8string_view translColumn() const override
             { return tr.translation.has_value() ? *tr.translation : std::u8string_view{}; }
         std::shared_ptr<UiObject> parent() const override { return fParentGroup.lock(); }
-        std::shared_ptr<VirtualGroup> additionParent() override { return fParentGroup.lock(); }
+        Pair<VirtualGroup> additionParents() override { return fParentGroup.lock(); }
         Translatable* translatable() override { return &tr; }
         std::shared_ptr<File> file() override;
         std::shared_ptr<Project> project() override;
@@ -195,6 +206,8 @@ namespace tr {
         ObjType objType() const override { return ObjType::GROUP; }
         std::shared_ptr<UiObject> parent() const override { return fParentGroup.lock(); }
         std::shared_ptr<File> file() override { return fFile.lock(); }
+        Pair<VirtualGroup> additionParents() override
+                { return { fParentGroup.lock(), fSelf.lock() }; }
     private:
         friend class tr::File;
         std::weak_ptr<File> fFile;
@@ -211,6 +224,7 @@ namespace tr {
         std::shared_ptr<UiObject> parent() const override;
         std::shared_ptr<File> file() override
             { return std::dynamic_pointer_cast<File>(fSelf.lock()); }
+        Pair<VirtualGroup> additionParents() override { return fSelf.lock(); }
 
         File(std::weak_ptr<Project> aProject, size_t aIndex, const PassKey&);
     protected:
@@ -243,7 +257,7 @@ namespace tr {
         std::shared_ptr<UiObject> parent() const override { return {}; }
         std::u8string_view idColumn() const override { return {}; }
         std::shared_ptr<Project> project() override { return self(); }
-        std::shared_ptr<VirtualGroup> additionParent() override { return {}; }
+        Pair<VirtualGroup> additionParents() override { return {}; }
 
         // Adds a file in the end of project
         std::shared_ptr<File> addFile();
@@ -251,3 +265,15 @@ namespace tr {
     };
 
 }   // namespace tr
+
+
+///// Template implementations /////////////////////////////////////////////////
+
+
+template <class T>
+unsigned tr::Pair<T>::size() const
+{
+    if (!first)
+        return 0;
+    return second ? 2 : 1;
+}

@@ -13,6 +13,7 @@ namespace Ui { class FmMain; }
 QT_END_NAMESPACE
 
 class FmNew;
+class FmDisambigPair;
 
 template <class T>
 struct Thing {
@@ -51,7 +52,7 @@ public:
 
     void setProject(std::shared_ptr<tr::Project> aProject);
     Thing<tr::File> addHostedFile();
-    Thing<tr::Group> addHostedGroup(const QModelIndex& index);
+    Thing<tr::Group> addHostedGroup(const std::shared_ptr<tr::VirtualGroup>& parent);
 private:
     static constexpr int DUMMY_COL = 0;
     std::shared_ptr<tr::Project> project;   // will hold old project
@@ -104,6 +105,7 @@ private:
     std::shared_ptr<tr::Project> project;
 
     Uptr<FmNew> fmNew;
+    Uptr<FmDisambigPair> fmDisambigPair;
 
     /// Adapts window’s layout to project type:
     /// original / full translation / (someday) patch translation
@@ -116,4 +118,6 @@ private:
     void saveCurrObject();
     /// Enables-disables UI actions according to current things edited
     void reenable();
+    /// Returns parent group for addition, probably calling dialog form
+    std::optional<std::shared_ptr<tr::VirtualGroup>> disambigGroup(std::u8string_view title);
 };

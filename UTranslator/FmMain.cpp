@@ -11,6 +11,8 @@
 
 // UI forms
 #include "FmNew.h"
+#include "FmDisambigPair.h"
+
 
 ///// PrjTreeModel /////////////////////////////////////////////////////////////
 
@@ -158,10 +160,9 @@ Thing<tr::File> PrjTreeModel::addHostedFile()
 }
 
 
-Thing<tr::Group> PrjTreeModel::addHostedGroup(const QModelIndex& index)
+Thing<tr::Group> PrjTreeModel::addHostedGroup(
+        const std::shared_ptr<tr::VirtualGroup>& parent)
 {
-    auto obj = toObj(index);
-    auto parent = obj->additionParent();
     if (!parent)
         return {};
 
@@ -408,15 +409,29 @@ void FmMain::addHostedFile()
 }
 
 
+std::optional<std::shared_ptr<tr::VirtualGroup>> FmMain::disambigGroup(std::u8string_view title)
+{
+    auto index = ui->treeStrings->currentIndex();
+    auto obj = treeModel.toObj(index);
+    auto pair = obj->additionParents();
+    if (pair.is2()) {
+        return fmDisambigPair.ensure(this).exec(title, pair);
+    } else {
+        return pair.first;
+    }
+}
+
+
 void FmMain::addHostedGroup()
 {
-    /// @todo [urgent] disambiguate parent group
-    auto group = treeModel.addHostedGroup(ui->treeStrings->currentIndex());
-    if (group) {    // Have group
-        ui->treeStrings->setCurrentIndex(group.index);
-    } else {        // No group
-        QMessageBox::warning(this,
-                    "Add group",
-                    "Select some file or group");
+    if (auto dis = disambigGroup(u8"Add group")) {
+        auto group = treeModel.addHostedGroup(*dis);
+        if (group) {    // Have group
+            ui->treeStrings->setCurrentIndex(group.index);
+        } else {        // No group
+            QMessageBox::warning(this,
+                        "Add group",
+                        "Select some file or group");
+        }
     }
 }
