@@ -75,8 +75,12 @@ private slots:
     void treeCurrentChanged(
             const QModelIndex& current, const QModelIndex& former);
 
-    // Menu
+    // Menu: File
     void doNew();
+    // Menu: Go
+    void goBack();
+    void goNext();
+    // Menu: Original
 
 private:
     Ui::FmMain *ui;

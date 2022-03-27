@@ -4,6 +4,7 @@
 
 // Qt
 #include <QItemSelectionModel>
+#include <QMessageBox>
 
 // Libs
 #include "u_Qstrings.h"
@@ -145,6 +146,7 @@ QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
     }
 }
 
+
 ///// FmMain ///////////////////////////////////////////////////////////////////
 
 FmMain::FmMain(QWidget *parent)
@@ -173,13 +175,14 @@ FmMain::FmMain(QWidget *parent)
             this, &This::treeCurrentChanged);
 
     // Signals/slots: menu
+    // File
     connect(ui->acNew, &QAction::triggered, this, &This::doNew);
     connect(ui->btStartNew, &QPushButton::clicked, this, &This::doNew);
+    // Go
+    connect(ui->acGoBack, &QAction::triggered, this, &This::goBack);
+    connect(ui->acGoNext, &QAction::triggered, this, &This::goNext);
 
     // Unused menu items
-    ui->acGoNext->setEnabled(false);
-    ui->acGoBack->setEnabled(false);
-    ui->acAddHostedFile->setEnabled(false);
     ui->acAddExternalFile->setEnabled(false);
     ui->acAddHostedGroup->setEnabled(false);
     ui->acAddExternalGroup->setEnabled(false);
@@ -337,8 +340,31 @@ void FmMain::saveCurrObject()
 void FmMain::reenable()
 {
     bool isMainVisible = (ui->stackMain->currentWidget() == ui->pageMain);
-    bool isOriginal = (project && project->info.type == tr::PrjType::ORIGINAL);
-    //bool isTranslation = (project && !isOriginal);
-    ui->menuGo->setEnabled(isMainVisible);
-    ui->menuOriginal->setEnabled(isOriginal && isMainVisible);
+    bool hasProject {project };
+    bool isOriginal = (hasProject && project->info.type == tr::PrjType::ORIGINAL);
+    //bool isTranslation = (hasProject && !isOriginal);
+
+    // Menu: Go
+    ui->acGoBack->setEnabled(isMainVisible);
+    ui->acGoNext->setEnabled(isMainVisible);
+
+    // Menu: Original; always isOriginal
+    ui->acAddHostedFile->setEnabled(isOriginal && isMainVisible);
+
+    ui->acSave->setEnabled(hasProject);
+    ui->acSaveAs->setEnabled(hasProject);
+}
+
+
+void FmMain::goBack()
+{
+    /// @todo [urgent] goPrev
+    QMessageBox::information(this, "goBack", "goBack!!!!!");
+}
+
+
+void FmMain::goNext()
+{
+    /// @todo [urgent] goNext
+    QMessageBox::information(this, "goNext", "goNext!!!!!");
 }

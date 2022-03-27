@@ -112,7 +112,10 @@ namespace tr {
         bool setTranslation(std::optional<std::u8string_view> x, tr::Modify wantModify);
         /// @return [+] was actually changed
         bool setTranslatorsComment(std::u8string_view x, tr::Modify wantModify);
-
+        /// @return some ID
+        std::u8string makeId(
+                std::u8string_view prefix,
+                std::u8string_view suffix) const;
     protected:
         // passkey idiom
         struct PassKey {};

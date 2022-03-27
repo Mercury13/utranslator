@@ -109,6 +109,19 @@ bool tr::UiObject::setTranslatorsComment(std::u8string_view x, tr::Modify wantMo
 }
 
 
+std::u8string tr::UiObject::makeId(
+        std::u8string_view prefix,
+        std::u8string_view suffix) const
+{
+    auto nc = nChildren();
+    auto newIndex = nc + 1;
+    std::vector<size_t> presentIndexes;
+    for (size_t i = 0; i < nc; ++i) {
+        auto ch = child(i);
+    }
+}
+
+
 ///// Entity ///////////////////////////////////////////////////////////////////
 
 
