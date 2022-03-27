@@ -130,7 +130,7 @@ namespace tr {
         Comments* comments() override { return &comm; }
         bool setId(std::u8string_view x, tr::Modify wantModify) override;
 
-        // New virtual
+        // New virtuals
         virtual std::shared_ptr<File> file() = 0;
     };
 
@@ -165,10 +165,10 @@ namespace tr {
         std::u8string_view translColumn() const override
             { return tr.translation.has_value() ? *tr.translation : std::u8string_view{}; }
         std::shared_ptr<UiObject> parent() const override { return fParentGroup.lock(); }
-        std::shared_ptr<File> file() override;
 
         Text(std::weak_ptr<VirtualGroup> aParent, size_t aIndex, const PassKey&);
         Translatable* translatable() override { return &tr; }
+        std::shared_ptr<File> file() override;
         std::shared_ptr<Project> project() override;
     private:
         std::weak_ptr<VirtualGroup> fParentGroup;
@@ -184,7 +184,8 @@ namespace tr {
         ObjType objType() const override { return ObjType::GROUP; }
         std::shared_ptr<UiObject> parent() const override { return fParentGroup.lock(); }
         std::shared_ptr<File> file() override { return fFile.lock(); }
-        Group(std::weak_ptr<VirtualGroup> aParent, size_t aIndex, const PassKey&);
+        Group(const std::shared_ptr<VirtualGroup>& aParent,
+              size_t aIndex, const PassKey&);
     private:
         friend class tr::File;
         std::weak_ptr<File> fFile;

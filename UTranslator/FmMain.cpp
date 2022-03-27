@@ -175,6 +175,20 @@ FmMain::FmMain(QWidget *parent)
     // Signals/slots: menu
     connect(ui->acNew, &QAction::triggered, this, &This::doNew);
     connect(ui->btStartNew, &QPushButton::clicked, this, &This::doNew);
+
+    // Unused menu items
+    ui->acGoNext->setEnabled(false);
+    ui->acGoBack->setEnabled(false);
+    ui->acAddHostedFile->setEnabled(false);
+    ui->acAddExternalFile->setEnabled(false);
+    ui->acAddHostedGroup->setEnabled(false);
+    ui->acAddExternalGroup->setEnabled(false);
+    ui->acAddString->setEnabled(false);
+    ui->acDelete->setEnabled(false);
+    ui->acMoveUp->setEnabled(false);
+    ui->acMoveDown->setEnabled(false);
+
+    reenable();
 }
 
 FmMain::~FmMain()
@@ -192,6 +206,7 @@ void FmMain::doNew()
         ui->stackMain->setCurrentWidget(ui->pageMain);
         ui->treeStrings->setFocus(Qt::FocusReason::OtherFocusReason);
         adaptLayout();
+        reenable();
     }
 }
 
@@ -279,7 +294,8 @@ namespace {
         { return toText(x->toPlainText(), cache); }
 
     /// @todo [transl] There will be button “Translation is empty string”
-    std::optional<std::u8string_view> toOptText(QPlainTextEdit* x, std::string& cache)
+    std::optional<std::u8string_view> toOptText(
+            QPlainTextEdit* x, std::string& cache)
     {
         auto text = x->toPlainText();
         if (text.isEmpty())
@@ -315,4 +331,14 @@ void FmMain::saveCurrObject()
     auto index = ui->treeStrings->currentIndex();
     auto obj = treeModel.toObj(index);
     saveObject(*obj);
+}
+
+
+void FmMain::reenable()
+{
+    bool isMainVisible = (ui->stackMain->currentWidget() == ui->pageMain);
+    bool isOriginal = (project && project->info.type == tr::PrjType::ORIGINAL);
+    //bool isTranslation = (project && !isOriginal);
+    ui->menuGo->setEnabled(isMainVisible);
+    ui->menuOriginal->setEnabled(isOriginal && isMainVisible);
 }

@@ -154,7 +154,7 @@ std::shared_ptr<tr::Text> tr::VirtualGroup::addText(
 std::shared_ptr<tr::Group> tr::VirtualGroup::addGroup(std::u8string id)
 {
     auto index = nChildren();
-    auto r = std::make_shared<Group>(fSelf, index, PassKey{});
+    auto r = std::make_shared<Group>(fSelf.lock(), index, PassKey{});
     r->fSelf = r;
     r->id = std::move(id);
     children.push_back(r);
@@ -173,9 +173,14 @@ std::shared_ptr<tr::Project> tr::VirtualGroup::project()
 ///// Group ////////////////////////////////////////////////////////////////////
 
 
-tr::Group::Group(std::weak_ptr<VirtualGroup> aParent, size_t aIndex, const PassKey&)
-    : fParentGroup(std::move(aParent))
+tr::Group::Group(
+        const std::shared_ptr<VirtualGroup>& aParent,
+        size_t aIndex, const PassKey&)
+    : fParentGroup(aParent)
 {
+    if (!aParent)
+        throw std::invalid_argument("[Group.ctor] parent should not be null!");
+    fFile = aParent->file();
     cache.index = aIndex;
 }
 

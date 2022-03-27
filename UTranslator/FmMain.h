@@ -95,4 +95,6 @@ private:
     /// Saves an UI object to project
     void saveObject(tr::UiObject& obj);
     void saveCurrObject();
+    /// Enables-disables UI actions according to current things edited
+    void reenable();
 };
