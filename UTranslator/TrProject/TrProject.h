@@ -78,6 +78,7 @@ namespace tr {
                 bool id = false;
                 bool original = false;
                 bool translation = false;
+                bool comment = false;       ///< as we do not show comments in table, let it be…
             } mod;
         } cache;
         // Just here we use virtual dtor!
@@ -92,7 +93,7 @@ namespace tr {
         virtual std::u8string_view origColumn() const { return {}; }
         virtual std::u8string_view translColumn() const { return {}; }
         /// @return [+] was changed
-        virtual void setId(std::u8string_view, tr::Modify) {}
+        virtual bool setId(std::u8string_view, tr::Modify) { return false; }
 
         /// @return  ptr to comments, or null
         virtual Comments* comments() { return nullptr; }
@@ -103,6 +104,16 @@ namespace tr {
 
         void recache();
         void recursiveRecache();
+
+        // Utils
+        /// @return [+] was actually changed
+        bool setOriginal(std::u8string_view x, tr::Modify wantModify);
+        /// @return [+] was actually changed
+        bool setAuthorsComment(std::u8string_view x, tr::Modify wantModify);
+        /// @return [+] was actually changed
+        bool setTranslation(std::optional<std::u8string_view> x, tr::Modify wantModify);
+        /// @return [+] was actually changed
+        bool setTranslatorsComment(std::u8string_view x, tr::Modify wantModify);
 
     protected:
         // passkey idiom
@@ -117,7 +128,7 @@ namespace tr {
 
         std::u8string_view idColumn() const override { return id; }
         Comments* comments() override { return &comm; }
-        void setId(std::u8string_view x, tr::Modify wantModify) override;
+        bool setId(std::u8string_view x, tr::Modify wantModify) override;
 
         // New virtual
         virtual std::shared_ptr<File> file() = 0;

@@ -275,22 +275,36 @@ namespace {
         return { reinterpret_cast<const char8_t*>(cache.data()), cache.length() };
     }
 
+    std::u8string_view toText(QPlainTextEdit* x, std::string& cache)
+        { return toText(x->toPlainText(), cache); }
+
+    /// @todo [transl] There will be button “Translation is empty string”
+    std::optional<std::u8string_view> toOptText(QPlainTextEdit* x, std::string& cache)
+    {
+        auto text = x->toPlainText();
+        if (text.isEmpty())
+            return std::nullopt;
+        return toText(text, cache);
+    }
+
+    std::u8string_view toU8(QLineEdit* x, std::string& cache)
+        { return str::toU8(x->text(), cache); }
+
 }   // anon namespace
 
 
 void FmMain::saveObject(tr::UiObject& obj)
 {
-    /// @todo [urgent] saveObject
-    //auto tr = obj.translatable();
-    //auto comm = obj.comments();
     std::string cache;
     switch (project->info.type) {
     case tr::PrjType::ORIGINAL:
-        obj.setId(str::toU8(ui->edId->text(), cache), tr::Modify::YES);
-        //if (tr)
-        //    tr->original = toStorage(ui->memo)
+        obj.setId(toU8(ui->edId, cache), tr::Modify::YES);
+        obj.setOriginal(toText(ui->memoOriginal, cache), tr::Modify::YES);
+        obj.setAuthorsComment(toText(ui->memoComment, cache), tr::Modify::YES);
         break;
     case tr::PrjType::FULL_TRANSL:
+        obj.setTranslation(toOptText(ui->memoTranslation, cache), tr::Modify::YES);
+        obj.setTranslatorsComment(toText(ui->memoComment, cache), tr::Modify::YES);
         break;
     }
 }

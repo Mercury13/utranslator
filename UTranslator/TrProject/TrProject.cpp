@@ -55,15 +55,75 @@ void tr::UiObject::recursiveRecache()
 }
 
 
+bool tr::UiObject::setOriginal(std::u8string_view x, tr::Modify wantModify)
+{
+    if (auto t = translatable()) {
+        if (t->original != x) {
+            t->original = x;
+            if (wantModify != Modify::NO)
+                cache.mod.original = true;
+            return true;
+        }
+    }
+    return false;
+}
+
+
+bool tr::UiObject::setTranslation(
+        std::optional<std::u8string_view> x, tr::Modify wantModify)
+{
+    if (auto t = translatable()) {
+        if (t->translation != x) {
+            t->translation = x;
+            if (wantModify != Modify::NO)
+                cache.mod.translation = true;
+            return true;
+        }
+    }
+    return false;
+}
+
+
+bool tr::UiObject::setAuthorsComment(std::u8string_view x, tr::Modify wantModify)
+{
+    if (auto c = comments()) {
+        if (c->authors != x) {
+            c->authors = x;
+            if (wantModify != Modify::NO)
+                cache.mod.comment = true;
+            return true;
+        }
+    }
+    return false;
+}
+
+
+bool tr::UiObject::setTranslatorsComment(std::u8string_view x, tr::Modify wantModify)
+{
+    if (auto c = comments()) {
+        if (c->translators != x) {
+            c->translators = x;
+            if (wantModify != Modify::NO)
+                cache.mod.comment = true;
+            return true;
+        }
+    }
+    return false;
+}
+
+
 ///// Entity ///////////////////////////////////////////////////////////////////
 
 
-void tr::Entity::setId(std::u8string_view x, tr::Modify wantModify)
+bool tr::Entity::setId(std::u8string_view x, tr::Modify wantModify)
 {
     if (id != x) {
         id = x;
         if (wantModify != Modify::NO)
             cache.mod.id = true;
+        return true;
+    } else {
+        return false;
     }
 }
 
