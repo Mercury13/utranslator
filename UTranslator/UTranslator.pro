@@ -2,6 +2,10 @@ QT       += core gui widgets
 
 CONFIG += c++2a
 
+CONFIG(debug, debug|release) {
+    DEFINES += AT_RANGE_CHECK
+}
+
 SOURCES += \
     ../Libs/SelfMade/u_Qstrings.cpp \
     TrProject/TrDefines.cpp \

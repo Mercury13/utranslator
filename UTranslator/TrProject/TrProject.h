@@ -1,7 +1,6 @@
 #pragma once
 
 // STL
-#include <vector>
 #include <memory>
 #include <atomic>
 #include <optional>
@@ -10,6 +9,9 @@
 // Translator
 #include "TrFile.h"
 #include "TrDefines.h"
+
+// Libs
+#include "u_Vector.h"
 
 namespace tr {
 
@@ -140,7 +142,7 @@ namespace tr {
     private:
         using Super = Entity;
     public:
-        std::vector<std::shared_ptr<Entity>> children;
+        SafeVector<std::shared_ptr<Entity>> children;
 
         size_t nChildren() const override { return children.size(); };
         std::shared_ptr<Entity> child(size_t i) const override;
@@ -214,7 +216,7 @@ namespace tr {
     public:
         PrjInfo info;
         std::filesystem::path fname;
-        std::vector<std::shared_ptr<File>> files;
+        SafeVector<std::shared_ptr<File>> files;
 
         /// @brief addTestOriginal
         ///   Adds a few files and strings that will serve as test original
