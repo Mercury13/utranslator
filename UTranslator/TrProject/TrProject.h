@@ -37,12 +37,10 @@ namespace tr {
     class CanaryObject
     {
     public:
-        // Do nothing: canary depends on pointer
+        /// Ctors and op= do nothing: canary depends on pointer
         CanaryObject();
         CanaryObject(const CanaryObject&) : CanaryObject() {}
-        CanaryObject(CanaryObject&&) noexcept : CanaryObject() {}
         CanaryObject& operator=(const CanaryObject&) { return *this; }
-        CanaryObject& operator=(CanaryObject&&) noexcept { return *this; }
         /// No virtual dtor here!
         ~CanaryObject();
         /// Checks whether canary is OK

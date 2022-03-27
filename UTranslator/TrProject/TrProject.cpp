@@ -4,10 +4,7 @@
 
 ///// CanaryObject /////////////////////////////////////////////////////////////
 
-tr::CanaryObject::CanaryObject()
-{
-    canary = goodCanary();
-}
+tr::CanaryObject::CanaryObject() : canary(goodCanary()) {}
 
 
 uint32_t tr::CanaryObject::goodCanary() const
