@@ -23,10 +23,10 @@ std::optional<std::shared_ptr<tr::VirtualGroup>> FmDisambigPair::exec(
         throw std::logic_error("[FmDisambigPair.exec] First and second should both exist");
 
     setWindowTitle(str::toQ(title));
-    if (groups.first->id == groups.second->id) {
+    if (groups.first->id == groups.second->id) {    // Names are identical, what to do?
         ui->radio1->setText("Next to current group");
         ui->radio2->setText("Inside current group");
-    } else {
+    } else {    // Names differ, as usual
         ui->radio1->setText(str::toQ(groups.first->id));
         ui->radio2->setText(str::toQ(groups.second->id));
     }
