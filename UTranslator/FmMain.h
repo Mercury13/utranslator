@@ -14,6 +14,17 @@ QT_END_NAMESPACE
 
 class FmNew;
 
+template <class T>
+struct Thing {
+    std::shared_ptr<T> subj;
+    QModelIndex index;
+
+    Thing() = default;
+    Thing(std::shared_ptr<T> aSubj, const QModelIndex& aIndex)
+        : subj(std::move(aSubj)), index(aIndex) {}
+    explicit operator bool() const { return static_cast<bool>(subj); }
+};
+
 class PrjTreeModel final : public QAbstractItemModel
 {
 private:
@@ -39,7 +50,8 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
     void setProject(std::shared_ptr<tr::Project> aProject);
-    std::shared_ptr<tr::File> addHostedFile();
+    Thing<tr::File> addHostedFile();
+    Thing<tr::Group> addHostedGroup(const QModelIndex& index);
 private:
     static constexpr int DUMMY_COL = 0;
     std::shared_ptr<tr::Project> project;   // will hold old project
@@ -83,6 +95,7 @@ private slots:
     void goNext();
     // Menu: Original
     void addHostedFile();
+    void addHostedGroup();
 
 private:
     Ui::FmMain *ui;

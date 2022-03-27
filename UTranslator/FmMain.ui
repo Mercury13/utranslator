@@ -101,7 +101,7 @@
                  <item row="0" column="0">
                   <widget class="QPushButton" name="btAddHostedFile">
                    <property name="text">
-                    <string>Add hosted file…</string>
+                    <string>Add hosted file</string>
                    </property>
                   </widget>
                  </item>

@@ -147,14 +147,30 @@ QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
 }
 
 
-std::shared_ptr<tr::File> PrjTreeModel::addHostedFile()
+Thing<tr::File> PrjTreeModel::addHostedFile()
 {
     auto newId = project->makeId(u8"file", u8".txt");
     auto newIndex = project->nChildren();
     beginInsertRows(QModelIndex(), newIndex, newIndex);
     auto file = project->addFile(newId);
     endInsertRows();
-    return file;
+    return { file, toIndex(file, 0) };
+}
+
+
+Thing<tr::Group> PrjTreeModel::addHostedGroup(const QModelIndex& index)
+{
+    auto obj = toObj(index);
+    auto parent = obj->additionParent();
+    if (!parent)
+        return {};
+
+    auto newId = parent->makeId(u8"g", {});
+    auto newIndex = parent->nChildren();
+    beginInsertRows(toIndex(parent, 0), newIndex, newIndex);
+    auto group = parent->addGroup(newId);
+    endInsertRows();
+    return { group, toIndex(group, 0) };
 }
 
 
@@ -194,10 +210,10 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->acGoNext, &QAction::triggered, this, &This::goNext);
     // Originals
     connect(ui->acAddHostedFile, &QAction::triggered, this, &This::addHostedFile);
+    connect(ui->acAddHostedGroup, &QAction::triggered, this, &This::addHostedGroup);
 
     // Unused menu items
     ui->acAddExternalFile->setEnabled(false);
-    ui->acAddHostedGroup->setEnabled(false);
     ui->acAddExternalGroup->setEnabled(false);
     ui->acAddString->setEnabled(false);
     ui->acDelete->setEnabled(false);
@@ -354,7 +370,8 @@ void FmMain::reenable()
 {
     bool isMainVisible = (ui->stackMain->currentWidget() == ui->pageMain);
     bool hasProject {project };
-    bool isOriginal = (hasProject && project->info.type == tr::PrjType::ORIGINAL);
+    bool isOriginal = (isMainVisible && hasProject
+                       && project->info.type == tr::PrjType::ORIGINAL);
     //bool isTranslation = (hasProject && !isOriginal);
 
     // Menu: Go
@@ -362,7 +379,8 @@ void FmMain::reenable()
     ui->acGoNext->setEnabled(isMainVisible);
 
     // Menu: Original; always isOriginal
-    ui->acAddHostedFile->setEnabled(isOriginal && isMainVisible);
+    ui->acAddHostedFile->setEnabled(isOriginal);
+    ui->acAddHostedGroup->setEnabled(isOriginal);
 
     ui->acSave->setEnabled(hasProject);
     ui->acSaveAs->setEnabled(hasProject);
@@ -386,5 +404,19 @@ void FmMain::goNext()
 void FmMain::addHostedFile()
 {
     auto file = treeModel.addHostedFile();
-    ui->treeStrings->setCurrentIndex(treeModel.toIndex(file, 0));
+    ui->treeStrings->setCurrentIndex(file.index);
+}
+
+
+void FmMain::addHostedGroup()
+{
+    /// @todo [urgent] disambiguate parent group
+    auto group = treeModel.addHostedGroup(ui->treeStrings->currentIndex());
+    if (group) {    // Have group
+        ui->treeStrings->setCurrentIndex(group.index);
+    } else {        // No group
+        QMessageBox::warning(this,
+                    "Add group",
+                    "Select some file or group");
+    }
 }
