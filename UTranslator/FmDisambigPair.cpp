@@ -23,9 +23,15 @@ std::optional<std::shared_ptr<tr::VirtualGroup>> FmDisambigPair::exec(
         throw std::logic_error("[FmDisambigPair.exec] First and second should both exist");
 
     setWindowTitle(str::toQ(title));
-    ui->radio1->setText(str::toQ(groups.first->id));
-    ui->radio2->setText(str::toQ(groups.second->id));
+    if (groups.first->id == groups.second->id) {
+        ui->radio1->setText("Next to current group");
+        ui->radio2->setText("Inside current group");
+    } else {
+        ui->radio1->setText(str::toQ(groups.first->id));
+        ui->radio2->setText(str::toQ(groups.second->id));
+    }
     ui->radio1->setChecked(true);
+    ui->radio1->setFocus();
 
     if (Super::exec()) {
         if (ui->radio1->isChecked()) {
