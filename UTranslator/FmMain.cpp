@@ -175,6 +175,21 @@ Thing<tr::Group> PrjTreeModel::addHostedGroup(
 }
 
 
+void PrjTreeModel::paint(QPainter *painter,
+                   const QStyleOptionViewItem &option,
+                   const QModelIndex &index) const
+{
+    constexpr auto MASK_SF = QStyle::State_Selected | QStyle::State_HasFocus;
+    if ((option.state & MASK_SF) == MASK_SF) {  // Sel+focus → leave only sel
+        QStyleOptionViewItem option1 = option;
+        option1.state &= ~QStyle::State_HasFocus;
+        QStyledItemDelegate::paint(painter, option1, index);
+    } else {
+        QStyledItemDelegate::paint(painter, option, index);
+    }
+}
+
+
 ///// FmMain ///////////////////////////////////////////////////////////////////
 
 FmMain::FmMain(QWidget *parent)
@@ -197,6 +212,7 @@ FmMain::FmMain(QWidget *parent)
 
     // Model
     ui->treeStrings->setModel(&treeModel);
+    ui->treeStrings->setItemDelegate(&treeModel);
 
     // Signals/slots: tree etc.
     connect(ui->treeStrings->selectionModel(), &QItemSelectionModel::currentChanged,

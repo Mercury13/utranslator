@@ -3,6 +3,7 @@
 // Qt
 #include <QMainWindow>
 #include <QAbstractItemModel>
+#include <QStyledItemDelegate>
 
 // Project
 // No one uses FmMain → you can import EVERYTHING
@@ -26,13 +27,11 @@ struct Thing {
     explicit operator bool() const { return static_cast<bool>(subj); }
 };
 
-class PrjTreeModel final : public QAbstractItemModel
+class PrjTreeModel final : public QAbstractItemModel, public QStyledItemDelegate
 {
-private:
-    using Super = QAbstractItemModel;
 public:
     /// Converts index to object
-    /// @param [in] index   QAIM index
+    /// @param [in] index   QAbstractItemModel’s index
     /// @param [in] dflt    What’s instead of root
     tr::UiObject* toObjOr(const QModelIndex& index, tr::UiObject* dflt) const;
 
@@ -43,12 +42,19 @@ public:
     QModelIndex toIndex(const tr::UiObject* p, int col) const;
     QModelIndex toIndex(const std::shared_ptr<tr::UiObject>& p, int col) const
             { return toIndex(p.get(), col); }
+
+    // QAbstractItemModel
     QModelIndex index(int row, int column,
                 const QModelIndex &parent = {}) const override;
     QModelIndex parent(const QModelIndex &child) const override;
     int rowCount(const QModelIndex &parent = {}) const override;
     int columnCount(const QModelIndex& = {}) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+
+    // QAbstractItemDelegate
+    virtual void paint(QPainter *painter,
+                       const QStyleOptionViewItem &option,
+                       const QModelIndex &index) const override;
 
     void setProject(std::shared_ptr<tr::Project> aProject);
     Thing<tr::File> addHostedFile();
