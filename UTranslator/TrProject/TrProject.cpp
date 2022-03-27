@@ -121,16 +121,18 @@ std::u8string tr::UiObject::makeId(
     for (size_t i = 0; i < nc; ++i) {
         auto ch = child(i);
         auto sNumber = str::remainderSv(ch->id, prefix, suffix);
-        size_t num;
+        size_t num = 0;
         auto chars = str::fromChars(sNumber, num);
-        if (chars.ec != std::errc() && num >= newIndex) {
+        if (chars.ec == std::errc() && num >= newIndex) {
             newIndex = num + 1;
         }
     }
     char buf[30];
+    auto sIndex = str::toCharsU8(buf, newIndex);
+
     std::u8string s;
     s.append(prefix);
-    s.append(str::toCharsU8(buf, newIndex));
+    s.append(sIndex);
     s.append(suffix);
     return s;
 }

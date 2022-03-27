@@ -147,6 +147,17 @@ QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
 }
 
 
+std::shared_ptr<tr::File> PrjTreeModel::addHostedFile()
+{
+    auto newId = project->makeId(u8"file", u8".txt");
+    auto newIndex = project->nChildren();
+    beginInsertRows(QModelIndex(), newIndex, newIndex);
+    auto file = project->addFile(newId);
+    endInsertRows();
+    return file;
+}
+
+
 ///// FmMain ///////////////////////////////////////////////////////////////////
 
 FmMain::FmMain(QWidget *parent)
@@ -181,6 +192,8 @@ FmMain::FmMain(QWidget *parent)
     // Go
     connect(ui->acGoBack, &QAction::triggered, this, &This::goBack);
     connect(ui->acGoNext, &QAction::triggered, this, &This::goNext);
+    // Originals
+    connect(ui->acAddHostedFile, &QAction::triggered, this, &This::addHostedFile);
 
     // Unused menu items
     ui->acAddExternalFile->setEnabled(false);
@@ -367,4 +380,11 @@ void FmMain::goNext()
 {
     /// @todo [urgent] goNext
     QMessageBox::information(this, "goNext", "goNext!!!!!");
+}
+
+
+void FmMain::addHostedFile()
+{
+    auto file = treeModel.addHostedFile();
+    ui->treeStrings->setCurrentIndex(treeModel.toIndex(file, 0));
 }

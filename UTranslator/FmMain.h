@@ -39,6 +39,7 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
     void setProject(std::shared_ptr<tr::Project> aProject);
+    std::shared_ptr<tr::File> addHostedFile();
 private:
     static constexpr int DUMMY_COL = 0;
     std::shared_ptr<tr::Project> project;   // will hold old project
@@ -81,6 +82,7 @@ private slots:
     void goBack();
     void goNext();
     // Menu: Original
+    void addHostedFile();
 
 private:
     Ui::FmMain *ui;
