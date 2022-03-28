@@ -57,10 +57,14 @@ public:
                        const QModelIndex &index) const override;
 
     void setProject(std::shared_ptr<tr::Project> aProject);
+    /// @return  s_p to new file
     Thing<tr::File> addHostedFile();
+    /// @return  s_p to new group
     Thing<tr::Group> addHostedGroup(const std::shared_ptr<tr::VirtualGroup>& parent);
-    /// @return [+] s_p to extracted object
-    std::shared_ptr<tr::Entity> doDelete(tr::UiObject* obj);
+    /// @return  s_p to new text
+    Thing<tr::Text> addText(const std::shared_ptr<tr::VirtualGroup>& parent);
+    /// @return  [+] s_p to extracted object  [0] nothing happened
+    std::shared_ptr<tr::Entity> extract(tr::UiObject* obj);
 private:
     static constexpr int DUMMY_COL = 0;
     std::shared_ptr<tr::Project> project;   // will hold old project
@@ -105,8 +109,10 @@ private slots:
     // Menu: Original
     void addHostedFile();
     void addHostedGroup();
+    void addText();
     void doDelete();
-
+    // Menu: Tools
+    void acceptCurrObject();
 private:
     Ui::FmMain *ui;
 
@@ -123,11 +129,12 @@ private:
     /// Loads an UI object
     void loadObject(tr::UiObject& obj);
     /// Saves an UI object to project
-    void saveObject(tr::UiObject& obj);
-    void saveCurrObject();
+    void acceptObject(tr::UiObject& obj);
     /// Enables-disables UI actions according to current things edited
     void reenable();
     /// Returns parent group for addition, probably calling dialog form
     std::optional<std::shared_ptr<tr::VirtualGroup>> disambigGroup(std::u8string_view title);
     QModelIndex treeIndex();
+    ///  Does what it needs to edit ORIGINAL (not translation)
+    void startEditingOrig(const QModelIndex& index);
 };

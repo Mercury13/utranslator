@@ -17,7 +17,7 @@
    <item>
     <widget class="QLabel" name="lbAdding">
      <property name="text">
-      <string>Add in group…</string>
+      <string>[lbAdding]</string>
      </property>
     </widget>
    </item>

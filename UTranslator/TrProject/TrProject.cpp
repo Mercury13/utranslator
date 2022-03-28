@@ -199,23 +199,29 @@ std::shared_ptr<tr::Entity> tr::VirtualGroup::child(size_t i) const
 
 
 std::shared_ptr<tr::Text> tr::VirtualGroup::addText(
-        std::u8string id, std::u8string original)
+        std::u8string id, std::u8string original,
+        Modify wantModify)
 {
     auto index = nChildren();
     auto r = std::make_shared<Text>(fSelf, index, PassKey{});
     r->id = std::move(id);
     r->tr.original = std::move(original);
+    if (wantModify != Modify::NO)
+        r->cache.mod.id = true;
     children.push_back(r);
     return r;
 }
 
 
-std::shared_ptr<tr::Group> tr::VirtualGroup::addGroup(std::u8string id)
+std::shared_ptr<tr::Group> tr::VirtualGroup::addGroup(
+        std::u8string id, Modify wantModify)
 {
     auto index = nChildren();
     auto r = std::make_shared<Group>(fSelf.lock(), index, PassKey{});
     r->fSelf = r;
     r->id = std::move(id);
+    if (wantModify != Modify::NO)
+        r->cache.mod.id = true;
     children.push_back(r);
     return r;
 }
@@ -323,38 +329,35 @@ std::shared_ptr<tr::Project> tr::Project::self()
 }
 
 
-std::shared_ptr<tr::File> tr::Project::addFile()
+std::shared_ptr<tr::File> tr::Project::addFile(
+        std::u8string_view name, Modify wantModify)
+
 {
     auto index = nChildren();
     auto r = std::make_shared<File>(self(), index, PassKey{});
     r->fSelf = r;
-    files.push_back(r);
-    return r;
-}
-
-
-std::shared_ptr<tr::File> tr::Project::addFile(std::u8string_view name)
-{
-    auto r = addFile();
     r->id = name;
+    if (wantModify != Modify::NO)
+        r->cache.mod.id = true;
+    files.push_back(r);
     return r;
 }
 
 
 void tr::Project::addTestOriginal()
 {
-    auto file = addFile(u8"vowel.txt");
-        file->addText(u8"A", u8"Alpha");
-        file->addText(u8"E", u8"Echo");
-        file->addText(u8"I", u8"India");
-        file->addText(u8"O", u8"Oscar");
-        file->addText(u8"U", u8"Uniform");
-        auto group = file->addGroup(u8"Specials");
-            group->addText(u8"Y", u8"Yankee");
-    file = addFile(u8"consonant.txt");
-        file->addText(u8"B", u8"Bravo");
-        file->addText(u8"C", u8"Charlie");
-        file->addText(u8"D", u8"Delta");
+    auto file = addFile(u8"vowel.txt", Modify::NO);
+        file->addText(u8"A", u8"Alpha", Modify::NO);
+        file->addText(u8"E", u8"Echo", Modify::NO);
+        file->addText(u8"I", u8"India", Modify::NO);
+        file->addText(u8"O", u8"Oscar", Modify::NO);
+        file->addText(u8"U", u8"Uniform", Modify::NO);
+        auto group = file->addGroup(u8"Specials", Modify::NO);
+            group->addText(u8"Y", u8"Yankee", Modify::NO);
+    file = addFile(u8"consonant.txt", Modify::NO);
+        file->addText(u8"B", u8"Bravo", Modify::NO);
+        file->addText(u8"C", u8"Charlie", Modify::NO);
+        file->addText(u8"D", u8"Delta", Modify::NO);
 }
 
 

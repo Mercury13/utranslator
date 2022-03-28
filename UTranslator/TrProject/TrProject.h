@@ -174,8 +174,11 @@ namespace tr {
 
         using Super::Super;
 
-        std::shared_ptr<Text> addText(std::u8string id, std::u8string original);
-        std::shared_ptr<Group> addGroup(std::u8string id);
+        std::shared_ptr<Text> addText(
+                std::u8string id, std::u8string original,
+                Modify wantModify);
+        std::shared_ptr<Group> addGroup(
+                std::u8string id, Modify wantModify);
         std::shared_ptr<Project> project() override;
     protected:
         friend class Project;
@@ -272,8 +275,8 @@ namespace tr {
         std::shared_ptr<Entity> extractChild(size_t i) override;
 
         // Adds a file in the end of project
-        std::shared_ptr<File> addFile();
-        std::shared_ptr<File> addFile(std::u8string_view name);
+        std::shared_ptr<File> addFile(
+                std::u8string_view name, Modify);
     };
 
 }   // namespace tr

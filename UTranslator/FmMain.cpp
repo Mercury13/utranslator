@@ -154,7 +154,7 @@ Thing<tr::File> PrjTreeModel::addHostedFile()
     auto newId = project->makeId(u8"file", u8".txt");
     auto newIndex = project->nChildren();
     beginInsertRows(QModelIndex(), newIndex, newIndex);
-    auto file = project->addFile(newId);
+    auto file = project->addFile(newId, tr::Modify::YES);
     endInsertRows();
     return { file, toIndex(file, 0) };
 }
@@ -165,17 +165,30 @@ Thing<tr::Group> PrjTreeModel::addHostedGroup(
 {
     if (!parent)
         return {};
-
     auto newId = parent->makeId(u8"g", {});
     auto newIndex = parent->nChildren();
     beginInsertRows(toIndex(parent, 0), newIndex, newIndex);
-    auto group = parent->addGroup(newId);
+    auto group = parent->addGroup(newId, tr::Modify::YES);
     endInsertRows();
     return { group, toIndex(group, 0) };
 }
 
 
-std::shared_ptr<tr::Entity> PrjTreeModel::doDelete(tr::UiObject* obj)
+Thing<tr::Text> PrjTreeModel::addText(
+        const std::shared_ptr<tr::VirtualGroup>& parent)
+{
+    if (!parent)
+        return {};
+    auto newId = parent->makeId({}, {});
+    auto newIndex = parent->nChildren();
+    beginInsertRows(toIndex(parent, 0), newIndex, newIndex);
+    auto text = parent->addText(newId, {}, tr::Modify::YES);
+    endInsertRows();
+    return { text, toIndex(text, 0) };
+}
+
+
+std::shared_ptr<tr::Entity> PrjTreeModel::extract(tr::UiObject* obj)
 {
     if (!obj)
         return {};
@@ -246,15 +259,15 @@ FmMain::FmMain(QWidget *parent)
     // Go
     connect(ui->acGoBack, &QAction::triggered, this, &This::goBack);
     connect(ui->acGoNext, &QAction::triggered, this, &This::goNext);
-    // Originals
+    // Original
     connect(ui->acAddHostedFile, &QAction::triggered, this, &This::addHostedFile);
     connect(ui->acAddHostedGroup, &QAction::triggered, this, &This::addHostedGroup);
+    connect(ui->acAddText, &QAction::triggered, this, &This::addText);
     connect(ui->acDelete, &QAction::triggered, this, &This::doDelete);
+    // Tools
+    connect(ui->acAcceptChanges, &QAction::triggered, this, &This::acceptCurrObject);
 
     // Unused menu items
-    ui->acAddExternalFile->setEnabled(false);
-    ui->acAddExternalGroup->setEnabled(false);
-    ui->acAddString->setEnabled(false);
     ui->acMoveUp->setEnabled(false);
     ui->acMoveDown->setEnabled(false);
 
@@ -306,7 +319,7 @@ void FmMain::treeCurrentChanged(
 
     if (auto currentPrj = currentObj->project()) {
         if (formerObj->project() == currentPrj)
-            saveObject(*formerObj);
+            acceptObject(*formerObj);
         loadObject(*currentObj);
     }
 }
@@ -379,7 +392,7 @@ namespace {
 }   // anon namespace
 
 
-void FmMain::saveObject(tr::UiObject& obj)
+void FmMain::acceptObject(tr::UiObject& obj)
 {
     std::string cache;
     switch (project->info.type) {
@@ -396,11 +409,11 @@ void FmMain::saveObject(tr::UiObject& obj)
 }
 
 
-void FmMain::saveCurrObject()
+void FmMain::acceptCurrObject()
 {
     auto index = treeIndex();
     auto obj = treeModel.toObj(index);
-    saveObject(*obj);
+    acceptObject(*obj);
 }
 
 
@@ -423,7 +436,11 @@ void FmMain::reenable()
     // Menu: Original; always isOriginal
     ui->acAddHostedFile->setEnabled(isOriginal);
     ui->acAddHostedGroup->setEnabled(isOriginal);
+    ui->acAddText->setEnabled(isOriginal);
     ui->acDelete->setEnabled(isOriginal);
+
+    // Tools
+    ui->acAcceptChanges->setEnabled(isMainVisible);
 }
 
 
@@ -441,10 +458,18 @@ void FmMain::goNext()
 }
 
 
+void FmMain::startEditingOrig(const QModelIndex& index)
+{
+    ui->treeStrings->setCurrentIndex(index);
+    ui->edId->setFocus();
+    ui->edId->selectAll();
+}
+
+
 void FmMain::addHostedFile()
 {
     auto file = treeModel.addHostedFile();
-    ui->treeStrings->setCurrentIndex(file.index);
+    startEditingOrig(file.index);
 }
 
 
@@ -478,10 +503,25 @@ void FmMain::addHostedGroup()
     if (auto dis = disambigGroup(u8"Add group")) {
         auto group = treeModel.addHostedGroup(*dis);
         if (group) {    // Have group
-            ui->treeStrings->setCurrentIndex(group.index);
+            startEditingOrig(group.index);
         } else {        // No group
             QMessageBox::warning(this,
                         "Add group",
+                        "Select some file or group");
+        }
+    }
+}
+
+
+void FmMain::addText()
+{
+    if (auto dis = disambigGroup(u8"Add text")) {
+        auto text = treeModel.addText(*dis);
+        if (text) {    // Have text
+            startEditingOrig(text.index);
+        } else {        // No text
+            QMessageBox::warning(this,
+                        "Add text",
                         "Select some file or group");
         }
     }
@@ -500,6 +540,7 @@ void FmMain::doDelete()
     if (obj->objType() == tr::ObjType::TEXT) {
         message = "Delete text?";
     } else {
+        /// @todo [future] what to do with plural rules?
         auto n = obj->nTexts();
         if (n == 1) {
             message = "Delete 1 text?";
@@ -510,5 +551,5 @@ void FmMain::doDelete()
     auto answer = QMessageBox::question(this, "Delete", message);
     if (answer != QMessageBox::Yes)
         return;
-    treeModel.doDelete(obj);
+    treeModel.extract(obj);
 }
