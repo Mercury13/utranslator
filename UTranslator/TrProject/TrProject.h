@@ -262,7 +262,7 @@ namespace tr {
 
         void clear();
         void doShare(const std::shared_ptr<Project>& x);
-        /// @return  maybe aliased s_p, but never null
+        /// @return  maybe alias-constructed s_p, but never null
         std::shared_ptr<Project> self();
 
         ObjType objType() const override { return ObjType::PROJECT; }
