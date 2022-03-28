@@ -149,6 +149,24 @@ QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
 }
 
 
+QVariant PrjTreeModel::headerData(
+        int section, Qt::Orientation orientation, int role) const
+{
+    static constinit const char* colNames[] {
+        "ID", "Original", "Translation" };
+
+    if (orientation == Qt::Horizontal) {
+        if (role == Qt::DisplayRole) {
+            if (static_cast<size_t>(section) < std::size(colNames)) {
+                return colNames[section];
+            }
+        }
+    }
+    return {};
+}
+
+
+
 Thing<tr::File> PrjTreeModel::addHostedFile()
 {
     auto newId = project->makeId(u8"file", u8".txt");
