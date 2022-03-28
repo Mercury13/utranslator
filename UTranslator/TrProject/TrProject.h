@@ -108,6 +108,10 @@ namespace tr {
         virtual std::u8string_view translColumn() const { return {}; }
         /// @return [+] was changed
         virtual bool setId(std::u8string_view, tr::Modify) { return false; }
+        /// Deletes i’th child
+        /// @return [+] smth happened
+        /// @warning  Because of recache, complexity is O(n)
+        virtual bool deleteChild(size_t) { return false; }
 
         /// @return  ptr to comments, or null
         virtual Comments* comments() { return nullptr; }
@@ -117,6 +121,8 @@ namespace tr {
         virtual std::shared_ptr<Project> project() = 0;
         /// @return  one or two parent groups for “Add group” / “Add string”
         virtual Pair<VirtualGroup> additionParents() = 0;
+        /// @return  how many texts are there in object’s groups
+        virtual size_t nTexts() const;
 
         void recache();
         void recursiveRecache();
@@ -134,6 +140,9 @@ namespace tr {
         std::u8string makeId(
                 std::u8string_view prefix,
                 std::u8string_view suffix) const;
+        /// @return [+] smth happened
+        /// @warning  Use with shared_ptr only
+        bool extract();
     protected:
         // passkey idiom
         struct PassKey {};
@@ -162,6 +171,7 @@ namespace tr {
 
         size_t nChildren() const override { return children.size(); };
         std::shared_ptr<Entity> child(size_t i) const override;
+        bool deleteChild(size_t i) override;
 
         using Super::Super;
 
@@ -190,6 +200,7 @@ namespace tr {
         Translatable* translatable() override { return &tr; }
         std::shared_ptr<File> file() override;
         std::shared_ptr<Project> project() override;
+        size_t nTexts() const override { return 1; }
     private:
         std::weak_ptr<VirtualGroup> fParentGroup;
     };
@@ -259,6 +270,7 @@ namespace tr {
         std::u8string_view idColumn() const override { return {}; }
         std::shared_ptr<Project> project() override { return self(); }
         Pair<VirtualGroup> additionParents() override { return {}; }
+        bool deleteChild(size_t i) override;
 
         // Adds a file in the end of project
         std::shared_ptr<File> addFile();

@@ -175,6 +175,27 @@ Thing<tr::Group> PrjTreeModel::addHostedGroup(
 }
 
 
+bool PrjTreeModel::doDelete(tr::UiObject* obj)
+{
+    if (!obj)
+        return false;
+    // Get parent/check once again
+    auto pnt = obj->parent();
+    auto pntIndex = toIndex(pnt, 0);
+    auto myIndex = obj->cache.index;
+    auto that1 = index(myIndex, 0, pntIndex);
+    auto obj1 = toObj(that1);
+    if (obj != obj1)
+        throw std::logic_error("[PrjTreeModel.doDelete] Check failed!");
+    beginRemoveRows(pntIndex, myIndex, myIndex);
+    bool wasDel = toObj(pntIndex)->deleteChild(myIndex);
+    endRemoveRows();
+    if (!wasDel)
+        throw std::logic_error("[PrjTreeModel.doDelete] Somehow did not delete");
+    return true;
+}
+
+
 void PrjTreeModel::paint(QPainter *painter,
                    const QStyleOptionViewItem &option,
                    const QModelIndex &index) const
@@ -228,12 +249,12 @@ FmMain::FmMain(QWidget *parent)
     // Originals
     connect(ui->acAddHostedFile, &QAction::triggered, this, &This::addHostedFile);
     connect(ui->acAddHostedGroup, &QAction::triggered, this, &This::addHostedGroup);
+    connect(ui->acDelete, &QAction::triggered, this, &This::doDelete);
 
     // Unused menu items
     ui->acAddExternalFile->setEnabled(false);
     ui->acAddExternalGroup->setEnabled(false);
     ui->acAddString->setEnabled(false);
-    ui->acDelete->setEnabled(false);
     ui->acMoveUp->setEnabled(false);
     ui->acMoveDown->setEnabled(false);
 
@@ -391,6 +412,10 @@ void FmMain::reenable()
                        && project->info.type == tr::PrjType::ORIGINAL);
     //bool isTranslation = (hasProject && !isOriginal);
 
+    // Menu: File
+    ui->acSave->setEnabled(hasProject);
+    ui->acSaveAs->setEnabled(hasProject);
+
     // Menu: Go
     ui->acGoBack->setEnabled(isMainVisible);
     ui->acGoNext->setEnabled(isMainVisible);
@@ -398,9 +423,7 @@ void FmMain::reenable()
     // Menu: Original; always isOriginal
     ui->acAddHostedFile->setEnabled(isOriginal);
     ui->acAddHostedGroup->setEnabled(isOriginal);
-
-    ui->acSave->setEnabled(hasProject);
-    ui->acSaveAs->setEnabled(hasProject);
+    ui->acDelete->setEnabled(isOriginal);
 }
 
 
@@ -462,4 +485,30 @@ void FmMain::addHostedGroup()
                         "Select some file or group");
         }
     }
+}
+
+
+void FmMain::doDelete()
+{
+    auto index = treeIndex();
+    if (!index.isValid())
+        return;
+    auto obj = treeModel.toObjOr(index, nullptr);
+    if (!obj)
+        return;
+    QString message;
+    if (obj->objType() == tr::ObjType::TEXT) {
+        message = "Delete text?";
+    } else {
+        auto n = obj->nTexts();
+        if (n == 1) {
+            message = "Delete 1 text?";
+        } else {
+            message = QString("Delete %1 texts").arg(n);
+        }
+    }
+    auto answer = QMessageBox::question(this, "Delete", message);
+    if (answer != QMessageBox::Yes)
+        return;
+    treeModel.doDelete(obj);
 }

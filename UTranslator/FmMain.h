@@ -59,6 +59,8 @@ public:
     void setProject(std::shared_ptr<tr::Project> aProject);
     Thing<tr::File> addHostedFile();
     Thing<tr::Group> addHostedGroup(const std::shared_ptr<tr::VirtualGroup>& parent);
+    /// @return [+] was actually deleted
+    bool doDelete(tr::UiObject* obj);
 private:
     static constexpr int DUMMY_COL = 0;
     std::shared_ptr<tr::Project> project;   // will hold old project
@@ -103,6 +105,7 @@ private slots:
     // Menu: Original
     void addHostedFile();
     void addHostedGroup();
+    void doDelete();
 
 private:
     Ui::FmMain *ui;

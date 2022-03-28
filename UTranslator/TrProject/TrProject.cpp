@@ -138,6 +138,31 @@ std::u8string tr::UiObject::makeId(
 }
 
 
+/// @return [+] smth happened
+bool tr::UiObject::extract()
+{
+    auto pnt = parent();
+    // No parent?
+    if (!pnt)
+        return false;
+
+    auto nc = pnt->nChildren();
+    // Initial cache lookup
+    if (static_cast<size_t>(cache.index) < nc
+            && pnt->child(cache.index).get() == this) {
+        return pnt->deleteChild(cache.index);
+    }
+
+    // Search by cache
+    for (size_t i = 0; i < nc; ++i) {
+        if (pnt->child(i).get() == this) {
+            return pnt->deleteChild(cache.index);
+        }
+    }
+    return false;
+}
+
+
 ///// Entity ///////////////////////////////////////////////////////////////////
 
 
@@ -153,6 +178,15 @@ bool tr::Entity::setId(std::u8string_view x, tr::Modify wantModify)
     }
 }
 
+size_t tr::UiObject::nTexts() const
+{
+    auto nc = nChildren();
+    size_t r = 0;
+    for (size_t i = 0; i < nc; ++i) {
+        r += child(i)->nTexts();
+    }
+    return r;
+}
 
 ///// VirtualGroup /////////////////////////////////////////////////////////////
 
@@ -193,6 +227,16 @@ std::shared_ptr<tr::Project> tr::VirtualGroup::project()
     if (auto f = file())
         return f->project();
     return nullptr;
+}
+
+
+bool tr::VirtualGroup::deleteChild(size_t i)
+{
+    if (i >= children.size())
+        return false;
+    children.erase(children.begin() + i);
+    recache();
+    return true;
 }
 
 
@@ -319,4 +363,14 @@ void tr::Project::doShare(const std::shared_ptr<Project>& x)
     if (x && x.get() != this)
         throw std::logic_error("[Project.doShare] x should be null, or point to the project itself!");
     fSelf = x;
+}
+
+
+bool tr::Project::deleteChild(size_t i)
+{
+    if (i >= files.size())
+        return false;
+    files.erase(files.begin() + i);
+    recache();
+    return true;
 }
