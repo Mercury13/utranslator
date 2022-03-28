@@ -36,7 +36,7 @@ std::unique_ptr<tr::PrjInfo> FmNew::exec(int)
 
 void FmNew::copyTo(tr::PrjInfo& r)
 {
-    /// @todo [transl] Right now original only
+    /// @todo [transl] Translation is not implemented in FmNew
     r.type = tr::PrjType::ORIGINAL;
     r.orig.lang = ui->edOrigLang->currentText().toStdString();
     r.transl.lang.clear();
