@@ -109,9 +109,9 @@ namespace tr {
         /// @return [+] was changed
         virtual bool setId(std::u8string_view, tr::Modify) { return false; }
         /// Deletes i’th child
-        /// @return [+] smth happened
+        /// @return extracted child
         /// @warning  Because of recache, complexity is O(n)
-        virtual bool deleteChild(size_t) { return false; }
+        virtual std::shared_ptr<Entity> extractChild(size_t) { return {}; }
 
         /// @return  ptr to comments, or null
         virtual Comments* comments() { return nullptr; }
@@ -140,9 +140,8 @@ namespace tr {
         std::u8string makeId(
                 std::u8string_view prefix,
                 std::u8string_view suffix) const;
-        /// @return [+] smth happened
-        /// @warning  Use with shared_ptr only
-        bool extract();
+        /// @return  [+] s_p to this  [0] nothing happened
+        std::shared_ptr<Entity> extract();
     protected:
         // passkey idiom
         struct PassKey {};
@@ -171,7 +170,7 @@ namespace tr {
 
         size_t nChildren() const override { return children.size(); };
         std::shared_ptr<Entity> child(size_t i) const override;
-        bool deleteChild(size_t i) override;
+        std::shared_ptr<Entity> extractChild(size_t i) override;
 
         using Super::Super;
 
@@ -270,7 +269,7 @@ namespace tr {
         std::u8string_view idColumn() const override { return {}; }
         std::shared_ptr<Project> project() override { return self(); }
         Pair<VirtualGroup> additionParents() override { return {}; }
-        bool deleteChild(size_t i) override;
+        std::shared_ptr<Entity> extractChild(size_t i) override;
 
         // Adds a file in the end of project
         std::shared_ptr<File> addFile();

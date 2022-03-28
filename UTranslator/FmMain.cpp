@@ -175,10 +175,10 @@ Thing<tr::Group> PrjTreeModel::addHostedGroup(
 }
 
 
-bool PrjTreeModel::doDelete(tr::UiObject* obj)
+std::shared_ptr<tr::Entity> PrjTreeModel::doDelete(tr::UiObject* obj)
 {
     if (!obj)
-        return false;
+        return {};
     // Get parent/check once again
     auto pnt = obj->parent();
     auto pntIndex = toIndex(pnt, 0);
@@ -188,11 +188,11 @@ bool PrjTreeModel::doDelete(tr::UiObject* obj)
     if (obj != obj1)
         throw std::logic_error("[PrjTreeModel.doDelete] Check failed!");
     beginRemoveRows(pntIndex, myIndex, myIndex);
-    bool wasDel = toObj(pntIndex)->deleteChild(myIndex);
+    auto r = toObj(pntIndex)->extractChild(myIndex);
     endRemoveRows();
-    if (!wasDel)
-        throw std::logic_error("[PrjTreeModel.doDelete] Somehow did not delete");
-    return true;
+    if (!r)
+        throw std::logic_error("[PrjTreeModel.doDelete] Identified as deletable, but did not delete");
+    return r;
 }
 
 
@@ -504,7 +504,7 @@ void FmMain::doDelete()
         if (n == 1) {
             message = "Delete 1 text?";
         } else {
-            message = QString("Delete %1 texts").arg(n);
+            message = QString("Delete %1 texts?").arg(n);
         }
     }
     auto answer = QMessageBox::question(this, "Delete", message);

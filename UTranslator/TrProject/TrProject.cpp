@@ -138,28 +138,27 @@ std::u8string tr::UiObject::makeId(
 }
 
 
-/// @return [+] smth happened
-bool tr::UiObject::extract()
+std::shared_ptr<tr::Entity> tr::UiObject::extract()
 {
     auto pnt = parent();
     // No parent?
     if (!pnt)
-        return false;
+        return {};
 
     auto nc = pnt->nChildren();
     // Initial cache lookup
     if (static_cast<size_t>(cache.index) < nc
             && pnt->child(cache.index).get() == this) {
-        return pnt->deleteChild(cache.index);
+        return pnt->extractChild(cache.index);
     }
 
     // Search by cache
     for (size_t i = 0; i < nc; ++i) {
         if (pnt->child(i).get() == this) {
-            return pnt->deleteChild(cache.index);
+            return pnt->extractChild(cache.index);
         }
     }
-    return false;
+    return {};
 }
 
 
@@ -230,13 +229,14 @@ std::shared_ptr<tr::Project> tr::VirtualGroup::project()
 }
 
 
-bool tr::VirtualGroup::deleteChild(size_t i)
+std::shared_ptr<tr::Entity> tr::VirtualGroup::extractChild(size_t i)
 {
     if (i >= children.size())
-        return false;
+        return {};
+    auto r = children[i];
     children.erase(children.begin() + i);
     recache();
-    return true;
+    return r;
 }
 
 
@@ -366,11 +366,12 @@ void tr::Project::doShare(const std::shared_ptr<Project>& x)
 }
 
 
-bool tr::Project::deleteChild(size_t i)
+std::shared_ptr<tr::Entity> tr::Project::extractChild(size_t i)
 {
     if (i >= files.size())
-        return false;
+        return {};
+    auto r = files[i];
     files.erase(files.begin() + i);
     recache();
-    return true;
+    return r;
 }
