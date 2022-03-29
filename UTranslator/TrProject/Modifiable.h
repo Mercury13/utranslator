@@ -7,22 +7,45 @@ class Modifiable    // interface
 {
 public:
     virtual bool isModified() const = 0;
-    virtual void modify() = 0;
-    virtual void unmodify() = 0;
+    /// @return [+] actually modified
+    /// @warning  May return always true, even if already modified!
+    virtual bool modify() = 0;
+    /// @return [+] actually modified
+    /// @warning  May return always true, even if no modifications!
+    virtual bool unmodify() = 0;
     virtual ~Modifiable() = default;
 };
+
+
+template <class T>
+class MovableAtomic : public std::atomic<T> {
+private:
+    using Super = std::atomic<T>;
+public:
+    MovableAtomic() = default;
+
+    using Super::Super;
+    using Super::operator=;
+
+    MovableAtomic(const MovableAtomic& other)
+        { this->store(other.load()); }
+
+    MovableAtomic& operator=(const MovableAtomic& other) {
+        this->store(other.load());
+        return *this;
+    }
+};
+
 
 
 class SimpleModifiable : public Modifiable
 {
 public:
-    void setListener(std::shared_ptr<Modifiable> aListener)
-        { fListener = aListener; }
-    void setStaticListener(Modifiable& aListener);
+    void setStaticModifyListener(Modifiable* aListener);
     bool isModified() const override { return fIsModified; }
-    void modify() override;
-    void unmodify() override;
+    bool modify() override;
+    bool unmodify() override;
 private:
-    std::atomic<bool> fIsModified = false;
-    std::weak_ptr<Modifiable> fListener;
+    MovableAtomic<bool> fIsModified = false;
+    Modifiable* fListener = nullptr;
 };

@@ -289,6 +289,7 @@ FmMain::FmMain(QWidget *parent)
     ui->acMoveUp->setEnabled(false);
     ui->acMoveDown->setEnabled(false);
 
+    updateCaption();
     reenable();
 }
 
@@ -303,10 +304,12 @@ void FmMain::doNew()
         project = std::make_shared<tr::Project>(std::move(*result));
         project->doShare(project);
         project->addTestOriginal();
+        project->setStaticModifyListener(this);
         treeModel.setProject(project);
         ui->stackMain->setCurrentWidget(ui->pageMain);
         ui->treeStrings->setFocus(Qt::FocusReason::OtherFocusReason);
         adaptLayout();
+        updateCaption();
         reenable();
     }
 }
@@ -570,4 +573,41 @@ void FmMain::doDelete()
     if (answer != QMessageBox::Yes)
         return;
     treeModel.extract(obj);
+}
+
+
+bool FmMain::isModified() const
+{
+    return project && project->isModified();
+}
+
+bool FmMain::modify()
+{
+    updateCaption();
+    return true;
+}
+
+bool FmMain::unmodify()
+{
+    updateCaption();
+    return true;
+}
+
+
+void FmMain::updateCaption()
+{
+    QString s;
+    if (project) {
+        if (project->isModified())
+            s += u8"★ ";
+        auto fname = project->fname.filename().u8string();
+        if (fname.empty()) {
+            s += "(Untitled)";
+        } else {
+            str::append(s, fname);
+        }
+        s += u8" — ";
+    }
+    s += "UTranslator";
+    setWindowTitle(s);
 }

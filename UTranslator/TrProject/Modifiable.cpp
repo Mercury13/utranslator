@@ -1,28 +1,36 @@
 #include "Modifiable.h"
 
 
-void SimpleModifiable::modify()
+bool SimpleModifiable::modify()
 {
     if (!fIsModified) {
         fIsModified = true;
-        if (auto q = fListener.lock())
-            q->modify();
+        if (fListener) {
+            fListener->modify();
+        }
+        return true;
+    } else {
+        return false;
     }
 }
 
 
-void SimpleModifiable::unmodify()
+bool SimpleModifiable::unmodify()
 {
     if (fIsModified) {
         fIsModified = false;
-        if (auto q = fListener.lock())
-            q->unmodify();
+        if (fListener) {
+            fListener->unmodify();
+        }
+        return true;
+    } else {
+        return false;
     }
 }
 
 
-void SimpleModifiable::setStaticListener(Modifiable& aListener)
+void SimpleModifiable::setStaticModifyListener(Modifiable* aListener)
 {
     // Aliasing ctor here
-    fListener = std::shared_ptr<Modifiable>(std::shared_ptr<int>{}, &aListener);
+    fListener = aListener;
 }

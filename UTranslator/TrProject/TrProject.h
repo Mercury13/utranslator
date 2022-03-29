@@ -9,6 +9,7 @@
 // Translator
 #include "TrFile.h"
 #include "TrDefines.h"
+#include "Modifiable.h"
 
 // Libs
 #include "u_Vector.h"
@@ -145,6 +146,7 @@ namespace tr {
     protected:
         // passkey idiom
         struct PassKey {};
+        void doModify();
     };
 
     class Entity : public UiObject
@@ -245,7 +247,10 @@ namespace tr {
         std::weak_ptr<Project> fProject;
     };
 
-    class Project final : public UiObject, private Self<Project>
+    class Project final :
+            public UiObject,
+            public SimpleModifiable,
+            private Self<Project>
     {
     public:
         PrjInfo info;

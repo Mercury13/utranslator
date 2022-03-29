@@ -8,6 +8,8 @@ CONFIG(debug, debug|release) {
 
 SOURCES += \
     ../Libs/PugiXml/pugixml.cpp \
+    ../Libs/SelfMade/i_OpenSave.cpp \
+    ../Libs/SelfMade/u_OpenSaveStrings.cpp \
     ../Libs/SelfMade/u_Qstrings.cpp \
     FmDisambigPair.cpp \
     TrProject/Modifiable.cpp \
@@ -21,6 +23,8 @@ SOURCES += \
 HEADERS += \
     ../Libs/PugiXml/pugiconfig.hpp \
     ../Libs/PugiXml/pugixml.hpp \
+    ../Libs/SelfMade/i_OpenSave.h \
+    ../Libs/SelfMade/u_OpenSaveStrings.h \
     ../Libs/SelfMade/u_Qstrings.h \
     ../Libs/SelfMade/u_TypedFlags.h \
     FmDisambigPair.h \
@@ -40,3 +44,7 @@ FORMS += \
     FmDisambigPair.ui \
     FmMain.ui \
     FmNew.ui
+
+win32 {         # and W64 too
+    LIBS += -lcomdlg32
+}

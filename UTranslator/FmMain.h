@@ -89,7 +89,9 @@ public:
     }
 };
 
-class FmMain : public QMainWindow
+class FmMain :
+        public QMainWindow,
+        public Modifiable
 {
     Q_OBJECT
     using Super = QMainWindow;
@@ -98,6 +100,9 @@ public:
     FmMain(QWidget *parent = nullptr);
     ~FmMain() override;
 
+    bool isModified() const override;
+    bool modify() override;
+    bool unmodify() override;
 private slots:
     // Tree etc.
     void treeCurrentChanged(
@@ -134,6 +139,7 @@ private:
     void acceptObject(tr::UiObject& obj);
     /// Enables-disables UI actions according to current things edited
     void reenable();
+    void updateCaption();
     /// Returns parent group for addition, probably calling dialog form
     std::optional<std::shared_ptr<tr::VirtualGroup>> disambigGroup(std::u8string_view title);
     QModelIndex treeIndex();
