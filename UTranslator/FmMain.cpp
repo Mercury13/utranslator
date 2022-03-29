@@ -656,6 +656,7 @@ void FmMain::doSaveAs()
     }
     filters.emplace_back(L"All files", L"*");
 
+    acceptCurrObject();
     auto fname = filedlg::save(
                 this, nullptr, filters, extension, {},
                 filedlg::AddToRecent::YES);
@@ -673,11 +674,14 @@ void FmMain::doSave()
 {
     if (!project)
         return;
-    if (project->fname.empty())
+    if (project->fname.empty()) {
         doSaveAs();
-    try {
-        project->save();
-    } catch (std::exception& e) {
-        QMessageBox::critical(this, "Save problem", QString::fromStdString(e.what()));
+    } else {
+        acceptCurrObject();
+        try {
+            project->save();
+        } catch (std::exception& e) {
+            QMessageBox::critical(this, "Save problem", QString::fromStdString(e.what()));
+        }
     }
 }

@@ -216,6 +216,55 @@ size_t tr::UiObject::nTexts() const
     return r;
 }
 
+namespace {
+
+    void writeTextInTag(pugi::xml_node& root, const char* name, const std::u8string& text)
+    {
+        auto node = root.append_child(name);
+            auto tx = node.append_child(pugi::node_pcdata);
+                tx.set_value(str::toC(text));
+    }
+
+    void writeTextInTagIf(pugi::xml_node& root, const char* name, const std::u8string& text)
+    {
+        if (!text.empty())
+            writeTextInTag(root, name, text);
+    }
+
+    void writeTextInTagOpt(pugi::xml_node& root, const char* name,
+                           const std::optional<std::u8string>& text)
+    {
+        if (text.has_value())
+            writeTextInTag(root, name, *text);
+    }
+
+}   // anon namespace
+
+
+void tr::Entity::writeAuthorsComment(pugi::xml_node& node) const
+{
+    writeTextInTagIf(node, "au-cmt", comm.authors);
+}
+
+void tr::Entity::writeTranslatorsComment(
+        pugi::xml_node& node, const PrjInfo& info) const
+{
+    switch (info.type) {
+    case PrjType::ORIGINAL:
+        break;
+    case PrjType::FULL_TRANSL:
+        writeTextInTagIf(node, "tr-cmt", comm.translators);
+        break;
+    }
+}
+
+void tr::Entity::writeComments(
+        pugi::xml_node& node, const PrjInfo& info) const
+{
+    writeAuthorsComment(node);
+    writeTranslatorsComment(node, info);
+}
+
 ///// VirtualGroup /////////////////////////////////////////////////////////////
 
 
@@ -277,6 +326,16 @@ std::shared_ptr<tr::Entity> tr::VirtualGroup::extractChild(size_t i)
 }
 
 
+void tr::VirtualGroup::writeCommentsAndChildren(
+        pugi::xml_node& node, const PrjInfo& info) const
+{
+    writeComments(node, info);
+    for (auto& v : children) {
+        v->writeToXml(node, info);
+    }
+}
+
+
 ///// Group ////////////////////////////////////////////////////////////////////
 
 
@@ -289,6 +348,14 @@ tr::Group::Group(
         throw std::invalid_argument("[Group.ctor] parent should not be null!");
     fFile = aParent->file();
     cache.index = aIndex;
+}
+
+
+void tr::Group::writeToXml(pugi::xml_node& root, const PrjInfo& info) const
+{
+    auto node = root.append_child("group");
+        node.append_attribute("id") = str::toC(id);
+    writeCommentsAndChildren(node, info);
 }
 
 
@@ -318,6 +385,24 @@ std::shared_ptr<tr::Project> tr::Text::project()
 }
 
 
+void tr::Text::writeToXml(pugi::xml_node& root, const PrjInfo& info) const
+{
+    auto node = root.append_child("text");
+        node.append_attribute("id") = str::toC(id);
+    writeTextInTag(node, "orig", tr.original);
+    writeAuthorsComment(node);
+    switch (info.type) {
+    case tr::PrjType::ORIGINAL:
+        break;
+    case tr::PrjType::FULL_TRANSL:
+        writeTextInTagOpt(node, "known-orig", tr.knownOriginal);
+        writeTextInTagOpt(node, "transl", tr.translation);
+        writeTranslatorsComment(node, info);
+        break;
+    }
+}
+
+
 ///// File /////////////////////////////////////////////////////////////////////
 
 
@@ -332,6 +417,14 @@ tr::File::File(
 
 std::shared_ptr<tr::UiObject> tr::File::parent() const
     { return fProject.lock(); }
+
+
+void tr::File::writeToXml(pugi::xml_node& root, const PrjInfo& info) const
+{
+    auto node = root.append_child("file");
+        node.append_attribute("name") = str::toC(id);
+    writeCommentsAndChildren(node, info);
+}
 
 
 ///// Project //////////////////////////////////////////////////////////////////
@@ -462,5 +555,5 @@ void tr::Project::saveCopy(const std::filesystem::path& aFname) const
         declaration.append_attribute("encoding") = "utf-8";
     writeToXml(doc);
     std::ofstream f(aFname);
-    doc.save(f, " ");
+    doc.save(f, " ", pugi::format_indent | pugi::format_write_bom);
 }
