@@ -110,6 +110,8 @@ private slots:
 
     // Menu: File
     void doNew();
+    void doSave();
+    void doSaveAs();
     // Menu: Edit
     void acceptCurrObject();
     void revertCurrObject();

@@ -2,9 +2,10 @@
 #include "ui_FmDisambigPair.h"
 
 #include "u_Qstrings.h"
+#include "QtConsts.h"
 
 FmDisambigPair::FmDisambigPair(QWidget *parent) :
-    QDialog(parent),
+    QDialog(parent, QDlgType::FIXED),
     ui(new Ui::FmDisambigPair)
 {
     ui->setupUi(this);

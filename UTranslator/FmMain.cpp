@@ -465,9 +465,9 @@ void FmMain::reenable()
     bool hasProject {project };
     bool isOriginal = (isMainVisible && hasProject
                        && project->info.type == tr::PrjType::ORIGINAL);
-    //bool isTranslation = (hasProject && !isOriginal);
 
     // Menu: File
+        // New, Open are always available
     ui->acSave->setEnabled(hasProject);
     ui->acSaveAs->setEnabled(hasProject);
 
@@ -632,4 +632,19 @@ void FmMain::updateCaption()
     }
     s += "UTranslator";
     setWindowTitle(s);
+}
+
+
+void FmMain::doSaveAs()
+{
+    /// @todo [urgent] doSaveAs
+}
+
+
+void FmMain::doSave()
+{
+    if (!project)
+        return;
+    if (project->fname.empty())
+        doSaveAs();
 }

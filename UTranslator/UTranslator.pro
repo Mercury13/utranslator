@@ -47,4 +47,10 @@ FORMS += \
 
 win32 {         # and W64 too
     LIBS += -lcomdlg32
+
+    RC_ICONS = UTranslator-win.ico
+    QMAKE_TARGET_COMPANY = Mikhail Merkuryev
+    QMAKE_TARGET_PRODUCT = UTranslator
+    QMAKE_TARGET_DESCRIPTION = UTranslator: translation tool for Unicodia
+    QMAKE_TARGET_COPYRIGHT =  Mikhail Merkuryev
 }
