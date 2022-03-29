@@ -415,6 +415,9 @@ namespace {
 
 void FmMain::acceptObject(tr::UiObject& obj)
 {
+    auto idx0 = treeModel.toIndex(obj, 0);
+    auto idx9 = treeModel.toIndex(obj, treeModel.columnCount() - 1);
+    treeModel.dataChanged(idx0, idx9);
     std::string cache;
     switch (project->info.type) {
     case tr::PrjType::ORIGINAL:
