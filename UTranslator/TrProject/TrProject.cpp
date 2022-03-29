@@ -8,6 +8,29 @@
 // Pugixml
 #include "pugixml.hpp"
 
+///// WrCache //////////////////////////////////////////////////////////////////
+
+
+void tr::WrCache::ensureU8(size_t length)
+{
+    length += 8;
+    if (u8.length() < length)
+        u8.resize(std::max<size_t>(64, length * 3 / 2));
+}
+
+
+const char8_t* tr::WrCache::nts(const char8_t* beg, const char8_t* end)
+{
+    auto len = end - beg;
+    if (len == 0)
+        return u8"";
+    ensureU8(end - beg);
+    auto e = std::copy(beg, end, u8.begin());
+    *e = 0;
+    return u8.data();
+}
+
+
 ///// CanaryObject /////////////////////////////////////////////////////////////
 
 tr::CanaryObject::CanaryObject() : canary(goodCanary()) {}
@@ -218,51 +241,85 @@ size_t tr::UiObject::nTexts() const
 
 namespace {
 
-    void writeTextInTag(pugi::xml_node& root, const char* name, const std::u8string& text)
+    /// Write text in tag
+    /// @param root   an upper element
+    /// @param name   tag name
+    /// @param text   text itself
+    void writeTextInTag(
+            pugi::xml_node& root,
+            const char* name,
+            const std::u8string& text,
+            tr::WrCache& cache)
     {
+        const char8_t* data = text.data();
+        const char8_t* end = data + text.length();
+
         auto node = root.append_child(name);
+        // Initial lines
+        while (true) {
+            // Find CR
+            auto p = std::find(data, end, '\n');
+            if (p == end)
+                break;
+            // Append text and BR
             auto tx = node.append_child(pugi::node_pcdata);
-                tx.set_value(str::toC(text));
+                tx.set_value(cache.ntsC(data, p));
+            node.append_child("br");
+            data = p + 1;
+        }
+        // Final line
+        auto tx = node.append_child(pugi::node_pcdata);
+            tx.set_value(str::toC(data));
     }
 
-    void writeTextInTagIf(pugi::xml_node& root, const char* name, const std::u8string& text)
+    /// Write text in tag if the text is not empty (for comments)
+    void writeTextInTagIf(
+            pugi::xml_node& root,
+            const char* name,
+            const std::u8string& text,
+            tr::WrCache& cache)
     {
         if (!text.empty())
-            writeTextInTag(root, name, text);
+            writeTextInTag(root, name, text, cache);
     }
 
-    void writeTextInTagOpt(pugi::xml_node& root, const char* name,
-                           const std::optional<std::u8string>& text)
+    /// Write text in tag if the optional is not empty (for known text, translation)
+    void writeTextInTagOpt(
+            pugi::xml_node& root,
+            const char* name,
+            const std::optional<std::u8string>& text,
+            tr::WrCache& cache)
     {
         if (text.has_value())
-            writeTextInTag(root, name, *text);
+            writeTextInTag(root, name, *text, cache);
     }
 
 }   // anon namespace
 
 
-void tr::Entity::writeAuthorsComment(pugi::xml_node& node) const
+void tr::Entity::writeAuthorsComment(
+        pugi::xml_node& node, WrCache& c) const
 {
-    writeTextInTagIf(node, "au-cmt", comm.authors);
+    writeTextInTagIf(node, "au-cmt", comm.authors, c);
 }
 
 void tr::Entity::writeTranslatorsComment(
-        pugi::xml_node& node, const PrjInfo& info) const
+        pugi::xml_node& node, WrCache& c) const
 {
-    switch (info.type) {
+    switch (c.info.type) {
     case PrjType::ORIGINAL:
         break;
     case PrjType::FULL_TRANSL:
-        writeTextInTagIf(node, "tr-cmt", comm.translators);
+        writeTextInTagIf(node, "tr-cmt", comm.translators, c);
         break;
     }
 }
 
 void tr::Entity::writeComments(
-        pugi::xml_node& node, const PrjInfo& info) const
+        pugi::xml_node& node, WrCache& c) const
 {
-    writeAuthorsComment(node);
-    writeTranslatorsComment(node, info);
+    writeAuthorsComment(node, c);
+    writeTranslatorsComment(node, c);
 }
 
 ///// VirtualGroup /////////////////////////////////////////////////////////////
@@ -327,11 +384,11 @@ std::shared_ptr<tr::Entity> tr::VirtualGroup::extractChild(size_t i)
 
 
 void tr::VirtualGroup::writeCommentsAndChildren(
-        pugi::xml_node& node, const PrjInfo& info) const
+        pugi::xml_node& node, WrCache& c) const
 {
-    writeComments(node, info);
+    writeComments(node, c);
     for (auto& v : children) {
-        v->writeToXml(node, info);
+        v->writeToXml(node, c);
     }
 }
 
@@ -351,11 +408,11 @@ tr::Group::Group(
 }
 
 
-void tr::Group::writeToXml(pugi::xml_node& root, const PrjInfo& info) const
+void tr::Group::writeToXml(pugi::xml_node& root, WrCache& c) const
 {
     auto node = root.append_child("group");
         node.append_attribute("id") = str::toC(id);
-    writeCommentsAndChildren(node, info);
+    writeCommentsAndChildren(node, c);
 }
 
 
@@ -385,19 +442,19 @@ std::shared_ptr<tr::Project> tr::Text::project()
 }
 
 
-void tr::Text::writeToXml(pugi::xml_node& root, const PrjInfo& info) const
+void tr::Text::writeToXml(pugi::xml_node& root, WrCache& c) const
 {
     auto node = root.append_child("text");
         node.append_attribute("id") = str::toC(id);
-    writeTextInTag(node, "orig", tr.original);
-    writeAuthorsComment(node);
-    switch (info.type) {
+    writeTextInTag(node, "orig", tr.original, c);
+    writeAuthorsComment(node, c);
+    switch (c.info.type) {
     case tr::PrjType::ORIGINAL:
         break;
     case tr::PrjType::FULL_TRANSL:
-        writeTextInTagOpt(node, "known-orig", tr.knownOriginal);
-        writeTextInTagOpt(node, "transl", tr.translation);
-        writeTranslatorsComment(node, info);
+        writeTextInTagOpt(node, "known-orig", tr.knownOriginal, c);
+        writeTextInTagOpt(node, "transl", tr.translation, c);
+        writeTranslatorsComment(node, c);
         break;
     }
 }
@@ -419,11 +476,11 @@ std::shared_ptr<tr::UiObject> tr::File::parent() const
     { return fProject.lock(); }
 
 
-void tr::File::writeToXml(pugi::xml_node& root, const PrjInfo& info) const
+void tr::File::writeToXml(pugi::xml_node& root, WrCache& c) const
 {
     auto node = root.append_child("file");
         node.append_attribute("name") = str::toC(id);
-    writeCommentsAndChildren(node, info);
+    writeCommentsAndChildren(node, c);
 }
 
 
@@ -534,6 +591,7 @@ void tr::Project::writeToXml(pugi::xml_node& doc) const
 {
     auto root = doc.append_child("ut");
     root.append_attribute("type") = prjTypeNames[static_cast<int>(info.type)];
+    WrCache c(info);
     auto nodeInfo = root.append_child("info");
         auto nodeOrig = nodeInfo.append_child("orig");
             nodeOrig.append_attribute("lang") = info.orig.lang.c_str();
@@ -542,7 +600,7 @@ void tr::Project::writeToXml(pugi::xml_node& doc) const
             nodeTransl.append_attribute("lang") = info.orig.lang.c_str();
     }
     for (auto& file : files) {
-        file->writeToXml(root, info);
+        file->writeToXml(root, c);
     }
 }
 

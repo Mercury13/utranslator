@@ -103,6 +103,22 @@ namespace tr {
 
     enum class Modify { NO, YES };
 
+    /// Simple cache to speed up writing
+    struct WrCache {
+        const PrjInfo& info;
+        std::u8string u8;
+
+        WrCache(const PrjInfo& aInfo) : info(aInfo) {}
+
+        /// Ensures UTF-8 string length + 8 additional bytes
+        void ensureU8(size_t length);
+        /// Turns beg..end to null-terminated string
+        const char8_t* nts(const char8_t* beg, const char8_t* end);
+        const char* ntsC(const char8_t* beg, const char8_t* end)
+            { return reinterpret_cast<const char*>(nts(beg, end)); }
+    };
+
+
     class UiObject : public CanaryObject
     {
     public:
@@ -182,11 +198,11 @@ namespace tr {
         /// Writes object to XML
         /// @param [in,out] root  tag ABOVE, should create a new one for entity
         /// @param [in] info   project info for speed
-        virtual void writeToXml(pugi::xml_node& root, const PrjInfo& info) const = 0;
+        virtual void writeToXml(pugi::xml_node& root, WrCache& c) const = 0;
     protected:
-        void writeAuthorsComment(pugi::xml_node& node) const;
-        void writeTranslatorsComment(pugi::xml_node& node, const PrjInfo& info) const;
-        void writeComments(pugi::xml_node& node, const PrjInfo& info) const;
+        void writeAuthorsComment(pugi::xml_node& node, WrCache& c) const;
+        void writeTranslatorsComment(pugi::xml_node& node, WrCache& c) const;
+        void writeComments(pugi::xml_node& node, WrCache&) const;
     };
 
     class VirtualGroup : public Entity, protected Self<VirtualGroup>
@@ -210,7 +226,7 @@ namespace tr {
         std::shared_ptr<Project> project() override;
     protected:
         friend class Project;
-        void writeCommentsAndChildren(pugi::xml_node&, const PrjInfo&) const;
+        void writeCommentsAndChildren(pugi::xml_node&, WrCache&) const;
     };
 
     class Text final : public Entity
@@ -232,7 +248,7 @@ namespace tr {
         std::shared_ptr<File> file() override;
         std::shared_ptr<Project> project() override;
         size_t nTexts() const override { return 1; }
-        void writeToXml(pugi::xml_node&, const PrjInfo&) const override;
+        void writeToXml(pugi::xml_node&, WrCache&) const override;
     private:
         std::weak_ptr<VirtualGroup> fParentGroup;
     };
@@ -252,7 +268,7 @@ namespace tr {
         std::shared_ptr<File> file() override { return fFile.lock(); }
         Pair<VirtualGroup> additionParents() override
                 { return { fParentGroup.lock(), fSelf.lock() }; }
-        void writeToXml(pugi::xml_node&, const PrjInfo&) const override;
+        void writeToXml(pugi::xml_node&, WrCache&) const override;
     private:
         friend class tr::File;
         std::weak_ptr<File> fFile;
@@ -272,7 +288,7 @@ namespace tr {
         Pair<VirtualGroup> additionParents() override { return fSelf.lock(); }
 
         File(std::weak_ptr<Project> aProject, size_t aIndex, const PassKey&);
-        virtual void writeToXml(pugi::xml_node&, const PrjInfo&) const override;
+        virtual void writeToXml(pugi::xml_node&, WrCache&) const override;
     protected:
         std::weak_ptr<Project> fProject;
     };
