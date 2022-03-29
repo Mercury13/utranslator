@@ -298,6 +298,14 @@ FmMain::~FmMain()
     delete ui;
 }
 
+
+void FmMain::selectSmth()
+{
+    ui->treeStrings->setFocus(Qt::FocusReason::OtherFocusReason);
+    ui->treeStrings->setCurrentIndex(ui->treeStrings->currentIndex());
+}
+
+
 void FmMain::doNew()
 {
     if (auto result = fmNew.ensure(this).exec(0)) {
@@ -307,9 +315,9 @@ void FmMain::doNew()
         project->setStaticModifyListener(this);
         treeModel.setProject(project);
         ui->stackMain->setCurrentWidget(ui->pageMain);
-        ui->treeStrings->setFocus(Qt::FocusReason::OtherFocusReason);
         adaptLayout();
         updateCaption();
+        selectSmth();
         reenable();
     }
 }

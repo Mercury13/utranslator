@@ -145,4 +145,5 @@ private:
     QModelIndex treeIndex();
     ///  Does what it needs to edit ORIGINAL (not translation)
     void startEditingOrig(const QModelIndex& index);
+    void selectSmth();
 };
