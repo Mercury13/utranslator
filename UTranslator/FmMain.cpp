@@ -128,15 +128,15 @@ QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
             auto obj = toObj(index);
             switch (index.column()) {
             case COL_ID:
-                if (obj->cache.mod.id)
+                if (obj->cache.mod.has(tr::Mch::ID))
                     return BG_MODIFIED;
                 return {};
             case COL_ORIG:
-                if (obj->cache.mod.original)
+                if (obj->cache.mod.has(tr::Mch::ORIG))
                     return BG_MODIFIED;
                 return {};
             case COL_TRANSL:
-                if (obj->cache.mod.translation)
+                if (obj->cache.mod.has(tr::Mch::TRANSL))
                     return BG_MODIFIED;
                 return {};
             default:

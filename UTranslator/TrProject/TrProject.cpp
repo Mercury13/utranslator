@@ -55,8 +55,21 @@ void tr::UiObject::recursiveRecache()
 }
 
 
-void tr::UiObject::doModify()
+void tr::UiObject::recursiveUnmodify()
 {
+    cache.mod.clear();
+    auto nc = nChildren();
+    for (size_t i = 0; i < nc; ++i) {
+        auto ch = child(i);
+        ch->recursiveUnmodify();
+    }
+}
+
+
+
+void tr::UiObject::doModify(Mch ch)
+{
+    cache.mod.set(ch);
     if (auto p = project())
         p->modify();
 }
@@ -69,8 +82,7 @@ bool tr::UiObject::setOriginal(std::u8string_view x, tr::Modify wantModify)
         if (t->original != x) {
             t->original = x;
             if (wantModify != Modify::NO) {
-                cache.mod.original = true;                
-                doModify();
+                doModify(Mch::ORIG);
             }
             return true;
         }
@@ -86,8 +98,7 @@ bool tr::UiObject::setTranslation(
         if (t->translation != x) {
             t->translation = x;
             if (wantModify != Modify::NO) {
-                cache.mod.translation = true;
-                doModify();
+                doModify(Mch::TRANSL);
             }
             return true;
         }
@@ -102,8 +113,7 @@ bool tr::UiObject::setAuthorsComment(std::u8string_view x, tr::Modify wantModify
         if (c->authors != x) {
             c->authors = x;
             if (wantModify != Modify::NO) {
-                cache.mod.comment = true;
-                doModify();
+                doModify(Mch::COMMENT);
             }
             return true;
         }
@@ -118,8 +128,7 @@ bool tr::UiObject::setTranslatorsComment(std::u8string_view x, tr::Modify wantMo
         if (c->translators != x) {
             c->translators = x;
             if (wantModify != Modify::NO) {
-                cache.mod.comment = true;
-                doModify();
+                doModify(Mch::COMMENT);
             }
             return true;
         }
@@ -186,8 +195,7 @@ bool tr::Entity::setId(std::u8string_view x, tr::Modify wantModify)
     if (id != x) {
         id = x;
         if (wantModify != Modify::NO) {
-            cache.mod.id = true;
-            doModify();
+            doModify(Mch::ID);
         }
         return true;
     } else {
@@ -225,8 +233,7 @@ std::shared_ptr<tr::Text> tr::VirtualGroup::addText(
     r->id = std::move(id);
     r->tr.original = std::move(original);
     if (wantModify != Modify::NO) {
-        r->cache.mod.id = true;
-        doModify();
+        doModify(Mch::ID);
     }
     children.push_back(r);
     return r;
@@ -241,8 +248,7 @@ std::shared_ptr<tr::Group> tr::VirtualGroup::addGroup(
     r->fSelf = r;
     r->id = std::move(id);
     if (wantModify != Modify::NO) {
-        r->cache.mod.id = true;
-        doModify();
+        doModify(Mch::ID);
     }
     children.push_back(r);
     return r;
@@ -360,8 +366,7 @@ std::shared_ptr<tr::File> tr::Project::addFile(
     r->fSelf = r;
     r->id = name;
     if (wantModify != Modify::NO) {
-        r->cache.mod.id = true;
-        doModify();
+        doModify(Mch::ID);
     }
     files.push_back(r);
     return r;
@@ -400,5 +405,15 @@ std::shared_ptr<tr::Entity> tr::Project::extractChild(size_t i)
     auto r = files[i];
     files.erase(files.begin() + i);
     recache();
+    return r;
+}
+
+
+bool tr::Project::unmodify()
+{
+    bool r = SimpleModifiable::unmodify();
+    if (r) {
+        recursiveUnmodify();
+    }
     return r;
 }

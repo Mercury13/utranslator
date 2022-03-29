@@ -16,6 +16,23 @@
 
 namespace tr {
 
+    /// Modification channel
+    enum class Mch {
+        ID      = 1,
+        ORIG    = 2,
+        TRANSL  = 4,
+        COMMENT = 8   ///< as we do not show comments in table, let it be…
+    };
+
+    class Mod {
+    public:
+        void clear() { v = 0; }
+        void set(Mch ch) { v |= static_cast<int>(ch); }
+        bool has(Mch ch) const { return v & static_cast<int>(ch); }
+    private:
+        unsigned v = 0;
+    };
+
     template <class T>
     struct Pair {
         std::shared_ptr<T> first, second;
@@ -89,12 +106,7 @@ namespace tr {
             int index = -1;             ///< index in tree
             //bool isExpanded = false;    ///< [+] was expanded in tree; unused right now
             //bool isDeleted = false;     ///< [+] deleted from original and left for history; unused right now
-            struct Mod {
-                bool id = false;
-                bool original = false;
-                bool translation = false;
-                bool comment = false;       ///< as we do not show comments in table, let it be…
-            } mod;
+            Mod mod;
         } cache;
         // Just here we use virtual dtor!
         virtual ~UiObject() = default;
@@ -127,6 +139,7 @@ namespace tr {
 
         void recache();
         void recursiveRecache();
+        void recursiveUnmodify();
 
         // Utils
         /// @return [+] was actually changed
@@ -146,7 +159,7 @@ namespace tr {
     protected:
         // passkey idiom
         struct PassKey {};
-        void doModify();
+        void doModify(Mch ch);
     };
 
     class Entity : public UiObject
@@ -278,6 +291,7 @@ namespace tr {
         std::shared_ptr<Project> project() override { return self(); }
         Pair<VirtualGroup> additionParents() override { return {}; }
         std::shared_ptr<Entity> extractChild(size_t i) override;
+        bool unmodify() override;
 
         // Adds a file in the end of project
         std::shared_ptr<File> addFile(
