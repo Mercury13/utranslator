@@ -274,16 +274,17 @@ FmMain::FmMain(QWidget *parent)
     // File
     connect(ui->acNew, &QAction::triggered, this, &This::doNew);
     connect(ui->btStartNew, &QPushButton::clicked, this, &This::doNew);
-    // Go
-    connect(ui->acGoBack, &QAction::triggered, this, &This::goBack);
-    connect(ui->acGoNext, &QAction::triggered, this, &This::goNext);
     // Original
     connect(ui->acAddHostedFile, &QAction::triggered, this, &This::addHostedFile);
     connect(ui->acAddHostedGroup, &QAction::triggered, this, &This::addHostedGroup);
     connect(ui->acAddText, &QAction::triggered, this, &This::addText);
     connect(ui->acDelete, &QAction::triggered, this, &This::doDelete);
-    // Tools
+    // Edit
     connect(ui->acAcceptChanges, &QAction::triggered, this, &This::acceptCurrObject);
+    connect(ui->acRevertChanges, &QAction::triggered, this, &This::revertCurrObject);
+    // Go
+    connect(ui->acGoBack, &QAction::triggered, this, &This::goBack);
+    connect(ui->acGoNext, &QAction::triggered, this, &This::goNext);
 
     // Unused menu items
     ui->acMoveUp->setEnabled(false);
@@ -449,6 +450,15 @@ void FmMain::acceptCurrObject()
 }
 
 
+void FmMain::revertCurrObject()
+{
+    auto index = treeIndex();
+    auto obj = treeModel.toObj(index);
+    loadObject(*obj);
+    selectSmth();
+}
+
+
 void FmMain::reenable()
 {
     bool isMainVisible = (ui->stackMain->currentWidget() == ui->pageMain);
@@ -461,18 +471,19 @@ void FmMain::reenable()
     ui->acSave->setEnabled(hasProject);
     ui->acSaveAs->setEnabled(hasProject);
 
-    // Menu: Go
-    ui->acGoBack->setEnabled(isMainVisible);
-    ui->acGoNext->setEnabled(isMainVisible);
-
     // Menu: Original; always isOriginal
     ui->acAddHostedFile->setEnabled(isOriginal);
     ui->acAddHostedGroup->setEnabled(isOriginal);
     ui->acAddText->setEnabled(isOriginal);
     ui->acDelete->setEnabled(isOriginal);
 
-    // Tools
+    // Edit
     ui->acAcceptChanges->setEnabled(isMainVisible);
+    ui->acRevertChanges->setEnabled(isMainVisible);
+
+    // Menu: Go
+    ui->acGoBack->setEnabled(isMainVisible);
+    ui->acGoNext->setEnabled(isMainVisible);
 }
 
 

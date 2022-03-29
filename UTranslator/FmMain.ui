@@ -501,16 +501,17 @@
     <addaction name="acGoBack"/>
     <addaction name="acGoNext"/>
    </widget>
-   <widget class="QMenu" name="menuTools">
+   <widget class="QMenu" name="menuEdit">
     <property name="title">
-     <string>&amp;Tools</string>
+     <string>&amp;Edit</string>
     </property>
     <addaction name="acAcceptChanges"/>
+    <addaction name="acRevertChanges"/>
    </widget>
    <addaction name="menuFile"/>
-   <addaction name="menuGo"/>
    <addaction name="menuOriginal"/>
-   <addaction name="menuTools"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuGo"/>
   </widget>
   <action name="acNew">
    <property name="text">
@@ -618,6 +619,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Return</string>
+   </property>
+  </action>
+  <action name="acRevertChanges">
+   <property name="text">
+    <string>Revert changes</string>
+   </property>
+   <property name="shortcut">
+    <string>Esc</string>
    </property>
   </action>
  </widget>

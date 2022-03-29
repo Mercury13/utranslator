@@ -110,6 +110,9 @@ private slots:
 
     // Menu: File
     void doNew();
+    // Menu: Edit
+    void acceptCurrObject();
+    void revertCurrObject();
     // Menu: Go
     void goBack();
     void goNext();
@@ -118,8 +121,6 @@ private slots:
     void addHostedGroup();
     void addText();
     void doDelete();
-    // Menu: Tools
-    void acceptCurrObject();
 private:
     Ui::FmMain *ui;
 
