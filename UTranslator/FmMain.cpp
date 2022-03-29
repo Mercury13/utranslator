@@ -609,7 +609,7 @@ void FmMain::updateCaption()
         } else {
             str::append(s, fname);
         }
-        s += u8" — ";
+        s += u8" · ";
     }
     s += "UTranslator";
     setWindowTitle(s);
