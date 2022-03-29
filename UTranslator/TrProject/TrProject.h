@@ -14,6 +14,10 @@
 // Libs
 #include "u_Vector.h"
 
+namespace pugi {
+    class xml_node;
+}
+
 namespace tr {
 
     /// Modification channel
@@ -134,8 +138,6 @@ namespace tr {
         virtual std::shared_ptr<Project> project() = 0;
         /// @return  one or two parent groups for “Add group” / “Add string”
         virtual Pair<VirtualGroup> additionParents() = 0;
-        /// @return  how many texts are there in object’s groups
-        virtual size_t nTexts() const;
 
         void recache();
         void recursiveRecache();
@@ -156,6 +158,8 @@ namespace tr {
                 std::u8string_view suffix) const;
         /// @return  [+] s_p to this  [0] nothing happened
         std::shared_ptr<Entity> extract();
+        /// @return  how many texts are there in object’s groups
+        virtual size_t nTexts() const;
     protected:
         // passkey idiom
         struct PassKey {};
@@ -174,6 +178,7 @@ namespace tr {
 
         // New virtuals
         virtual std::shared_ptr<File> file() = 0;
+        virtual void writeToXml(pugi::xml_node&, const PrjInfo&) const {}
     };
 
     class VirtualGroup : public Entity, protected Self<VirtualGroup>
@@ -291,7 +296,11 @@ namespace tr {
         std::shared_ptr<Project> project() override { return self(); }
         Pair<VirtualGroup> additionParents() override { return {}; }
         std::shared_ptr<Entity> extractChild(size_t i) override;
+        void writeToXml(pugi::xml_node&) const;
         bool unmodify() override;
+        void save();
+        void save(const std::filesystem::path& aFname);
+        void saveCopy(const std::filesystem::path& aFname) const;
 
         // Adds a file in the end of project
         std::shared_ptr<File> addFile(

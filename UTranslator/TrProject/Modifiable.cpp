@@ -15,16 +15,24 @@ bool SimpleModifiable::modify()
 }
 
 
-bool SimpleModifiable::unmodify()
+bool SimpleModifiable::customUnmodify(bool notifyIfNothing)
 {
     if (fIsModified) {
         fIsModified = false;
-        if (fListener) {
-            fListener->unmodify();
-        }
+        notify();
         return true;
     } else {
+        if (notifyIfNothing)
+            notify();
         return false;
+    }
+}
+
+
+void SimpleModifiable::notify()
+{
+    if (fListener) {
+        fListener->unmodify();
     }
 }
 

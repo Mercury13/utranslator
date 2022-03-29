@@ -5,6 +5,9 @@
 // Libs
 #include "u_Strings.h"
 
+// Pugixml
+#include "pugixml.hpp"
+
 ///// CanaryObject /////////////////////////////////////////////////////////////
 
 tr::CanaryObject::CanaryObject() : canary(goodCanary()) {}
@@ -416,4 +419,48 @@ bool tr::Project::unmodify()
         recursiveUnmodify();
     }
     return r;
+}
+
+
+void tr::Project::save()
+{
+    saveCopy(fname);
+    forceUnmodify();
+}
+
+
+void tr::Project::save(const std::filesystem::path& aFname)
+{
+    saveCopy(aFname);
+    fname = aFname;
+    forceUnmodify();
+}
+
+
+void tr::Project::writeToXml(pugi::xml_node& doc) const
+{
+    auto root = doc.append_child("ut");
+    root.append_attribute("type") = prjTypeNames[static_cast<int>(info.type)];
+    auto nodeInfo = root.append_child("info");
+        auto nodeOrig = nodeInfo.append_child("orig");
+            nodeOrig.append_attribute("lang") = info.orig.lang.c_str();
+    if (info.type != PrjType::ORIGINAL) {
+        auto nodeTransl = nodeInfo.append_child("transl");
+            nodeTransl.append_attribute("lang") = info.orig.lang.c_str();
+    }
+    for (auto& file : files) {
+        file->writeToXml(root, info);
+    }
+}
+
+
+void tr::Project::saveCopy(const std::filesystem::path& aFname) const
+{
+    pugi::xml_document doc;
+    auto declaration = doc.append_child(pugi::node_declaration);
+        declaration.append_attribute("version") = "1.0";
+        declaration.append_attribute("encoding") = "utf-8";
+    writeToXml(doc);
+    std::ofstream f(aFname);
+    doc.save(f, " ");
 }

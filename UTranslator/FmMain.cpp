@@ -8,6 +8,7 @@
 
 // Libs
 #include "u_Qstrings.h"
+#include "i_OpenSave.h"
 
 // UI forms
 #include "FmNew.h"
@@ -274,6 +275,8 @@ FmMain::FmMain(QWidget *parent)
     // File
     connect(ui->acNew, &QAction::triggered, this, &This::doNew);
     connect(ui->btStartNew, &QPushButton::clicked, this, &This::doNew);
+    connect(ui->acSave, &QAction::triggered, this, &This::doSave);
+    connect(ui->acSaveAs, &QAction::triggered, this, &This::doSaveAs);
     // Original
     connect(ui->acAddHostedFile, &QAction::triggered, this, &This::addHostedFile);
     connect(ui->acAddHostedGroup, &QAction::triggered, this, &This::addHostedGroup);
@@ -637,7 +640,32 @@ void FmMain::updateCaption()
 
 void FmMain::doSaveAs()
 {
-    /// @todo [urgent] doSaveAs
+    if (!project)
+        return;
+    filedlg::Filters filters;
+    const wchar_t* extension = nullptr;
+    switch (project->info.type) {
+    case tr::PrjType::ORIGINAL:
+        filters.emplace_back(L"Originals", L"*.uorig");
+        extension = L".uorig";
+        break;
+    case tr::PrjType::FULL_TRANSL:
+        filters.emplace_back(L"Full translations", L"*.ufull");
+        extension = L".ufull";
+        break;
+    }
+    filters.emplace_back(L"All files", L"*");
+
+    auto fname = filedlg::save(
+                this, nullptr, filters, extension, {},
+                filedlg::AddToRecent::YES);
+    if (fname.empty())
+        return;
+    try {
+        project->save(fname);
+    } catch (std::exception& e) {
+        QMessageBox::critical(this, "Save problem", QString::fromStdString(e.what()));
+    }
 }
 
 
@@ -647,4 +675,9 @@ void FmMain::doSave()
         return;
     if (project->fname.empty())
         doSaveAs();
+    try {
+        project->save();
+    } catch (std::exception& e) {
+        QMessageBox::critical(this, "Save problem", QString::fromStdString(e.what()));
+    }
 }

@@ -13,6 +13,8 @@ public:
     /// @return [+] actually modified
     /// @warning  May return always true, even if no modifications!
     virtual bool unmodify() = 0;
+    /// @return [+] actually modified
+    virtual bool forceUnmodify() { return unmodify(); }
     virtual ~Modifiable() = default;
 };
 
@@ -44,8 +46,11 @@ public:
     void setStaticModifyListener(Modifiable* aListener);
     bool isModified() const override { return fIsModified; }
     bool modify() override;
-    bool unmodify() override;
+    bool unmodify() override { return customUnmodify(false); }
+    bool forceUnmodify() override { return customUnmodify(true); }
 private:
     MovableAtomic<bool> fIsModified = false;
     Modifiable* fListener = nullptr;
+    void notify();
+    bool customUnmodify(bool notifyIfNothing);
 };

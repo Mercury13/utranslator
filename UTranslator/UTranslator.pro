@@ -11,6 +11,7 @@ SOURCES += \
     ../Libs/SelfMade/i_OpenSave.cpp \
     ../Libs/SelfMade/u_OpenSaveStrings.cpp \
     ../Libs/SelfMade/u_Qstrings.cpp \
+    ../Libs/SelfMade/u_Strings.cpp \
     FmDisambigPair.cpp \
     TrProject/Modifiable.cpp \
     TrProject/TrDefines.cpp \
@@ -26,6 +27,7 @@ HEADERS += \
     ../Libs/SelfMade/i_OpenSave.h \
     ../Libs/SelfMade/u_OpenSaveStrings.h \
     ../Libs/SelfMade/u_Qstrings.h \
+    ../Libs/SelfMade/u_Strings.h \
     ../Libs/SelfMade/u_TypedFlags.h \
     FmDisambigPair.h \
     TrProject/Modifiable.h \
