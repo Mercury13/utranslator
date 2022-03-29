@@ -623,7 +623,7 @@
   </action>
   <action name="acRevertChanges">
    <property name="text">
-    <string>Revert changes</string>
+    <string>&amp;Revert changes</string>
    </property>
    <property name="shortcut">
     <string>Esc</string>
