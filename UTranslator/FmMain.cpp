@@ -602,7 +602,7 @@ void FmMain::updateCaption()
     QString s;
     if (project) {
         if (project->isModified())
-            s += u8"★ ";
+            s += u8"✱ ";
         auto fname = project->fname.filename().u8string();
         if (fname.empty()) {
             s += "(Untitled)";
