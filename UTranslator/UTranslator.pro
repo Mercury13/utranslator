@@ -7,8 +7,10 @@ CONFIG(debug, debug|release) {
 }
 
 SOURCES += \
+    ../Libs/PugiXml/pugixml.cpp \
     ../Libs/SelfMade/u_Qstrings.cpp \
     FmDisambigPair.cpp \
+    TrProject/Modifiable.cpp \
     TrProject/TrDefines.cpp \
     TrProject/TrFile.cpp \
     TrProject/TrProject.cpp \
@@ -17,9 +19,12 @@ SOURCES += \
     FmMain.cpp
 
 HEADERS += \
+    ../Libs/PugiXml/pugiconfig.hpp \
+    ../Libs/PugiXml/pugixml.hpp \
     ../Libs/SelfMade/u_Qstrings.h \
     ../Libs/SelfMade/u_TypedFlags.h \
     FmDisambigPair.h \
+    TrProject/Modifiable.h \
     TrProject/TrDefines.h \
     TrProject/TrFile.h \
     TrProject/TrProject.h \
@@ -27,6 +32,7 @@ HEADERS += \
     FmNew.h
 
 INCLUDEPATH += \
+    ../Libs/PugiXml \
     ../Libs/SelfMade \
     TrProject
 
