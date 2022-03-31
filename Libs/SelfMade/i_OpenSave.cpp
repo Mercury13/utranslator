@@ -10,19 +10,15 @@
     //win
     #include <windows.h>
 
-    //utils
-    #include "u_Array.h"
-    #include "u_Strings.h"
-
     namespace {
         constexpr auto MAXFILE = 1024 * 16u;
     } // anon ns
 
     std::wstring filedlg::open(
             QWidget* aOwner,
-            const wchar_t* aCaption,
+            Zsv<wchar_t> aCaption,
             const Filters& aFilters,
-            const wchar_t* aExtension,
+            Zsv<wchar_t> aExtension,
             AddToRecent aAddToRecent,
             CheckForAccess aCheckForAccess)
     {
@@ -38,8 +34,8 @@
         ofn.lpstrFilter = filter.c_str();
         ofn.lpstrFile = fname.buffer();
         ofn.nMaxFile = fname.size();
-        ofn.lpstrTitle = aCaption;
-        ofn.lpstrDefExt = aExtension;
+        ofn.lpstrTitle = aCaption.c_str();
+        ofn.lpstrDefExt = aExtension.c_str();
         ofn.Flags = OFN_ENABLESIZING | OFN_EXPLORER | OFN_FILEMUSTEXIST
                  | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR;
         if (aAddToRecent == AddToRecent::NO)
@@ -55,9 +51,9 @@
 
     std::wstring filedlg::save(
             QWidget* aOwner,
-            const wchar_t* aCaption,
+            Zsv<wchar_t> aCaption,
             const Filters& aFilters,
-            const wchar_t* aExtension,
+            Zsv<wchar_t> aExtension,
             std::wstring_view aDefaultFname,
             AddToRecent aAddToRecent)
     {
@@ -67,7 +63,8 @@
         constexpr auto Q_BIGGER = 2;
         if (!aDefaultFname.empty())
             sz = std::max(sz, aDefaultFname.length() * Q_BIGGER);
-        Array1d<wchar_t> fname(sz);
+        std::wstring fname;
+        fname.resize(sz);
         fname[0] = 0;
         if (!aDefaultFname.empty()) {
             // fname is always bigger than aDefaultFname, we did this
@@ -81,10 +78,10 @@
         ofn.lStructSize = sizeof(ofn);
         ofn.hwndOwner = reinterpret_cast<HWND>(aOwner->winId());
         ofn.lpstrFilter = filter.c_str();
-        ofn.lpstrFile = fname.buffer();
+        ofn.lpstrFile = fname.data();
         ofn.nMaxFile = fname.size();
-        ofn.lpstrTitle = aCaption;
-        ofn.lpstrDefExt = aExtension;
+        ofn.lpstrTitle = aCaption.c_str();
+        ofn.lpstrDefExt = aExtension.c_str();
         ofn.Flags = OFN_ENABLESIZING | OFN_EXPLORER | OFN_OVERWRITEPROMPT
                  | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR;
         if (aAddToRecent == AddToRecent::NO)
@@ -97,9 +94,6 @@
 #else
     namespace {
         QString fileDir = QDir::homePath(); //todo [macOS] - fileDir save in project
-
-        inline QString fromZ(const wchar_t* x)
-            { return x ? QString::fromWCharArray(x) : QString(); }
 
         std::wstring getFile(QFileDialog& dialog)
         {
@@ -116,15 +110,15 @@
 
     std::wstring filedlg::open(
         QWidget* aOwner,
-        const wchar_t* aCaption,
+        Zsv<wchar_t> aCaption,
         const Filters& aFilters,
-        const wchar_t* aExtension,
+        Zsv<wchar_t> aExtension,
         [[maybe_unused]] AddToRecent aAddToRecent, ///@todo [macos] add to recent files issue
         CheckForAccess aCheckForAccess)
     {
         QFileDialog dialog(
             aOwner,
-            fromZ(aCaption),
+            aCaption,
             fileDir,
             QString::fromStdWString(filterToQt(aFilters))
         );
@@ -137,16 +131,16 @@
             fileFilter |= QDir::Filter::Readable | QDir::Filter::Writable;
         }
         dialog.setFilter(fileFilter);
-        dialog.setDefaultSuffix(fromZ(aExtension));
+        dialog.setDefaultSuffix(aExtension);
 
         return getFile(dialog);
     }
 
     std::wstring filedlg::save(
         QWidget* aOwner,
-        const wchar_t* aCaption,
+        Zsv<wchar_t> aCaption,
         const Filters& aFilters,
-        const wchar_t* aExtension,
+        Zsv<wchar_t> aExtension,
         std::wstring_view aDefaultFname,
         [[maybe_unused]] AddToRecent aAddToRecent) ///@todo [macos] add to recent files issue
     {
@@ -156,14 +150,14 @@
 
         QFileDialog dialog(
             aOwner,
-            fromZ(aCaption),
+            aCaption,
             QDir{defFileName}.absolutePath(),
             QString::fromStdWString(filterToQt(aFilters))
         );
 
         dialog.setAcceptMode(QFileDialog::AcceptSave);
         dialog.setFilter(QDir::Files | QDir::Dirs | QDir::Writable);
-        dialog.setDefaultSuffix(fromZ(aExtension));
+        dialog.setDefaultSuffix(aExtension);
 
         return getFile(dialog);
     }
