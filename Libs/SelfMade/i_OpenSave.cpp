@@ -34,8 +34,8 @@
         ofn.lpstrFilter = filter.c_str();
         ofn.lpstrFile = fname.buffer();
         ofn.nMaxFile = fname.size();
-        ofn.lpstrTitle = aCaption.c_str();
-        ofn.lpstrDefExt = aExtension.c_str();
+        ofn.lpstrTitle = aCaption.szOrNull();
+        ofn.lpstrDefExt = aExtension.szOrNull();
         ofn.Flags = OFN_ENABLESIZING | OFN_EXPLORER | OFN_FILEMUSTEXIST
                  | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR;
         if (aAddToRecent == AddToRecent::NO)
@@ -80,8 +80,8 @@
         ofn.lpstrFilter = filter.c_str();
         ofn.lpstrFile = fname.data();
         ofn.nMaxFile = fname.size();
-        ofn.lpstrTitle = aCaption.c_str();
-        ofn.lpstrDefExt = aExtension.c_str();
+        ofn.lpstrTitle = aCaption.szOrNull();
+        ofn.lpstrDefExt = aExtension.szOrNull();
         ofn.Flags = OFN_ENABLESIZING | OFN_EXPLORER | OFN_OVERWRITEPROMPT
                  | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR;
         if (aAddToRecent == AddToRecent::NO)

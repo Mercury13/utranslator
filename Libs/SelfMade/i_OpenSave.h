@@ -27,7 +27,7 @@ class Zsv : public std::basic_string_view<Char, Traits> {
 private:
     using Super = std::basic_string_view<Char, Traits>;
 public:
-    static_assert(sizeof(Char) <= 4);   // our data() work so
+    static_assert(sizeof(Char) <= 4);   // our c_str() work so
     using Super::data;
     using Super::length;
     using Super::empty;
@@ -42,27 +42,21 @@ public:
 
     // Ctor from s_v is explicit: progger should ensure for himself that string is null-term
     explicit constexpr Zsv(Super x) : Super(x) {}
-    explicit constexpr Zsv(const Char* data, size_t len) : Super(data, len) {}
 
     Zsv& operator = (const Super&) = delete;
 
-    /// @return  nullptr on empty string, and non-null on everything else
-    constexpr const Char* c_str() const noexcept { return empty() ? nullptr : Super::data(); }
+    /// @return  nullptr on empty string, and C string on everything else
+    constexpr const Char* szOrNull() const noexcept
+        { return empty() ? nullptr : Super::data(); }
+    /// @return  non-null C string
+    const Char* c_str() const noexcept
+        { return empty() ? reinterpret_cast<const Char*>("\0\0\0\0") : data(); }
 
-    /// @return  non-null string always
-    const Char* data() const noexcept
-        { return empty() ? reinterpret_cast<const Char*>("\0\0\0\0") : Super::data(); }
-
-    /// @return  any data, but if length is 0, cannot access
-    constexpr const Char* rawData() const noexcept { return Super::data(); }
-
-    /// String’s tail is surely null-term
+    /// String’s tail is surely null-term, so new version
     constexpr Zsv substr(size_t pos) const noexcept { return Zsv{ substr(pos) }; }
 
     // Op QString is really useful :)
-    operator QString () const { return QString::fromWCharArray(rawData(), length()); }
-private:
-    static constexpr const Char sEmpty[] { 0 };
+    operator QString () const { return QString::fromWCharArray(data(), length()); }
 };
 
 
