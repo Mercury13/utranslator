@@ -66,13 +66,14 @@ public:
     void setStaticModifyListener(ModListener* aListener);
     ModState modState() const noexcept override { return fState; }
     bool modify() override;
-    bool unmodify() override { return customUnmodify(false); }
-    bool forceUnmodify() override { return customUnmodify(true); }
+    bool unmodify() override;
+    bool forceUnmodify() override;
     bool tempModify() override;
     bool tempRevert() override;
 private:
     MovableAtomic<ModState> fState = ModState::UNMOD;
     ModListener* fListener = nullptr;
     void notify(ModState state);
-    bool customUnmodify(bool notifyIfNothing);
+    bool forceState(ModState newState, bool notifyIfNothing);
+    bool customUnmodify();
 };

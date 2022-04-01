@@ -1,36 +1,24 @@
 #include "Modifiable.h"
 
 
-bool SimpleModifiable::modify()
+bool SimpleModifiable::forceState(ModState newState, bool notifyIfNothing)
 {
-    auto oldState = fState.exchange(ModState::MOD);
-    switch (oldState) {
-    case ModState::MOD:
-        return false;  // do nothing
-    case ModState::TEMP:
-    case ModState::UNMOD:
-        notify(ModState::MOD);
-        return true;
-    }
-    throw std::logic_error("[SimpleModifiable.modify] Strange state");
-}
-
-
-bool SimpleModifiable::customUnmodify(bool notifyIfNothing)
-{
-    auto oldState = fState.exchange(ModState::UNMOD);
-    switch (oldState) {
-    case ModState::UNMOD:
+    auto oldState = fState.exchange(newState);
+    if (oldState == newState) {   // nothing changed
         if (notifyIfNothing)
-            notify(ModState::UNMOD);
-        return false;  // do nothing
-    case ModState::TEMP:
-    case ModState::MOD:
-        notify(ModState::UNMOD);
+            notify(newState);
+        return false;
+    } else {    // actually changed
+        notify(newState);
         return true;
     }
-    throw std::logic_error("[SimpleModifiable.customUnmodify] Strange state");
+
 }
+
+
+bool SimpleModifiable::modify() { return forceState(ModState::MOD, false); }
+bool SimpleModifiable::unmodify() { return forceState(ModState::UNMOD, false); }
+bool SimpleModifiable::forceUnmodify() { return forceState(ModState::UNMOD, true); }
 
 
 void SimpleModifiable::notify(ModState state)
