@@ -830,4 +830,5 @@ void tr::Project::load(const std::filesystem::path& aFname)
         throw std::logic_error(result.description());
     }
     load(doc);
+    fname = aFname;
 }
