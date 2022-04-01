@@ -22,7 +22,7 @@ namespace {
         return std::forward<T>(val);
     }
 
-    auto rqChild(pugi::xml_node& node, const char* name)
+    auto rqChild(pugi::xml_node node, const char* name)
     {
         auto child = node.child(name);
         if (!child)
@@ -33,7 +33,7 @@ namespace {
     }
 
     /// Need non-null attribute
-    auto rqAttr(pugi::xml_node& node, const char* name)
+    auto rqAttr(pugi::xml_node node, const char* name)
     {
         auto attr = node.attribute(name);
         if (!attr)
@@ -314,7 +314,7 @@ namespace {
     /// @param name   tag name
     /// @param text   text itself
     void writeTextInTag(
-            pugi::xml_node& root,
+            pugi::xml_node root,
             const char* name,
             const std::u8string& text,
             tr::WrCache& cache)
@@ -342,7 +342,7 @@ namespace {
 
     /// Write text in tag if the text is not empty (for comments)
     void writeTextInTagIf(
-            pugi::xml_node& root,
+            pugi::xml_node root,
             const char* name,
             const std::u8string& text,
             tr::WrCache& cache)
@@ -353,13 +353,52 @@ namespace {
 
     /// Write text in tag if the optional is not empty (for known text, translation)
     void writeTextInTagOpt(
-            pugi::xml_node& root,
+            pugi::xml_node root,
             const char* name,
             const std::optional<std::u8string>& text,
             tr::WrCache& cache)
     {
         if (text.has_value())
             writeTextInTag(root, name, *text, cache);
+    }
+
+    std::u8string parseTextInTag(pugi::xml_node tag)
+    {
+        std::u8string r;
+        for (auto v : tag.children()) {
+            switch (v.type()) {
+            case pugi::node_pcdata:
+            case pugi::node_cdata:
+                r += str::toU8sv(v.value());
+                break;
+            case pugi::node_element:
+                if (strcmp(v.name(), "br") == 0)
+                    r += '\n';
+                break;
+            default: ;
+            }
+        }
+        return r;
+    }
+
+    std::u8string readTextInTag(
+            pugi::xml_node root, const char* name)
+    {
+        if (auto tag = root.child(name)) {
+            return {};
+        } else {
+            return parseTextInTag(tag);
+        }
+    }
+
+    std::optional<std::u8string> readTextInTagOpt(
+            pugi::xml_node root, const char* name)
+    {
+        if (auto tag = root.child(name)) {
+            return std::nullopt;
+        } else {
+            return parseTextInTag(tag);
+        }
     }
 
 }   // anon namespace
@@ -369,6 +408,11 @@ void tr::Entity::writeAuthorsComment(
         pugi::xml_node& node, WrCache& c) const
 {
     writeTextInTagIf(node, "au-cmt", comm.authors, c);
+}
+
+void tr::Entity::readAuthorsComment(const pugi::xml_node& node)
+{
+    comm.authors = readTextInTag(node, "au-cmt");
 }
 
 void tr::Entity::writeTranslatorsComment(
@@ -383,11 +427,29 @@ void tr::Entity::writeTranslatorsComment(
     }
 }
 
+void tr::Entity::readTranslatorsComment(const pugi::xml_node& node, const PrjInfo& info)
+{
+    switch (info.type) {
+    case PrjType::ORIGINAL:
+        break;
+    case PrjType::FULL_TRANSL:
+        comm.translators = readTextInTag(node, "tr-cmt");
+        break;
+    }
+}
+
 void tr::Entity::writeComments(
         pugi::xml_node& node, WrCache& c) const
 {
     writeAuthorsComment(node, c);
     writeTranslatorsComment(node, c);
+}
+
+void tr::Entity::readComments(
+        const pugi::xml_node& node, const PrjInfo& info)
+{
+    readAuthorsComment(node);
+    readTranslatorsComment(node, info);
 }
 
 ///// VirtualGroup /////////////////////////////////////////////////////////////
@@ -461,6 +523,25 @@ void tr::VirtualGroup::writeCommentsAndChildren(
 }
 
 
+void tr::VirtualGroup::readCommentsAndChildren(
+        const pugi::xml_node& node, const PrjInfo& info)
+{
+    readComments(node, info);
+    for (auto v : node.children()) {
+        if (v.type() == pugi::node_element) {
+            if (strcmp(v.name(), "text")) {
+                auto text = addText({}, {}, Modify::NO);
+                text->readFromXml(v, info);
+            } if (strcmp(v.name(), "group")) {
+                auto group = addGroup({}, Modify::NO);
+                group->readFromXml(v, info);
+            }
+        }
+    }
+}
+
+
+
 ///// Group ////////////////////////////////////////////////////////////////////
 
 
@@ -481,6 +562,13 @@ void tr::Group::writeToXml(pugi::xml_node& root, WrCache& c) const
     auto node = root.append_child("group");
         node.append_attribute("id") = str::toC(id);
     writeCommentsAndChildren(node, c);
+}
+
+
+void tr::Group::readFromXml(const pugi::xml_node& node, const PrjInfo& info)
+{
+    id = str::toU8sv(rqAttr(node, "id").value());
+    readCommentsAndChildren(node, info);
 }
 
 
@@ -517,12 +605,29 @@ void tr::Text::writeToXml(pugi::xml_node& root, WrCache& c) const
     writeTextInTag(node, "orig", tr.original, c);
     writeAuthorsComment(node, c);
     switch (c.info.type) {
-    case tr::PrjType::ORIGINAL:
+    case PrjType::ORIGINAL:
         break;
-    case tr::PrjType::FULL_TRANSL:
+    case PrjType::FULL_TRANSL:
         writeTextInTagOpt(node, "known-orig", tr.knownOriginal, c);
         writeTextInTagOpt(node, "transl", tr.translation, c);
         writeTranslatorsComment(node, c);
+        break;
+    }
+}
+
+
+void tr::Text::readFromXml(const pugi::xml_node& node, const PrjInfo& info)
+{
+    id = str::toU8sv(rqAttr(node, "id").value());
+    // Our XML is DOM-like, so we can read not in order
+    readComments(node, info);
+    switch (info.type) {
+    case PrjType::ORIGINAL:
+        break;
+    case PrjType::FULL_TRANSL:
+        tr.original = readTextInTag(node, "orig");
+        tr.knownOriginal = readTextInTagOpt(node, "transl");
+        tr.translation = readTextInTagOpt(node, "transl");
         break;
     }
 }
@@ -552,9 +657,10 @@ void tr::File::writeToXml(pugi::xml_node& root, WrCache& c) const
 }
 
 
-void tr::File::readFromXml(pugi::xml_node& node, PrjInfo& info)
+void tr::File::readFromXml(const pugi::xml_node& node, const PrjInfo& info)
 {
-    id = str::toU8(rqAttr(node, "name").value());
+    id = str::toU8sv(rqAttr(node, "name").value());
+    readCommentsAndChildren(node, info);
 }
 
 
@@ -678,7 +784,7 @@ void tr::Project::writeToXml(pugi::xml_node& doc) const
 }
 
 
-void tr::Project::readFromXml(pugi::xml_node& node)
+void tr::Project::readFromXml(const pugi::xml_node& node)
 {
     auto attrType = rqAttr(node, "type");
     info.type = parseEnumRq<PrjType>(attrType.value(), tr::prjTypeNames);
@@ -708,7 +814,7 @@ void tr::Project::saveCopy(const std::filesystem::path& aFname) const
 }
 
 
-void tr::Project::load(pugi::xml_document& doc)
+void tr::Project::load(const pugi::xml_document& doc)
 {
     clear();
     auto root = rq(doc.root(), "Need root tag");

@@ -204,11 +204,16 @@ namespace tr {
         /// @param [in] node   tag of THIS OBJECT
         /// @param [in] info   project info for speed
         /// @todo [urgent] should be purely virtual
-        virtual void readFromXml(pugi::xml_node& node, PrjInfo& info) {};
+        virtual void readFromXml(const pugi::xml_node& node, const PrjInfo& info) = 0;
     protected:
+        // write comments
         void writeAuthorsComment(pugi::xml_node& node, WrCache& c) const;
         void writeTranslatorsComment(pugi::xml_node& node, WrCache& c) const;
         void writeComments(pugi::xml_node& node, WrCache&) const;
+        // read comments
+        void readAuthorsComment(const pugi::xml_node& node);
+        void readTranslatorsComment(const pugi::xml_node& node, const PrjInfo& info);
+        void readComments(const pugi::xml_node& node, const PrjInfo& info);
     };
 
     class VirtualGroup : public Entity, protected Self<VirtualGroup>
@@ -233,6 +238,7 @@ namespace tr {
     protected:
         friend class Project;
         void writeCommentsAndChildren(pugi::xml_node&, WrCache&) const;
+        void readCommentsAndChildren(const pugi::xml_node& node, const PrjInfo& info);
     };
 
     class Text final : public Entity
@@ -255,6 +261,7 @@ namespace tr {
         std::shared_ptr<Project> project() override;
         size_t nTexts() const override { return 1; }
         void writeToXml(pugi::xml_node&, WrCache&) const override;
+        void readFromXml(const pugi::xml_node& node, const PrjInfo& info) override;
     private:
         std::weak_ptr<VirtualGroup> fParentGroup;
     };
@@ -275,6 +282,7 @@ namespace tr {
         Pair<VirtualGroup> additionParents() override
                 { return { fParentGroup.lock(), fSelf.lock() }; }
         void writeToXml(pugi::xml_node&, WrCache&) const override;
+        void readFromXml(const pugi::xml_node& node, const PrjInfo& info) override;
     private:
         friend class tr::File;
         std::weak_ptr<File> fFile;
@@ -295,7 +303,7 @@ namespace tr {
 
         File(std::weak_ptr<Project> aProject, size_t aIndex, const PassKey&);
         void writeToXml(pugi::xml_node&, WrCache&) const override;
-        void readFromXml(pugi::xml_node& node, PrjInfo& info) override;
+        void readFromXml(const pugi::xml_node& node, const PrjInfo& info) override;
     protected:
         std::weak_ptr<Project> fProject;
     };
@@ -336,8 +344,8 @@ namespace tr {
         void save();
         void save(const std::filesystem::path& aFname);
         void saveCopy(const std::filesystem::path& aFname) const;
-        void readFromXml(pugi::xml_node& node);
-        void load(pugi::xml_document& doc);
+        void readFromXml(const pugi::xml_node& node);
+        void load(const pugi::xml_document& doc);
         void load(const std::filesystem::path& aFname);
 
         // Adds a file in the end of project
