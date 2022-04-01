@@ -1,5 +1,7 @@
 #include "TrProject.h"
 
+// C++
+#include <stdexcept>
 #include <bit>
 
 // Libs
@@ -7,6 +9,72 @@
 
 // Pugixml
 #include "pugixml.hpp"
+
+
+///// XML utils ////////////////////////////////////////////////////////////////
+
+namespace {
+
+    template <class T>
+    inline T rq(T&& val, const char* errmsg)
+    {
+        if (!val) throw std::logic_error(errmsg);
+        return std::forward<T>(val);
+    }
+
+    auto rqChild(pugi::xml_node& node, const char* name)
+    {
+        auto child = node.child(name);
+        if (!child)
+            throw std::logic_error(
+                    std::string("Tag <") + node.name() + "> needs child <"
+                    + name + ">");
+        return child;
+    }
+
+    /// Need non-null attribute
+    auto rqAttr(pugi::xml_node& node, const char* name)
+    {
+        auto attr = node.attribute(name);
+        if (!attr)
+            throw std::logic_error(
+                    std::string("Tag <") + node.name() + "> needs attribute <"
+                    + name + ">");
+        return attr;
+    }
+
+    int parseEnumIntDef(const char* text, int n, const char* names[], int def)
+    {
+        if (!text)
+            return def;
+        for (int i = 0; i < n; ++i) {
+            if (strcmp(text, names[i]) == 0)
+                return i;
+        }
+        return def;
+    }
+
+    inline std::string toStr(const char* text)
+        { return text ? std::string{text} : std::string{}; }
+
+    [[maybe_unused]] int parseEnumIntRq(const char* text, int n, const char* names[])
+    {
+        auto val = parseEnumIntDef(text, n, names, -1);
+        if (val < 0)
+            throw std::logic_error("Unknown name <" + toStr(text) + ">");
+        return val;
+    }
+
+    template <class Ec, size_t N> requires std::is_enum_v<Ec>
+    inline Ec parseEnumDef(const char* text, const char* (&names)[N], Ec def)
+        { return static_cast<Ec>(parseEnumIntDef(
+                text, N, names, static_cast<int>(def))); }
+
+    template <class Ec, size_t N> requires std::is_enum_v<Ec>
+    inline Ec parseEnumRq(const char* text, const char* (&names)[N])
+        { return static_cast<Ec>(parseEnumIntRq(text, N, names)); }
+
+}   // anon namespace
 
 ///// WrCache //////////////////////////////////////////////////////////////////
 
@@ -484,6 +552,12 @@ void tr::File::writeToXml(pugi::xml_node& root, WrCache& c) const
 }
 
 
+void tr::File::readFromXml(pugi::xml_node& node, PrjInfo& info)
+{
+    id = str::toU8(rqAttr(node, "name").value());
+}
+
+
 ///// Project //////////////////////////////////////////////////////////////////
 
 
@@ -596,10 +670,28 @@ void tr::Project::writeToXml(pugi::xml_node& doc) const
             nodeOrig.append_attribute("lang") = info.orig.lang.c_str();
     if (info.type != PrjType::ORIGINAL) {
         auto nodeTransl = nodeInfo.append_child("transl");
-            nodeTransl.append_attribute("lang") = info.orig.lang.c_str();
+            nodeTransl.append_attribute("lang") = info.transl.lang.c_str();
     }
     for (auto& file : files) {
         file->writeToXml(root, c);
+    }
+}
+
+
+void tr::Project::readFromXml(pugi::xml_node& node)
+{
+    auto attrType = rqAttr(node, "type");
+    info.type = parseEnumRq<PrjType>(attrType.value(), tr::prjTypeNames);
+    auto nodeInfo = rqChild(node, "info");
+        auto nodeOrig = rqChild(nodeInfo, "orig");
+            info.orig.lang = rqAttr(nodeOrig, "lang").value();
+    if (info.type != PrjType::ORIGINAL) {
+        auto nodeTransl = rqChild(nodeInfo, "transl");
+            info.transl.lang = rqAttr(nodeTransl, "lang").value();
+    }
+    for (auto& v : node.children("file")) {
+        auto file = addFile({}, Modify::NO);
+        file->readFromXml(v, info);
     }
 }
 
@@ -613,4 +705,26 @@ void tr::Project::saveCopy(const std::filesystem::path& aFname) const
     writeToXml(doc);
     std::ofstream f(aFname);
     doc.save(f, " ", pugi::format_indent | pugi::format_write_bom);
+}
+
+
+void tr::Project::load(pugi::xml_document& doc)
+{
+    clear();
+    auto root = rq(doc.root(), "Need root tag");
+    readFromXml(root);
+}
+
+
+void tr::Project::load(const std::filesystem::path& aFname)
+{
+    pugi::xml_document doc;
+    auto result = doc.load_file(aFname.c_str());
+    if (!result) {
+        if (result.offset)
+            throw std::logic_error(std::string{result.description()}
+                + ", offset=" + std::to_string(result.offset));
+        throw std::logic_error(result.description());
+    }
+    load(doc);
 }

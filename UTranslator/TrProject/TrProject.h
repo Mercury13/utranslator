@@ -15,6 +15,7 @@
 #include "u_Vector.h"
 
 namespace pugi {
+    class xml_document;
     class xml_node;
 }
 
@@ -197,8 +198,13 @@ namespace tr {
 
         /// Writes object to XML
         /// @param [in,out] root  tag ABOVE, should create a new one for entity
-        /// @param [in] info   project info for speed
+        /// @param [in] c         some info that speeds up saving
         virtual void writeToXml(pugi::xml_node& root, WrCache& c) const = 0;
+        /// Reads object from XML
+        /// @param [in] node   tag of THIS OBJECT
+        /// @param [in] info   project info for speed
+        /// @todo [urgent] should be purely virtual
+        virtual void readFromXml(pugi::xml_node& node, PrjInfo& info) {};
     protected:
         void writeAuthorsComment(pugi::xml_node& node, WrCache& c) const;
         void writeTranslatorsComment(pugi::xml_node& node, WrCache& c) const;
@@ -288,7 +294,8 @@ namespace tr {
         Pair<VirtualGroup> additionParents() override { return fSelf.lock(); }
 
         File(std::weak_ptr<Project> aProject, size_t aIndex, const PassKey&);
-        virtual void writeToXml(pugi::xml_node&, WrCache&) const override;
+        void writeToXml(pugi::xml_node&, WrCache&) const override;
+        void readFromXml(pugi::xml_node& node, PrjInfo& info) override;
     protected:
         std::weak_ptr<Project> fProject;
     };
@@ -329,6 +336,9 @@ namespace tr {
         void save();
         void save(const std::filesystem::path& aFname);
         void saveCopy(const std::filesystem::path& aFname) const;
+        void readFromXml(pugi::xml_node& node);
+        void load(pugi::xml_document& doc);
+        void load(const std::filesystem::path& aFname);
 
         // Adds a file in the end of project
         std::shared_ptr<File> addFile(
