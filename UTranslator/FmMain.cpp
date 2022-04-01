@@ -601,21 +601,9 @@ void FmMain::doDelete()
 }
 
 
-bool FmMain::isModified() const
-{
-    return project && project->isModified();
-}
-
-bool FmMain::modify()
+void FmMain::modStateChanged(ModState)
 {
     updateCaption();
-    return true;
-}
-
-bool FmMain::unmodify()
-{
-    updateCaption();
-    return true;
 }
 
 

@@ -3,18 +3,32 @@
 #include <memory>
 #include <atomic>
 
+enum class ModState {
+    UNMOD,          ///< Unmodified
+    TEMP,           ///< Temporarily modified
+    MOD             ///< MODIFIED
+};
+
 class Modifiable    // interface
 {
 public:
-    virtual bool isModified() const = 0;
-    /// @return [+] actually modified
+    virtual ModState modState() const noexcept = 0;
+    /// @return [+] state changed, even TEMP to MOD
     /// @warning  May return always true, even if already modified!
     virtual bool modify() = 0;
-    /// @return [+] actually modified
+    /// @return [+] state changed
     /// @warning  May return always true, even if no modifications!
     virtual bool unmodify() = 0;
-    /// @return [+] actually modified
+    /// @return [+] state changed
     virtual bool forceUnmodify() { return unmodify(); }
+    /// @return [+] state changed
+    virtual bool tempModify() { return modify(); }
+    /// @return [+] state changed
+    virtual bool tempRevert() { return false; }
+
+    // Utils
+    bool isModified() const noexcept { return (modState() != ModState::UNMOD); }
+
     virtual ~Modifiable() = default;
 };
 
@@ -39,18 +53,26 @@ public:
 };
 
 
+class ModListener {     // interface
+public:
+    virtual void modStateChanged(ModState state) = 0;
+    virtual ~ModListener() = default;
+};
+
 
 class SimpleModifiable : public Modifiable
 {
 public:
-    void setStaticModifyListener(Modifiable* aListener);
-    bool isModified() const override { return fIsModified; }
+    void setStaticModifyListener(ModListener* aListener);
+    ModState modState() const noexcept override { return fState; }
     bool modify() override;
     bool unmodify() override { return customUnmodify(false); }
     bool forceUnmodify() override { return customUnmodify(true); }
+    bool tempModify() override;
+    bool tempRevert() override;
 private:
-    MovableAtomic<bool> fIsModified = false;
-    Modifiable* fListener = nullptr;
-    void notify();
+    MovableAtomic<ModState> fState = ModState::UNMOD;
+    ModListener* fListener = nullptr;
+    void notify(ModState state);
     bool customUnmodify(bool notifyIfNothing);
 };

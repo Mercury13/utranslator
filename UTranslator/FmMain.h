@@ -91,7 +91,7 @@ public:
 
 class FmMain :
         public QMainWindow,
-        public Modifiable
+        public ModListener
 {
     Q_OBJECT
     using Super = QMainWindow;
@@ -100,9 +100,7 @@ public:
     FmMain(QWidget *parent = nullptr);
     ~FmMain() override;
 
-    bool isModified() const override;
-    bool modify() override;
-    bool unmodify() override;
+    void modStateChanged(ModState newState) override;
 private slots:
     // Tree etc.
     void treeCurrentChanged(

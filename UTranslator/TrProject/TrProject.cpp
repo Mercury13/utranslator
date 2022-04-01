@@ -565,9 +565,8 @@ std::shared_ptr<tr::Entity> tr::Project::extractChild(size_t i)
 bool tr::Project::unmodify()
 {
     bool r = SimpleModifiable::unmodify();
-    if (r) {
+    if (r)
         recursiveUnmodify();
-    }
     return r;
 }
 
