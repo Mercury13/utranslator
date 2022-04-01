@@ -562,9 +562,9 @@ std::shared_ptr<tr::Entity> tr::Project::extractChild(size_t i)
 }
 
 
-bool tr::Project::unmodify()
+bool tr::Project::unmodify(Forced forced)
 {
-    bool r = SimpleModifiable::unmodify();
+    bool r = SimpleModifiable::unmodify(forced);
     if (r)
         recursiveUnmodify();
     return r;
@@ -574,7 +574,7 @@ bool tr::Project::unmodify()
 void tr::Project::save()
 {
     saveCopy(fname);
-    forceUnmodify();
+    unmodify(Forced::YES);
 }
 
 
@@ -582,7 +582,7 @@ void tr::Project::save(const std::filesystem::path& aFname)
 {
     saveCopy(aFname);
     fname = aFname;
-    forceUnmodify();
+    unmodify(Forced::YES);
 }
 
 

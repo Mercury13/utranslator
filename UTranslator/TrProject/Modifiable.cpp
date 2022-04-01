@@ -1,11 +1,11 @@
 #include "Modifiable.h"
 
 
-bool SimpleModifiable::forceState(ModState newState, bool forceNotify)
+bool SimpleModifiable::changeState(ModState newState, Forced forced)
 {
     auto oldState = fState.exchange(newState);
     if (oldState == newState) {   // nothing changed
-        if (forceNotify)
+        if (forced != Forced::NO)
             notify(newState);
         return false;
     } else {    // actually changed
@@ -16,9 +16,8 @@ bool SimpleModifiable::forceState(ModState newState, bool forceNotify)
 }
 
 
-bool SimpleModifiable::modify() { return forceState(ModState::MOD, false); }
-bool SimpleModifiable::unmodify() { return forceState(ModState::UNMOD, false); }
-bool SimpleModifiable::forceUnmodify() { return forceState(ModState::UNMOD, true); }
+bool SimpleModifiable::modify(Forced forced) { return changeState(ModState::MOD, forced); }
+bool SimpleModifiable::unmodify(Forced forced) { return changeState(ModState::UNMOD, forced); }
 
 
 void SimpleModifiable::notify(ModState state)

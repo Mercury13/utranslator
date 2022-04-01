@@ -325,7 +325,7 @@ namespace tr {
         Pair<VirtualGroup> additionParents() override { return {}; }
         std::shared_ptr<Entity> extractChild(size_t i) override;
         void writeToXml(pugi::xml_node&) const;
-        bool unmodify() override;
+        bool unmodify(Forced forced) override;
         void save();
         void save(const std::filesystem::path& aFname);
         void saveCopy(const std::filesystem::path& aFname) const;
