@@ -5,7 +5,7 @@
 
 enum class ModState {
     UNMOD,          ///< Unmodified
-    TEMP,           ///< Temporarily modified
+    TEMP,           ///< Somewhere in UI or cache there’s a new value that can easily be accepted or reverted
     MOD             ///< MODIFIED
 };
 
