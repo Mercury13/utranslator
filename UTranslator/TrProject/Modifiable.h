@@ -74,6 +74,6 @@ private:
     MovableAtomic<ModState> fState = ModState::UNMOD;
     ModListener* fListener = nullptr;
     void notify(ModState state);
-    bool forceState(ModState newState, bool notifyIfNothing);
+    bool forceState(ModState newState, bool forceNotify);
     bool customUnmodify();
 };
