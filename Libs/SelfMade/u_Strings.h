@@ -30,8 +30,8 @@ namespace str {
     template <class C, class T, class A>
     size_t replace(
             std::basic_string<C, T, A>& haystack,
-            std::basic_string_view<C> needle,
-            std::basic_string_view<C> byWhat)
+            std::basic_string_view<C, T> needle,
+            std::basic_string_view<C, T> byWhat)
     {
         using Str = std::basic_string<C, T, A>;
         const size_t szNeedle = needle.length();
@@ -44,6 +44,47 @@ namespace str {
         }
         return r;
     }
+
+    ///
+    /// @return   # of replacements
+    ///
+    template <class C, class T, class A>
+    size_t replace(
+            std::basic_string<C, T, A>& haystack,
+            C needle,
+            std::basic_string_view<C, T> byWhat)
+    {
+        using Str = std::basic_string<C, T, A>;
+        const size_t szByWhat = byWhat.length();
+        size_t p = 0, r = 0;
+        while ((p = haystack.find(needle, p)) != Str::npos) {
+            haystack.replace(p, 1, byWhat);
+            p += szByWhat;
+            ++r;
+        }
+        return r;
+    }
+
+    namespace detail {
+        template<class T>
+        inline auto toSv(const T& x) { return std::basic_string_view{x}; }
+
+        template<class C, class T, class A>
+        inline std::basic_string_view<C, T> toSv(
+                const std::basic_string<C, T, A>& x)
+            { return x; }
+    }
+
+    ///
+    /// @return   # of replacements
+    ///
+    template <class C, class T, class A, class B>
+    inline size_t replace(
+            std::basic_string<C, T, A>& haystack,
+            C needle,
+            const B& byWhat)
+        { return replace(
+                    haystack, needle, detail::toSv(byWhat)); }
 
     ///
     /// @return   # of replacements
@@ -75,13 +116,26 @@ namespace str {
                     reinterpret_cast<const char*>(s.data()),
                     reinterpret_cast<const char*>(s.data() + s.size()), v, base); }
 
+    template <class T>
+    inline std::string_view toChars(char* start, char* end, T v, int base = 10)
+    {
+        auto res = std::to_chars(start, end, v, base);
+        if (res.ec != std::errc())
+            return {};
+        return { start, res.ptr };
+    }
+
     template <class T, size_t N>
     inline std::string_view toChars(char (&buf)[N], T v, int base = 10)
     {
-        auto res = std::to_chars(std::begin(buf), std::end(buf), v, base);
-        if (res.ec != std::errc())
-            return {};
-        return { std::begin(buf), res.ptr };
+        return toChars(std::begin(buf), std::end(buf), v, base);
+    }
+
+    template <class T>
+    inline std::u8string_view toCharsU8(char* start, char* end, T v, int base = 10)
+    {
+        auto r = toChars<T>(start, end, v, base);
+        return { reinterpret_cast<const char8_t*>(r.data()), r.size() };
     }
 
     template <class T, size_t N>
