@@ -275,6 +275,8 @@ FmMain::FmMain(QWidget *parent)
     // File
     connect(ui->acNew, &QAction::triggered, this, &This::doNew);
     connect(ui->btStartNew, &QPushButton::clicked, this, &This::doNew);
+    connect(ui->acOpen, &QAction::triggered, this, &This::doOpen);
+    connect(ui->btStartOpen, &QPushButton::clicked, this, &This::doOpen);
     connect(ui->acSave, &QAction::triggered, this, &This::doSave);
     connect(ui->acSaveAs, &QAction::triggered, this, &This::doSaveAs);
     // Original
@@ -310,19 +312,25 @@ void FmMain::selectSmth()
 }
 
 
+void FmMain::plantNewProject(std::shared_ptr<tr::Project>&& x)
+{
+    project = std::move(x);
+    project->setStaticModifyListener(this);
+    treeModel.setProject(project);
+    ui->stackMain->setCurrentWidget(ui->pageMain);
+    adaptLayout();
+    updateCaption();
+    selectSmth();
+    reenable();
+}
+
+
 void FmMain::doNew()
 {
     if (auto result = fmNew.ensure(this).exec(0)) {
-        project = std::make_shared<tr::Project>(std::move(*result));
-        project->doShare(project);
-        project->addTestOriginal();
-        project->setStaticModifyListener(this);
-        treeModel.setProject(project);
-        ui->stackMain->setCurrentWidget(ui->pageMain);
-        adaptLayout();
-        updateCaption();
-        selectSmth();
-        reenable();
+        auto x = tr::Project::make(std::move(*result));
+        x->addTestOriginal();
+        plantNewProject(std::move(x));
     }
 }
 
@@ -653,7 +661,26 @@ void FmMain::doSaveAs()
     try {
         project->save(fname);
     } catch (std::exception& e) {
-        QMessageBox::critical(this, "Save problem", QString::fromStdString(e.what()));
+        QMessageBox::critical(this, "Save", QString::fromStdString(e.what()));
+    }
+}
+
+
+void FmMain::doOpen()
+{
+    filedlg::Filters filters
+      { { L"UTranslator files", L"*.uorig *.ufull" }, { L"All files", L"*" } };
+    auto fname = filedlg::open(
+                this, nullptr, filters, {},
+                filedlg::AddToRecent::YES);
+    if (!fname.empty()) {
+        auto prj = tr::Project::make();
+        try {
+            prj->load(fname);
+            plantNewProject(std::move(prj));
+        } catch (std::exception& e) {
+            QMessageBox::critical(this, "Open", QString::fromStdString(e.what()));
+        }
     }
 }
 

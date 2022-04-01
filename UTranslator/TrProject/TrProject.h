@@ -323,11 +323,10 @@ namespace tr {
         ///   (project will be original only, w/o translation)
         void addTestOriginal();
 
-        Project() = default;
-        Project(PrjInfo&& aInfo) noexcept : info(std::move(aInfo)) {}
+        Project& operator = (const Project&) = default;
+        Project& operator = (Project&&) = default;
 
         void clear();
-        void doShare(const std::shared_ptr<Project>& x);
         /// @return  maybe alias-constructed s_p, but never null
         std::shared_ptr<Project> self();
 
@@ -351,6 +350,21 @@ namespace tr {
         // Adds a file in the end of project
         std::shared_ptr<File> addFile(
                 std::u8string_view name, Modify);
+
+        /// @warning  Refer to private ctors to see which versions are available
+        template<class... T>
+            static std::shared_ptr<tr::Project> make(T&& ... x);
+
+        // Passkey idiom
+        template <class... T>
+            Project(const PassKey&, T&&... x)
+                : Project(std::forward<T>(x)...) {}
+    private:
+        /// Ctors are private, use make!
+        Project() = default;
+        Project(const Project&) = default;
+        Project(PrjInfo&& aInfo) noexcept : info(std::move(aInfo)) {}
+        void doShare(const std::shared_ptr<Project>& x);
     };
 
 }   // namespace tr
@@ -365,4 +379,12 @@ unsigned tr::Pair<T>::size() const
     if (!first)
         return 0;
     return second ? 2 : 1;
+}
+
+template<class... T>
+    std::shared_ptr<tr::Project> tr::Project::make(T&& ... x)
+{
+    auto r = std::make_shared<tr::Project>(PassKey{}, std::forward<T>(x) ...);
+    r->doShare(r);
+    return r;
 }

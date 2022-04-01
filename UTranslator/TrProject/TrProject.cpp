@@ -384,21 +384,17 @@ namespace {
     std::u8string readTextInTag(
             pugi::xml_node root, const char* name)
     {
-        if (auto tag = root.child(name)) {
-            return {};
-        } else {
+        if (auto tag = root.child(name))
             return parseTextInTag(tag);
-        }
+        return {};
     }
 
     std::optional<std::u8string> readTextInTagOpt(
             pugi::xml_node root, const char* name)
     {
-        if (auto tag = root.child(name)) {
-            return std::nullopt;
-        } else {
+        if (auto tag = root.child(name))
             return parseTextInTag(tag);
-        }
+        return std::nullopt;
     }
 
 }   // anon namespace
@@ -529,10 +525,10 @@ void tr::VirtualGroup::readCommentsAndChildren(
     readComments(node, info);
     for (auto v : node.children()) {
         if (v.type() == pugi::node_element) {
-            if (strcmp(v.name(), "text")) {
+            if (strcmp(v.name(), "text") == 0) {
                 auto text = addText({}, {}, Modify::NO);
                 text->readFromXml(v, info);
-            } if (strcmp(v.name(), "group")) {
+            } if (strcmp(v.name(), "group") == 0) {
                 auto group = addGroup({}, Modify::NO);
                 group->readFromXml(v, info);
             }
@@ -620,13 +616,15 @@ void tr::Text::readFromXml(const pugi::xml_node& node, const PrjInfo& info)
 {
     id = str::toU8sv(rqAttr(node, "id").value());
     // Our XML is DOM-like, so we can read not in order
+    //   Write: orig, au-cmt, known-orig, transl, tr-cmt
+    //   Read:  au-cmt, tr-cmt, orig, known-orig, transl
     readComments(node, info);
+    tr.original = readTextInTag(node, "orig");
     switch (info.type) {
     case PrjType::ORIGINAL:
         break;
     case PrjType::FULL_TRANSL:
-        tr.original = readTextInTag(node, "orig");
-        tr.knownOriginal = readTextInTagOpt(node, "transl");
+        tr.knownOriginal = readTextInTagOpt(node, "known-orig");
         tr.translation = readTextInTagOpt(node, "transl");
         break;
     }
@@ -809,15 +807,14 @@ void tr::Project::saveCopy(const std::filesystem::path& aFname) const
         declaration.append_attribute("version") = "1.0";
         declaration.append_attribute("encoding") = "utf-8";
     writeToXml(doc);
-    std::ofstream f(aFname);
-    doc.save(f, " ", pugi::format_indent | pugi::format_write_bom);
+    doc.save_file(aFname.c_str(), " ", pugi::format_indent | pugi::format_write_bom);
 }
 
 
 void tr::Project::load(const pugi::xml_document& doc)
 {
     clear();
-    auto root = rq(doc.root(), "Need root tag");
+    auto root = rqChild(doc, "ut");
     readFromXml(root);
 }
 

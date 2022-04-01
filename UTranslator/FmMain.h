@@ -108,6 +108,7 @@ private slots:
 
     // Menu: File
     void doNew();
+    void doOpen();
     void doSave();
     void doSaveAs();
     // Menu: Edit
@@ -147,4 +148,5 @@ private:
     ///  Does what it needs to edit ORIGINAL (not translation)
     void startEditingOrig(const QModelIndex& index);
     void selectSmth();
+    void plantNewProject(std::shared_ptr<tr::Project>&& x);
 };
