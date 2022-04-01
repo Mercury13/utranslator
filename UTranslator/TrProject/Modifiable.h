@@ -58,7 +58,7 @@ public:
 
 class ModListener {     // interface
 public:
-    virtual void modStateChanged(ModState state) = 0;
+    virtual void modStateChanged(ModState oldState, ModState newState) = 0;
     virtual ~ModListener() = default;
 };
 
@@ -75,7 +75,7 @@ public:
 private:
     MovableAtomic<ModState> fState = ModState::UNMOD;
     ModListener* fListener = nullptr;
-    void notify(ModState state);
+    void notify(ModState oldState, ModState state);
     bool changeState(ModState newState, Forced forced);
     bool customUnmodify();
 };

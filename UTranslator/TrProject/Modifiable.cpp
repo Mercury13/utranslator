@@ -6,10 +6,10 @@ bool SimpleModifiable::changeState(ModState newState, Forced forced)
     auto oldState = fState.exchange(newState);
     if (oldState == newState) {   // nothing changed
         if (forced != Forced::NO)
-            notify(newState);
+            notify(oldState, newState);
         return false;
     } else {    // actually changed
-        notify(newState);
+        notify(oldState, newState);
         return true;
     }
 
@@ -20,10 +20,10 @@ bool SimpleModifiable::modify(Forced forced) { return changeState(ModState::MOD,
 bool SimpleModifiable::unmodify(Forced forced) { return changeState(ModState::UNMOD, forced); }
 
 
-void SimpleModifiable::notify(ModState state)
+void SimpleModifiable::notify(ModState oldState, ModState newState)
 {
     if (fListener) {
-        fListener->modStateChanged(state);
+        fListener->modStateChanged(oldState, newState);
     }
 }
 
@@ -40,7 +40,7 @@ bool SimpleModifiable::tempModify()
     auto expected = ModState::UNMOD;
     if (fState.compare_exchange_strong(expected, ModState::TEMP)) {
         // Actually was UNMOD
-        notify(ModState::MOD);
+        notify(ModState::UNMOD, ModState::TEMP);
         return true;
     } else {
         // In other states do nothing
@@ -54,7 +54,7 @@ bool SimpleModifiable::tempRevert()
     auto expected = ModState::TEMP;
     if (fState.compare_exchange_strong(expected, ModState::UNMOD)) {
         // Actually was TEMP
-        notify(ModState::UNMOD);
+        notify(ModState::TEMP, ModState::UNMOD);
         return true;
     } else {
         // In other states do nothing

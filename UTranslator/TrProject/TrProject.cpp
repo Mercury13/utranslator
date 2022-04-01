@@ -297,13 +297,21 @@ bool tr::Entity::setId(std::u8string_view x, tr::Modify wantModify)
     }
 }
 
-size_t tr::UiObject::nTexts() const
+
+void tr::UiObject::addStatsRecursive(Stats& x, bool includeSelf) const
 {
+    addStats(x, includeSelf);
     auto nc = nChildren();
-    size_t r = 0;
     for (size_t i = 0; i < nc; ++i) {
-        r += child(i)->nTexts();
+        child(i)->addStatsRecursive(x, true);
     }
+}
+
+
+tr::Stats tr::UiObject::stats(bool includeSelf) const
+{
+    Stats r;
+    addStatsRecursive(r, includeSelf);
     return r;
 }
 

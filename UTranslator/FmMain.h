@@ -100,7 +100,7 @@ public:
     FmMain(QWidget *parent = nullptr);
     ~FmMain() override;
 
-    void modStateChanged(ModState newState) override;
+    void modStateChanged(ModState oldState, ModState newState) override;
 private slots:
     // Tree etc.
     void treeCurrentChanged(

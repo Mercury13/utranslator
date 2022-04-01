@@ -119,6 +119,10 @@ namespace tr {
             { return reinterpret_cast<const char*>(nts(beg, end)); }
     };
 
+    struct Stats {
+        size_t nTexts = 0;
+        size_t nGroups = 0;
+    };
 
     class UiObject : public CanaryObject
     {
@@ -175,8 +179,12 @@ namespace tr {
                 std::u8string_view suffix) const;
         /// @return  [+] s_p to this  [0] nothing happened
         std::shared_ptr<Entity> extract();
+        /// Adds statistics about a single object (not children)
+        /// @param [in] includeSelf   Include self to stats unless it is text
+        virtual void addStats(Stats& x, bool includeSelf) const = 0;
         /// @return  how many texts are there in object’s groups
-        virtual size_t nTexts() const;
+        Stats stats(bool includeSelf) const;
+        void addStatsRecursive(Stats& x, bool includeSelf) const;
     protected:
         // passkey idiom
         struct PassKey {};
@@ -235,6 +243,8 @@ namespace tr {
         std::shared_ptr<Group> addGroup(
                 std::u8string id, Modify wantModify);
         std::shared_ptr<Project> project() override;
+        void addStats(Stats& x, bool includeSelf) const override
+                { if (includeSelf) ++x.nGroups; }
     protected:
         friend class Project;
         void writeCommentsAndChildren(pugi::xml_node&, WrCache&) const;
@@ -259,7 +269,7 @@ namespace tr {
         Translatable* translatable() override { return &tr; }
         std::shared_ptr<File> file() override;
         std::shared_ptr<Project> project() override;
-        size_t nTexts() const override { return 1; }
+        void addStats(Stats& x, bool) const override { ++x.nTexts; }
         void writeToXml(pugi::xml_node&, WrCache&) const override;
         void readFromXml(const pugi::xml_node& node, const PrjInfo& info) override;
     private:
@@ -323,6 +333,7 @@ namespace tr {
         ///   (project will be original only, w/o translation)
         void addTestOriginal();
 
+        /// Ctors are private, op= is the same
         Project& operator = (const Project&) = default;
         Project& operator = (Project&&) = default;
 
@@ -338,6 +349,7 @@ namespace tr {
         std::shared_ptr<Project> project() override { return self(); }
         Pair<VirtualGroup> additionParents() override { return {}; }
         std::shared_ptr<Entity> extractChild(size_t i) override;
+        void addStats(Stats&, bool) const override {}
         void writeToXml(pugi::xml_node&) const;
         bool unmodify(Forced forced) override;
         void save();
@@ -351,11 +363,13 @@ namespace tr {
         std::shared_ptr<File> addFile(
                 std::u8string_view name, Modify);
 
+        /// Use instead of ctor
         /// @warning  Refer to private ctors to see which versions are available
         template<class... T>
             static std::shared_ptr<tr::Project> make(T&& ... x);
 
-        // Passkey idiom
+        /// Passkey idiom, used by make
+        /// @warning  Do not call directly
         template <class... T>
             Project(const PassKey&, T&&... x)
                 : Project(std::forward<T>(x)...) {}

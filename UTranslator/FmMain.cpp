@@ -329,7 +329,6 @@ void FmMain::doNew()
 {
     if (auto result = fmNew.ensure(this).exec(0)) {
         auto x = tr::Project::make(std::move(*result));
-        x->addTestOriginal();
         plantNewProject(std::move(x));
     }
 }
@@ -594,13 +593,18 @@ void FmMain::doDelete()
     if (obj->objType() == tr::ObjType::TEXT) {
         message = "Delete text?";
     } else {
+        auto stats = obj->stats(false);
+        switch (stats.nTexts) {
+        case 0:
+            if (stats.nGroups == 0)
+                message = "Delete empty group?";
+                else message = "Delete group w/o texts?";
+            break;
         /// @todo [future] what to do with plural rules?
-        auto n = obj->nTexts();
-        if (n == 1) {
-            message = "Delete 1 text?";
-        } else {
-            message = QString("Delete %1 texts?").arg(n);
+        case 1: message = "Delete 1 text?"; break;
+        default: message = QString("Delete %1 texts?").arg(stats.nTexts);
         }
+
     }
     auto answer = QMessageBox::question(this, "Delete", message);
     if (answer != QMessageBox::Yes)
@@ -609,8 +613,10 @@ void FmMain::doDelete()
 }
 
 
-void FmMain::modStateChanged(ModState)
+void FmMain::modStateChanged(ModState oldState, ModState newState)
 {
+    if (newState == ModState::UNMOD && oldState == ModState::MOD)
+        treeModel.dataChanged({}, {});
     updateCaption();
 }
 
