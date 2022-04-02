@@ -37,11 +37,11 @@ namespace tf {
 }
 
 template <class T>
-concept Cloneable = requires(T& t) {
+concept UptrCloneable = requires(T& t) {
     { t.clone() } -> std::convertible_to<std::unique_ptr<T>>;
 };
 
-template <class T> requires Cloneable<T>
+template <class T> requires UptrCloneable<T>
 struct CloneableUptr : public std::unique_ptr<T>
 {
 private:
