@@ -212,7 +212,7 @@
                <item>
                 <widget class="QStackedWidget" name="stackOriginal">
                  <property name="currentIndex">
-                  <number>1</number>
+                  <number>0</number>
                  </property>
                  <widget class="QWidget" name="pageOriginal">
                   <layout class="QVBoxLayout" name="verticalLayout_11">
@@ -244,7 +244,7 @@
                        <number>0</number>
                       </property>
                       <property name="bottomMargin">
-                       <number>0</number>
+                       <number>2</number>
                       </property>
                       <item>
                        <widget class="QPlainTextEdit" name="memoOriginal">
@@ -281,6 +281,21 @@
                       <string>File</string>
                      </property>
                      <layout class="QVBoxLayout" name="verticalLayout_14">
+                      <property name="spacing">
+                       <number>0</number>
+                      </property>
+                      <property name="leftMargin">
+                       <number>4</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>4</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>2</number>
+                      </property>
                       <item>
                        <widget class="QCheckBox" name="chkIdless">
                         <property name="text">
@@ -311,7 +326,7 @@
                <item>
                 <widget class="QGroupBox" name="grpTranslation">
                  <property name="title">
-                  <string>[Translation]</string>
+                  <string>Translation</string>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_9">
                   <property name="leftMargin">
@@ -324,7 +339,7 @@
                    <number>0</number>
                   </property>
                   <property name="bottomMargin">
-                   <number>0</number>
+                   <number>2</number>
                   </property>
                   <item>
                    <widget class="QPlainTextEdit" name="memoTranslation">
@@ -355,7 +370,7 @@
                    <number>0</number>
                   </property>
                   <property name="bottomMargin">
-                   <number>0</number>
+                   <number>2</number>
                   </property>
                   <item>
                    <widget class="QPlainTextEdit" name="memoComment">
@@ -735,6 +750,8 @@
   <tabstop>btStartOpen</tabstop>
   <tabstop>treeStrings</tabstop>
   <tabstop>edId</tabstop>
+  <tabstop>memoOriginal</tabstop>
+  <tabstop>chkIdless</tabstop>
   <tabstop>memoTranslation</tabstop>
   <tabstop>memoComment</tabstop>
   <tabstop>browContext</tabstop>

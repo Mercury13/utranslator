@@ -278,10 +278,10 @@ FmMain::FmMain(QWidget *parent)
 
     // Signals/slots: editing
     connect(ui->edId, &QLineEdit::textEdited, this, &This::tempModify);
-    connect(ui->memoOriginal, &QPlainTextEdit::undoAvailable, this, &This::memoUndoAvailable);
+    connect(ui->memoOriginal, &QPlainTextEdit::textChanged, this, &This::tempModify);
     connect(ui->chkIdless, &QCheckBox::clicked, this, &This::tempModify);
-    connect(ui->memoTranslation, &QPlainTextEdit::undoAvailable, this, &This::memoUndoAvailable);
-    connect(ui->memoComment, &QPlainTextEdit::undoAvailable, this, &This::memoUndoAvailable);
+    connect(ui->memoTranslation, &QPlainTextEdit::textChanged, this, &This::tempModify);
+    connect(ui->memoComment, &QPlainTextEdit::textChanged, this, &This::tempModify);
 
     // Signals/slots: menu
     // File
@@ -394,6 +394,23 @@ void FmMain::treeCurrentChanged(
 }
 
 
+void FmMain::setMemo(QWidget* wi, QPlainTextEdit* memo, std::u8string_view y)
+{
+    wi->setEnabled(true);
+    isChangingProgrammatically = true;
+    memo->setPlainText(str::toQ(y));
+    isChangingProgrammatically = false;
+}
+
+void FmMain::banMemo(QWidget* wi, QPlainTextEdit* memo)
+{
+    wi->setEnabled(false);
+    isChangingProgrammatically = true;
+    memo->clear();
+    isChangingProgrammatically = false;
+}
+
+
 void FmMain::loadObject(tr::UiObject& obj)
 {
     ui->edId->setText(str::toQ(obj.idColumn()));
@@ -403,28 +420,27 @@ void FmMain::loadObject(tr::UiObject& obj)
         ui->chkIdless->setChecked(fi->isIdless);
     } else if (auto tr = obj.translatable()) {      // mutually exclusive with fileInfo
         ui->stackOriginal->setCurrentWidget(ui->pageOriginal);
-        ui->grpOriginal->setEnabled(true);
-        ui->grpTranslation->setEnabled(true);
-        ui->memoOriginal->setPlainText(str::toQ(tr->original));
-        ui->memoTranslation->setPlainText(str::toQ(tr->translationSv()));
+        setMemo(ui->grpOriginal, ui->memoOriginal, tr->original);
+        setMemo(ui->grpTranslation, ui->memoTranslation, tr->translationSv());
     } else {
         ui->stackOriginal->setCurrentWidget(ui->pageOriginal);
         ui->grpOriginal->setEnabled(false);
         ui->grpTranslation->setEnabled(false);
-        ui->memoOriginal->clear();
-        ui->memoTranslation->clear();
+        banMemo(ui->grpOriginal, ui->memoOriginal);
+        banMemo(ui->grpTranslation, ui->memoTranslation);
     }
     // Comment
     if (auto comm = obj.comments()) {
-        ui->grpComment->setEnabled(true);
-        if (project->info.type == tr::PrjType::ORIGINAL) {  // original
-            ui->memoComment->setPlainText(str::toQ(comm->authors));
-        } else {    // both full and patch translation
-            ui->memoComment->setPlainText(str::toQ(comm->translators));
+        switch (project->info.type) {
+        case tr::PrjType::ORIGINAL:
+            setMemo(ui->grpComment, ui->memoComment, comm->authors);
+            break;
+        case tr::PrjType::FULL_TRANSL:
+            setMemo(ui->grpComment, ui->memoComment, comm->translators);
+            break;
         }
     } else {
-        ui->grpComment->setEnabled(false);
-        ui->memoComment->clear();
+        banMemo(ui->grpComment, ui->memoComment);
     }
 }
 
@@ -500,15 +516,8 @@ tr::UiObject* FmMain::acceptCurrObject()
 
 void FmMain::tempModify()
 {
-    if (project)
+    if (project && !isChangingProgrammatically)
         project->tempModify();
-}
-
-
-void FmMain::memoUndoAvailable(bool b)
-{
-    if (b)
-        tempModify();
 }
 
 

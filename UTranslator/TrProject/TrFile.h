@@ -69,8 +69,10 @@ namespace tf {
         void doImport(Loader& loader) override;
         void doExport(Walker&) override {}
 
-        /// @todo [urgent] can export too, but let’s import somehow
+        /// @todo [future] can export too, but let’s import somehow
         Flags<Fcap> caps() const noexcept override { return Fcap::IMPORT; }
+        std::unique_ptr<FileFormat> clone() override
+            { return std::make_unique<EnumText>(*this); }
     };
 
 }   // namespace tf

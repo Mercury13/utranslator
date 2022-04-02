@@ -15,6 +15,7 @@ QT_END_NAMESPACE
 
 class FmNew;
 class FmDisambigPair;
+class QPlainTextEdit;
 
 template <class T>
 struct Thing {
@@ -106,7 +107,6 @@ private slots:
     void treeCurrentChanged(
             const QModelIndex& current, const QModelIndex& former);
     void tempModify();
-    void memoUndoAvailable(bool b);
 
     // Menu: File
     void doNew();
@@ -133,6 +133,7 @@ private:
 
     Uptr<FmNew> fmNew;
     Uptr<FmDisambigPair> fmDisambigPair;
+    std::atomic<bool> isChangingProgrammatically = false;
 
     /// Adapts window’s layout to project type:
     /// original / full translation / (someday) patch translation
@@ -156,4 +157,8 @@ private:
     void plantNewProject(std::shared_ptr<tr::Project>&& x);
     /// Enables-disables node editors en masse
     void setEditorsEnabled(bool x);
+    /// Sets memo programmatically, w/o triggering modify
+    void setMemo(QWidget* wi, QPlainTextEdit* memo, std::u8string_view y);
+    /// Same but for disabling components
+    void banMemo(QWidget* wi, QPlainTextEdit* memo);
 };
