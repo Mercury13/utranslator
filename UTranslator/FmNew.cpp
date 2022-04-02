@@ -39,5 +39,6 @@ void FmNew::copyTo(tr::PrjInfo& r)
     /// @todo [transl] Translation is not implemented in FmNew
     r.type = tr::PrjType::ORIGINAL;
     r.orig.lang = ui->edOrigLang->currentText().toStdString();
+    r.orig.isIdless = ui->chkIdless->isChecked();
     r.transl.lang.clear();
 }

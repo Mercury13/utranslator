@@ -119,6 +119,7 @@ private slots:
     // Menu: Go
     void goBack();
     void goNext();
+    void goUp();
     // Menu: Original
     void addHostedFile();
     void addHostedGroup();
@@ -147,8 +148,9 @@ private:
     /// Returns parent group for addition, probably calling dialog form
     std::optional<std::shared_ptr<tr::VirtualGroup>> disambigGroup(std::u8string_view title);
     QModelIndex treeIndex();
+    enum class EditMode { GROUP, TEXT };
     ///  Does what it needs to edit ORIGINAL (not translation)
-    void startEditingOrig(const QModelIndex& index);
+    void startEditingOrig(const QModelIndex& index, EditMode editMode);
     void selectSmth();
     void plantNewProject(std::shared_ptr<tr::Project>&& x);
 };

@@ -500,6 +500,7 @@
     </property>
     <addaction name="acGoBack"/>
     <addaction name="acGoNext"/>
+    <addaction name="acGoUp"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -508,10 +509,17 @@
     <addaction name="acAcceptChanges"/>
     <addaction name="acRevertChanges"/>
    </widget>
+   <widget class="QMenu" name="menu_Tools">
+    <property name="title">
+     <string>&amp;Tools</string>
+    </property>
+    <addaction name="acDecoder"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuOriginal"/>
    <addaction name="menuEdit"/>
    <addaction name="menuGo"/>
+   <addaction name="menu_Tools"/>
   </widget>
   <action name="acNew">
    <property name="text">
@@ -627,6 +635,22 @@
    </property>
    <property name="shortcut">
     <string>Esc</string>
+   </property>
+  </action>
+  <action name="acGoUp">
+   <property name="text">
+    <string>One level &amp;up</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+\</string>
+   </property>
+  </action>
+  <action name="acDecoder">
+   <property name="text">
+    <string>&amp;Decode text…</string>
+   </property>
+   <property name="shortcut">
+    <string>F4</string>
    </property>
   </action>
  </widget>

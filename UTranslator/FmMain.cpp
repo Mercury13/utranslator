@@ -196,9 +196,11 @@ Thing<tr::Group> PrjTreeModel::addHostedGroup(
 Thing<tr::Text> PrjTreeModel::addText(
         const std::shared_ptr<tr::VirtualGroup>& parent)
 {
-    if (!parent)
-        return {};
-    auto newId = parent->makeId({}, {});
+    if (!parent || !project)
+        return {};    
+    auto newId = project->info.orig.isIdless
+            ? std::u8string {}
+            : parent->makeId({}, {});
     auto newIndex = parent->nChildren();
     beginInsertRows(toIndex(parent, 0), newIndex, newIndex);
     auto text = parent->addText(newId, {}, tr::Modify::YES);
@@ -294,10 +296,12 @@ FmMain::FmMain(QWidget *parent)
     // Go
     connect(ui->acGoBack, &QAction::triggered, this, &This::goBack);
     connect(ui->acGoNext, &QAction::triggered, this, &This::goNext);
+    connect(ui->acGoUp, &QAction::triggered, this, &This::goUp);
 
     // Unused menu items
     ui->acMoveUp->setEnabled(false);
     ui->acMoveDown->setEnabled(false);
+    ui->acDecoder->setEnabled(false);
 
     updateCaption();
     reenable();
@@ -517,6 +521,7 @@ void FmMain::reenable()
     // Menu: Go
     ui->acGoBack->setEnabled(isMainVisible);
     ui->acGoNext->setEnabled(isMainVisible);
+    ui->acGoUp->setEnabled(isMainVisible);
 }
 
 
@@ -534,18 +539,35 @@ void FmMain::goNext()
 }
 
 
-void FmMain::startEditingOrig(const QModelIndex& index)
+void FmMain::goUp()
+{
+    /// @todo [urgent] goUp
+    QMessageBox::information(this, "goUp", "goUp!!!!!");
+}
+
+
+void FmMain::startEditingOrig(const QModelIndex& index, EditMode editMode)
 {
     ui->treeStrings->setCurrentIndex(index);
-    ui->edId->setFocus();
-    ui->edId->selectAll();
+    switch (editMode) {
+    case EditMode::TEXT:
+        if (project && project->info.orig.isIdless) {
+            ui->memoOriginal->setFocus();
+            break;
+        }
+        [[fallthrough]];
+    case EditMode::GROUP:
+        ui->edId->setFocus();
+        ui->edId->selectAll();
+        break;
+    }
 }
 
 
 void FmMain::addHostedFile()
 {
     auto file = treeModel.addHostedFile();
-    startEditingOrig(file.index);
+    startEditingOrig(file.index, EditMode::GROUP);
 }
 
 
@@ -578,7 +600,7 @@ void FmMain::addHostedGroup()
     if (auto dis = disambigGroup(u8"Add group")) {
         auto group = treeModel.addHostedGroup(*dis);
         if (group) {    // Have group
-            startEditingOrig(group.index);
+            startEditingOrig(group.index, EditMode::GROUP);
         } else {        // No group
             QMessageBox::warning(this,
                         "Add group",
@@ -593,7 +615,7 @@ void FmMain::addText()
     if (auto dis = disambigGroup(u8"Add text")) {
         auto text = treeModel.addText(*dis);
         if (text) {    // Have text
-            startEditingOrig(text.index);
+            startEditingOrig(text.index, EditMode::TEXT);
         } else {        // No text
             QMessageBox::warning(this,
                         "Add text",
