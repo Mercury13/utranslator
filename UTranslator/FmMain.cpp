@@ -456,11 +456,12 @@ void FmMain::acceptObject(tr::UiObject& obj)
 }
 
 
-void FmMain::acceptCurrObject()
+tr::UiObject* FmMain::acceptCurrObject()
 {
     auto index = treeIndex();
     auto obj = treeModel.toObj(index);
     acceptObject(*obj);
+    return obj;
 }
 
 
@@ -560,10 +561,9 @@ QModelIndex FmMain::treeIndex()
 
 std::optional<std::shared_ptr<tr::VirtualGroup>> FmMain::disambigGroup(std::u8string_view title)
 {
-    auto index = treeIndex();
-    auto obj = treeModel.toObj(index);
+    auto obj = acceptCurrObject();
     auto pair = obj->additionParents();
-    if (pair.is2()) {
+    if (pair.is2()) {        
         return fmDisambigPair.ensure(this).exec(title, pair);
     } else {
         return pair.first;

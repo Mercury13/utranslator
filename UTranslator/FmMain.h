@@ -114,7 +114,7 @@ private slots:
     void doSave();
     void doSaveAs();
     // Menu: Edit
-    void acceptCurrObject();
+    tr::UiObject* acceptCurrObject();
     void revertCurrObject();
     // Menu: Go
     void goBack();
