@@ -270,6 +270,10 @@ FmMain::FmMain(QWidget *parent)
     // Signals/slots: tree etc.
     connect(ui->treeStrings->selectionModel(), &QItemSelectionModel::currentChanged,
             this, &This::treeCurrentChanged);
+    connect(ui->edId, &QLineEdit::textEdited, this, &This::tempModify);
+    connect(ui->memoOriginal, &QPlainTextEdit::undoAvailable, this, &This::memoUndoAvailable);
+    connect(ui->memoTranslation, &QPlainTextEdit::undoAvailable, this, &This::memoUndoAvailable);
+    connect(ui->memoComment, &QPlainTextEdit::undoAvailable, this, &This::memoUndoAvailable);
 
     // Signals/slots: menu
     // File
@@ -460,11 +464,27 @@ void FmMain::acceptCurrObject()
 }
 
 
+void FmMain::tempModify()
+{
+    if (project)
+        project->tempModify();
+}
+
+
+void FmMain::memoUndoAvailable(bool b)
+{
+    if (b)
+        tempModify();
+}
+
+
 void FmMain::revertCurrObject()
 {
     auto index = treeIndex();
     auto obj = treeModel.toObj(index);
     loadObject(*obj);
+    if (project)
+        project->tempRevert();
     selectSmth();
 }
 
@@ -625,8 +645,11 @@ void FmMain::updateCaption()
 {
     QString s;
     if (project) {
-        if (project->isModified())
-            s += u8"✱ ";
+        switch (project->modState()) {
+        case ModState::UNMOD: break;
+        case ModState::TEMP: s += u8"? "; break;
+        case ModState::MOD: s += u8"✱ "; break;
+        }
         auto fname = project->fname.filename().u8string();
         if (fname.empty()) {
             s += "(Untitled)";

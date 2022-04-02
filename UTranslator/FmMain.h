@@ -105,6 +105,8 @@ private slots:
     // Tree etc.
     void treeCurrentChanged(
             const QModelIndex& current, const QModelIndex& former);
+    void tempModify();
+    void memoUndoAvailable(bool b);
 
     // Menu: File
     void doNew();
