@@ -568,8 +568,14 @@ void FmMain::goNext()
 
 void FmMain::goUp()
 {
-    /// @todo [urgent] goUp
-    QMessageBox::information(this, "goUp", "goUp!!!!!");
+    auto index = ui->treeStrings->currentIndex();
+    if (!index.isValid())
+        return;
+    auto parent = treeModel.parent(index);
+    if (!parent.isValid())
+        return;
+    ui->treeStrings->selectionModel()->setCurrentIndex(
+                parent, QItemSelectionModel::SelectCurrent);
 }
 
 
