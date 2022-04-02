@@ -147,7 +147,7 @@
            </layout>
           </widget>
           <widget class="QWidget" name="wiEditor" native="true">
-           <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="2,1">
+           <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="3,1">
             <property name="spacing">
              <number>4</number>
             </property>
@@ -164,138 +164,214 @@
              <number>0</number>
             </property>
             <item>
-             <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0,1,1,1">
-              <property name="spacing">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
-               <number>0</number>
-              </property>
-              <item>
-               <widget class="QWidget" name="wiId" native="true">
-                <layout class="QHBoxLayout" name="horizontalLayout_4">
-                 <property name="leftMargin">
-                  <number>4</number>
+             <widget class="QWidget" name="wiEditors" native="true">
+              <layout class="QVBoxLayout" name="layEditors" stretch="0,1,1,1">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QWidget" name="wiId" native="true">
+                 <layout class="QHBoxLayout" name="horizontalLayout_4">
+                  <property name="leftMargin">
+                   <number>4</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>4</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QLabel" name="lbId">
+                    <property name="text">
+                     <string>ID</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLineEdit" name="edId"/>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <widget class="QStackedWidget" name="stackOriginal">
+                 <property name="currentIndex">
+                  <number>1</number>
                  </property>
-                 <property name="topMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="rightMargin">
-                  <number>4</number>
-                 </property>
-                 <property name="bottomMargin">
-                  <number>0</number>
-                 </property>
-                 <item>
-                  <widget class="QLabel" name="lbId">
-                   <property name="text">
-                    <string>ID</string>
+                 <widget class="QWidget" name="pageOriginal">
+                  <layout class="QVBoxLayout" name="verticalLayout_11">
+                   <property name="leftMargin">
+                    <number>0</number>
                    </property>
-                   <property name="buddy">
-                    <cstring>edId</cstring>
+                   <property name="topMargin">
+                    <number>0</number>
                    </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLineEdit" name="edId"/>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-              <item>
-               <widget class="QGroupBox" name="grpOriginal">
-                <property name="title">
-                 <string>Original</string>
-                </property>
-                <layout class="QVBoxLayout" name="verticalLayout_8">
-                 <property name="leftMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="topMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="rightMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="bottomMargin">
-                  <number>0</number>
-                 </property>
-                 <item>
-                  <widget class="QPlainTextEdit" name="memoOriginal">
-                   <property name="frameShape">
-                    <enum>QFrame::NoFrame</enum>
+                   <property name="rightMargin">
+                    <number>0</number>
                    </property>
-                   <property name="tabChangesFocus">
-                    <bool>true</bool>
+                   <property name="bottomMargin">
+                    <number>0</number>
                    </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-              <item>
-               <widget class="QGroupBox" name="grpTranslation">
-                <property name="title">
-                 <string>[Translation]</string>
-                </property>
-                <layout class="QVBoxLayout" name="verticalLayout_9">
-                 <property name="leftMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="topMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="rightMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="bottomMargin">
-                  <number>0</number>
-                 </property>
-                 <item>
-                  <widget class="QPlainTextEdit" name="memoTranslation">
-                   <property name="frameShape">
-                    <enum>QFrame::NoFrame</enum>
+                   <item>
+                    <widget class="QGroupBox" name="grpOriginal">
+                     <property name="title">
+                      <string>Original</string>
+                     </property>
+                     <layout class="QVBoxLayout" name="verticalLayout_8">
+                      <property name="leftMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>0</number>
+                      </property>
+                      <item>
+                       <widget class="QPlainTextEdit" name="memoOriginal">
+                        <property name="frameShape">
+                         <enum>QFrame::NoFrame</enum>
+                        </property>
+                        <property name="tabChangesFocus">
+                         <bool>true</bool>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                 <widget class="QWidget" name="pageFile">
+                  <layout class="QVBoxLayout" name="verticalLayout_13">
+                   <property name="leftMargin">
+                    <number>0</number>
                    </property>
-                   <property name="tabChangesFocus">
-                    <bool>true</bool>
+                   <property name="topMargin">
+                    <number>0</number>
                    </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-              <item>
-               <widget class="QGroupBox" name="grpComment">
-                <property name="title">
-                 <string>Comment</string>
-                </property>
-                <layout class="QVBoxLayout" name="verticalLayout_10">
-                 <property name="leftMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="topMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="rightMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="bottomMargin">
-                  <number>0</number>
-                 </property>
-                 <item>
-                  <widget class="QPlainTextEdit" name="memoComment">
-                   <property name="frameShape">
-                    <enum>QFrame::NoFrame</enum>
+                   <property name="rightMargin">
+                    <number>0</number>
                    </property>
-                   <property name="tabChangesFocus">
-                    <bool>true</bool>
+                   <property name="bottomMargin">
+                    <number>0</number>
                    </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-             </layout>
+                   <item>
+                    <widget class="QGroupBox" name="grpFile">
+                     <property name="title">
+                      <string>File</string>
+                     </property>
+                     <layout class="QVBoxLayout" name="verticalLayout_14">
+                      <item>
+                       <widget class="QCheckBox" name="chkIdless">
+                        <property name="text">
+                         <string>Optional text IDs, identify by original (gettext *.po, Qt *.qm…)</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <spacer name="verticalSpacer_2">
+                        <property name="orientation">
+                         <enum>Qt::Vertical</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>20</width>
+                          <height>40</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                     </layout>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </widget>
+               </item>
+               <item>
+                <widget class="QGroupBox" name="grpTranslation">
+                 <property name="title">
+                  <string>[Translation]</string>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_9">
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QPlainTextEdit" name="memoTranslation">
+                    <property name="frameShape">
+                     <enum>QFrame::NoFrame</enum>
+                    </property>
+                    <property name="tabChangesFocus">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <widget class="QGroupBox" name="grpComment">
+                 <property name="title">
+                  <string>Comment</string>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_10">
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QPlainTextEdit" name="memoComment">
+                    <property name="frameShape">
+                     <enum>QFrame::NoFrame</enum>
+                    </property>
+                    <property name="tabChangesFocus">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+              </layout>
+             </widget>
             </item>
             <item>
              <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -659,7 +735,6 @@
   <tabstop>btStartOpen</tabstop>
   <tabstop>treeStrings</tabstop>
   <tabstop>edId</tabstop>
-  <tabstop>memoOriginal</tabstop>
   <tabstop>memoTranslation</tabstop>
   <tabstop>memoComment</tabstop>
   <tabstop>browContext</tabstop>

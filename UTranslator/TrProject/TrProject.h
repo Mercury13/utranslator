@@ -150,11 +150,15 @@ namespace tr {
         /// @return extracted child
         /// @warning  Because of recache, complexity is O(n)
         virtual std::shared_ptr<Entity> extractChild(size_t) { return {}; }
+        // New virtuals
+        virtual std::shared_ptr<File> file() = 0;
 
         /// @return  ptr to comments, or null
         virtual Comments* comments() { return nullptr; }
         /// @return  ptr to original/translation, or null
         virtual Translatable* translatable() { return nullptr; }
+        /// @return  ptr to file info, or null
+        virtual FileInfo* fileInfo() { return nullptr; }
         /// @return  ptr to project
         virtual std::shared_ptr<Project> project() = 0;
         /// @return  one or two parent groups for “Add group” / “Add string”
@@ -173,6 +177,8 @@ namespace tr {
         bool setTranslation(std::optional<std::u8string_view> x, tr::Modify wantModify);
         /// @return [+] was actually changed
         bool setTranslatorsComment(std::u8string_view x, tr::Modify wantModify);
+        /// @return [+] was actually changed
+        bool setIdless(bool x, tr::Modify wantModify);
         /// @return some ID
         std::u8string makeId(
                 std::u8string_view prefix,
@@ -200,9 +206,6 @@ namespace tr {
         std::u8string_view idColumn() const override { return id; }
         Comments* comments() override { return &comm; }
         bool setId(std::u8string_view x, tr::Modify wantModify) override;
-
-        // New virtuals
-        virtual std::shared_ptr<File> file() = 0;
 
         /// Writes object to XML
         /// @param [in,out] root  tag ABOVE, should create a new one for entity
@@ -281,7 +284,7 @@ namespace tr {
     private:
         using Super = VirtualGroup;
     public:
-        std::unique_ptr<tf::FileInfo> linkedFile;
+        std::unique_ptr<tf::FileFormat> linkedFile;
 
         Group(const std::shared_ptr<VirtualGroup>& aParent,
               size_t aIndex, const PassKey&);
@@ -302,8 +305,10 @@ namespace tr {
     class File final : public VirtualGroup
     {
     public:
+        FileInfo info;
+        std::unique_ptr<tf::FileFormat> format;
+
         std::shared_ptr<Project> project() override { return fProject.lock(); }
-        std::unique_ptr<tf::FileInfo> fileInfo;
 
         ObjType objType() const override { return ObjType::FILE; }
         std::shared_ptr<UiObject> parent() const override;
@@ -314,6 +319,7 @@ namespace tr {
         File(std::weak_ptr<Project> aProject, size_t aIndex, const PassKey&);
         void writeToXml(pugi::xml_node&, WrCache&) const override;
         void readFromXml(const pugi::xml_node& node, const PrjInfo& info) override;
+        virtual FileInfo* fileInfo() override { return &info; }
     protected:
         std::weak_ptr<Project> fProject;
     };
@@ -342,6 +348,7 @@ namespace tr {
         std::shared_ptr<Project> self();
 
         ObjType objType() const override { return ObjType::PROJECT; }
+        std::shared_ptr<File> file() override { return {}; }
         size_t nChildren() const override { return files.size(); };
         std::shared_ptr<Entity> child(size_t i) const override;
         std::shared_ptr<UiObject> parent() const override { return {}; }

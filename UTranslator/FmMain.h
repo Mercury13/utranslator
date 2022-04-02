@@ -152,5 +152,8 @@ private:
     ///  Does what it needs to edit ORIGINAL (not translation)
     void startEditingOrig(const QModelIndex& index, EditMode editMode);
     void selectSmth();
+    /// We made a project (new/load); plants it into UI
     void plantNewProject(std::shared_ptr<tr::Project>&& x);
+    /// Enables-disables node editors en masse
+    void setEditorsEnabled(bool x);
 };

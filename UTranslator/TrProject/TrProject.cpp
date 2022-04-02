@@ -185,6 +185,20 @@ bool tr::UiObject::setOriginal(std::u8string_view x, tr::Modify wantModify)
 }
 
 
+bool tr::UiObject::setIdless(bool x, tr::Modify wantModify)
+{
+    if (auto fi = fileInfo()) {
+        if (fi->isIdless != x) {
+            fi->isIdless = x;
+            if (wantModify != Modify::NO) {
+                doModify(Mch::ORIG);
+            }
+        }
+    }
+    return false;
+}
+
+
 bool tr::UiObject::setTranslation(
         std::optional<std::u8string_view> x, tr::Modify wantModify)
 {
@@ -659,14 +673,16 @@ void tr::File::writeToXml(pugi::xml_node& root, WrCache& c) const
 {
     auto node = root.append_child("file");
         node.append_attribute("name") = str::toC(id);
+        node.append_attribute("idless") = info.isIdless;
     writeCommentsAndChildren(node, c);
 }
 
 
-void tr::File::readFromXml(const pugi::xml_node& node, const PrjInfo& info)
+void tr::File::readFromXml(const pugi::xml_node& node, const PrjInfo& pinfo)
 {
-    id = str::toU8sv(rqAttr(node, "name").value());
-    readCommentsAndChildren(node, info);
+    id = str::toU8sv(node.attribute("name").as_string());
+    info.isIdless = node.attribute("idless").as_bool(false);
+    readCommentsAndChildren(node, pinfo);
 }
 
 
@@ -780,7 +796,6 @@ void tr::Project::writeToXml(pugi::xml_node& doc) const
     auto nodeInfo = root.append_child("info");
         auto nodeOrig = nodeInfo.append_child("orig");
             nodeOrig.append_attribute("lang") = info.orig.lang.c_str();
-            nodeOrig.append_attribute("idless") = info.orig.isIdless;
     if (info.type != PrjType::ORIGINAL) {
         auto nodeTransl = nodeInfo.append_child("transl");
             nodeTransl.append_attribute("lang") = info.transl.lang.c_str();
@@ -798,7 +813,6 @@ void tr::Project::readFromXml(const pugi::xml_node& node)
     auto nodeInfo = rqChild(node, "info");
         auto nodeOrig = rqChild(nodeInfo, "orig");
             info.orig.lang = nodeOrig.attribute("lang").as_string("en");
-            info.orig.isIdless = nodeOrig.attribute("idless").as_bool(false);
     if (info.type != PrjType::ORIGINAL) {
         auto nodeTransl = rqChild(nodeInfo, "transl");
             info.transl.lang = rqAttr(nodeTransl, "lang").value();

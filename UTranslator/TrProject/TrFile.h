@@ -4,9 +4,7 @@
 #include <string>
 #include <span>
 
-// Libs
-#include "u_TypedFlags.h"
-
+#include "TrDefines.h"
 
 namespace tf {
 
@@ -59,29 +57,6 @@ namespace tf {
             { return findTextAtRel(std::span<const std::u8string>(&id, 1)); }
     };
 
-    enum class Fcap {
-        IMPORT = 1,
-        EXPORT = 2,
-        /// [+] needs file and cannot export if it’s absent (e.g. Qt form)
-        /// [−] creates file from scratch (e.g. simple text/binary file, Transifex XLIFF)
-        NEEDS_FILE = 4,
-    };
-    DEFINE_ENUM_OPS(Fcap)
-
-    ///
-    /// \brief The FileInfo class
-    ///   Common ancestor for file import/export
-    ///
-    class FileInfo
-    {
-    public:
-        virtual void doImport(Loader& loader) = 0;
-        virtual void doExport(Walker& walker) = 0;
-
-        virtual Flags<Fcap> caps() const noexcept = 0;
-        virtual ~FileInfo() = default;
-    };
-
     ///
     /// \brief The EnumText class
     ///   Simple type of file:
@@ -89,7 +64,7 @@ namespace tf {
     ///     And this string two       << id=2
     ///     String three              << id=3
     ///
-    class EnumText final : public FileInfo
+    class EnumText final : public FileFormat
     {
         void doImport(Loader& loader) override;
         void doExport(Walker&) override {}
@@ -98,4 +73,4 @@ namespace tf {
         Flags<Fcap> caps() const noexcept override { return Fcap::IMPORT; }
     };
 
-}   // namespace tr
+}   // namespace tf

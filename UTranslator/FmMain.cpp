@@ -196,9 +196,12 @@ Thing<tr::Group> PrjTreeModel::addHostedGroup(
 Thing<tr::Text> PrjTreeModel::addText(
         const std::shared_ptr<tr::VirtualGroup>& parent)
 {
-    if (!parent || !project)
-        return {};    
-    auto newId = project->info.orig.isIdless
+    if (!parent)
+        return {};
+    auto file = parent->file();
+    if (!file)
+        return {};
+    auto newId = file->info.isIdless
             ? std::u8string {}
             : parent->makeId({}, {});
     auto newIndex = parent->nChildren();
@@ -272,8 +275,11 @@ FmMain::FmMain(QWidget *parent)
     // Signals/slots: tree etc.
     connect(ui->treeStrings->selectionModel(), &QItemSelectionModel::currentChanged,
             this, &This::treeCurrentChanged);
+
+    // Signals/slots: editing
     connect(ui->edId, &QLineEdit::textEdited, this, &This::tempModify);
     connect(ui->memoOriginal, &QPlainTextEdit::undoAvailable, this, &This::memoUndoAvailable);
+    connect(ui->chkIdless, &QCheckBox::clicked, this, &This::tempModify);
     connect(ui->memoTranslation, &QPlainTextEdit::undoAvailable, this, &This::memoUndoAvailable);
     connect(ui->memoComment, &QPlainTextEdit::undoAvailable, this, &This::memoUndoAvailable);
 
@@ -303,6 +309,7 @@ FmMain::FmMain(QWidget *parent)
     ui->acMoveDown->setEnabled(false);
     ui->acDecoder->setEnabled(false);
 
+    setEditorsEnabled(false);   // while no project, let it be false
     updateCaption();
     reenable();
 }
@@ -359,30 +366,49 @@ void FmMain::adaptLayout()
 }
 
 
+void FmMain::setEditorsEnabled(bool x)
+{
+    ui->wiEditors->setEnabled(x);
+    if (!x)
+        ui->stackOriginal->setCurrentWidget(ui->pageOriginal);
+}
+
+
 void FmMain::treeCurrentChanged(
         const QModelIndex& current, const QModelIndex& former)
 {
     auto formerObj = treeModel.toObj(former);
     auto currentObj = treeModel.toObj(current);
 
-    if (auto currentPrj = currentObj->project()) {
-        if (formerObj->project() == currentPrj)
-            acceptObject(*formerObj);
-        loadObject(*currentObj);
+    if (current.isValid()) {
+        if (auto currentPrj = currentObj->project()) {
+            if (formerObj->project() == currentPrj)
+                acceptObject(*formerObj);
+            setEditorsEnabled(true);
+            loadObject(*currentObj);
+            return;
+        }
     }
+    // Otherwise
+    setEditorsEnabled(false);
 }
 
 
 void FmMain::loadObject(tr::UiObject& obj)
 {
     ui->edId->setText(str::toQ(obj.idColumn()));
-    // Original/translation
-    if (auto tr = obj.translatable()) {
+    // File/Original/translation
+    if (auto fi = obj.fileInfo()) {
+        ui->stackOriginal->setCurrentWidget(ui->pageFile);
+        ui->chkIdless->setChecked(fi->isIdless);
+    } else if (auto tr = obj.translatable()) {      // mutually exclusive with fileInfo
+        ui->stackOriginal->setCurrentWidget(ui->pageOriginal);
         ui->grpOriginal->setEnabled(true);
         ui->grpTranslation->setEnabled(true);
         ui->memoOriginal->setPlainText(str::toQ(tr->original));
         ui->memoTranslation->setPlainText(str::toQ(tr->translationSv()));
     } else {
+        ui->stackOriginal->setCurrentWidget(ui->pageOriginal);
         ui->grpOriginal->setEnabled(false);
         ui->grpTranslation->setEnabled(false);
         ui->memoOriginal->clear();
@@ -449,6 +475,7 @@ void FmMain::acceptObject(tr::UiObject& obj)
     switch (project->info.type) {
     case tr::PrjType::ORIGINAL:
         obj.setId(toU8(ui->edId, cache), tr::Modify::YES);
+        obj.setIdless(ui->chkIdless->isChecked(), tr::Modify::YES);
         obj.setOriginal(toText(ui->memoOriginal, cache), tr::Modify::YES);
         obj.setAuthorsComment(toText(ui->memoComment, cache), tr::Modify::YES);
         break;
@@ -549,9 +576,11 @@ void FmMain::goUp()
 void FmMain::startEditingOrig(const QModelIndex& index, EditMode editMode)
 {
     ui->treeStrings->setCurrentIndex(index);
+    auto obj = treeModel.toObj(index);
+    auto file = obj->file();
     switch (editMode) {
     case EditMode::TEXT:
-        if (project && project->info.orig.isIdless) {
+        if (file && file->info.isIdless) {
             ui->memoOriginal->setFocus();
             break;
         }
