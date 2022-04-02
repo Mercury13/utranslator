@@ -453,6 +453,8 @@ void FmMain::acceptObject(tr::UiObject& obj)
         obj.setTranslatorsComment(toText(ui->memoComment, cache), tr::Modify::YES);
         break;
     }
+    if (project)
+        project->tempRevert();
 }
 
 
