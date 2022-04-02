@@ -37,19 +37,19 @@ namespace tf {
 }
 
 template <class T>
-concept UptrCloneable = requires(T& t) {
+concept UpCloneable = requires(T& t) {
     { t.clone() } -> std::convertible_to<std::unique_ptr<T>>;
 };
 
-template <class T> requires UptrCloneable<T>
-struct CloneableUptr : public std::unique_ptr<T>
+template <class T> requires UpCloneable<T>
+struct CloningUptr : public std::unique_ptr<T>
 {
 private:
     using Super = std::unique_ptr<T>;
 public:
     using Super::Super;
     using Super::operator =;
-    CloneableUptr<T>& operator = (const CloneableUptr<T>& x)
+    CloningUptr<T>& operator = (const CloningUptr<T>& x)
         { *this = x.clone(); }
 };
 
@@ -74,7 +74,7 @@ namespace tr {
     };
 
     struct FileInfo {
-        CloneableUptr<tf::FileFormat> format;
+        CloningUptr<tf::FileFormat> format;
         bool isIdless = false;
     };
 
