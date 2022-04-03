@@ -41,7 +41,7 @@ concept UpCloneable = requires(T& t) {
     { t.clone() } -> std::convertible_to<std::unique_ptr<T>>;
 };
 
-template <class T> requires UpCloneable<T>
+template <UpCloneable T>
 struct CloningUptr : public std::unique_ptr<T>
 {
 private:
