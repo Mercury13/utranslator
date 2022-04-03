@@ -16,6 +16,8 @@ public:
     explicit FmDecoder(QWidget *parent = nullptr);
     ~FmDecoder();
     int exec() override;
+private slots:
+    void decodeCpp();
 private:
     Ui::FmDecoder *ui;
 };
