@@ -12,7 +12,9 @@ SOURCES += \
     ../Libs/SelfMade/u_OpenSaveStrings.cpp \
     ../Libs/SelfMade/u_Qstrings.cpp \
     ../Libs/SelfMade/u_Strings.cpp \
+    FmDecoder.cpp \
     FmDisambigPair.cpp \
+    TrProject/Decoders.cpp \
     TrProject/Modifiable.cpp \
     TrProject/TrDefines.cpp \
     TrProject/TrFile.cpp \
@@ -29,7 +31,9 @@ HEADERS += \
     ../Libs/SelfMade/u_Qstrings.h \
     ../Libs/SelfMade/u_Strings.h \
     ../Libs/SelfMade/u_TypedFlags.h \
+    FmDecoder.h \
     FmDisambigPair.h \
+    TrProject/Decoders.h \
     TrProject/Modifiable.h \
     TrProject/TrDefines.h \
     TrProject/TrFile.h \
@@ -43,6 +47,7 @@ INCLUDEPATH += \
     TrProject
 
 FORMS += \
+    FmDecoder.ui \
     FmDisambigPair.ui \
     FmMain.ui \
     FmNew.ui

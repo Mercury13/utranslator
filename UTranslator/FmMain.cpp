@@ -13,6 +13,7 @@
 // UI forms
 #include "FmNew.h"
 #include "FmDisambigPair.h"
+#include "FmDecoder.h"
 
 
 ///// PrjTreeModel /////////////////////////////////////////////////////////////
@@ -303,11 +304,12 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->acGoBack, &QAction::triggered, this, &This::goBack);
     connect(ui->acGoNext, &QAction::triggered, this, &This::goNext);
     connect(ui->acGoUp, &QAction::triggered, this, &This::goUp);
+    // Tools
+    connect(ui->acDecoder, &QAction::triggered, this, &This::runDecoder);
 
     // Unused menu items
     ui->acMoveUp->setEnabled(false);
     ui->acMoveDown->setEnabled(false);
-    ui->acDecoder->setEnabled(false);
 
     setEditorsEnabled(false);   // while no project, let it be false
     updateCaption();
@@ -796,4 +798,11 @@ void FmMain::doSave()
             QMessageBox::critical(this, "Save problem", QString::fromStdString(e.what()));
         }
     }
+}
+
+
+void FmMain::runDecoder()
+{
+    /// @todo [urgent] what to do?
+    fmDecoder.ensure(this).exec();
 }

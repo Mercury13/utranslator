@@ -66,6 +66,8 @@ namespace tf {
     ///
     class EnumText final : public FileFormat
     {
+        EscapeInfo escapeInfo;
+
         void doImport(Loader& loader) override;
         void doExport(Walker&) override {}
 
@@ -73,6 +75,9 @@ namespace tf {
         Flags<Fcap> caps() const noexcept override { return Fcap::IMPORT; }
         std::unique_ptr<FileFormat> clone() override
             { return std::make_unique<EnumText>(*this); }
+
+        MobileInfo mobileInfo() const override;
+        void setMobileInfo(const MobileInfo& x) override;
     };
 
 }   // namespace tf

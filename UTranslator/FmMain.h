@@ -15,6 +15,7 @@ QT_END_NAMESPACE
 
 class FmNew;
 class FmDisambigPair;
+class FmDecoder;
 class QPlainTextEdit;
 
 template <class T>
@@ -125,6 +126,8 @@ private slots:
     void addHostedGroup();
     void addText();
     void doDelete();
+    // Menu: Tools
+    void runDecoder();
 private:
     Ui::FmMain *ui;
 
@@ -133,6 +136,7 @@ private:
 
     Uptr<FmNew> fmNew;
     Uptr<FmDisambigPair> fmDisambigPair;
+    Uptr<FmDecoder> fmDecoder;
     std::atomic<bool> isChangingProgrammatically = false;
 
     /// Adapts window’s layout to project type:

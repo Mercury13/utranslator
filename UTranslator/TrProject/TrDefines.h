@@ -11,13 +11,42 @@ namespace tf {
     class Walker;
 
     enum class Fcap {
+        // FEATURES
         IMPORT = 1,
         EXPORT = 2,
-        /// [+] needs file and cannot export if it’s absent (e.g. Qt form)
+        // EXPORT CONSTRAINTS, all need EXPORT flag
+        /// [+] needs file and cannot export if it’s absent (e.g. Qt *.ui)
         /// [−] creates file from scratch (e.g. simple text/binary file, Transifex XLIFF)
         NEEDS_FILE = 4,
+        NEEDS_ID = 8,           ///< [+] needs non-empty ID
+        HAS_ORDER = 16,         ///< [+] Lines are made in specified order
     };
     DEFINE_ENUM_OPS(Fcap)
+
+    enum class LineBreakStyle { CR, LF, CRLF };
+
+    enum class EscapeMode {
+        NONE,           ///< Line-breaks banned
+        C_CR,           ///< C mode: break = /r, / = //   (actually BACKslash here)
+        C_LF,           ///< C mode: break = /n, / = //   (actually BACKslash here)
+        SPECIFIED_CHAR  ///< Specified character that’s banned in text
+    };
+
+    ///  Principles of escaping line-breaks
+    struct EscapeInfo {
+        EscapeMode mode = EscapeMode::NONE;
+        char specifiedChar = '^';
+    };
+
+    ///
+    ///  Very common settings that are often transfered from format to format
+    ///  LineBreakStyle and EscapeInfo are probably mutually-exclusive.
+    ///
+    struct MobileInfo {
+        LineBreakStyle lineBreakMode = LineBreakStyle::LF;
+        EscapeInfo escapeInfo {};
+        char multitierSeparator = '.';
+    };
 
     ///
     /// \brief The FileInfo class
@@ -33,6 +62,8 @@ namespace tf {
         virtual ~FileFormat() = default;
 
         virtual std::unique_ptr<FileFormat> clone() = 0;
+        virtual MobileInfo mobileInfo() const { return {}; }
+        virtual void setMobileInfo(const MobileInfo&) {}
     };
 }
 
@@ -59,7 +90,6 @@ namespace tr {
     constexpr int PrjType_N = static_cast<int>(PrjType::FULL_TRANSL) + 1;
     extern const char* prjTypeNames[PrjType_N];
 
-    enum class LineBreakMode { CR, LF, CRLF };
     constexpr int LineBreakMode_N = static_cast<int>(PrjType::FULL_TRANSL) + 1;
     extern const char* lineBreakModeNames[PrjType_N];
 
