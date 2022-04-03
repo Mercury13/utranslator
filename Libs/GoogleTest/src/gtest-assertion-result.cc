@@ -1,4 +1,4 @@
-// Copyright 2008, Google Inc.
+// Copyright 2005, Google Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,35 +27,51 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+// The Google C++ Testing and Mocking Framework (Google Test)
 //
-// Tests for Google Test itself.  This verifies that the basic constructs of
-// Google Test work.
+// This file defines the AssertionResult type.
 
-#include "gtest/gtest.h"
-#include "googletest-param-test-test.h"
+#include "gtest/gtest-assertion-result.h"
 
-using ::testing::Values;
-using ::testing::internal::ParamGenerator;
+#include <string>
+#include <utility>
 
-// Tests that generators defined in a different translation unit
-// are functional. The test using extern_gen_2 is defined
-// in googletest-param-test-test.cc.
-ParamGenerator<int> extern_gen_2 = Values(33);
+#include "gtest/gtest-message.h"
 
-// Tests that a parameterized test case can be defined in one translation unit
-// and instantiated in another. The test is defined in
-// googletest-param-test-test.cc and ExternalInstantiationTest fixture class is
-// defined in gtest-param-test_test.h.
-INSTANTIATE_TEST_SUITE_P(MultiplesOf33,
-                         ExternalInstantiationTest,
-                         Values(33, 66));
+namespace testing {
 
-// Tests that a parameterized test case can be instantiated
-// in multiple translation units. Another instantiation is defined
-// in googletest-param-test-test.cc and
-// InstantiationInMultipleTranslationUnitsTest fixture is defined in
-// gtest-param-test_test.h
-INSTANTIATE_TEST_SUITE_P(Sequence2,
-                         InstantiationInMultipleTranslationUnitsTest,
-                         Values(42*3, 42*4, 42*5));
+// AssertionResult constructors.
+// Used in EXPECT_TRUE/FALSE(assertion_result).
+AssertionResult::AssertionResult(const AssertionResult& other)
+    : success_(other.success_),
+      message_(other.message_.get() != nullptr
+                   ? new ::std::string(*other.message_)
+                   : static_cast< ::std::string*>(nullptr)) {}
 
+// Swaps two AssertionResults.
+void AssertionResult::swap(AssertionResult& other) {
+  using std::swap;
+  swap(success_, other.success_);
+  swap(message_, other.message_);
+}
+
+// Returns the assertion's negation. Used with EXPECT/ASSERT_FALSE.
+AssertionResult AssertionResult::operator!() const {
+  AssertionResult negation(!success_);
+  if (message_.get() != nullptr) negation << *message_;
+  return negation;
+}
+
+// Makes a successful assertion result.
+AssertionResult AssertionSuccess() { return AssertionResult(true); }
+
+// Makes a failed assertion result.
+AssertionResult AssertionFailure() { return AssertionResult(false); }
+
+// Makes a failed assertion result with the given failure message.
+// Deprecated; use AssertionFailure() << message.
+AssertionResult AssertionFailure(const Message& message) {
+  return AssertionFailure() << message;
+}
+
+}  // namespace testing

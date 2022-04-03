@@ -9,41 +9,31 @@ namespace decode {
 
     /// @return 0..15 if x = 0..F
     ///         -1 otherwise
-    int hexDigitValue(char x);
+    int hexDigitValue(char32_t x);
 
     /// @return 0..9 if x = 0..9
     ///         -1 otherwise
-    inline int decDigitValue(char x) {
+    inline int decDigitValue(char32_t x) {
         if (x >= '0' && x <= '9')
             return x - '0';
         return -1;
     }
 
-    template <class Ch, class Tr>
-    std::string_view normalizeEolSv(
-            std::basic_string_view<Ch, Tr> x,
-            std::basic_string<Ch, Tr> cache)
-    {
-        using Sv = std::basic_string_view<Ch, Tr>;
-        if (x.find('\r') == Sv::npos)
-            return x;
-        cache = x;
-        str::replace(cache, "\r\n", "\n");
-        str::replace(cache, '\r', '\n');
-        return cache;
-    }
+    std::u32string_view normalizeEolSv(
+            std::u32string_view x,
+            std::u32string &cache);
 
     namespace dcpp {
         ///  @return [+] x is digit 0..9, Latin letter a..z A..Z, underscore _
-        bool isAlnum(char x);
+        bool isAlnum(char32_t x);
 
         ///  @return [+] x is Latin letter a..z A..Z, or underscore _
-        bool isAlpha(char x);
+        bool isAlpha(char32_t x);
     }
 
     /// Decodes C++
     /// "alpha\nbravo" → alpha<LF>bravo
     ///
-    std::string cpp(std::string_view x);
+    std::u32string cpp(std::u32string_view x);
 
 }   // namespace decode

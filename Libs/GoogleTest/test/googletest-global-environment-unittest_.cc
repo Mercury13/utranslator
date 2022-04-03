@@ -1,4 +1,4 @@
-// Copyright 2015, Google Inc.
+// Copyright 2005, Google Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,20 +27,32 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+// Unit test for Google Test global test environments.
+//
+// The program will be invoked from a Python unit test.  Don't run it
+// directly.
+
 #include "gtest/gtest.h"
 
 namespace {
-class DummyTest : public ::testing::TestWithParam<const char *> {};
 
-TEST_P(DummyTest, Dummy) {}
+// An environment that always fails in its SetUp method.
+class FailingEnvironment final : public ::testing::Environment {
+ public:
+  void SetUp() override { FAIL() << "Canned environment setup error"; }
+};
 
-INSTANTIATE_TEST_SUITE_P(InvalidTestName, DummyTest,
-                         ::testing::Values("InvalidWithQuotes"),
-                         ::testing::PrintToStringParamName());
+// Register the environment.
+auto* const g_environment_ =
+    ::testing::AddGlobalTestEnvironment(new FailingEnvironment);
+
+// A test that doesn't actually run.
+TEST(SomeTest, DoesFoo) { FAIL() << "Unexpected call"; }
 
 }  // namespace
 
-int main(int argc, char *argv[]) {
-  testing::InitGoogleTest(&argc, argv);
+int main(int argc, char** argv) {
+  ::testing::InitGoogleTest(&argc, argv);
+
   return RUN_ALL_TESTS();
 }

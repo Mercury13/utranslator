@@ -66,7 +66,13 @@ namespace str {
     }
 
     namespace detail {
-        template<class T>
+
+        template <class T>
+        concept Svable = requires (const T& t) {
+            std::basic_string_view{t};
+        };
+
+        template<Svable T>
         inline auto toSv(const T& x) { return std::basic_string_view{x}; }
 
         template<class C, class T, class A>

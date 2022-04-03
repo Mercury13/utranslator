@@ -1,36 +1,50 @@
 // My header
 #include "Decoders.h"
 
-bool decode::dcpp::isAlnum(char x)
+
+std::u32string_view decode::normalizeEolSv(
+        std::u32string_view x,
+        std::u32string &cache)
 {
-    return (x >= '0' && x <= '9')
-        || (x >= 'a' && x <= 'z')
-        || (x >= 'A' && x <= 'Z')
-        || ( x == '_');
+    if (x.find(U'\r') == std::u32string_view::npos)
+        return x;
+    cache = x;
+    str::replace(cache, U"\r\n", U"\n");
+    str::replace(cache, U'\r', U'\n');
+    return cache;
 }
 
 
-bool decode::dcpp::isAlpha(char x)
+bool decode::dcpp::isAlnum(char32_t x)
 {
-    return (x >= 'a' && x <= 'z')
-        || (x >= 'A' && x <= 'Z')
-        || ( x == '_');
+    return (x >= U'0' && x <= U'9')
+        || (x >= U'a' && x <= U'z')
+        || (x >= U'A' && x <= U'Z')
+        || ( x == U'_');
 }
 
 
-int decode::hexDigitValue(char x)
+bool decode::dcpp::isAlpha(char32_t x)
 {
-    if (x >= '0' && x <= '9')
-        return x - '0';
-    if (x >= 'A' && x <= 'F')
+    return (x >= U'a' && x <= U'z')
+        || (x >= U'A' && x <= U'Z')
+        || ( x == U'_');
+}
+
+
+int decode::hexDigitValue(char32_t x)
+{
+    if (x >= U'0' && x <= U'9')
+        return x - U'0';
+    if (x >= U'A' && x <= U'F')
         return x - ('A' - 10);
-    if (x >= 'a' && x <= 'f')
-        return x - ('a' - 10);
+    if (x >= U'a' && x <= U'f')
+        return x - (U'a' - 10);
     return -1;
 }
 
 
-std::string decode::cpp(std::string_view x)
+std::u32string decode::cpp(std::u32string_view x)
 {
     enum class State {
         SPACE,      // ␣␣      prefixStart YES
@@ -42,16 +56,16 @@ std::string decode::cpp(std::string_view x)
         SUFFIX      // "x"ab
     };
 
-    std::string cache;
+    std::u32string cache;
     x = normalizeEolSv(x, cache);
 
-    const char* p = x.data();
-    const char* end = p + x.length();
+    const char32_t* p = x.data();
+    const char32_t* end = p + x.length();
 
-    std::string r;
+    std::u32string r;
 
     State state = State::SPACE;
-    const char* prefixStart = p;
+    const char32_t* prefixStart = p;
 
     for (; p != end; ++p) {
         auto c = *p;
@@ -59,13 +73,17 @@ std::string decode::cpp(std::string_view x)
         case State::SPACE:
         case State::SPACE_TRAIL: // prefixStart YES
             switch (c) {
-            case ' ':
-            case '\n':
+            case U' ':
+            case U'\n':
                 break;  // do nothing
-            case '"':
+            case U'"':
                 state = State::INSIDE;      // prefixStart YES→NO, do not dump
                 prefixStart = nullptr;
                 break;
+            case U',':
+                if (state == State::SPACE_TRAIL)
+                    break;                  // do nothing in SPACE_TRAIL mode
+                [[fallthrough]];
             default:
                 if (dcpp::isAlpha(c)) {
                     state = State::PREFIX;  // prefixStart YES→YES, keep on stockpiling
@@ -80,13 +98,13 @@ std::string decode::cpp(std::string_view x)
             break;
         case State::PREFIX: // prefixStart YES
             switch (c) {
-            case ' ':                       // ␣␣ab␣
-            case '\n':
+            case U' ':                       // ␣␣ab␣
+            case U'\n':
                 state = State::SPACE;       // prefixStart YES→YES, dump
                 r.append(prefixStart, p);
                 prefixStart = p;
                 break;
-            case '"':                       // ␣␣ab"
+            case U'"':                       // ␣␣ab"
                 state = State::INSIDE;      // prefixStart YES→NO, do not dump
                 prefixStart = nullptr;
                 break;
@@ -103,12 +121,12 @@ std::string decode::cpp(std::string_view x)
             break;
         case State::OUTSIDE: // prefixStart NO
             switch (c) {
-            case ' ':                       // ␣␣1+␣
-            case '\n':
+            case U' ':                       // ␣␣1+␣
+            case U'\n':
                 state = State::SPACE;       // prefixStart NO→YES
                 prefixStart = p;
                 break;
-            case '"':                       // ␣␣1+"
+            case U'"':                       // ␣␣1+"
                 state = State::INSIDE;      // prefixStart keep NO
                 break;
             default:
@@ -122,10 +140,10 @@ std::string decode::cpp(std::string_view x)
             break;
         case State::INSIDE: // prefixStart NO
             switch (c) {
-            case '"':
+            case U'"':
                 state = State::SUFFIX;  // prefixStart keep NO
                 break;
-            case '\\':
+            case U'\\':
                 state = State::SLASH;   // prefixStart keep NO
                 break;
             default:
@@ -135,14 +153,14 @@ std::string decode::cpp(std::string_view x)
         case State::SLASH:
             /// @todo [decoders] \### oct, \x#### hex, \u#### BMP, \U######## other planes
             switch (c) {
-            case 'a': r += '\a'; break;
-            case 'b': r += '\b'; break;
-            case 't': r += '\t'; break;
-            case 'n':
-            case 'r': r += '\n'; break;     // both /n and /r yield LF!!
-            case 'f': r += '\f'; break;
-            case 'v': r += '\v'; break;
-            case '\n': break;               // do nothing, though is is strange string
+            case U'a': r += '\a'; break;
+            case U'b': r += '\b'; break;
+            case U't': r += '\t'; break;
+            case U'n':
+            case U'r': r += '\n'; break;     // both /n and /r yield LF!!
+            case U'f': r += '\f'; break;
+            case U'v': r += '\v'; break;
+            case U'\n': break;               // do nothing, though is is strange string
             default:
                 r += c;
             }
@@ -150,8 +168,8 @@ std::string decode::cpp(std::string_view x)
             break;
         case State::SUFFIX:
             switch (c) {
-            case ' ':                           // "x"ab␣
-            case '\n':
+            case U' ':                           // "x"ab␣
+            case U'\n':
                 state = State::SPACE_TRAIL;     // prefixStart NO→YES
                 prefixStart = p;
                 break;
