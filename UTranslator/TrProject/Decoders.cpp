@@ -63,23 +63,39 @@ namespace {
         if (auto q = convertCp(c))
             r += q;
     }
-}   // anon namespace
 
-
-std::u32string decode::cpp(std::u32string_view x)
-{
-    enum class State {
+    enum class CppState {
         SPACE,      // ␣␣      prefixStart YES
         SPACE_TRAIL,// "x"␣␣   prefixStart YES
-        OUTSIDE,    // ␣␣1+
         PREFIX,     // ␣␣ab    prefixStart YES
         INSIDE,     // "x
         SLASH,      // "x/         BACK slash here
         OCT,        // "x/2        BACK slash here
         HEX,        // "x/uA       BACK slash here
-        SUFFIX      // "x"ab
+        SUFFIX,     // "x"ab
+            // Four states for unquoted string
+            // When we see backslash outside quotes, we fall here!
+            // Same order as INSIDE/SLASH/OCT/HEX
+        OUTSIDE,    // ␣␣1+
+        //OUT_SLASH,
+        //OUT_OCT,
+        //OUT_HEX,
     };
 
+    enum class CppBase {
+        INSIDE = static_cast<int>(CppState::INSIDE),
+        OUTSIDE = static_cast<int>(CppState::INSIDE),
+    };
+
+    enum class CppDelta { INSIDE, SLASH, OCT, HEX };
+
+    [[maybe_unused]] constexpr CppState operator + (CppBase base, CppDelta delta)
+        { return CppState(static_cast<int>(base) + static_cast<int>(delta)); }
+}   // anon namespace
+
+
+std::u32string decode::cpp(std::u32string_view x)
+{
     std::u32string cache;
     x = normalizeEolSv(x, cache);
 
@@ -88,178 +104,182 @@ std::u32string decode::cpp(std::u32string_view x)
 
     std::u32string r;
 
-    State state = State::SPACE;
+    CppState state = CppState::SPACE;
     const char32_t* prefixStart = p;
     char32_t charCode = 0;
     int nCodeCharsRemaining = 0;
 
-    auto dropCode = [&]() {     // Both OCT and HEX → prefixStart NO
+    auto dropCode = [&](CppState revertState) {     // Both OCT and HEX → prefixStart NO
         appendCode(r, charCode);
-        state = State::INSIDE;      // prefixStart keep NO
+        state = revertState;      // prefixStart keep NO
         nCodeCharsRemaining = 0;
         charCode = 0;
     };
 
-    auto processCode = [&](char32_t c, unsigned base) {
+    auto processCode = [&](char32_t c, unsigned base, CppState revertState) {
         if (auto val = hexDigitValue(c); val < base) {
             charCode = charCode * base + val;
             if ((--nCodeCharsRemaining) == 0) {
-                dropCode();
+                dropCode(revertState);
             }
         } else {
-            dropCode();
+            dropCode(revertState);
             r += c;
+        }
+    };
+
+    auto processPostSlash = [&](char32_t c, CppBase base) {
+        state = base + CppDelta::INSIDE;              // prefixStart keep NO
+                // Maybe we’ll change state to another one!!
+        switch (c) {
+        case U'a': r += '\a'; break;
+        case U'b': r += '\b'; break;
+        case U't': r += '\t'; break;
+        case U'n':
+        case U'r': r += '\n'; break;     // both /n and /r yield LF!!
+        case U'f': r += '\f'; break;
+        case U'v': r += '\v'; break;
+        case U'U':
+            nCodeCharsRemaining = 8;
+            charCode = 0;
+            state = base + CppDelta::HEX;         // prefixStart keep NO
+            break;
+        case U'u':
+            nCodeCharsRemaining = 4;
+            charCode = 0;
+            state = base + CppDelta::HEX;         // prefixStart keep NO
+            break;
+        case U'x':
+            nCodeCharsRemaining = 2;
+            charCode = 0;
+            state = base + CppDelta::HEX;         // prefixStart keep NO
+            break;
+        case U'\n': break;               // do nothing, though is is strange string
+        default:
+            if (auto val = octDigitValue(c); val < 8) {
+                charCode = val;
+                nCodeCharsRemaining = 2;    // up to 3, incl. this one
+                state = base + CppDelta::OCT;     // prefixStart keep NO
+            } else {
+                r += c;
+            }
         }
     };
 
     for (; p != end; ++p) {
         auto c = *p;
         switch (state) {
-        case State::SPACE:
-        case State::SPACE_TRAIL: // prefixStart YES
+        case CppState::SPACE:
+        case CppState::SPACE_TRAIL: // prefixStart YES
             switch (c) {
             case U' ':
             case U'\n':
                 break;  // do nothing
             case U'"':
-                state = State::INSIDE;      // prefixStart YES→NO, do not dump
+                state = CppState::INSIDE;      // prefixStart YES→NO, do not dump
                 prefixStart = nullptr;
                 break;
             case U',':
             case U'}':
-                if (state == State::SPACE_TRAIL)
+                if (state == CppState::SPACE_TRAIL)
                     break;                  // do nothing in SPACE_TRAIL mode
                 [[fallthrough]];
             default:
                 if (dcpp::isAlpha(c)) {
-                    state = State::PREFIX;  // prefixStart YES→YES, keep on stockpiling
+                    state = CppState::PREFIX;  // prefixStart YES→YES, keep on stockpiling
                 } else {
-                    if (state == State::SPACE)
+                    if (state == CppState::SPACE)
                         r.append(prefixStart, p);
                     r += c;
                     prefixStart = nullptr;
-                    state = State::OUTSIDE; // prefixStart YES→NO, dump prefix+char (prefix not in SPACE_TRAIL)
+                    state = CppState::OUTSIDE; // prefixStart YES→NO, dump prefix+char (prefix not in SPACE_TRAIL)
                 }
             }
             break;
-        case State::PREFIX: // prefixStart YES
+        case CppState::PREFIX: // prefixStart YES
             switch (c) {
             case U' ':                       // ␣␣ab␣
             case U'\n':
-                state = State::SPACE;       // prefixStart YES→YES, dump
+                state = CppState::SPACE;       // prefixStart YES→YES, dump
                 r.append(prefixStart, p);
                 prefixStart = p;
                 break;
             case U'"':                       // ␣␣ab"
-                state = State::INSIDE;      // prefixStart YES→NO, do not dump
+                state = CppState::INSIDE;      // prefixStart YES→NO, do not dump
                 prefixStart = nullptr;
                 break;
             default:
                 if (dcpp::isAlnum(c)) {     // ␣␣ab8
                     // do nothing, keep on stockpiling
                 } else {                    // ␣␣ab+
-                    state = State::OUTSIDE; // prefixStart YES→NO, dump prefix+char
+                    state = CppState::OUTSIDE; // prefixStart YES→NO, dump prefix+char
                     r.append(prefixStart, p);
                     r += c;
                     prefixStart = nullptr;
                 }
             }
             break;
-        case State::OUTSIDE: // prefixStart NO
+        case CppState::OUTSIDE: // prefixStart NO
             switch (c) {
             case U' ':                       // ␣␣1+␣
             case U'\n':
-                state = State::SPACE;       // prefixStart NO→YES
+                state = CppState::SPACE;       // prefixStart NO→YES
                 prefixStart = p;
                 break;
             case U'"':                       // ␣␣1+"
-                state = State::INSIDE;      // prefixStart keep NO
+                state = CppState::INSIDE;      // prefixStart keep NO
                 break;
             default:
                 if (dcpp::isAlpha(c)) {     // ␣␣1+a
-                    state = State::PREFIX;  // prefixStart NO→YES
+                    state = CppState::PREFIX;  // prefixStart NO→YES
                     prefixStart = p;
                 } else {                    // ␣␣1+2
                     r += c;
                 }
             }
             break;
-        case State::INSIDE: // prefixStart NO
+        case CppState::INSIDE: // prefixStart NO
             switch (c) {
             case U'"':
-                state = State::SUFFIX;  // prefixStart keep NO
+                state = CppState::SUFFIX;  // prefixStart keep NO
                 break;
             case U'\\':
-                state = State::SLASH;   // prefixStart keep NO
+                state = CppState::SLASH;   // prefixStart keep NO
                 break;
             default:
                 r += c;
             }
             break;
-        case State::SLASH: // prefixStart NO
-            state = State::INSIDE;              // prefixStart keep NO
-                    // Maybe we’ll change state to another one!!
-            switch (c) {
-            case U'a': r += '\a'; break;
-            case U'b': r += '\b'; break;
-            case U't': r += '\t'; break;
-            case U'n':
-            case U'r': r += '\n'; break;     // both /n and /r yield LF!!
-            case U'f': r += '\f'; break;
-            case U'v': r += '\v'; break;
-            case U'U':
-                nCodeCharsRemaining = 8;
-                charCode = 0;
-                state = State::HEX;         // prefixStart keep NO
-                break;
-            case U'u':
-                nCodeCharsRemaining = 4;
-                charCode = 0;
-                state = State::HEX;         // prefixStart keep NO
-                break;
-            case U'x':
-                nCodeCharsRemaining = 2;
-                charCode = 0;
-                state = State::HEX;         // prefixStart keep NO
-                break;
-            case U'\n': break;               // do nothing, though is is strange string
-            default:
-                if (auto val = octDigitValue(c); val < 8) {
-                    charCode = val;
-                    nCodeCharsRemaining = 2;    // up to 3, incl. this one
-                    state = State::OCT;     // prefixStart keep NO
-                } else {
-                    r += c;
-                }
-            }
+        case CppState::SLASH: // prefixStart NO
+            processPostSlash(c, CppBase::INSIDE);
             break;
-        case State::HEX:    // prefixStart NO
-            processCode(c, 16);
+        case CppState::HEX:    // prefixStart NO
+            processCode(c, 16, CppState::INSIDE);
             break;
-        case State::OCT:    // prefixStart NO
-            processCode(c, 8);
+        case CppState::OCT:    // prefixStart NO
+            processCode(c, 8, CppState::INSIDE);
             break;
-        case State::SUFFIX:
+        case CppState::SUFFIX:
             switch (c) {
             case U' ':                          // "x"ab␣
             case U'\n':
             case U',':                          // "x"ab,  do the same
             case U'}':                          // "x"ab}  do the same
-                state = State::SPACE_TRAIL;     // prefixStart NO→YES
+                state = CppState::SPACE_TRAIL;     // prefixStart NO→YES
                 prefixStart = p;
                 break;
             default:
                 if (dcpp::isAlnum(c)) {         // "x"ab8
                     //  do nothing
                 } else {                        // "x"ab+
-                    state = State::OUTSIDE;     // prefixStart keep NO
+                    state = CppState::OUTSIDE;     // prefixStart keep NO
                     r += c;
                 }
             }
             break;
         }   // Big switch (state)
     }
-    if (prefixStart && state != State::SPACE_TRAIL) {
+    if (prefixStart && state != CppState::SPACE_TRAIL) {
         r.append(prefixStart, end);
     }
     if (nCodeCharsRemaining > 0)

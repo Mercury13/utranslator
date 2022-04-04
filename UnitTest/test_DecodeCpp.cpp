@@ -147,3 +147,16 @@ TEST (Cpp, Codes)
     auto x = decode::cpp(UR"(  "alpha \1010 \x323 \xDG\0000 br\uD9ABavo"sv )");
     EXPECT_EQ(U"alpha A0 23 \nG0 bravo", x);
 }
+
+
+///
+///  Interaction  between quoted and unquoted text.
+///
+///  Let’s document two spaces “charlie  delta” as actual bhv,
+///  but you can change this anytime.
+///
+TEST (Cpp, InsideAndOutside)
+{
+    auto x = decode::cpp(UR"(  alpha  bravo  "charlie"  delta  echo  )");
+    EXPECT_EQ(U"  alpha  bravocharlie  delta  echo  ", x);
+}
