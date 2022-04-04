@@ -3,12 +3,46 @@
 
 // Qt
 #include <QDialogButtonBox>
+#include <QPlainTextEdit>
 
 // Qt ex
 #include "QtConsts.h"
 
 // Decoder
 #include "Decoders.h"
+
+
+///// MemoObject ///////////////////////////////////////////////////////////////
+
+
+QString MemoObject::toQ()
+{
+    if (auto text = memo->textCursor().selectedText(); !text.isEmpty())
+        return text;
+    return memo->toPlainText();
+}
+
+
+void MemoObject::set(const QString& x)
+{
+    if (memo->textCursor().hasSelection()) {
+        auto cursor = memo->textCursor();
+        auto start = cursor.selectionStart();
+        auto endOffset = memo->document()->characterCount() - cursor.selectionEnd();
+        cursor.insertText(x);
+        auto newEnd = memo->document()->characterCount() - endOffset;
+        if (newEnd > start) {
+            cursor.setPosition(start, QTextCursor::MoveAnchor);
+            cursor.setPosition(newEnd, QTextCursor::KeepAnchor);
+            memo->setTextCursor(cursor);
+        }
+    } else {
+        memo->setPlainText(x);
+    }
+}
+
+
+///// FmDecoder ////////////////////////////////////////////////////////////////
 
 FmDecoder::FmDecoder(QWidget *parent) :
     QDialog(parent, QDlgType::SIZEABLE),
@@ -33,13 +67,30 @@ int FmDecoder::exec()
 }
 
 
+namespace {
+
+    template <class Intermed, class Body>
+    void runDecoder(StrObject& obj, const Body& body)
+    {
+        auto text = obj.get<Intermed>();
+        auto sv = str::detail::toSv(text);
+        auto result = body(sv);
+        if (result != text)
+            obj.set(result);
+    }
+
+}   // anon namespace
+
+
+template <class Intermed, class Body>
+void FmDecoder::decodeMemo(const Body& body)
+{
+    MemoObject mo(ui->memo);
+    runDecoder<Intermed>(mo, body);
+}
+
 void FmDecoder::decodeCpp()
 {
-    auto text = ui->memo->toPlainText().toStdU32String();
-    auto result = decode::cpp(text);
-    if (result != text) {
-        auto text2 = QString::fromStdU32String(result);
-        ui->memo->setPlainText(text2);
-    }
+    decodeMemo<std::u32string>(&decode::cpp);
     ui->lbDescription->setText("Decode C++ strings: \"first\\nsecond\" → first⤶second");
 }
