@@ -57,10 +57,17 @@ FmDecoder::FmDecoder(QWidget *parent) :
     // Different decode algos
     connect(ui->btDecodeC, &QPushButton::clicked, this, &This::decodeCpp);
 
+    ui->memo->setWhatsThis(
+                "Type or paste text here.<br>"
+                "To revert decoding use Undo (Ctrl+Z).");
     ui->btDecodeC->setWhatsThis(
                 "Decode C++ strings<br>"
                 "Before: <b>u8\"first\\n\" \"\\\\second\"sv,</b><br>"
                 "After: <b>first<br>\\second</b>");
+    ui->btDecodeBr->setWhatsThis(
+                "Partly turns HTML to wikitext<br>"
+                "<b>&lt;br&gt;</b> → <b>&lt;br&gt;⤶</b><br>"
+                "<b>&lt;p&gt;</b> → <b>⤶⤶</b>");
 }
 
 FmDecoder::~FmDecoder()
