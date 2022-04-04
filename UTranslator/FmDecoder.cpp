@@ -37,7 +37,9 @@ void MemoObject::set(const QString& x)
             memo->setTextCursor(cursor);
         }
     } else {
-        memo->setPlainText(x);
+        // Thus we automatically got Undo
+        memo->selectAll();
+        memo->textCursor().insertText(x);
     }
 }
 

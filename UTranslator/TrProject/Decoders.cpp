@@ -240,8 +240,9 @@ std::u32string decode::cpp(std::u32string_view x)
             break;
         case State::SUFFIX:
             switch (c) {
-            case U' ':                           // "x"ab␣
+            case U' ':                          // "x"ab␣
             case U'\n':
+            case U',':                          // "x"ab,  do the same
                 state = State::SPACE_TRAIL;     // prefixStart NO→YES
                 prefixStart = p;
                 break;
