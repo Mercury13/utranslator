@@ -51,7 +51,10 @@ FmDecoder::FmDecoder(QWidget *parent) :
     ui(new Ui::FmDecoder)
 {
     ui->setupUi(this);
-    connect(ui->btClose, &QPushButton::clicked, this, &This::reject);
+    connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &This::reject);
+    connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &This::accept);
+
+    // Different decode algos
     connect(ui->btDecodeC, &QPushButton::clicked, this, &This::decodeCpp);
 
     ui->btDecodeC->setWhatsThis(
@@ -66,10 +69,16 @@ FmDecoder::~FmDecoder()
 }
 
 
-int FmDecoder::exec()
+bool FmDecoder::exec(QstrObject* obj)
 {
-    /// @todo [urgent] copy some text?
-    return Super::exec();
+    if (obj) {
+        ui->memo->setPlainText(obj->toQ());
+    }
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(obj);
+    auto q = Super::exec();
+    if (q && obj)
+        obj->set(ui->memo->toPlainText());
+    return q;
 }
 
 
@@ -81,7 +90,7 @@ namespace {
         auto text = obj.get<Intermed>();
         auto sv = str::detail::toSv(text);
         auto result = body(sv);
-        if (result != text)
+        if (!result.empty() && result != text)
             obj.set(result);
     }
 

@@ -803,6 +803,6 @@ void FmMain::doSave()
 
 void FmMain::runDecoder()
 {
-    /// @todo [urgent] what to do?
-    fmDecoder.ensure(this).exec();
+    /// @todo [urgent] which QstrObj’s
+    fmDecoder.ensure(this).exec(nullptr);
 }

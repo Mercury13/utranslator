@@ -53,12 +53,13 @@ class FmDecoder : public QDialog
 public:
     explicit FmDecoder(QWidget *parent = nullptr);
     ~FmDecoder();
-    int exec() override;
+    bool exec(QstrObject* obj);
 private slots:
     void decodeCpp();
 private:
     Ui::FmDecoder *ui;
     template <class Intermed, class Body> void decodeMemo(const Body& body);
+    using Super::exec;
 };
 
 #endif // FMDECODER_H
