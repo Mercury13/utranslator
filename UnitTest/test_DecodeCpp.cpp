@@ -73,6 +73,13 @@ TEST (Cpp, LineBreakInside2)
 }
 
 
+TEST (Cpp, LineBreakInside3)
+{
+    auto x = decode::cpp(UR"(  "alpha  \n  bravo"  )");
+    EXPECT_EQ(U"alpha  \n  bravo", x);
+}
+
+
 TEST (Cpp, TwoQuotes)
 {
     auto x = decode::cpp(UR"( "alpha" "bravo"  )");
@@ -104,4 +111,15 @@ TEST (Cpp, Commas)
 {
     auto x = decode::cpp(UR"(  "alpha" , + 1 - p,  u8"bravo"sv  ,, . )");
     EXPECT_EQ(U"alpha+ 1 - p,bravo. ", x);
+}
+
+TEST (Cpp, Codes)
+{
+    //   \1010  oct 101 = 'A', only 3 digits mean
+    //   \x323  hex 32 = '2', only 2 digits mean
+    //   \xDG   hex D = CR → LF, 'G' is non-digit
+    //   \0000  oct 000 = 0, drop this char
+    //   \uD9AB  surrogate char, drop, next 'a' is normal meaning char
+    auto x = decode::cpp(UR"(  "alpha \1010 \x323 \xDG\0000 br\uD9ABavo"sv )");
+    EXPECT_EQ(U"alpha A0 23 \nG0 bravo", x);
 }

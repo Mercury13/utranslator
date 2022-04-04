@@ -8,15 +8,15 @@
 namespace decode {
 
     /// @return 0..15 if x = 0..F
-    ///         -1 otherwise
-    int hexDigitValue(char32_t x);
+    ///         999 otherwise
+    unsigned int hexDigitValue(char32_t x);
 
-    /// @return 0..9 if x = 0..9
-    ///         -1 otherwise
-    inline int decDigitValue(char32_t x) {
-        if (x >= '0' && x <= '9')
+    /// @return 0..7 if x = 0..7
+    ///         999 otherwise
+    inline unsigned int octDigitValue(char32_t x) {
+        if (x >= '0' && x <= '7')
             return x - '0';
-        return -1;
+        return 999;
     }
 
     std::u32string_view normalizeEolSv(

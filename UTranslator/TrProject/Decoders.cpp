@@ -35,7 +35,7 @@ bool decode::dcpp::isAlpha(char32_t x)
 }
 
 
-int decode::hexDigitValue(char32_t x)
+unsigned int decode::hexDigitValue(char32_t x)
 {
     if (x >= U'0' && x <= U'9')
         return x - U'0';
@@ -43,8 +43,27 @@ int decode::hexDigitValue(char32_t x)
         return x - ('A' - 10);
     if (x >= U'a' && x <= U'f')
         return x - (U'a' - 10);
-    return -1;
+    return 999;
 }
+
+
+namespace {
+    inline char32_t convertCp(char32_t c) {
+        if (c < 0xD800) {
+            if (c == U'\r')
+                return U'\n';
+            return c;
+        } else {
+            return (c >= 0xE000 && c <= 0x10FFFF) ? c : 0;
+        }
+    }
+
+    void appendCode(std::u32string& r, char32_t c)
+    {
+        if (auto q = convertCp(c))
+            r += q;
+    }
+}   // anon namespace
 
 
 std::u32string decode::cpp(std::u32string_view x)
@@ -55,7 +74,9 @@ std::u32string decode::cpp(std::u32string_view x)
         OUTSIDE,    // ␣␣1+
         PREFIX,     // ␣␣ab    prefixStart YES
         INSIDE,     // "x
-        SLASH,      // "x/       BACK slash here
+        SLASH,      // "x/         BACK slash here
+        OCT,        // "x/2        BACK slash here
+        HEX,        // "x/uA       BACK slash here
         SUFFIX      // "x"ab
     };
 
@@ -69,6 +90,27 @@ std::u32string decode::cpp(std::u32string_view x)
 
     State state = State::SPACE;
     const char32_t* prefixStart = p;
+    char32_t charCode = 0;
+    int nCodeCharsRemaining = 0;
+
+    auto dropCode = [&]() {     // Both OCT and HEX → prefixStart NO
+        appendCode(r, charCode);
+        state = State::INSIDE;      // prefixStart keep NO
+        nCodeCharsRemaining = 0;
+        charCode = 0;
+    };
+
+    auto processCode = [&](char32_t c, unsigned base) {
+        if (auto val = hexDigitValue(c); val < base) {
+            charCode = charCode * base + val;
+            if ((--nCodeCharsRemaining) == 0) {
+                dropCode();
+            }
+        } else {
+            dropCode();
+            r += c;
+        }
+    };
 
     for (; p != end; ++p) {
         auto c = *p;
@@ -153,8 +195,9 @@ std::u32string decode::cpp(std::u32string_view x)
                 r += c;
             }
             break;
-        case State::SLASH:
-            /// @todo [decoders] \### oct, \x#### hex, \u#### BMP, \U######## other planes
+        case State::SLASH: // prefixStart NO
+            state = State::INSIDE;              // prefixStart keep NO
+                    // Maybe we’ll change state to another one!!
             switch (c) {
             case U'a': r += '\a'; break;
             case U'b': r += '\b'; break;
@@ -163,11 +206,37 @@ std::u32string decode::cpp(std::u32string_view x)
             case U'r': r += '\n'; break;     // both /n and /r yield LF!!
             case U'f': r += '\f'; break;
             case U'v': r += '\v'; break;
+            case U'U':
+                nCodeCharsRemaining = 8;
+                charCode = 0;
+                state = State::HEX;         // prefixStart keep NO
+                break;
+            case U'u':
+                nCodeCharsRemaining = 4;
+                charCode = 0;
+                state = State::HEX;         // prefixStart keep NO
+                break;
+            case U'x':
+                nCodeCharsRemaining = 2;
+                charCode = 0;
+                state = State::HEX;         // prefixStart keep NO
+                break;
             case U'\n': break;               // do nothing, though is is strange string
             default:
-                r += c;
+                if (auto val = octDigitValue(c); val < 8) {
+                    charCode = val;
+                    nCodeCharsRemaining = 2;    // up to 3, incl. this one
+                    state = State::OCT;     // prefixStart keep NO
+                } else {
+                    r += c;
+                }
             }
-            state = State::INSIDE;              // prefixStart keep NO
+            break;
+        case State::HEX:    // prefixStart NO
+            processCode(c, 16);
+            break;
+        case State::OCT:    // prefixStart NO
+            processCode(c, 8);
             break;
         case State::SUFFIX:
             switch (c) {
@@ -190,5 +259,7 @@ std::u32string decode::cpp(std::u32string_view x)
     if (prefixStart && state != State::SPACE_TRAIL) {
         r.append(prefixStart, end);
     }
+    if (nCodeCharsRemaining > 0)
+        appendCode(r, charCode);
     return r;
 }

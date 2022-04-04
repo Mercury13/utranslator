@@ -19,12 +19,19 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <widget class="QPlainTextEdit" name="memo"/>
-       </item>
-       <item>
         <widget class="QLabel" name="lbDescription">
          <property name="text">
-          <string>Use “What’s this” feature to see meaning of those buttons ➤➤➤</string>
+          <string>Use “What’s this” feature to see meaning of those buttons ➤</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPlainTextEdit" name="memo">
+         <property name="whatsThis">
+          <string>Type or paste text here</string>
          </property>
         </widget>
        </item>

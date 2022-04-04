@@ -55,7 +55,7 @@ FmDecoder::FmDecoder(QWidget *parent) :
     ui->btDecodeC->setWhatsThis(
                 "Decode C++ strings<br>"
                 "Before: <b>u8\"first\\n\" \"\\\\second\"sv,</b><br>"
-                "After:<br><b>first<br>\\second</b>");
+                "After: <b>first<br>\\second</b>");
 }
 
 FmDecoder::~FmDecoder()
