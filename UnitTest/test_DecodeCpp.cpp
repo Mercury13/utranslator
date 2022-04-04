@@ -159,4 +159,5 @@ TEST (Cpp, InsideAndOutside)
 {
     auto x = decode::cpp(UR"(  alpha  bravo  "charlie"  delta  echo  )");
     EXPECT_EQ(U"  alpha  bravocharlie  delta  echo  ", x);
+                                //   ^^ actual bhv, not specified!
 }
