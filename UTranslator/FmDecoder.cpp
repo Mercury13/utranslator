@@ -45,12 +45,17 @@ void MemoObject::set(const QString& x)
 ///// FmDecoder ////////////////////////////////////////////////////////////////
 
 FmDecoder::FmDecoder(QWidget *parent) :
-    QDialog(parent, QDlgType::SIZEABLE),
+    QDialog(parent, QDlgType::FIXED | Qt::WindowContextHelpButtonHint),
     ui(new Ui::FmDecoder)
 {
     ui->setupUi(this);
     connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &This::reject);
     connect(ui->btDecodeC, &QPushButton::clicked, this, &This::decodeCpp);
+
+    ui->btDecodeC->setWhatsThis(
+                "Decode C++ strings<br>"
+                "Before: <b>u8\"first\\n\" \"\\\\second\"sv,</b><br>"
+                "After:<br><b>first<br>\\second</b>");
 }
 
 FmDecoder::~FmDecoder()
@@ -61,7 +66,6 @@ FmDecoder::~FmDecoder()
 
 int FmDecoder::exec()
 {
-    ui->lbDescription->setText(u8"Press one of buttons to see description and convert text ➤➤➤");
     /// @todo [urgent] copy some text?
     return Super::exec();
 }
@@ -90,7 +94,4 @@ void FmDecoder::decodeMemo(const Body& body)
 }
 
 void FmDecoder::decodeCpp()
-{
-    decodeMemo<std::u32string>(&decode::cpp);
-    ui->lbDescription->setText("Decode C++ strings: \"first\\nsecond\" → first⤶second");
-}
+    { decodeMemo<std::u32string>(&decode::cpp); }

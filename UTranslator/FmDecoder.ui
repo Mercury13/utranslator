@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>598</width>
-    <height>404</height>
+    <width>640</width>
+    <height>463</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,7 +24,7 @@
        <item>
         <widget class="QLabel" name="lbDescription">
          <property name="text">
-          <string>[lbDescription]</string>
+          <string>Use “What’s this” feature to see meaning of those buttons ➤➤➤</string>
          </property>
         </widget>
        </item>
