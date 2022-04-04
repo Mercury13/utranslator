@@ -150,7 +150,7 @@ TEST (Cpp, Codes)
 
 
 ///
-///  Unfinished char code in quotes string
+///  Unfinished char code in interrupted quoted string
 ///
 TEST (Cpp, UnfinishedCode)
 {
