@@ -1,16 +1,19 @@
 // My header
 #include "Decoders.h"
 
+constexpr char32_t PARA_SEP = 0x2029;      // U+2029 paragraph separator
 
 std::u32string_view decode::normalizeEolSv(
         std::u32string_view x,
         std::u32string &cache)
 {
-    if (x.find(U'\r') == std::u32string_view::npos)
+    if (x.find(U'\r') == std::u32string_view::npos
+            && x.find(PARA_SEP) == std::u32string_view::npos)
         return x;
     cache = x;
     str::replace(cache, U"\r\n", U"\n");
     str::replace(cache, U'\r', U'\n');
+    str::replace(cache, PARA_SEP, U'\n');
     return cache;
 }
 
