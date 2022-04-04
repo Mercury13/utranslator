@@ -150,6 +150,16 @@ TEST (Cpp, Codes)
 
 
 ///
+///  Unfinished char code in quotes string
+///
+TEST (Cpp, UnfinishedCode)
+{
+    auto x = decode::cpp(UR"(  "alpha  \U42)");
+    EXPECT_EQ(U"alpha  B", x);
+}
+
+
+///
 ///  Interaction  between quoted and unquoted text.
 ///
 ///  Let’s document two spaces “charlie  delta” as actual bhv,
