@@ -131,6 +131,12 @@ TEST (Cpp, Commas4)
     EXPECT_EQ(U"alphabravo:)   :)", x);
 }
 
+TEST (Cpp, Commas5)
+{
+    auto x = decode::cpp(UR"(  "alpha" u8"bravo",}, )");
+    EXPECT_EQ(U"alphabravo", x);
+}
+
 TEST (Cpp, Codes)
 {
     //   \1010  oct 101 = 'A', only 3 digits mean
