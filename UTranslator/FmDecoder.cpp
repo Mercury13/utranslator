@@ -51,7 +51,7 @@ FmDecoder::FmDecoder(QWidget *parent) :
     ui(new Ui::FmDecoder)
 {
     ui->setupUi(this);
-    connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &This::reject);
+    connect(ui->btClose, &QPushButton::clicked, this, &This::reject);
     connect(ui->btDecodeC, &QPushButton::clicked, this, &This::decodeCpp);
 
     ui->btDecodeC->setWhatsThis(
