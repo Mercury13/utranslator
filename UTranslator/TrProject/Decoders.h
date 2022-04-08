@@ -22,6 +22,9 @@ namespace decode {
     std::u32string_view normalizeEolSv(
             std::u32string_view x,
             std::u32string &cache);
+    std::wstring_view normalizeEolSv(
+            std::wstring_view x,
+            std::wstring &cache);
 
     namespace dcpp {
         ///  @return [+] x is digit 0..9, Latin letter a..z A..Z, underscore _
@@ -33,7 +36,22 @@ namespace decode {
 
     /// Decodes C++
     /// "alpha\nbravo" → alpha<LF>bravo
+    /// Why U32: handle \U00012345
     ///
     std::u32string cpp(std::u32string_view x);
+
+    /// Converts <br> → <br><LF>
+    /// Why system-dependent wide…
+    ///   • Unicode: QPlainTextEdit’s selection uses raw data, U+2029 inside
+    ///   • Not C++20 u8string: Qt supports it in 6.2+ that dropped W7
+    ///   • Locales: standard C++ regex
+    ///
+    std::wstring htmlBr(std::wstring_view x);
+
+    /// Converts <p> → <LF><LF>
+    std::wstring htmlP(std::wstring_view x);
+
+    // Both p and br
+    std::wstring htmlPBr(std::wstring_view x);
 
 }   // namespace decode

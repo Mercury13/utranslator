@@ -271,6 +271,16 @@ std::u8string tr::UiObject::makeId(
 }
 
 
+std::u8string tr::UiObject::makeTextId(const IdLib& idlib) const
+{
+    auto fi = fileInfo();
+    if (!fi || fi->isIdless)
+        return {};
+    return makeId(idlib.textPrefix, {});
+}
+
+
+
 std::shared_ptr<tr::Entity> tr::UiObject::extract()
 {
     auto pnt = parent();
@@ -650,6 +660,19 @@ void tr::Text::readFromXml(const pugi::xml_node& node, const PrjInfo& info)
         tr.translation = readTextInTagOpt(node, "transl");
         break;
     }
+}
+
+
+std::shared_ptr<tr::UiObject> tr::Text::clone(
+        const std::shared_ptr<VirtualGroup>& parent,
+        const IdLib* idlib,
+        tr::Modify wantModify) const
+{
+    auto newId = parent->makeId<ObjType::TEXT>(idlib);
+    auto newText = parent->addText(newId, {}, wantModify);
+    newText->tr = this->tr;
+    newText->comm = this->comm;
+    return {};
 }
 
 

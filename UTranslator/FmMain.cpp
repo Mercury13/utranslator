@@ -167,11 +167,21 @@ QVariant PrjTreeModel::headerData(
     return {};
 }
 
+namespace {
+
+    const tr::IdLib myIds {
+        .filePrefix = u8"file",
+        .fileSuffix = u8"txt",
+        .groupPrefix = u8"g",
+        .textPrefix = {}
+    };
+
+}   // anon namespace
 
 
 Thing<tr::File> PrjTreeModel::addHostedFile()
 {
-    auto newId = project->makeId(u8"file", u8".txt");
+    auto newId = project->makeId<tr::ObjType::FILE>(myIds);
     auto newIndex = project->nChildren();
     beginInsertRows(QModelIndex(), newIndex, newIndex);
     auto file = project->addFile(newId, tr::Modify::YES);
@@ -185,7 +195,7 @@ Thing<tr::Group> PrjTreeModel::addHostedGroup(
 {
     if (!parent)
         return {};
-    auto newId = parent->makeId(u8"g", {});
+    auto newId = parent->makeId<tr::ObjType::GROUP>(myIds);
     auto newIndex = parent->nChildren();
     beginInsertRows(toIndex(parent, 0), newIndex, newIndex);
     auto group = parent->addGroup(newId, tr::Modify::YES);
@@ -199,12 +209,7 @@ Thing<tr::Text> PrjTreeModel::addText(
 {
     if (!parent)
         return {};
-    auto file = parent->file();
-    if (!file)
-        return {};
-    auto newId = file->info.isIdless
-            ? std::u8string {}
-            : parent->makeId({}, {});
+    auto newId = parent->makeId<tr::ObjType::TEXT>(myIds);
     auto newIndex = parent->nChildren();
     beginInsertRows(toIndex(parent, 0), newIndex, newIndex);
     auto text = parent->addText(newId, {}, tr::Modify::YES);

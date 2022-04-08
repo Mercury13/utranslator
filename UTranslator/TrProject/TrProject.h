@@ -124,6 +124,13 @@ namespace tr {
         size_t nGroups = 0;
     };
 
+    struct IdLib {
+        std::u8string_view filePrefix;
+        std::u8string_view fileSuffix;
+        std::u8string_view groupPrefix;
+        std::u8string_view textPrefix;
+    };
+
     class UiObject : public CanaryObject
     {
     public:
@@ -136,9 +143,9 @@ namespace tr {
         // Just here we use virtual dtor!
         virtual ~UiObject() = default;
 
-        virtual ObjType objType() const = 0;
+        virtual ObjType objType() const noexcept = 0;
         virtual std::shared_ptr<UiObject> parent() const = 0;
-        virtual size_t nChildren() const = 0;
+        virtual size_t nChildren() const noexcept = 0;
         virtual std::shared_ptr<Entity> child(size_t i) const = 0;
         virtual std::u8string_view idColumn() const = 0;
         /// @todo [architecture] How to invent parallel VMTs?
@@ -163,6 +170,16 @@ namespace tr {
         virtual std::shared_ptr<Project> project() = 0;
         /// @return  one or two parent groups for “Add group” / “Add string”
         virtual Pair<VirtualGroup> additionParents() = 0;
+        /// @return  [+] clone works somehow
+        virtual bool isCloneale() noexcept { return false; }
+        /// @param [in]  idlib   [+] ID library; [0] copy ID
+        /// @return  non-empty clone of object if isCloneable()
+        /// @throw   some error if not cloneable
+        virtual std::shared_ptr<UiObject> clone(
+                [[maybe_unused]] const std::shared_ptr<VirtualGroup>& parent,
+                [[maybe_unused]] const IdLib* idlib,
+                [[maybe_unused]] tr::Modify wantModify) const
+            { throw std::logic_error("[UiObject.clone] The object is not cloneable!"); }
 
         void recache();
         void recursiveRecache();
@@ -183,6 +200,30 @@ namespace tr {
         std::u8string makeId(
                 std::u8string_view prefix,
                 std::u8string_view suffix) const;
+        std::u8string makeTextId(const IdLib& idlib) const;
+        template <ObjType Objt>
+        inline std::u8string makeId(const IdLib& idlib) const
+        {
+            if constexpr (Objt == ObjType::PROJECT) {
+                return u8"project";
+            } else if constexpr (Objt == ObjType::FILE) {
+                return makeId(idlib.filePrefix, idlib.fileSuffix);
+            } else if constexpr (Objt == ObjType::GROUP) {
+                return makeId(idlib.groupPrefix, {});
+            } else if constexpr (Objt == ObjType::TEXT) {
+                return makeTextId(idlib);
+            } else {
+                throw std::logic_error("[UiObject.makeId] Strange objType");
+            }
+        }
+        template <ObjType Objt>
+        inline std::u8string makeId(const IdLib* idlib) const
+        {
+            if (!idlib)
+                return std::u8string { idColumn() };
+            return makeId<Objt>(*idlib);
+        }
+
         /// @return  [+] s_p to this  [0] nothing happened
         std::shared_ptr<Entity> extract();
         /// Adds statistics about a single object (not children)
@@ -191,6 +232,8 @@ namespace tr {
         /// @return  how many texts are there in object’s groups
         Stats stats(bool includeSelf) const;
         void addStatsRecursive(Stats& x, bool includeSelf) const;
+        const FileInfo* fileInfo() const {
+            return const_cast<UiObject*>(this)->fileInfo(); }
     protected:
         // passkey idiom
         struct PassKey {};
@@ -234,7 +277,7 @@ namespace tr {
     public:
         SafeVector<std::shared_ptr<Entity>> children;
 
-        size_t nChildren() const override { return children.size(); };
+        size_t nChildren() const noexcept override { return children.size(); };
         std::shared_ptr<Entity> child(size_t i) const override;
         std::shared_ptr<Entity> extractChild(size_t i) override;
 
@@ -261,8 +304,8 @@ namespace tr {
 
         Text(std::weak_ptr<VirtualGroup> aParent, size_t aIndex, const PassKey&);
 
-        ObjType objType() const override { return ObjType::TEXT; }
-        size_t nChildren() const override { return 0; };
+        ObjType objType() const noexcept override { return ObjType::TEXT; }
+        size_t nChildren() const noexcept override { return 0; };
         std::shared_ptr<Entity> child(size_t) const override { return {}; }
         std::u8string_view origColumn() const override { return tr.original; }
         std::u8string_view translColumn() const override
@@ -275,6 +318,11 @@ namespace tr {
         void addStats(Stats& x, bool) const override { ++x.nTexts; }
         void writeToXml(pugi::xml_node&, WrCache&) const override;
         void readFromXml(const pugi::xml_node& node, const PrjInfo& info) override;
+        bool isCloneable() const noexcept { return true; }
+        std::shared_ptr<UiObject> clone(
+                const std::shared_ptr<VirtualGroup>& parent,
+                const IdLib* idlib,
+                tr::Modify wantModify) const override;
     private:
         std::weak_ptr<VirtualGroup> fParentGroup;
     };
@@ -289,7 +337,7 @@ namespace tr {
         Group(const std::shared_ptr<VirtualGroup>& aParent,
               size_t aIndex, const PassKey&);
 
-        ObjType objType() const override { return ObjType::GROUP; }
+        ObjType objType() const noexcept override { return ObjType::GROUP; }
         std::shared_ptr<UiObject> parent() const override { return fParentGroup.lock(); }
         std::shared_ptr<File> file() override { return fFile.lock(); }
         Pair<VirtualGroup> additionParents() override
@@ -310,7 +358,7 @@ namespace tr {
 
         std::shared_ptr<Project> project() override { return fProject.lock(); }
 
-        ObjType objType() const override { return ObjType::FILE; }
+        ObjType objType() const noexcept override { return ObjType::FILE; }
         std::shared_ptr<UiObject> parent() const override;
         std::shared_ptr<File> file() override
             { return std::dynamic_pointer_cast<File>(fSelf.lock()); }
@@ -347,9 +395,9 @@ namespace tr {
         /// @return  maybe alias-constructed s_p, but never null
         std::shared_ptr<Project> self();
 
-        ObjType objType() const override { return ObjType::PROJECT; }
+        ObjType objType() const noexcept override { return ObjType::PROJECT; }
         std::shared_ptr<File> file() override { return {}; }
-        size_t nChildren() const override { return files.size(); };
+        size_t nChildren() const noexcept override { return files.size(); };
         std::shared_ptr<Entity> child(size_t i) const override;
         std::shared_ptr<UiObject> parent() const override { return {}; }
         std::u8string_view idColumn() const override { return {}; }

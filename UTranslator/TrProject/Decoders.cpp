@@ -1,19 +1,38 @@
 // My header
 #include "Decoders.h"
 
-constexpr char32_t PARA_SEP = 0x2029;      // U+2029 paragraph separator
+// C++
+#include <regex>
+
+constexpr char32_t PARA_SEP_32 = 0x2029;      // U+2029 paragraph separator
+constexpr wchar_t PARA_SEP_16 = PARA_SEP_32;
 
 std::u32string_view decode::normalizeEolSv(
         std::u32string_view x,
         std::u32string &cache)
 {
     if (x.find(U'\r') == std::u32string_view::npos
-            && x.find(PARA_SEP) == std::u32string_view::npos)
+            && x.find(PARA_SEP_32) == std::u32string_view::npos)
         return x;
     cache = x;
     str::replace(cache, U"\r\n", U"\n");
     str::replace(cache, U'\r', U'\n');
-    str::replace(cache, PARA_SEP, U'\n');
+    str::replace(cache, PARA_SEP_32, U'\n');
+    return cache;
+}
+
+
+std::wstring_view decode::normalizeEolSv(
+        std::wstring_view x,
+        std::wstring &cache)
+{
+    if (x.find(u'\r') == std::u32string_view::npos
+            && x.find(PARA_SEP_16) == std::u32string_view::npos)
+        return x;
+    cache = x;
+    str::replace(cache, L"\r\n", L"\n");
+    str::replace(cache, L'\r', L'\n');
+    str::replace(cache, PARA_SEP_16, L'\n');
     return cache;
 }
 
@@ -284,5 +303,24 @@ std::u32string decode::cpp(std::u32string_view x)
     }
     if (nCodeCharsRemaining > 0)
         appendCode(r, charCode);
+    return r;
+}
+
+
+std::wstring decode::htmlBr(std::wstring_view x)
+{
+    std::wstring cache;
+    x = normalizeEolSv(x, cache);
+
+    if (x.empty())
+        return std::wstring{x};
+
+    std::wregex rex(LR"(<br[ ]*[/]?>(?!\n))");
+    std::wstring r;
+    std::regex_replace(
+            std::back_inserter(r),
+            x.begin(), x.end(),
+            rex,
+            L"<br>\n");
     return r;
 }
