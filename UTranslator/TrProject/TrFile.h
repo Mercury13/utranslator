@@ -66,7 +66,7 @@ namespace tf {
     ///
     class EnumText final : public FileFormat
     {
-        EscapeInfo escapeInfo;
+        LineBreakEscape lineBreakEscape;
 
         void doImport(Loader& loader) override;
         void doExport(Walker&) override {}

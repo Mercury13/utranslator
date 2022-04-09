@@ -239,6 +239,24 @@ std::shared_ptr<tr::Entity> PrjTreeModel::extract(tr::UiObject* obj)
 }
 
 
+PrjTreeModel::CloneResult PrjTreeModel::doClone(const QModelIndex& index)
+{
+    if (!index.isValid())
+        return { tr::CloneErr::BAD_OBJECT, {}, tr::ObjType::TEXT };
+    auto obj = toObj(index);
+    auto pnt = obj->parent();
+    if (auto res = obj->startCloning(pnt)) {
+        auto newIndex = pnt->nChildren();
+        beginInsertRows(toIndex(pnt, 0), newIndex, newIndex);
+        auto v = res.commit(&myIds, tr::Modify::YES);
+        endInsertRows();
+        return { tr::CloneErr::OK, toIndex(*v, 0), v->objType() };
+    } else {
+        return { res.err, {}, tr::ObjType::TEXT };
+    }
+}
+
+
 void PrjTreeModel::paint(QPainter *painter,
                    const QStyleOptionViewItem &option,
                    const QModelIndex &index) const
@@ -302,6 +320,7 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->acAddHostedGroup, &QAction::triggered, this, &This::addHostedGroup);
     connect(ui->acAddText, &QAction::triggered, this, &This::addText);
     connect(ui->acDelete, &QAction::triggered, this, &This::doDelete);
+    connect(ui->acClone, &QAction::triggered, this, &This::doClone);
     // Edit
     connect(ui->acAcceptChanges, &QAction::triggered, this, &This::acceptCurrObject);
     connect(ui->acRevertChanges, &QAction::triggered, this, &This::revertCurrObject);
@@ -422,7 +441,7 @@ void FmMain::loadObject(tr::UiObject& obj)
 {
     ui->edId->setText(str::toQ(obj.idColumn()));
     // File/Original/translation
-    if (auto fi = obj.fileInfo()) {
+    if (auto fi = obj.ownFileInfo()) {
         ui->stackOriginal->setCurrentWidget(ui->pageFile);
         ui->chkIdless->setChecked(fi->isIdless);
     } else if (auto tr = obj.translatable()) {      // mutually exclusive with fileInfo
@@ -556,6 +575,7 @@ void FmMain::reenable()
     ui->acAddHostedGroup->setEnabled(isOriginal);
     ui->acAddText->setEnabled(isOriginal);
     ui->acDelete->setEnabled(isOriginal);
+    ui->acClone->setEnabled(isOriginal);
 
     // Edit
     ui->acAcceptChanges->setEnabled(isMainVisible);
@@ -810,4 +830,28 @@ void FmMain::runDecoder()
 {
     /// @todo [urgent] which QstrObj’s
     fmDecoder.ensure(this).exec(nullptr);
+}
+
+
+void FmMain::doClone()
+{
+    auto res = treeModel.doClone(treeIndex());
+    if (res.index.isValid()) {
+        ui->treeStrings->expand(res.index);
+        startEditingOrig(res.index,
+                (res.objType == tr::ObjType::TEXT) ? EditMode::TEXT : EditMode::GROUP);
+    }
+    switch (res.err) {
+    case tr::CloneErr::OK:
+        break;
+    case tr::CloneErr::BAD_PARENT:
+        QMessageBox::critical(this, "Clone", "Bad parent (strange error).");
+        break;
+    case tr::CloneErr::BAD_OBJECT:
+        QMessageBox::warning(this, "Clone", "Select some object.");
+        break;
+    case tr::CloneErr::UNCLONEABLE:
+        QMessageBox::warning(this, "Clone", "Cannot clone files.");
+        break;
+    }
 }

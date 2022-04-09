@@ -580,6 +580,7 @@
     <addaction name="separator"/>
     <addaction name="acAddHostedGroup"/>
     <addaction name="acAddText"/>
+    <addaction name="acClone"/>
     <addaction name="acDelete"/>
     <addaction name="separator"/>
     <addaction name="acMoveUp"/>
@@ -742,6 +743,14 @@
    </property>
    <property name="shortcut">
     <string>F4</string>
+   </property>
+  </action>
+  <action name="acClone">
+   <property name="text">
+    <string>&amp;Clone</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+K</string>
    </property>
   </action>
  </widget>

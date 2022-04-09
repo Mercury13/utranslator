@@ -187,7 +187,7 @@ bool tr::UiObject::setOriginal(std::u8string_view x, tr::Modify wantModify)
 
 bool tr::UiObject::setIdless(bool x, tr::Modify wantModify)
 {
-    if (auto fi = fileInfo()) {
+    if (auto fi = ownFileInfo()) {
         if (fi->isIdless != x) {
             fi->isIdless = x;
             if (wantModify != Modify::NO) {
@@ -271,14 +271,24 @@ std::u8string tr::UiObject::makeId(
 }
 
 
-std::u8string tr::UiObject::makeTextId(const IdLib& idlib) const
+const tr::FileInfo* tr::UiObject::inheritedFileInfo() const
 {
-    auto fi = fileInfo();
-    if (!fi || fi->isIdless)
-        return {};
-    return makeId(idlib.textPrefix, {});
+    if (auto f = file()) {
+        if (auto fi = f->ownFileInfo()) {
+            return fi;
+        }
+    }
+    return nullptr;
 }
 
+
+std::u8string tr::UiObject::makeTextId(const IdLib& idlib) const
+{
+    if (auto fi = inheritedFileInfo(); fi && !fi->isIdless) {
+        return makeId(idlib.textPrefix, {});
+    }
+    return {};
+}
 
 
 std::shared_ptr<tr::Entity> tr::UiObject::extract()
@@ -569,6 +579,59 @@ void tr::VirtualGroup::readCommentsAndChildren(
 }
 
 
+std::shared_ptr<tr::Group> tr::Group::clone(
+        const std::shared_ptr<VirtualGroup>& parent,
+        const IdLib* idlib,
+        tr::Modify wantModify) const
+{
+    auto newId = parent->makeId<ObjType::GROUP>(idlib, this);
+    auto newGroup = parent->addGroup(newId, Modify::NO);
+    for (auto& v : children) {
+        auto newSub = v->vclone(newGroup);
+    }
+    newGroup->comm = this->comm;
+    if (wantModify != tr::Modify::NO) {
+        newGroup->cache.mod.set(Mch::ID);
+        if (!newGroup->comm.authors.empty())
+            newGroup->cache.mod.set(Mch::COMMENT);
+        parent->cache.mod.set(Mch::ID);
+        parent->project()->modify();
+    }
+    return newGroup;
+}
+
+
+namespace {
+
+    template <class T> requires std::is_base_of_v<tr::Entity, T>
+    class CloneThing : public tr::CloneObj::Commitable
+    {
+    public:
+        const T& that;
+        std::shared_ptr<tr::VirtualGroup> parent;
+
+        CloneThing(const T& aThat, const std::shared_ptr<tr::VirtualGroup>& aParent)
+            : that(aThat), parent(aParent) {}
+
+        std::shared_ptr<tr::UiObject> commit(
+                const tr::IdLib* idlib, tr::Modify wantModify) override
+            { return that.clone(parent, idlib, wantModify); }
+    };
+
+}   // anon namespace
+
+
+tr::CloneObj tr::Group::startCloning(const std::shared_ptr<UiObject>& parent) const
+{
+    auto vg = std::dynamic_pointer_cast<VirtualGroup>(parent);
+    if (!vg)
+        return { CloneErr::BAD_PARENT, {} };
+    return {
+        CloneErr::OK,
+        std::unique_ptr<CloneObj::Commitable>{ new CloneThing<tr::Group>(*this, vg) }
+    };
+}
+
 
 ///// Group ////////////////////////////////////////////////////////////////////
 
@@ -663,16 +726,37 @@ void tr::Text::readFromXml(const pugi::xml_node& node, const PrjInfo& info)
 }
 
 
-std::shared_ptr<tr::UiObject> tr::Text::clone(
+std::shared_ptr<tr::Text> tr::Text::clone(
         const std::shared_ptr<VirtualGroup>& parent,
         const IdLib* idlib,
         tr::Modify wantModify) const
 {
-    auto newId = parent->makeId<ObjType::TEXT>(idlib);
-    auto newText = parent->addText(newId, {}, wantModify);
+    auto newId = parent->makeId<ObjType::TEXT>(idlib, this);
+    auto newText = parent->addText(newId, {}, Modify::NO);
     newText->tr = this->tr;
     newText->comm = this->comm;
-    return {};
+    if (wantModify != tr::Modify::NO) {
+        newText->cache.mod.set(Mch::ID);
+        if (!newText->tr.original.empty())
+            newText->cache.mod.set(Mch::ORIG);
+        if (!newText->comm.authors.empty())
+            newText->cache.mod.set(Mch::COMMENT);
+        parent->cache.mod.set(Mch::ID);
+        parent->project()->modify();
+    }
+    return newText;
+}
+
+
+tr::CloneObj tr::Text::startCloning(const std::shared_ptr<UiObject>& parent) const
+{
+    auto vg = std::dynamic_pointer_cast<VirtualGroup>(parent);
+    if (!vg)
+        return { CloneErr::BAD_PARENT, {} };
+    return {
+        CloneErr::OK,
+        std::unique_ptr<CloneObj::Commitable>(new CloneThing<Text>(*this, vg))
+    };
 }
 
 

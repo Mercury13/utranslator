@@ -56,6 +56,7 @@ namespace tr {
     class File;
     class Project;
     class Text;
+    class UiObject;
 
     enum class ObjType { PROJECT, FILE, GROUP, TEXT };
 
@@ -131,6 +132,33 @@ namespace tr {
         std::u8string_view textPrefix;
     };
 
+    enum class CloneErr {
+        OK,
+        UNCLONEABLE,
+        BAD_PARENT,
+        BAD_OBJECT      ///< Unused in lib, UI only
+    };
+
+    struct CloneObj {
+        class Commitable {
+        public:
+            virtual std::shared_ptr<UiObject> commit(
+                    const IdLib* idlib, Modify wantModify) = 0;
+            virtual ~Commitable() = default;
+        };
+
+        CloneErr err;
+        std::unique_ptr<Commitable> action;
+        explicit operator bool() const { return static_cast<bool>(action); }
+
+        std::shared_ptr<UiObject> commit(const IdLib* idlib, Modify wantModify)
+        {
+            if (action)
+                return action->commit(idlib, wantModify);
+            return {};
+        }
+    };
+
     class UiObject : public CanaryObject
     {
     public:
@@ -165,21 +193,16 @@ namespace tr {
         /// @return  ptr to original/translation, or null
         virtual Translatable* translatable() { return nullptr; }
         /// @return  ptr to file info, or null
-        virtual FileInfo* fileInfo() { return nullptr; }
+        virtual FileInfo* ownFileInfo() { return nullptr; }
         /// @return  ptr to project
         virtual std::shared_ptr<Project> project() = 0;
         /// @return  one or two parent groups for “Add group” / “Add string”
         virtual Pair<VirtualGroup> additionParents() = 0;
-        /// @return  [+] clone works somehow
-        virtual bool isCloneale() noexcept { return false; }
         /// @param [in]  idlib   [+] ID library; [0] copy ID
-        /// @return  non-empty clone of object if isCloneable()
-        /// @throw   some error if not cloneable
-        virtual std::shared_ptr<UiObject> clone(
-                [[maybe_unused]] const std::shared_ptr<VirtualGroup>& parent,
-                [[maybe_unused]] const IdLib* idlib,
-                [[maybe_unused]] tr::Modify wantModify) const
-            { throw std::logic_error("[UiObject.clone] The object is not cloneable!"); }
+        ///              should exist until commit!
+        virtual CloneObj startCloning(
+                [[maybe_unused]] const std::shared_ptr<UiObject>& parent) const
+            { return { CloneErr::UNCLONEABLE, {} }; }
 
         void recache();
         void recursiveRecache();
@@ -217,12 +240,9 @@ namespace tr {
             }
         }
         template <ObjType Objt>
-        inline std::u8string makeId(const IdLib* idlib) const
-        {
-            if (!idlib)
-                return std::u8string { idColumn() };
-            return makeId<Objt>(*idlib);
-        }
+        std::u8string makeId(const IdLib* idlib, const UiObject* src) const;
+        /// @return  fileInfo, either own or inherited from file
+        const FileInfo* inheritedFileInfo() const;
 
         /// @return  [+] s_p to this  [0] nothing happened
         std::shared_ptr<Entity> extract();
@@ -232,8 +252,12 @@ namespace tr {
         /// @return  how many texts are there in object’s groups
         Stats stats(bool includeSelf) const;
         void addStatsRecursive(Stats& x, bool includeSelf) const;
-        const FileInfo* fileInfo() const {
-            return const_cast<UiObject*>(this)->fileInfo(); }
+
+        // Const verions
+        const FileInfo* ownFileInfo() const
+            { return const_cast<UiObject*>(this)->ownFileInfo(); }
+        std::shared_ptr<const File> file() const
+            { return const_cast<UiObject*>(this)->file(); }
     protected:
         // passkey idiom
         struct PassKey {};
@@ -259,6 +283,8 @@ namespace tr {
         /// @param [in] info   project info for speed
         /// @todo [urgent] should be purely virtual
         virtual void readFromXml(const pugi::xml_node& node, const PrjInfo& info) = 0;
+        virtual std::shared_ptr<Entity> vclone(
+                const std::shared_ptr<VirtualGroup>& parent) const = 0;
     protected:
         // write comments
         void writeAuthorsComment(pugi::xml_node& node, WrCache& c) const;
@@ -319,10 +345,16 @@ namespace tr {
         void writeToXml(pugi::xml_node&, WrCache&) const override;
         void readFromXml(const pugi::xml_node& node, const PrjInfo& info) override;
         bool isCloneable() const noexcept { return true; }
-        std::shared_ptr<UiObject> clone(
+        std::shared_ptr<Text> clone(
                 const std::shared_ptr<VirtualGroup>& parent,
                 const IdLib* idlib,
-                tr::Modify wantModify) const override;
+                tr::Modify wantModify) const;
+        CloneObj startCloning(
+                const std::shared_ptr<UiObject>& parent) const override;
+    protected:
+        std::shared_ptr<Entity> vclone(
+                const std::shared_ptr<VirtualGroup>& parent) const override
+            { return clone(parent, nullptr, Modify::NO); }
     private:
         std::weak_ptr<VirtualGroup> fParentGroup;
     };
@@ -344,6 +376,15 @@ namespace tr {
                 { return { fParentGroup.lock(), fSelf.lock() }; }
         void writeToXml(pugi::xml_node&, WrCache&) const override;
         void readFromXml(const pugi::xml_node& node, const PrjInfo& info) override;
+        std::shared_ptr<Group> clone(
+                const std::shared_ptr<VirtualGroup>& parent,
+                const IdLib* idlib,
+                tr::Modify wantModify) const;
+        CloneObj startCloning(
+                const std::shared_ptr<UiObject>& parent) const override;
+        std::shared_ptr<Entity> vclone(
+                const std::shared_ptr<VirtualGroup>& parent) const override
+            { return clone(parent, nullptr, Modify::NO); }
     private:
         friend class tr::File;
         std::weak_ptr<File> fFile;
@@ -352,6 +393,8 @@ namespace tr {
 
     class File final : public VirtualGroup
     {
+    private:
+        using Super = VirtualGroup;
     public:
         FileInfo info;
         std::unique_ptr<tf::FileFormat> format;
@@ -367,7 +410,11 @@ namespace tr {
         File(std::weak_ptr<Project> aProject, size_t aIndex, const PassKey&);
         void writeToXml(pugi::xml_node&, WrCache&) const override;
         void readFromXml(const pugi::xml_node& node, const PrjInfo& info) override;
-        virtual FileInfo* fileInfo() override { return &info; }
+        using Super::ownFileInfo;
+        virtual FileInfo* ownFileInfo() override { return &info; }
+        std::shared_ptr<Entity> vclone(
+                const std::shared_ptr<VirtualGroup>&) const override
+            { throw std::logic_error("Cannot clone files"); }
     protected:
         std::weak_ptr<Project> fProject;
     };
@@ -441,6 +488,18 @@ namespace tr {
 
 ///// Template implementations /////////////////////////////////////////////////
 
+
+template <tr::ObjType Objt>
+std::u8string tr::UiObject::makeId(const IdLib* idlib, const UiObject* src) const
+{
+    if (idlib) {
+        return makeId<Objt>(*idlib);
+    } else if (src) {
+        return std::u8string { src->idColumn() };
+    } else {
+        return std::u8string { idColumn() };
+    }
+}
 
 template <class T>
 unsigned tr::Pair<T>::size() const

@@ -69,6 +69,12 @@ public:
     Thing<tr::Text> addText(const std::shared_ptr<tr::VirtualGroup>& parent);
     /// @return  [+] s_p to extracted object  [0] nothing happened
     std::shared_ptr<tr::Entity> extract(tr::UiObject* obj);
+    struct CloneResult {
+        tr::CloneErr err;
+        QModelIndex index;
+        tr::ObjType objType;
+    };
+    CloneResult doClone(const QModelIndex& index);
 private:
     static constexpr int DUMMY_COL = 0;
     std::shared_ptr<tr::Project> project;   // will hold old project
@@ -126,6 +132,7 @@ private slots:
     void addHostedGroup();
     void addText();
     void doDelete();
+    void doClone();
     // Menu: Tools
     void runDecoder();
 private:

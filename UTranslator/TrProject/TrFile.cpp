@@ -5,13 +5,12 @@
 tf::MobileInfo tf::EnumText::mobileInfo() const
 {
     return {
-        .escapeInfo = this->escapeInfo,
+        .lineBreakEscape = this->lineBreakEscape,
     };
 }
 
 
-
 void tf::EnumText::setMobileInfo(const tf::MobileInfo& x)
 {
-    escapeInfo = x.escapeInfo;
+    lineBreakEscape = x.lineBreakEscape;
 }

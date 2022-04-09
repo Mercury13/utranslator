@@ -33,18 +33,20 @@ namespace tf {
     };
 
     ///  Principles of escaping line-breaks
-    struct EscapeInfo {
+    struct LineBreakEscape {
         EscapeMode mode = EscapeMode::NONE;
         char specifiedChar = '^';
     };
 
     ///
     ///  Very common settings that are often transfered from format to format
-    ///  LineBreakStyle and EscapeInfo are probably mutually-exclusive.
+    ///  LineBreakStyle and EscapeInfo are probably mutually-exclusive:
+    ///    first is when line breaks are actually emitted to text,
+    ///    and second is when they are escaped somehow
     ///
     struct MobileInfo {
         LineBreakStyle lineBreakMode = LineBreakStyle::LF;
-        EscapeInfo escapeInfo {};
+        LineBreakEscape lineBreakEscape {};
         char multitierSeparator = '.';
     };
 
@@ -83,6 +85,7 @@ public:
     CloningUptr<T>& operator = (const CloningUptr<T>& x)
         { *this = x.clone(); }
 };
+
 
 namespace tr {
 
