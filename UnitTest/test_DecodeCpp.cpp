@@ -171,8 +171,7 @@ TEST (Cpp, UnfinishedCode)
 ///
 ///  Interaction  between quoted and unquoted text.
 ///
-///  Let’s document two spaces “charlie  delta” as actual bhv,
-///  but you can change this anytime.
+///  BHV MAY CHANGE: Let’s document two spaces “charlie  delta” as actual bhv
 ///
 TEST (Cpp, InsideAndOutside)
 {
@@ -231,6 +230,21 @@ TEST (Cpp, RawStringsSmilie)
 {
     auto x = decode::cpp(UR"qqq(u8R"()))))"sv)qqq");
     EXPECT_EQ(U"))))", x);
+}
+
+
+///
+/// Incorrect C++ raw string
+/// BHV MAY CHANGE
+/// qw = delimiter
+/// ) = treated as start
+/// qw" = content
+/// )qw" = end
+///
+TEST (Cpp, RawStringsBadParenthesis)
+{
+    auto x = decode::cpp(UR"qqq(u8R"qw)qw")qw"sv)qqq");
+    EXPECT_EQ(U"qw\"", x);
 }
 
 
