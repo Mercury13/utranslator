@@ -828,8 +828,15 @@ void FmMain::doSave()
 
 void FmMain::runDecoder()
 {
-    /// @todo [urgent] which QstrObj’s
-    fmDecoder.ensure(this).exec(nullptr);
+    std::unique_ptr<QstrObject> obj;
+    if (ui->memoOriginal->hasFocus()) {
+        obj = std::make_unique<MemoObject>(ui->memoOriginal);
+    } else if (ui->memoTranslation->hasFocus()) {
+        obj = std::make_unique<MemoObject>(ui->memoTranslation);
+    } else if (ui->memoComment->hasFocus()) {
+        obj = std::make_unique<MemoObject>(ui->memoComment);
+    }
+    fmDecoder.ensure(this).exec(obj.get());
 }
 
 

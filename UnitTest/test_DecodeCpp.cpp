@@ -133,7 +133,7 @@ TEST (Cpp, Commas4)
 
 TEST (Cpp, Commas5)
 {
-    auto x = decode::cpp(UR"(  "alpha" u8"bravo",}, )");
+    auto x = decode::cpp(UR"(  "alpha" u8"bravo",},); )");
     EXPECT_EQ(U"alphabravo", x);
 }
 

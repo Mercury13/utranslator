@@ -4,6 +4,7 @@
 // Qt
 #include <QDialogButtonBox>
 #include <QPlainTextEdit>
+#include <QShortcut>
 
 // Qt ex
 #include "QtConsts.h"
@@ -68,6 +69,13 @@ FmDecoder::FmDecoder(QWidget *parent) :
                 "Partly turns HTML to wikitext<br>"
                 "<b>&lt;br&gt;</b> → <b>&lt;br&gt;⤶</b><br>"
                 "<b>&lt;p&gt;</b> → <b>⤶⤶</b>");
+
+    // Shortcut v1 — Ctrl+Enter
+    QShortcut* shcut = new QShortcut(Qt::CTRL | Qt::Key_Enter, this);
+    connect(shcut, &QShortcut::activated, this, &This::accept);
+    // Shortcut v2 — Ctrl+Return
+    shcut = new QShortcut(Qt::CTRL | Qt::Key_Return, this);
+    connect(shcut, &QShortcut::activated, this, &This::accept);
 }
 
 FmDecoder::~FmDecoder()
@@ -82,6 +90,7 @@ bool FmDecoder::exec(QstrObject* obj)
         ui->memo->setPlainText(obj->toQ());
     }
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(obj);
+    ui->memo->setFocus();
     auto q = Super::exec();
     if (q && obj)
         obj->set(ui->memo->toPlainText());

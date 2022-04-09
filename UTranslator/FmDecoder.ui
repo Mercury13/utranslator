@@ -57,7 +57,7 @@
         <item>
          <widget class="QPushButton" name="btDecodeC">
           <property name="text">
-           <string>&quot;C++ \n&quot;</string>
+           <string>&amp;1 &quot;C++ \n&quot;</string>
           </property>
           <property name="autoDefault">
            <bool>false</bool>
@@ -67,7 +67,7 @@
         <item>
          <widget class="QPushButton" name="btDecodeBr">
           <property name="text">
-           <string>&lt;br/p&gt; → ⤶</string>
+           <string>&amp;2 &lt;br/p&gt; → ⤶</string>
           </property>
           <property name="autoDefault">
            <bool>false</bool>

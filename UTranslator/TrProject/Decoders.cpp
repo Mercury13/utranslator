@@ -199,6 +199,8 @@ std::u32string decode::cpp(std::u32string_view x)
                 prefixStart = nullptr;
                 break;
             case U',':
+            case U';':
+            case U')':
             case U'}':
                 if (state == CppState::SPACE_TRAIL)
                     break;                  // do nothing in SPACE_TRAIL mode
@@ -283,7 +285,9 @@ std::u32string decode::cpp(std::u32string_view x)
             case U' ':                          // "x"ab␣
             case U'\n':
             case U',':                          // "x"ab,  do the same
+            case U')':                          // "x"ab)  do the same
             case U'}':                          // "x"ab}  do the same
+            case U';':                          // "x"ab;  do the same
                 state = CppState::SPACE_TRAIL;     // prefixStart NO→YES
                 prefixStart = p;
                 break;
