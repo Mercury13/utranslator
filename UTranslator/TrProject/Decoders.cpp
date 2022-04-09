@@ -84,21 +84,23 @@ namespace {
     }
 
     enum class CppState {
-        SPACE,      // ␣␣      prefixStart YES
-        SPACE_TRAIL,// "x"␣␣   prefixStart YES
-        PREFIX,     // ␣␣ab    prefixStart YES
-        INSIDE,     // "x
-        SLASH,      // "x/         BACK slash here
-        OCT,        // "x/2        BACK slash here
-        HEX,        // "x/uA       BACK slash here
-        SUFFIX,     // "x"ab
+        SPACE,          // ␣␣      prefixStart YES
+        SPACE_TRAIL,    // "x"␣␣   prefixStart YES
+        PREFIX,         // ␣␣ab    prefixStart YES
+        INSIDE,         // "x
+        SLASH,          // "x/         BACK slash here
+        OCT,            // "x/2        BACK slash here
+        HEX,            // "x/uA       BACK slash here
+        SUFFIX,         // "x"ab
             // Four states for unquoted string
             // When we see backslash outside quotes, we fall here!
             // Same order as INSIDE/SLASH/OCT/HEX
-        OUTSIDE,    // ␣␣1+
+        OUTSIDE,        // ␣␣1+
         //OUT_SLASH,
         //OUT_OCT,
         //OUT_HEX,
+        RAW_COLLECT,    // R"end
+        RAW_INSIDE,     // R"end(x  prefixStart YES
     };
 
     enum class CppBase {
@@ -118,8 +120,9 @@ std::u32string decode::cpp(std::u32string_view x)
     std::u32string cache;
     x = normalizeEolSv(x, cache);
 
-    const char32_t* p = x.data();
-    const char32_t* end = p + x.length();
+    const char32_t* const start = x.data();
+    const char32_t* const end = start + x.length();
+    const char32_t* p = start;
 
     std::u32string r;
 
@@ -185,6 +188,15 @@ std::u32string decode::cpp(std::u32string_view x)
         }
     };
 
+#define CASE_COMMA_CHARS  \
+        case U',':   \
+        case U';':   \
+        case U')':   \
+        case U'}'
+
+    std::u32string rawEnd;
+    size_t rawIndex = 0;
+
     for (; p != end; ++p) {
         auto c = *p;
         switch (state) {
@@ -198,10 +210,7 @@ std::u32string decode::cpp(std::u32string_view x)
                 state = CppState::INSIDE;      // prefixStart YES→NO, do not dump
                 prefixStart = nullptr;
                 break;
-            case U',':
-            case U';':
-            case U')':
-            case U'}':
+            CASE_COMMA_CHARS:
                 if (state == CppState::SPACE_TRAIL)
                     break;                  // do nothing in SPACE_TRAIL mode
                 [[fallthrough]];
@@ -226,8 +235,16 @@ std::u32string decode::cpp(std::u32string_view x)
                 prefixStart = p;
                 break;
             case U'"':                       // ␣␣ab"
-                state = CppState::INSIDE;      // prefixStart YES→NO, do not dump
-                prefixStart = nullptr;
+                prefixStart = nullptr;  // do not dump in both branches, raw and escaped
+                if (p != start && p[-1] == U'R') {
+                        // 'R' is a prefix → thus from state PREFIX only
+                        // always capital and last → thus [-1]
+                        //   LR"()" OK,   RL"()" bad,   Lr"()" bad
+                    state = CppState::RAW_COLLECT;  // prefixStart YES→NO, do not dump
+                    rawEnd = U')';
+                } else {
+                    state = CppState::INSIDE;      // prefixStart YES→NO, do not dump
+                }
                 break;
             default:
                 if (dcpp::isAlnum(c)) {     // ␣␣ab8
@@ -284,10 +301,7 @@ std::u32string decode::cpp(std::u32string_view x)
             switch (c) {
             case U' ':                          // "x"ab␣
             case U'\n':
-            case U',':                          // "x"ab,  do the same
-            case U')':                          // "x"ab)  do the same
-            case U'}':                          // "x"ab}  do the same
-            case U';':                          // "x"ab;  do the same
+            CASE_COMMA_CHARS:                   // "x"ab) etc,  do the same
                 state = CppState::SPACE_TRAIL;     // prefixStart NO→YES
                 prefixStart = p;
                 break;
@@ -300,9 +314,39 @@ std::u32string decode::cpp(std::u32string_view x)
                 }
             }
             break;
+        case CppState::RAW_COLLECT:     // prefixStart NO
+            switch (c) {
+            case U'(':
+            case U')':  // just to ensure that no ) in rawEnd
+                    // Non-ID chars etc cannot be in delimiter, but we
+                    //   cannot throw errors, just recover somehow —
+                    //   and this is the simplest way
+                rawEnd += U'"';
+                state = CppState::RAW_INSIDE;
+                prefixStart = p + 1;
+                rawIndex = 0;
+                break;
+            default:
+                rawEnd += c;
+            }
+            break;
+        case CppState::RAW_INSIDE:      // prefixStart YES
+            if (c == rawEnd[rawIndex]) {
+                if (++rawIndex == rawEnd.length()) {
+                    // Special dump
+                    ptrdiff_t tailLen = rawEnd.length() - 1;
+                    auto dist = std::distance(prefixStart, p);
+                    if (dist > tailLen) {   // over-assurance, should be OK
+                        r.append(prefixStart, p - tailLen);
+                    }
+                    prefixStart = nullptr;      // prefixStart YES→NO
+                    state = CppState::SUFFIX;
+                }
+            }
         }   // Big switch (state)
     }
     if (prefixStart && state != CppState::SPACE_TRAIL) {
+        // RAW_INSIDE here too
         r.append(prefixStart, end);
     }
     if (nCodeCharsRemaining > 0)

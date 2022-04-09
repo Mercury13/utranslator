@@ -183,13 +183,54 @@ TEST (Cpp, InsideAndOutside)
 
 
 ///
-///  Future: C++ raw strings
-///  THIS FEATURE IS NOT IMPLEMENTED, WE JUST SHOW ACTUAL STATE
+///  C++ raw strings
 ///
-TEST (CppFuture, RawStrings)
+TEST (Cpp, RawStrings)
 {
-    auto x = decode::cpp(UR"qqq(R"(abc\ndef)")qqq");
-    EXPECT_EQ(U"(abc\ndef)", x);
+    auto x = decode::cpp(UR"qqq(  u8R"(abc\ndef)"sv  ), )qqq");
+    EXPECT_EQ(U"abc\\ndef", x);
+}
+
+
+///
+/// C++ raw string of length 1
+///
+TEST (Cpp, RawStringsLen1)
+{
+    auto x = decode::cpp(UR"qqq(u8R"(a)"sv)qqq");
+    EXPECT_EQ(U"a", x);
+}
+
+
+///
+/// C++ raw string of length 0
+///
+TEST (Cpp, RawStringsLen0)
+{
+    auto x = decode::cpp(UR"qqq(u8R"()"sv)qqq");
+    EXPECT_EQ(U"", x);
+}
+
+
+///
+/// C++ raw string with fancy end
+/// We should react to “)end"” but bot to “)end”
+///
+TEST (Cpp, RawStringsEnd)
+{
+    auto x = decode::cpp(UR"qqq(R"end(a)end)end"sv)qqq");
+    EXPECT_EQ(U"a)end", x);
+}
+
+
+///
+/// C++ raw string of length 0
+/// We should react to “)"” but not to “)”
+///
+TEST (Cpp, RawStringsSmilie)
+{
+    auto x = decode::cpp(UR"qqq(u8R"()))))"sv)qqq");
+    EXPECT_EQ(U"))))", x);
 }
 
 
