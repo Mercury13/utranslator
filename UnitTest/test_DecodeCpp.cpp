@@ -184,6 +184,7 @@ TEST (Cpp, InsideAndOutside)
 
 ///
 ///  Future: C++ raw strings
+///  THIS FEATURE IS NOT IMPLEMENTED, WE JUST SHOW ACTUAL STATE
 ///
 TEST (CppFuture, RawStrings)
 {
@@ -194,6 +195,7 @@ TEST (CppFuture, RawStrings)
 
 ///
 ///  Future: escape in unquoted strings
+///  THIS FEATURE IS NOT IMPLEMENTED, WE JUST SHOW ACTUAL STATE
 ///
 TEST (CppFuture, UnquotedEscape)
 {
