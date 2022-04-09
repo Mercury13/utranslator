@@ -70,10 +70,11 @@ public:
     /// @return  [+] s_p to extracted object  [0] nothing happened
     std::shared_ptr<tr::Entity> extract(tr::UiObject* obj);
     struct CloneResult {
-        tr::CloneErr err;
-        QModelIndex index;
-        tr::ObjType objType;
+        tr::CloneErr err;       /// OK, or error reason
+        QModelIndex index;      /// OK: new index    BAD: do not use
+        tr::ObjType objType;    /// OK: object type  BAD: do not use
     };
+    /// Clones this object
     CloneResult doClone(const QModelIndex& index);
 private:
     static constexpr int DUMMY_COL = 0;
