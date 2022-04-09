@@ -131,7 +131,16 @@ TEST (Cpp, Commas4)
     EXPECT_EQ(U"alphabravo:)   :)", x);
 }
 
-TEST (Cpp, Commas5)
+
+///
+///  All characters that are “trailing commas”
+///  Right now
+///  • comma ,
+///  • semicolon ;
+///  • right curly }
+///  • right parenthesis )
+///
+TEST (Cpp, CommasAllSet)
 {
     auto x = decode::cpp(UR"(  "alpha" u8"bravo",},); )");
     EXPECT_EQ(U"alphabravo", x);
@@ -170,4 +179,24 @@ TEST (Cpp, InsideAndOutside)
     auto x = decode::cpp(UR"(  alpha  bravo  "charlie"  delta  echo  )");
     EXPECT_EQ(U"  alpha  bravocharlie  delta  echo  ", x);
                                 //   ^^ actual bhv, not specified!
+}
+
+
+///
+///  Future: C++ raw strings
+///
+TEST (CppFuture, RawStrings)
+{
+    auto x = decode::cpp(UR"qqq(R"(abc\ndef)")qqq");
+    EXPECT_EQ(U"(abc\ndef)", x);
+}
+
+
+///
+///  Future: escape in unquoted strings
+///
+TEST (CppFuture, UnquotedEscape)
+{
+    auto x = decode::cpp(UR"qqq(abc\ndef)qqq");
+    EXPECT_EQ(U"abc\\ndef", x);
 }

@@ -38,11 +38,20 @@ namespace decode {
     /// "alpha\nbravo" → alpha<LF>bravo
     /// Why U32: handle \U00012345
     ///
+    /// Additional things:
+    /// • starting and ending IDs: u8"text"sv
+    /// • trailing chars: )},;
+    ///
+    /// NOT checked right now
+    /// • Raw strings   R"(abc\ndef)"
+    /// • Escape seqs w/o quotes   abc\ndef
+    /// • Space policy when input has both quoted and unquoted text  abc "def" ghi
+    ///
     std::u32string cpp(std::u32string_view x);
 
     /// Converts <br> → <br><LF>
     /// Why system-dependent wide…
-    ///   • Unicode: QPlainTextEdit’s selection uses raw data, U+2029 inside
+    ///   • Unicode, better not UTF-8: QPlainTextEdit’s selection uses raw data, U+2029 inside
     ///   • Not C++20 u8string: Qt supports it in 6.2+ that dropped W7
     ///   • Locales: standard C++ regex
     ///
