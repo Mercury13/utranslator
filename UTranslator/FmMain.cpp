@@ -352,7 +352,8 @@ FmMain::~FmMain()
 void FmMain::selectSmth()
 {
     ui->treeStrings->setFocus(Qt::FocusReason::OtherFocusReason);
-    ui->treeStrings->setCurrentIndex(ui->treeStrings->currentIndex());
+    auto index = qmod::selectFirstAmbiguous(ui->treeStrings);
+    ui->treeStrings->expand(index);
 }
 
 

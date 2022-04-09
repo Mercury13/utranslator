@@ -1,5 +1,39 @@
 #include "QModels.h"
 
+#include <QAbstractItemView>
+
+
+QModelIndex qmod::selectAny(QAbstractItemView* view)
+{
+    auto index = view->currentIndex();
+    if (index.isValid())
+        view->setCurrentIndex(index);
+    return index;
+}
+
+
+QModelIndex qmod::selectFirstAmbiguous(QAbstractItemView* view)
+{
+    auto& model = *view->model();
+
+    QModelIndex index {};
+    while (true) {
+        auto nRows = model.rowCount(index);
+        if (nRows == 0)
+            break;
+        index = model.index(0, 0, index);
+        if (nRows > 1)
+            break;
+    }
+    if (index.isValid()) {
+        view->setCurrentIndex(index);
+        return index;
+    } else {
+        return selectAny(view);    // probably will fail
+    }
+}
+
+
 ///// LeafPos //////////////////////////////////////////////////////////////////
 
 

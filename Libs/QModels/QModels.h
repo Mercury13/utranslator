@@ -3,7 +3,14 @@
 #include <QAbstractItemModel>
 
 
+class QAbstractItemView;
+
 namespace qmod {
+
+    /// @return [+] wasSelected
+    QModelIndex selectAny(QAbstractItemView* view);
+    QModelIndex selectFirstAmbiguous(QAbstractItemView* view);
+
 
     enum class SelectEnd {
         FIRST,      ///< Select first thing
