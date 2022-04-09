@@ -8,6 +8,7 @@ CONFIG(debug, debug|release) {
 
 SOURCES += \
     ../Libs/PugiXml/pugixml.cpp \
+    ../Libs/QModels/QModels.cpp \
     ../Libs/SelfMade/i_OpenSave.cpp \
     ../Libs/SelfMade/u_OpenSaveStrings.cpp \
     ../Libs/SelfMade/u_Qstrings.cpp \
@@ -26,6 +27,7 @@ SOURCES += \
 HEADERS += \
     ../Libs/PugiXml/pugiconfig.hpp \
     ../Libs/PugiXml/pugixml.hpp \
+    ../Libs/QModels/QModels.h \
     ../Libs/SelfMade/i_OpenSave.h \
     ../Libs/SelfMade/u_OpenSaveStrings.h \
     ../Libs/SelfMade/u_Qstrings.h \
@@ -43,6 +45,7 @@ HEADERS += \
 
 INCLUDEPATH += \
     ../Libs/PugiXml \
+    ../Libs/QModels \
     ../Libs/SelfMade \
     TrProject
 

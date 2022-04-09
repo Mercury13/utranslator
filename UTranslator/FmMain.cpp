@@ -6,6 +6,9 @@
 #include <QItemSelectionModel>
 #include <QMessageBox>
 
+// Qt misc
+#include "QModels.h"
+
 // Libs
 #include "u_Qstrings.h"
 #include "i_OpenSave.h"
@@ -590,15 +593,17 @@ void FmMain::reenable()
 
 void FmMain::goBack()
 {
-    /// @todo [urgent] goPrev
-    QMessageBox::information(this, "goBack", "goBack!!!!!");
+    qmod::LeafPos cp(ui->treeStrings->currentIndex());
+    if (cp.goPrev())
+        ui->treeStrings->setCurrentIndex(cp);
 }
 
 
 void FmMain::goNext()
 {
-    /// @todo [urgent] goNext
-    QMessageBox::information(this, "goNext", "goNext!!!!!");
+    qmod::LeafPos cp(ui->treeStrings->currentIndex());
+    if (cp.goNext())
+        ui->treeStrings->setCurrentIndex(cp);
 }
 
 
