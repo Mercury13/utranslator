@@ -7,6 +7,8 @@
 // XML
 #include "pugixml.hpp"
 
+using namespace std::string_view_literals;
+
 
 //// History ///////////////////////////////////////////////////////////////////
 
@@ -77,11 +79,12 @@ bool hist::History::bump(size_t i)
 }
 
 
-void hist::History::silentAdd(const std::shared_ptr<Place>& x)
+bool hist::History::silentAdd(std::shared_ptr<Place> x)
 {
     if (!x || size() >= SIZE)
-        return;
-    d[sz++] = x;
+        return false;
+    d[sz++] = std::move(x);
+    return true;
 }
 
 
@@ -122,6 +125,26 @@ void hist::History::save(
 }
 
 
+void hist::History::load(pugi::xml_node& node,
+          std::initializer_list<EvLoadPlace> loadPlaces)
+{
+    clear();
+    for (auto child : node.children()) {
+        for (auto loader : loadPlaces) {
+            if (auto up = loader(child)) {
+                silentAdd(std::move(up));
+                if (isFull()) {
+                    return;
+                } else {
+                    break;
+                }
+            }
+        }
+        // break here
+    }
+}
+
+
 ///// FilePlace ////////////////////////////////////////////////////////////////
 
 namespace {
@@ -142,6 +165,14 @@ namespace {
 
 hist::FilePlace::FilePlace(const std::filesystem::path& aPath)
     : fPath(toCanonicalNe(aPath)) {}
+
+hist::FilePlace::FilePlace(std::filesystem::path&& aPath)
+    : fPath(std::move(aPath))
+{
+    if (!fPath.is_absolute()) {
+        fPath = toCanonicalNe(aPath);
+    }
+}
 
 
 bool hist::FilePlace::eq(const Place& x) const
@@ -170,4 +201,16 @@ void hist::FilePlace::save(pugi::xml_node& root) const
 {
     root.append_child("file")
         .append_attribute("name") = str::toC(fPath.u8string());
+}
+
+
+std::unique_ptr<hist::FilePlace> hist::FilePlace::tryLoadSpec(const pugi::xml_node& node)
+{
+    if (node.name() != "file"sv)
+        return {};
+    const char* szPath = node.attribute("name").as_string();
+    std::filesystem::path path { str::toU8sv(szPath) };
+    if (!path.is_absolute())
+        return {};
+    return std::make_unique<FilePlace>(std::move(path));
 }

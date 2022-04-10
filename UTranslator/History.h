@@ -35,6 +35,30 @@ namespace hist {
         bool operator == (const Place& x) const = default;
     };
 
+    using EvLoadPlace = std::unique_ptr<Place>(*)(const pugi::xml_node& node);
+
+    class FilePlace : public Place
+    {
+    public:
+        FilePlace(const std::filesystem::path& aPath);
+        FilePlace(std::filesystem::path&& aPath);
+        bool operator == (const FilePlace& x) const = default;
+        const std::filesystem::path path() const { return fPath; }
+
+        std::unique_ptr<FilePlace> tryRead(const pugi::xml_node& node);
+
+        // Place
+        std::wstring shortName() const override;
+        std::wstring auxName() const override;
+        bool eq(const Place& aPlace) const override;
+        void save(pugi::xml_node& root) const override;
+        static std::unique_ptr<FilePlace> tryLoadSpec(const pugi::xml_node& node);
+        static std::unique_ptr<Place> tryLoad(const pugi::xml_node& node)
+            { return tryLoadSpec(node); }
+    private:
+        std::filesystem::path fPath;
+    };
+
     class History
     {
     public:
@@ -58,7 +82,8 @@ namespace hist {
         bool silentPush(const std::shared_ptr<Place>& x);
 
         /// Adds an item to end if there’s room
-        void silentAdd(const std::shared_ptr<Place>& x);
+        /// @return [+] changed smth (place has data, history is not full)
+        bool silentAdd(std::shared_ptr<Place> x);
 
         /// @return [+] first item is x
         bool firstIs(const Place& x);
@@ -86,29 +111,16 @@ namespace hist {
         bool silentClear();
         bool clear();
 
+        /// @param [in] root node ABOVE
         void save(pugi::xml_node& root, const char* name) const;
+        /// @param [in] node THIS node
+        void load(pugi::xml_node& node,
+                  std::initializer_list<EvLoadPlace> loadPlaces =
+                        { FilePlace::tryLoad });
     private:
         Ar d;
         size_t sz = 0;
         Listener* lstn = nullptr;
-    };
-
-    class FilePlace : public Place
-    {
-    public:
-        FilePlace(const std::filesystem::path& aPath);
-        bool operator == (const FilePlace& x) const = default;
-        const std::filesystem::path path() const { return fPath; }
-
-        std::unique_ptr<FilePlace> tryRead(const pugi::xml_node& node);
-
-        // Place
-        std::wstring shortName() const override;
-        std::wstring auxName() const override;
-        bool eq(const Place& aPlace) const override;
-        void save(pugi::xml_node& root) const override;
-    private:
-        std::filesystem::path fPath;
     };
 
 }   // namespace hist
