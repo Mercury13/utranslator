@@ -33,7 +33,7 @@
     <item>
      <widget class="QStackedWidget" name="stackMain">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="pageMain">
        <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -536,17 +536,16 @@
          </layout>
         </item>
         <item>
-         <spacer name="verticalSpacer">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
+         <widget class="QTextBrowser" name="browStart">
+          <property name="styleSheet">
+           <string notr="true">QTextBrowser {
+  background-color:palette(button)
+}</string>
           </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
           </property>
-         </spacer>
+         </widget>
         </item>
        </layout>
       </widget>

@@ -15,6 +15,7 @@ SOURCES += \
     ../Libs/SelfMade/u_Strings.cpp \
     FmDecoder.cpp \
     FmDisambigPair.cpp \
+    History.cpp \
     TrProject/Decoders.cpp \
     TrProject/Modifiable.cpp \
     TrProject/TrDefines.cpp \
@@ -35,6 +36,7 @@ HEADERS += \
     ../Libs/SelfMade/u_TypedFlags.h \
     FmDecoder.h \
     FmDisambigPair.h \
+    History.h \
     TrProject/Decoders.h \
     TrProject/Modifiable.h \
     TrProject/TrDefines.h \
