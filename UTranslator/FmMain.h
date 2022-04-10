@@ -9,6 +9,9 @@
 // No one uses FmMain → you can import EVERYTHING
 #include "TrProject.h"
 
+// Project-local
+#include "History.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class FmMain; }
 QT_END_NAMESPACE
@@ -141,6 +144,7 @@ private:
 
     PrjTreeModel treeModel;
     std::shared_ptr<tr::Project> project;
+    hist::History history;
 
     Uptr<FmNew> fmNew;
     Uptr<FmDisambigPair> fmDisambigPair;

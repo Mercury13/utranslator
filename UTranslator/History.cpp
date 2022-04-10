@@ -98,6 +98,14 @@ bool hist::History::clear()
 }
 
 
+bool hist::History::firstIs(const Place& x)
+{
+    return (!isEmpty() &&
+            (d.first().get() == &x      // they point to the same object
+             || d.first()->eq(x)));     // they are equal
+}
+
+
 ///// FilePlace ////////////////////////////////////////////////////////////////
 
 

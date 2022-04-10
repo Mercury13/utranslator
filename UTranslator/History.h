@@ -59,6 +59,9 @@ namespace hist {
         /// Adds an item to end if there’s room
         void silentAdd(const std::shared_ptr<Place>& x);
 
+        /// @return [+] first item is x
+        bool firstIs(const Place& x);
+
         size_t size() const { return sz; }
         const std::shared_ptr<Place>& operator [] (size_t i) const { return d.at(i); }
         [[nodiscard]] bool isEmpty() const { return (sz == 0); }
