@@ -1,6 +1,12 @@
 // My header
 #include "History.h"
 
+// Project-local
+#include "u_Strings.h"
+
+// XML
+#include "pugixml.hpp"
+
 
 //// History ///////////////////////////////////////////////////////////////////
 
@@ -106,7 +112,36 @@ bool hist::History::firstIs(const Place& x)
 }
 
 
+void hist::History::save(
+        pugi::xml_node& root, const char* name) const
+{
+    auto node = root.append_child(name);
+    for (auto& v : *this) {
+        v->save(node);
+    }
+}
+
+
 ///// FilePlace ////////////////////////////////////////////////////////////////
+
+namespace {
+
+    std::filesystem::path toCanonicalNe(const std::filesystem::path& x)
+    {
+        try {
+            return std::filesystem::canonical(x);
+        } catch (const std::bad_alloc&) {
+            throw;
+        } catch (...) {
+            return x;
+        }
+    }
+
+}   // anon namespace
+
+
+hist::FilePlace::FilePlace(const std::filesystem::path& aPath)
+    : fPath(toCanonicalNe(aPath)) {}
 
 
 bool hist::FilePlace::eq(const Place& x) const
@@ -128,4 +163,11 @@ std::wstring hist::FilePlace::shortName() const
 std::wstring hist::FilePlace::auxName() const
 {
     return fPath.wstring();
+}
+
+
+void hist::FilePlace::save(pugi::xml_node& root) const
+{
+    root.append_child("file")
+        .append_attribute("name") = str::toC(fPath.u8string());
 }

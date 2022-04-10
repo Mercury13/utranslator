@@ -28,6 +28,7 @@ namespace hist {
         virtual bool eq(const Place& x) const = 0;
         virtual std::wstring shortName() const = 0;
         virtual std::wstring auxName() const = 0;
+        virtual void save(pugi::xml_node& root) const = 0;
 
         // Boilerplate
         virtual ~Place() = default;
@@ -84,6 +85,8 @@ namespace hist {
         /// @return [+] changed smth
         bool silentClear();
         bool clear();
+
+        void save(pugi::xml_node& root, const char* name) const;
     private:
         Ar d;
         size_t sz = 0;
@@ -93,7 +96,7 @@ namespace hist {
     class FilePlace : public Place
     {
     public:
-        FilePlace(std::filesystem::path& aPath) : fPath(aPath) {}
+        FilePlace(const std::filesystem::path& aPath);
         bool operator == (const FilePlace& x) const = default;
         const std::filesystem::path path() const { return fPath; }
 
@@ -103,6 +106,7 @@ namespace hist {
         std::wstring shortName() const override;
         std::wstring auxName() const override;
         bool eq(const Place& aPlace) const override;
+        void save(pugi::xml_node& root) const override;
     private:
         std::filesystem::path fPath;
     };
