@@ -114,6 +114,9 @@ namespace hist {
         /// @param [in] root node ABOVE
         void save(pugi::xml_node& root, const char* name) const;
         /// @param [in] node THIS node
+        void silentLoad(pugi::xml_node& node,
+                  std::initializer_list<EvLoadPlace> loadPlaces =
+                        { FilePlace::tryLoad });
         void load(pugi::xml_node& node,
                   std::initializer_list<EvLoadPlace> loadPlaces =
                         { FilePlace::tryLoad });

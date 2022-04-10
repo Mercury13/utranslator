@@ -125,7 +125,7 @@ void hist::History::save(
 }
 
 
-void hist::History::load(pugi::xml_node& node,
+void hist::History::silentLoad(pugi::xml_node& node,
           std::initializer_list<EvLoadPlace> loadPlaces)
 {
     clear();
@@ -142,6 +142,14 @@ void hist::History::load(pugi::xml_node& node,
         }
         // break here
     }
+}
+
+
+void hist::History::load(pugi::xml_node& node,
+          std::initializer_list<EvLoadPlace> loadPlaces)
+{
+    silentLoad(node, loadPlaces);
+    notify();
 }
 
 
