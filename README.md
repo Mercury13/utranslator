@@ -10,6 +10,6 @@ As it is designed for open-source projects, no patch translations here.
 
 Most of Unicodia’s texts are wiki. So it is hard to edit them in marked-up format like XML.
 
-## Installed/portable
+## Portable version
 
-To create a portable version, add “portable.rq” file with any content in the same directory as EXE file. It will store config file in EXE directory.
+Set in “UTranslator.xml” file “portable=1”
