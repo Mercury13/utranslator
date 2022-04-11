@@ -152,7 +152,6 @@ private:
 
     PrjTreeModel treeModel;
     std::shared_ptr<tr::Project> project;
-    hist::History history;
 
     Uptr<FmNew> fmNew;
     Uptr<FmDisambigPair> fmDisambigPair;

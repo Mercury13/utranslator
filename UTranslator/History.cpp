@@ -159,7 +159,7 @@ void hist::History::load(pugi::xml_node& node,
 }
 
 
-hist::History::Sp hist::History::operator [] (size_t i) const
+hist::History::Sp hist::History::operator [] (size_t i) const noexcept
 {
     if (i >= sz)
         return {};

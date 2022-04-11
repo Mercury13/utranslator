@@ -13,6 +13,9 @@
 #include "u_Qstrings.h"
 #include "i_OpenSave.h"
 
+// Project-local
+#include "d_Config.h"
+
 // UI forms
 #include "FmNew.h"
 #include "FmDisambigPair.h"
@@ -282,7 +285,7 @@ FmMain::FmMain(QWidget *parent)
     , ui(new Ui::FmMain)
 {
     ui->setupUi(this);
-    history.setListener(this);
+    config::history.setListener(this);
 
     // Splitter
     auto h = height();
@@ -798,7 +801,7 @@ void FmMain::doSaveAs()
         return;
     try {
         project->save(fname);
-        history.pushFile(project->fname);
+        config::history.pushFile(project->fname);
     } catch (std::exception& e) {
         QMessageBox::critical(this, "Save", QString::fromStdString(e.what()));
     }
@@ -811,7 +814,7 @@ void FmMain::openFile(std::filesystem::path fname)
     try {
         prj->load(fname);
         plantNewProject(std::move(prj));
-        history.pushFile(std::move(fname));
+        config::history.pushFile(std::move(fname));
     } catch (std::exception& e) {
         QMessageBox::critical(this, "Open", QString::fromStdString(e.what()));
     }
@@ -841,7 +844,7 @@ void FmMain::doSave()
         acceptCurrObject();
         try {
             project->save();
-            history.pushFile(project->fname);
+            config::history.pushFile(project->fname);
         } catch (std::exception& e) {
             QMessageBox::critical(this, "Save problem", QString::fromStdString(e.what()));
         }
@@ -892,7 +895,7 @@ void FmMain::historyChanged()
     QString html;
     int i = 0;
     html += "<table border='0'>";
-    for (auto& v : history) {
+    for (auto& v : config::history) {
         ++i;
         html += "<tr>"
             // 1st cell

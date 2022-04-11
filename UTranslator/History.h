@@ -91,8 +91,8 @@ namespace hist {
         /// @return [+] first item is x
         bool firstIs(const Place& x);
 
-        size_t size() const { return sz; }
-        Sp operator [] (size_t i) const;
+        size_t size() const noexcept { return sz; }
+        Sp operator [] (size_t i) const noexcept;
         [[nodiscard]] bool isEmpty() const { return (sz == 0); }
         [[nodiscard]] bool isFull() const { return (sz >= SIZE); }
 
@@ -105,10 +105,8 @@ namespace hist {
         bool bump(size_t i);
 
         using iterator = Ar::const_iterator;
-        iterator begin() const { return d.begin(); }
-        iterator end() const { return d.begin() + sz; }
-        iterator cbegin() const { return d.begin(); }
-        iterator cend() const { return d.begin() + sz; }
+        iterator begin() const noexcept { return d.begin(); }
+        iterator end() const noexcept { return d.begin() + sz; }
 
         /// @return [+] changed smth
         bool silentClear();

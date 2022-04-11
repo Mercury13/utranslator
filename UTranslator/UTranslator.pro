@@ -21,6 +21,7 @@ SOURCES += \
     TrProject/TrDefines.cpp \
     TrProject/TrFile.cpp \
     TrProject/TrProject.cpp \
+    d_Config.cpp \
     FmNew.cpp \
     main.cpp \
     FmMain.cpp
@@ -42,6 +43,7 @@ HEADERS += \
     TrProject/TrDefines.h \
     TrProject/TrFile.h \
     TrProject/TrProject.h \
+    d_Config.h \
     FmMain.h \
     FmNew.h
 
