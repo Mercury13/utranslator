@@ -16,12 +16,12 @@ int main(int argc, char *argv[])
         config::init(rect);
         w.setGeometry(rect);
         if (config::window::isMaximized)
-            w.setWindowState(Qt::WindowMaximized);
+            w.setWindowState(w.windowState() | Qt::WindowMaximized);
     }
 
     w.show();
     bool r = a.exec();
 
-    config::save(w.geometry(), w.isMaximized());
+    config::save(w.normalGeometry(), w.isMaximized());
     return r;
 }
