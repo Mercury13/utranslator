@@ -92,7 +92,7 @@ namespace hist {
         bool firstIs(const Place& x);
 
         size_t size() const { return sz; }
-        const std::shared_ptr<Place>& operator [] (size_t i) const { return d.at(i); }
+        Sp operator [] (size_t i) const;
         [[nodiscard]] bool isEmpty() const { return (sz == 0); }
         [[nodiscard]] bool isFull() const { return (sz >= SIZE); }
 

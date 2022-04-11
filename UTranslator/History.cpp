@@ -159,6 +159,14 @@ void hist::History::load(pugi::xml_node& node,
 }
 
 
+hist::History::Sp hist::History::operator [] (size_t i) const
+{
+    if (i >= sz)
+        return {};
+    return d[i];
+}
+
+
 ///// FilePlace ////////////////////////////////////////////////////////////////
 
 namespace {
