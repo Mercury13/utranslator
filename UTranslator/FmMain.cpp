@@ -316,6 +316,7 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->btStartEdit, &QPushButton::clicked, this, &This::goEdit);
     connect(ui->btStartNew, &QPushButton::clicked, this, &This::doNew);
     connect(ui->btStartOpen, &QPushButton::clicked, this, &This::doOpen);
+    connect(ui->browStart, &QTextBrowser::anchorClicked, this, &This::startLinkClicked);
     // File
     connect(ui->acNew, &QAction::triggered, this, &This::doNew);
     connect(ui->acOpen, &QAction::triggered, this, &This::doOpen);
@@ -894,22 +895,33 @@ void FmMain::historyChanged()
 {
     QString html;
     int i = 0;
+    html += "<style>"
+            ".a_big { "
+                "color: #4169E1; "
+                "text-decoration: none; "
+            " }"
+            "</style>";
     html += "<table border='0'>";
     for (auto& v : config::history) {
-        ++i;
         html += "<tr>"
             // 1st cell
                 "<td style='font-size:14pt'>";
-        html += QString::number(i);
+        html += QString::number(i + 1);
         if (i < 10)
             html += "&nbsp;";
+        QUrl url;
+            url.setScheme("hist");
+            url.setPath(QString::number(i));
         html += "&nbsp;</td>"
             // 2nd cell — top
-                "<td><span style='font-size:14pt'>";
+                "<td><span style='font-size:14pt'><a class='a_big' href='";
+            html += url.toString();
+            html += "'>";
         html += QString::fromStdWString(v->shortName()).toHtmlEscaped();
         html += "</span><br><span style='color:#606060'>";
         html += QString::fromStdWString(v->auxName()).toHtmlEscaped();
         html += "</span></td>";
+        ++i;
     }
     ui->browStart->setHtml(html);
 }
@@ -937,4 +949,21 @@ void FmMain::goStart()
     ui->stackMain->setCurrentWidget(ui->pageStart);
     ui->pageStart->setFocus();
     reenable();
+}
+
+
+void FmMain::startLinkClicked(QUrl url)
+{
+    if (url.scheme() == "hist") {
+        QString s = url.path();
+        bool isOk = false;
+        auto i = s.toInt(&isOk);
+        if (isOk) {
+            if (auto place = config::history[i]) {
+                if (auto fplace = std::dynamic_pointer_cast<hist::FilePlace>(place)) {
+                    openFile(fplace->path());
+                }
+            }
+        }
+    }
 }

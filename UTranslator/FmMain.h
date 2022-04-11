@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QAbstractItemModel>
 #include <QStyledItemDelegate>
+#include <QUrl>
 
 // Project
 // No one uses FmMain → you can import EVERYTHING
@@ -125,6 +126,7 @@ private slots:
 
     // Starting screen
     void goEdit();
+    void startLinkClicked(QUrl url);
     // Menu: File
     void doNew();
     void doOpen();
