@@ -103,7 +103,8 @@ public:
 
 class FmMain :
         public QMainWindow,
-        public ModListener
+        public ModListener,
+        public hist::Listener
 {
     Q_OBJECT
     using Super = QMainWindow;
@@ -112,7 +113,10 @@ public:
     FmMain(QWidget *parent = nullptr);
     ~FmMain() override;
 
+    // ModListener
     void modStateChanged(ModState oldState, ModState newState) override;
+    // hist::Listener
+    void historyChanged() override;
 private slots:
     // Tree etc.
     void treeCurrentChanged(
@@ -124,6 +128,7 @@ private slots:
     void doOpen();
     void doSave();
     void doSaveAs();
+    void goToggleStart();
     // Menu: Edit
     tr::UiObject* acceptCurrObject();
     void revertCurrObject();

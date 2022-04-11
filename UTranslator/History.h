@@ -81,6 +81,9 @@ namespace hist {
         /// @return [+] changed smth
         bool silentPush(const std::shared_ptr<Place>& x);
 
+        /// Pushes file, the main type of document
+        void pushFile(std::filesystem::path fname);
+
         /// Adds an item to end if there’s room
         /// @return [+] changed smth (place has data, history is not full)
         bool silentAdd(std::shared_ptr<Place> x);
@@ -91,7 +94,7 @@ namespace hist {
         size_t size() const { return sz; }
         const std::shared_ptr<Place>& operator [] (size_t i) const { return d.at(i); }
         [[nodiscard]] bool isEmpty() const { return (sz == 0); }
-        [[nodiscard]] bool isFull() const { return (sz < SIZE); }
+        [[nodiscard]] bool isFull() const { return (sz >= SIZE); }
 
         /// Silently makes i’th item the 1st
         /// @return [+] changed smth

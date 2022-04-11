@@ -282,6 +282,7 @@ FmMain::FmMain(QWidget *parent)
     , ui(new Ui::FmMain)
 {
     ui->setupUi(this);
+    history.setListener(this);
 
     // Splitter
     auto h = height();
@@ -318,6 +319,7 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->btStartOpen, &QPushButton::clicked, this, &This::doOpen);
     connect(ui->acSave, &QAction::triggered, this, &This::doSave);
     connect(ui->acSaveAs, &QAction::triggered, this, &This::doSaveAs);
+    connect(ui->acStartingScreen, &QAction::triggered, this, &This::goToggleStart);
     // Original
     connect(ui->acAddHostedFile, &QAction::triggered, this, &This::addHostedFile);
     connect(ui->acAddHostedGroup, &QAction::triggered, this, &This::addHostedGroup);
@@ -564,8 +566,9 @@ void FmMain::revertCurrObject()
 
 void FmMain::reenable()
 {
+    bool isStartVisible = (ui->stackMain->currentWidget() == ui->pageStart);
     bool isMainVisible = (ui->stackMain->currentWidget() == ui->pageMain);
-    bool hasProject {project };
+    bool hasProject { project };
     bool isOriginal = (isMainVisible && hasProject
                        && project->info.type == tr::PrjType::ORIGINAL);
 
@@ -573,6 +576,8 @@ void FmMain::reenable()
         // New, Open are always available
     ui->acSave->setEnabled(hasProject);
     ui->acSaveAs->setEnabled(hasProject);
+    ui->acStartingScreen->setEnabled(hasProject);
+        ui->acStartingScreen->setChecked(hasProject && isStartVisible);
 
     // Menu: Original; always isOriginal
     ui->acAddHostedFile->setEnabled(isOriginal);
@@ -790,6 +795,7 @@ void FmMain::doSaveAs()
         return;
     try {
         project->save(fname);
+        history.pushFile(project->fname);
     } catch (std::exception& e) {
         QMessageBox::critical(this, "Save", QString::fromStdString(e.what()));
     }
@@ -808,6 +814,7 @@ void FmMain::doOpen()
         try {
             prj->load(fname);
             plantNewProject(std::move(prj));
+            history.pushFile(project->fname);
         } catch (std::exception& e) {
             QMessageBox::critical(this, "Open", QString::fromStdString(e.what()));
         }
@@ -825,6 +832,7 @@ void FmMain::doSave()
         acceptCurrObject();
         try {
             project->save();
+            history.pushFile(project->fname);
         } catch (std::exception& e) {
             QMessageBox::critical(this, "Save problem", QString::fromStdString(e.what()));
         }
@@ -867,4 +875,38 @@ void FmMain::doClone()
         QMessageBox::warning(this, "Clone", "Cannot clone files.");
         break;
     }
+}
+
+
+void FmMain::historyChanged()
+{
+    QString html;
+    int i = 0;
+    html += "<table border='0'>";
+    for (auto& v : history) {
+        ++i;
+        html += "<tr>"
+            // 1st cell
+                "<td style='font-size:14pt'>";
+        html += QString::number(i);
+        if (i < 10)
+            html += "&nbsp;";
+        html += "&nbsp;</td>"
+            // 2nd cell — top
+                "<td><span style='font-size:14pt'>";
+        html += QString::fromStdWString(v->shortName()).toHtmlEscaped();
+        html += "</span><br><span style='color:#606060'>";
+        html += QString::fromStdWString(v->auxName()).toHtmlEscaped();
+        html += "</span></td>";
+    }
+    ui->browStart->setHtml(html);
+}
+
+
+void FmMain::goToggleStart()
+{
+    auto newWidget = (ui->stackMain->currentWidget() == ui->pageStart)
+            ? ui->pageMain : ui->pageStart;
+    ui->stackMain->setCurrentWidget(newWidget);
+    reenable();
 }

@@ -70,6 +70,12 @@ bool hist::History::push(const std::shared_ptr<Place>& x)
 }
 
 
+void hist::History::pushFile(std::filesystem::path fname)
+{
+    push(std::make_shared<FilePlace>(std::move(fname)));
+}
+
+
 bool hist::History::bump(size_t i)
 {
     bool b = silentBump(i);
