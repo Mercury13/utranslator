@@ -123,12 +123,15 @@ private slots:
             const QModelIndex& current, const QModelIndex& former);
     void tempModify();
 
+    // Starting screen
+    void goEdit();
     // Menu: File
     void doNew();
     void doOpen();
     void doSave();
     void doSaveAs();
     void goToggleStart();
+    void goStart();
     // Menu: Edit
     tr::UiObject* acceptCurrObject();
     void revertCurrObject();
@@ -182,4 +185,5 @@ private:
     void setMemo(QWidget* wi, QPlainTextEdit* memo, std::u8string_view y);
     /// Same but for disabling components
     void banMemo(QWidget* wi, QPlainTextEdit* memo);
+    void openFile(std::filesystem::path fname);
 };

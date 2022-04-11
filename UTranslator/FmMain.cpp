@@ -290,9 +290,6 @@ FmMain::FmMain(QWidget *parent)
     ui->splitMain->setStretchFactor(0, 2);
     ui->splitMain->setStretchFactor(1, 1);
 
-    // Stack
-    ui->stackMain->setCurrentWidget(ui->pageStart);
-
     // Helps
     ui->wiOriginalHelp->hide();
 
@@ -312,11 +309,13 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->memoComment, &QPlainTextEdit::textChanged, this, &This::tempModify);
 
     // Signals/slots: menu
+    // Starting screen
+    connect(ui->btStartEdit, &QPushButton::clicked, this, &This::goEdit);
+    connect(ui->btStartNew, &QPushButton::clicked, this, &This::doNew);
+    connect(ui->btStartOpen, &QPushButton::clicked, this, &This::doOpen);
     // File
     connect(ui->acNew, &QAction::triggered, this, &This::doNew);
-    connect(ui->btStartNew, &QPushButton::clicked, this, &This::doNew);
     connect(ui->acOpen, &QAction::triggered, this, &This::doOpen);
-    connect(ui->btStartOpen, &QPushButton::clicked, this, &This::doOpen);
     connect(ui->acSave, &QAction::triggered, this, &This::doSave);
     connect(ui->acSaveAs, &QAction::triggered, this, &This::doSaveAs);
     connect(ui->acStartingScreen, &QAction::triggered, this, &This::goToggleStart);
@@ -342,7 +341,8 @@ FmMain::FmMain(QWidget *parent)
 
     setEditorsEnabled(false);   // while no project, let it be false
     updateCaption();
-    reenable();
+
+    goStart();
 }
 
 FmMain::~FmMain()
@@ -571,6 +571,9 @@ void FmMain::reenable()
     bool hasProject { project };
     bool isOriginal = (isMainVisible && hasProject
                        && project->info.type == tr::PrjType::ORIGINAL);
+
+    // Starting screen
+    ui->btStartEdit->setVisible(hasProject);
 
     // Menu: File
         // New, Open are always available
@@ -802,6 +805,19 @@ void FmMain::doSaveAs()
 }
 
 
+void FmMain::openFile(std::filesystem::path fname)
+{
+    auto prj = tr::Project::make();
+    try {
+        prj->load(fname);
+        plantNewProject(std::move(prj));
+        history.pushFile(std::move(fname));
+    } catch (std::exception& e) {
+        QMessageBox::critical(this, "Open", QString::fromStdString(e.what()));
+    }
+}
+
+
 void FmMain::doOpen()
 {
     filedlg::Filters filters
@@ -810,14 +826,7 @@ void FmMain::doOpen()
                 this, nullptr, filters, {},
                 filedlg::AddToRecent::YES);
     if (!fname.empty()) {
-        auto prj = tr::Project::make();
-        try {
-            prj->load(fname);
-            plantNewProject(std::move(prj));
-            history.pushFile(project->fname);
-        } catch (std::exception& e) {
-            QMessageBox::critical(this, "Open", QString::fromStdString(e.what()));
-        }
+        openFile(fname);
     }
 }
 
@@ -905,8 +914,24 @@ void FmMain::historyChanged()
 
 void FmMain::goToggleStart()
 {
-    auto newWidget = (ui->stackMain->currentWidget() == ui->pageStart)
-            ? ui->pageMain : ui->pageStart;
-    ui->stackMain->setCurrentWidget(newWidget);
+    if (ui->stackMain->currentWidget() == ui->pageStart) {
+        goEdit();
+    } else {
+        goStart();
+    }
+}
+
+
+void FmMain::goEdit()
+{
+    ui->stackMain->setCurrentWidget(ui->pageMain);
+    reenable();
+}
+
+
+void FmMain::goStart()
+{
+    ui->stackMain->setCurrentWidget(ui->pageStart);
+    ui->pageStart->setFocus();
     reenable();
 }
