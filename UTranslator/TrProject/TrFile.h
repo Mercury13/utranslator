@@ -40,7 +40,7 @@ namespace tf {
         std::u8string_view text;
         /// @warning  DO NOT use for single-language data!
         ///           Use text instead.
-        std::u8string original, translation;
+        std::u8string_view original, translation;
 
         bool isOk() const { return (actualDepth >= 0); }
         explicit operator bool() const { return isOk(); }
@@ -90,7 +90,7 @@ namespace tf {
         void doExport(Walker& walker, const std::filesystem::path& fname) override;
 
         /// @todo [future] can export too, but let’s import somehow
-        Flags<Fcap> caps() const noexcept override { return Fcap::IMPORT; }
+        Flags<Fcap> caps() const noexcept override { return Fcap::EXPORT; }
         std::unique_ptr<FileFormat> clone() override
             { return std::make_unique<Ini>(*this); }
 
