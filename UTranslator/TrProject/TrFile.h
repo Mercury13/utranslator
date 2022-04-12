@@ -30,8 +30,7 @@ namespace tf {
     };
 
     struct TextInfo {
-        int actualDepth = 0;
-        int raiseDepth = 0;
+        int commonDepth = 0;
         int minusDepth = 0;
         std::u8string_view textId;
         SafeVector<std::u8string_view> ids;
@@ -42,11 +41,12 @@ namespace tf {
         ///           Use text instead.
         std::u8string_view original, translation;
 
-        bool isOk() const { return (actualDepth >= 0); }
+        int actualDepth() const { return ids.size() - 1; }
+        bool isOk() const { return !eof(); }
         explicit operator bool() const { return isOk(); }
-        bool eof() const { return !isOk(); }
-        int plusDepth() const { return actualDepth - raiseDepth; }
-        bool groupChanged() const { return (raiseDepth != actualDepth) || (minusDepth != 0); }
+        bool eof() const { return ids.empty(); }
+        int plusDepth() const { return actualDepth() - commonDepth; }
+        bool groupChanged() const { return (commonDepth != actualDepth()) || (minusDepth != 0); }
     };
 
     class Walker    // interface
