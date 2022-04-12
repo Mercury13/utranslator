@@ -27,7 +27,7 @@ void setGeometry(QMainWindow& win, const QRect& rect)
                       desktopRect.left() + BUFFER_ZONE - w,
                       desktopRect.right() - BUFFER_ZONE);
     auto y = clampMin(rect.top(),
-                      desktopRect.top() + BUFFER_ZONE,
+                      desktopRect.top(),
                       desktopRect.bottom() - HEADER_ZONE);
 
     win.setGeometry(x, y, w, h);
