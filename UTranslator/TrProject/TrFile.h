@@ -4,6 +4,9 @@
 #include <string>
 #include <span>
 
+// Libs
+#include "u_Vector.h"
+
 #include "TrDefines.h"
 
 namespace tf {
@@ -11,13 +14,7 @@ namespace tf {
     class Loader     // interface
     {
     public:
-        /// Adds group, GOES to it
-        virtual void addGroup(const std::u8string& id) = 0;
-        /// Goes one group up
-        virtual void goUp() = 0;
-        /// Adds text at relative position, DOES NOT go to newly-created groups
-        /// @param [in] ids   relative path, often one id
-        virtual void addTextAtRel(
+        virtual void addText(
                 std::span<const std::u8string> ids,
                 const std::u8string& original,
                 const std::u8string& comment) = 0;
@@ -25,36 +22,38 @@ namespace tf {
         virtual ~Loader() = default;
 
         // Utils
-        void addText(const std::u8string& id, const std::u8string& original, const std::u8string& comment)
-            { addTextAtRel(std::span<const std::u8string>(&id, 1), original, comment); }
+        void addText(
+                const std::u8string& id,
+                const std::u8string& original,
+                const std::u8string& comment)
+            { addText(std::span<const std::u8string>(&id, 1), original, comment); }
+    };
+
+    struct TextInfo {
+        int actualDepth = 0;
+        int raiseDepth = 0;
+        int minusDepth = 0;
+        std::u8string_view textId;
+        SafeVector<std::u8string_view> ids;
+        /// @warning  DO NOT use for dual-language data!
+        ///           Use original() and translation() instead.
+        std::u8string_view text;
+        /// @warning  DO NOT use for single-language data!
+        ///           Use text instead.
+        std::u8string original, translation;
+
+        bool isOk() const { return (actualDepth >= 0); }
+        explicit operator bool() const { return isOk(); }
+        bool eof() const { return !isOk(); }
+        int plusDepth() const { return actualDepth - raiseDepth; }
+        bool groupChanged() const { return (raiseDepth != actualDepth) || (minusDepth != 0); }
     };
 
     class Walker    // interface
     {
     public:
         virtual ~Walker() = default;
-        /// Groups and texts are mutually-exclusive things
-        virtual bool nextGroup() = 0;
-        virtual bool enter() = 0;
-        virtual void leave() = 0;
-        virtual bool nextText() = 0;
-        virtual std::u8string id() = 0;
-        virtual std::u8string idChain(char separator) = 0;
-        /// @warning  DO NOT use for dual-language data!
-        ///           Use original() and translation() instead.
-        virtual std::u8string text() = 0;
-        /// @warning  DO NOT use for single-language data!
-        ///           Use text() instead.
-        virtual std::u8string original() = 0;
-        virtual std::u8string translation() = 0;
-        /// @return [+] id(), idChain(), text(), original(), translation()
-        ///         will temporarily show info on what we found
-        ///         [-] not found, nothing happens
-        virtual bool findTextAtRel(std::span<const std::u8string> ids) = 0;
-
-        // Utils
-        bool findText(const std::u8string& id)
-            { return findTextAtRel(std::span<const std::u8string>(&id, 1)); }
+        virtual const TextInfo& nextText() = 0;
     };
 
     ///
@@ -64,20 +63,39 @@ namespace tf {
     ///     And this string two       << id=2
     ///     String three              << id=3
     ///
-    class EnumText final : public FileFormat
+//    class EnumText final : public FileFormat
+//    {
+//        LineBreakEscape lineBreakEscape;
+
+//        void doImport(Loader& loader) override;
+//        void doExport(Walker&) override {}
+
+//        /// @todo [future] can export too, but let’s import somehow
+//        Flags<Fcap> caps() const noexcept override { return Fcap::IMPORT; }
+//        std::unique_ptr<FileFormat> clone() override
+//            { return std::make_unique<EnumText>(*this); }
+
+//        MobileInfo mobileInfo() const override;
+//        void setMobileInfo(const MobileInfo& x) override;
+//    };
+
+    class Ini final : public FileFormat
     {
         LineBreakEscape lineBreakEscape;
+        bool writeFlat = false;
+        bool writeBom = true;
+        char separator = '.';
 
         void doImport(Loader& loader) override;
-        void doExport(Walker&) override {}
+        void doExport(Walker& walker, const std::filesystem::path& fname) override;
 
         /// @todo [future] can export too, but let’s import somehow
         Flags<Fcap> caps() const noexcept override { return Fcap::IMPORT; }
         std::unique_ptr<FileFormat> clone() override
-            { return std::make_unique<EnumText>(*this); }
+            { return std::make_unique<Ini>(*this); }
 
-        MobileInfo mobileInfo() const override;
-        void setMobileInfo(const MobileInfo& x) override;
+        CommonSets commonSets() const override;
+        void setCommonSets(const CommonSets& x) override;
     };
 
 }   // namespace tf

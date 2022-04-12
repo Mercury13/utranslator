@@ -2,6 +2,7 @@
 
 #include <string>
 #include <memory>
+#include <filesystem>
 
 #include "u_TypedFlags.h"
 
@@ -44,10 +45,16 @@ namespace tf {
     ///    first is when line breaks are actually emitted to text,
     ///    and second is when they are escaped somehow
     ///
-    struct MobileInfo {
+    struct CommonSets {
         LineBreakStyle lineBreakMode = LineBreakStyle::LF;
         LineBreakEscape lineBreakEscape {};
         char multitierSeparator = '.';
+        /// [+] Avoid grouping:
+        ///      Group.Text=Text, text
+        ///      Group.OtherText=Other text
+        bool writeFlat = false;
+        /// [+] write byte order mark
+        bool writeBom = true;
     };
 
     ///
@@ -58,14 +65,16 @@ namespace tf {
     {
     public:
         virtual void doImport(Loader& loader) = 0;
-        virtual void doExport(Walker& walker) = 0;
+        virtual void doExport(
+                Walker& walker,
+                const std::filesystem::path& path) = 0;
 
         virtual Flags<Fcap> caps() const noexcept = 0;
         virtual ~FileFormat() = default;
 
         virtual std::unique_ptr<FileFormat> clone() = 0;
-        virtual MobileInfo mobileInfo() const { return {}; }
-        virtual void setMobileInfo(const MobileInfo&) {}
+        virtual CommonSets commonSets() const { return {}; }
+        virtual void setCommonSets(const CommonSets&) {}
     };
 }
 
