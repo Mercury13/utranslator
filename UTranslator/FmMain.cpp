@@ -628,8 +628,7 @@ void FmMain::goUp()
     auto parent = treeModel.parent(index);
     if (!parent.isValid())
         return;
-    ui->treeStrings->selectionModel()->setCurrentIndex(
-                parent, QItemSelectionModel::SelectCurrent);
+    ui->treeStrings->setCurrentIndex(parent);
 }
 
 
