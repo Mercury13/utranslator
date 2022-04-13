@@ -81,9 +81,8 @@ namespace tf {
 
     class Ini final : public FileFormat
     {
-        LineBreakEscape lineBreakEscape;
+        TextEscape textEscape;
         bool writeFlat = false;
-        bool writeBom = true;
         char separator = '.';
 
         void doImport(Loader& loader) override;
@@ -96,6 +95,9 @@ namespace tf {
 
         CommonSets commonSets() const override;
         void setCommonSets(const CommonSets& x) override;
+
+        std::string bannedIdChars() const override;
+        std::string bannedTextChars() const override { return textEscape.bannedChars(); }
     };
 
 }   // namespace tf

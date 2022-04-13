@@ -22,18 +22,16 @@
 tf::CommonSets tf::Ini::commonSets() const
 {
     return {
-        .lineBreakEscape = this->lineBreakEscape,
+        .textEscape = this->textEscape,
         .multitierSeparator = this->separator,
         .writeFlat = this->writeFlat,
-        .writeBom = this->writeBom,
     };
 }
 
 
 void tf::Ini::setCommonSets(const tf::CommonSets& x)
 {
-    lineBreakEscape = x.lineBreakEscape;
+    textEscape = x.textEscape;
     separator = x.multitierSeparator;
     writeFlat = x.writeFlat;
-    writeBom = x.writeBom;
 }

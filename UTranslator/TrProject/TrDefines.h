@@ -34,9 +34,13 @@ namespace tf {
     };
 
     ///  Principles of escaping line-breaks
-    struct LineBreakEscape {
+    struct TextEscape {
         EscapeMode mode = EscapeMode::NONE;
         char specifiedChar = '^';
+        /// [+] write byte order mark
+        bool writeBom = true;
+
+        std::string bannedChars() const;
     };
 
     ///
@@ -47,14 +51,16 @@ namespace tf {
     ///
     struct CommonSets {
         LineBreakStyle lineBreakMode = LineBreakStyle::LF;
-        LineBreakEscape lineBreakEscape {};
+        TextEscape textEscape {};
         char multitierSeparator = '.';
         /// [+] Avoid grouping:
-        ///      Group.Text=Text, text
-        ///      Group.OtherText=Other text
+        ///      Group.A=Alpha
+        ///      Group.B=Bravo
+        /// [-] Use grouping
+        ///      [Group]
+        ///      A=Alpha
+        ///      B=Bravo
         bool writeFlat = false;
-        /// [+] write byte order mark
-        bool writeBom = true;
     };
 
     ///
@@ -75,6 +81,11 @@ namespace tf {
         virtual std::unique_ptr<FileFormat> clone() = 0;
         virtual CommonSets commonSets() const { return {}; }
         virtual void setCommonSets(const CommonSets&) {}
+
+        /// @return characters banned in IDs
+        virtual std::string bannedIdChars() const { return {}; }
+        /// @return characters banned in texts
+        virtual std::string bannedTextChars() const { return {}; }
     };
 }
 
