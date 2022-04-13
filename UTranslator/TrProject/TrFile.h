@@ -79,25 +79,35 @@ namespace tf {
 //        void setMobileInfo(const MobileInfo& x) override;
 //    };
 
+    class IniProto : public FormatProto
+    {
+    public:
+        Flags<Fcap> caps() const noexcept override { return Fcap::EXPORT; }
+        std::unique_ptr<FileFormat> make() const override;
+
+        static const IniProto INST;
+    };
+
     class Ini final : public FileFormat
     {
+        TextFormat textFormat;
         TextEscape textEscape;
         bool writeFlat = false;
         char separator = '.';
 
-        void doImport(Loader& loader) override;
+        void doImport(Loader&) override {}
         void doExport(Walker& walker, const std::filesystem::path& fname) override;
 
         /// @todo [future] can export too, but let’s import somehow
-        Flags<Fcap> caps() const noexcept override { return Fcap::EXPORT; }
         std::unique_ptr<FileFormat> clone() override
             { return std::make_unique<Ini>(*this); }
 
+        const IniProto& proto() const override { return IniProto::INST; }
         CommonSets commonSets() const override;
         void setCommonSets(const CommonSets& x) override;
 
         std::string bannedIdChars() const override;
-        std::string bannedTextChars() const override { return textEscape.bannedChars(); }
+        std::string bannedTextSubstring() const override { return textEscape.bannedSubstring(); }
     };
 
 }   // namespace tf

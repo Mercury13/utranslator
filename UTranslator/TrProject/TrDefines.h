@@ -30,17 +30,20 @@ namespace tf {
         NONE,           ///< Line-breaks banned
         C_CR,           ///< C mode: break = /r, / = //   (actually BACKslash here)
         C_LF,           ///< C mode: break = /n, / = //   (actually BACKslash here)
-        SPECIFIED_CHAR  ///< Specified character that’s banned in text
+        SPECIFIED_TEXT  ///< Specified character that’s banned in text
+    };
+
+    struct TextFormat {
+        bool writeBom = true;
+        LineBreakStyle lineBreakStyle = LineBreakStyle::CRLF;
     };
 
     ///  Principles of escaping line-breaks
     struct TextEscape {
         EscapeMode mode = EscapeMode::NONE;
-        char specifiedChar = '^';
-        /// [+] write byte order mark
-        bool writeBom = true;
+        std::string specifiedText = "^";
 
-        std::string bannedChars() const;
+        std::string bannedSubstring() const;
     };
 
     ///
@@ -51,6 +54,7 @@ namespace tf {
     ///
     struct CommonSets {
         LineBreakStyle lineBreakMode = LineBreakStyle::LF;
+        TextFormat textFormat {};
         TextEscape textEscape {};
         char multitierSeparator = '.';
         /// [+] Avoid grouping:
@@ -63,20 +67,31 @@ namespace tf {
         bool writeFlat = false;
     };
 
+    class FileFormat;
+
+    class FormatProto   // interface
+    {
+    public:
+        virtual ~FormatProto() = default;
+        virtual Flags<Fcap> caps() const noexcept = 0;
+        virtual std::unique_ptr<FileFormat> make() const = 0;
+    };
+
     ///
     /// \brief The FileInfo class
     ///   Common ancestor for file import/export
     ///
-    class FileFormat
+    class FileFormat    // interface
     {
     public:
+        virtual ~FileFormat() = default;
+
         virtual void doImport(Loader& loader) = 0;
         virtual void doExport(
                 Walker& walker,
                 const std::filesystem::path& path) = 0;
 
-        virtual Flags<Fcap> caps() const noexcept = 0;
-        virtual ~FileFormat() = default;
+        virtual const FormatProto& proto() const = 0;
 
         virtual std::unique_ptr<FileFormat> clone() = 0;
         virtual CommonSets commonSets() const { return {}; }
@@ -85,7 +100,7 @@ namespace tf {
         /// @return characters banned in IDs
         virtual std::string bannedIdChars() const { return {}; }
         /// @return characters banned in texts
-        virtual std::string bannedTextChars() const { return {}; }
+        virtual std::string bannedTextSubstring() const { return {}; }
     };
 }
 

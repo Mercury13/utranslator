@@ -5,16 +5,16 @@ const char* tr::prjTypeNames[tr::PrjType_N] {
 };
 
 
-std::string tf::TextEscape::bannedChars() const
+std::string tf::TextEscape::bannedSubstring() const
 {
     switch (mode) {
     case EscapeMode::NONE:
-        return "\r\n";
+        return "\n";
+    case EscapeMode::SPECIFIED_TEXT:
+        return specifiedText;
     case EscapeMode::C_CR:
     case EscapeMode::C_LF:
         return {};
-    case EscapeMode::SPECIFIED_CHAR:
-        return std::string { specifiedChar };
     }
     throw std::logic_error("[LineBreakEscape.bannedChars] Strange mode");
 }

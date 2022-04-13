@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>510</width>
-    <height>364</height>
+    <height>219</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -67,7 +67,7 @@
         <x>0</x>
         <y>0</y>
         <width>492</width>
-        <height>289</height>
+        <height>144</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -111,78 +111,138 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_2">
             <item>
-             <widget class="QLabel" name="lbLineBreaks">
+             <widget class="QLabel" name="lbLineBreaksInFile">
               <property name="text">
-               <string>Line breaks</string>
+               <string>Line breaks in &lt;b&gt;file&lt;/b&gt;</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QComboBox" name="comboLineBreaks">
+             <widget class="QComboBox" name="comboLineBreaksInFile">
               <property name="minimumSize">
                <size>
-                <width>120</width>
+                <width>100</width>
                 <height>0</height>
                </size>
               </property>
               <item>
                <property name="text">
-                <string>Banned</string>
+                <string>CR</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string>C \n</string>
+                <string>LF (Unix)</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string>C \r</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Specified character</string>
+                <string>CR+LF (Windows)</string>
                </property>
               </item>
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="edSpecifiedChar">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>60</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string notr="true">^</string>
-              </property>
-              <property name="maxLength">
-               <number>1</number>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_2">
+             <spacer name="horizontalSpacer_5">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
               <property name="sizeHint" stdset="0">
                <size>
                 <width>40</width>
-                <height>10</height>
+                <height>20</height>
                </size>
               </property>
              </spacer>
             </item>
            </layout>
+          </item>
+          <item>
+           <widget class="QWidget" name="wiLineBreaksInStrings" native="true">
+            <layout class="QHBoxLayout" name="horizontalLayout_5">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="lbLineBreaksText">
+               <property name="text">
+                <string>Line breaks in &lt;b&gt;strings&lt;/b&gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="comboLineBreaksInStrings">
+               <property name="minimumSize">
+                <size>
+                 <width>120</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <item>
+                <property name="text">
+                 <string>Banned</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>C \n</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>C \r</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Specified character</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="edSpecifiedChar">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>60</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string notr="true">^</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>10</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -249,65 +309,6 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="grpIni">
-         <property name="title">
-          <string>INI</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_4">
-          <property name="spacing">
-           <number>4</number>
-          </property>
-          <property name="topMargin">
-           <number>1</number>
-          </property>
-          <property name="bottomMargin">
-           <number>1</number>
-          </property>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_4">
-            <item>
-             <widget class="QLabel" name="lbIniStyle">
-              <property name="text">
-               <string>Style</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioIniNormal">
-              <property name="text">
-               <string>Normal: [g1.g2] id=Text</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioIniFlat">
-              <property name="text">
-               <string>Flat: g1.g2.id=Text</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_3">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>10</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -337,11 +338,10 @@
   <tabstop>comboBox</tabstop>
   <tabstop>scrollArea</tabstop>
   <tabstop>chkBom</tabstop>
-  <tabstop>comboLineBreaks</tabstop>
+  <tabstop>comboLineBreaksInFile</tabstop>
+  <tabstop>comboLineBreaksInStrings</tabstop>
   <tabstop>edSpecifiedChar</tabstop>
   <tabstop>edSpecifiedChar_2</tabstop>
-  <tabstop>radioIniNormal</tabstop>
-  <tabstop>radioIniFlat</tabstop>
  </tabstops>
  <resources/>
  <connections/>
