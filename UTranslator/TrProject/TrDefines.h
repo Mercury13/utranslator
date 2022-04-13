@@ -41,9 +41,10 @@ namespace tf {
     ///  Principles of escaping line-breaks
     struct TextEscape {
         EscapeMode mode = EscapeMode::NONE;
-        std::string specifiedText = "^";
+        std::u8string specifiedText = u8"^";
 
-        std::string bannedSubstring() const;
+        std::u8string bannedSubstring() const;
+        std::u8string_view escape(std::u8string_view x, std::u8string& cache) const;
     };
 
     ///
@@ -100,7 +101,7 @@ namespace tf {
         /// @return characters banned in IDs
         virtual std::string bannedIdChars() const { return {}; }
         /// @return characters banned in texts
-        virtual std::string bannedTextSubstring() const { return {}; }
+        virtual std::u8string bannedTextSubstring() const { return {}; }
     };
 }
 

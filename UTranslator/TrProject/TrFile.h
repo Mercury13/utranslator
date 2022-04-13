@@ -32,7 +32,6 @@ namespace tf {
     struct TextInfo {
         int commonDepth = 0;
         int minusDepth = 0;
-        std::u8string_view textId;
         SafeVector<std::u8string_view> ids;
         /// @warning  DO NOT use for dual-language data!
         ///           Use original() and translation() instead.
@@ -47,6 +46,8 @@ namespace tf {
         bool eof() const { return ids.empty(); }
         int plusDepth() const { return actualDepth() - commonDepth; }
         bool groupChanged() const { return (commonDepth != actualDepth()) || (minusDepth != 0); }
+        std::u8string joinGroupId(char c) const;
+        std::u8string_view textId() const { return ids.back(); }
     };
 
     class Walker    // interface
@@ -95,10 +96,10 @@ namespace tf {
         bool writeFlat = false;
         char separator = '.';
 
+        /// @todo [future] can import too, but let’s export somehow
         void doImport(Loader&) override {}
         void doExport(Walker& walker, const std::filesystem::path& fname) override;
 
-        /// @todo [future] can export too, but let’s import somehow
         std::unique_ptr<FileFormat> clone() override
             { return std::make_unique<Ini>(*this); }
 
@@ -107,7 +108,8 @@ namespace tf {
         void setCommonSets(const CommonSets& x) override;
 
         std::string bannedIdChars() const override;
-        std::string bannedTextSubstring() const override { return textEscape.bannedSubstring(); }
+        std::u8string bannedTextSubstring() const override
+                { return textEscape.bannedSubstring(); }
     };
 
 }   // namespace tf

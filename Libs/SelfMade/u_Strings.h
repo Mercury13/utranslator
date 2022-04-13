@@ -256,6 +256,26 @@ namespace str {
             return cache;
         }
 
+        template <class Sv, class A>
+        Sv replaceSv(Sv haystack,
+                typename Sv::value_type needle,
+                typename Sv::value_type byWhat,
+                trait::Str<Sv,A>& cache)
+        {
+            // Check whether exists
+            if (haystack.find(needle) == Sv::npos)
+                return haystack;
+            // Resize
+            if (cache.length() < haystack.length())
+                cache.resize(haystack.length());
+            // Replace
+            auto p = cache.data();
+            for (auto v : haystack) {
+                *(p++) = (v == needle) ? byWhat : v;
+            }
+            return { cache.data(), p };
+        }
+
         template <class Sv>
         bool containsWord(Sv haystack, Sv needle)
         {

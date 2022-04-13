@@ -1,6 +1,28 @@
 // My header
 #include "TrFile.h"
 
+// Libs
+#include "u_Strings.h"
+
+
+///// TextInfo /////////////////////////////////////////////////////////////////
+
+
+std::u8string tf::TextInfo::joinGroupId(char c) const
+{
+    size_t n = ids.size();
+    if (n == 0)
+        return {};
+    --n;
+    std::u8string s;
+    for (size_t i = 0; i < n; ++i) {
+        if (!s.empty())
+            s.push_back(c);
+        s.append(ids[i]);
+    }
+    return s;
+}
+
 
 //tf::MobileInfo tf::EnumText::mobileInfo() const
 //{
@@ -59,5 +81,12 @@ void tf::Ini::doExport(
         Walker& walker,
         const std::filesystem::path& fname)
 {
-
+    std::ofstream os(fname);
+    while (auto& q = walker.nextText()) {
+        if (q.groupChanged()) {
+            os << '[' << str::toSv(q.joinGroupId(separator)) << ']' << std::endl;
+        }
+        /// @todo [urgent] escape!!
+        os << str::toSv(q.textId()) << '=' << str::toSv(q.text) << std::endl;
+    }
 }

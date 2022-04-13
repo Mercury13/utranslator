@@ -372,3 +372,35 @@ std::wstring decode::htmlBr(std::wstring_view x)
             L"<br>\n");
     return r;
 }
+
+
+std::u8string_view escape::cpp(
+        std::u8string_view x,
+        char8_t lf,
+        std::u8string& cache)
+{
+    auto n = std::count_if(x.begin(), x.end(),
+                [](auto c){ return (c == '\n' || c == '\\'); });
+    if (n == 0)
+        return x;
+
+    size_t newSize = x.size() + n + 2;      // 2 for glitches :)
+    if (cache.size() < static_cast<size_t>(newSize))
+        cache.resize(n);
+    auto p = cache.data();
+    for (auto c : x) {
+        switch (c) {
+        case '\n':
+            *(p++) = '\\';
+            *(p++) = lf;
+            break;
+        case '\\':
+            *(p++) = '\\';
+            *(p++) = '\\';
+            break;
+        default:
+            *(p++) = c;
+        }
+    }
+    return { cache.data(), p };
+}

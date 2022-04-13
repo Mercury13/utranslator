@@ -5,6 +5,15 @@
 #include "u_Vector.h"
 #include "u_Strings.h"
 
+namespace escape {
+
+    std::u8string_view cpp(
+            std::u8string_view x,
+            char8_t lf,
+            std::u8string& cache);
+
+}
+
 namespace decode {
 
     /// @return 0..15 if x = 0..F
