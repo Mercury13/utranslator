@@ -5,6 +5,15 @@
 #include "u_Strings.h"
 
 
+const tf::DummyProto tf::DummyProto::INST;
+const tf::IniProto tf::IniProto::INST;
+
+constinit const tf::FormatProto* tf::formatProtos[I_N] {
+    &tf::DummyProto::INST,
+    &tf::IniProto::INST
+};
+
+
 ///// TextInfo /////////////////////////////////////////////////////////////////
 
 
@@ -40,15 +49,11 @@ std::u8string tf::TextInfo::joinGroupId(char c) const
 ///// DummyProto ///////////////////////////////////////////////////////////////
 
 
-const tf::DummyProto tf::DummyProto::INST;
-
 std::unique_ptr<tf::FileFormat> tf::DummyProto::make() const
     { return std::make_unique<Dummy>(); }
 
 
 ///// IniProto /////////////////////////////////////////////////////////////////
-
-const tf::IniProto tf::IniProto::INST;
 
 std::unique_ptr<tf::FileFormat> tf::IniProto::make() const
     { return std::make_unique<Ini>(); }

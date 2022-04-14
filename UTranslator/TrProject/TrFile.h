@@ -62,7 +62,7 @@ namespace tf {
     public:
         Flags<Fcap> caps() const noexcept override { return {}; }
         std::u8string_view locName() const override { return u8"None"; }
-        std::string_view techName() const override { return "none"; }
+        constexpr std::string_view techName() const override { return "none"; }
         std::unique_ptr<FileFormat> make() const override;
         static const DummyProto INST;
     };
@@ -106,7 +106,7 @@ namespace tf {
         Flags<Fcap> caps() const noexcept override { return Fcap::EXPORT; }
         std::unique_ptr<FileFormat> make() const override;
         std::u8string_view locName() const override { return u8"INI"; }
-        std::string_view techName() const override { return "ini"; }
+        constexpr std::string_view techName() const override { return "ini"; }
 
         static const IniProto INST;
     };
@@ -134,5 +134,12 @@ namespace tf {
                 { return textEscape.bannedSubstring(); }
         void save(pugi::xml_node&) const override;
     };
+
+    enum {
+        I_NONE,
+        I_INI,
+        I_N
+    };
+    extern const FormatProto* formatProtos[I_N];
 
 }   // namespace tf

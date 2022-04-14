@@ -90,7 +90,7 @@ namespace tf {
         virtual Flags<Fcap> caps() const noexcept = 0;
         virtual std::unique_ptr<FileFormat> make() const = 0;
         virtual std::u8string_view locName() const = 0;
-        virtual std::string_view techName() const = 0;
+        constexpr virtual std::string_view techName() const = 0;
     };
 
     ///
