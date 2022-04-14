@@ -15,7 +15,8 @@ SOURCES += \
     ../Libs/SelfMade/u_Strings.cpp \
     ../UTranslator/TrProject/Decoders.cpp \
     test_DecodeBr.cpp \
-    test_DecodeCpp.cpp
+    test_DecodeCpp.cpp \
+    test_EscapeCpp.cpp
 
 HEADERS += \
     ../UTranslator/TrProject/Decoders.h

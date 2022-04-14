@@ -374,7 +374,7 @@ std::wstring decode::htmlBr(std::wstring_view x)
 }
 
 
-std::u8string_view escape::cpp(
+std::u8string_view escape::cppSv(
         std::u8string_view x,
         char8_t lf,
         std::u8string& cache)
@@ -384,9 +384,9 @@ std::u8string_view escape::cpp(
     if (n == 0)
         return x;
 
-    size_t newSize = x.size() + n + 2;      // 2 for glitches :)
+    size_t newSize = x.size() + n;
     if (cache.size() < static_cast<size_t>(newSize))
-        cache.resize(n);
+        cache.resize(newSize);
     auto p = cache.data();
     for (auto c : x) {
         switch (c) {

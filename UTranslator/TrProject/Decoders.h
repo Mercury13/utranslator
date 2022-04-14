@@ -7,7 +7,7 @@
 
 namespace escape {
 
-    std::u8string_view cpp(
+    std::u8string_view cppSv(
             std::u8string_view x,
             char8_t lf,
             std::u8string& cache);
