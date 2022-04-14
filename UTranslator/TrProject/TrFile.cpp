@@ -87,12 +87,20 @@ void tf::Ini::doExport(
         Walker& walker,
         const std::filesystem::path& fname)
 {
-    std::ofstream os(fname);
+    std::u8string cache;
+    std::ofstream os(fname, std::ios::binary);
+    auto eol = textFormat.eol();
     while (auto& q = walker.nextText()) {
         if (q.groupChanged()) {
-            os << '[' << str::toSv(q.joinGroupId(separator)) << ']' << std::endl;
+            os << '[' << str::toSv(q.joinGroupId(separator)) << ']' << eol;
         }
-        /// @todo [urgent] escape!!
-        os << str::toSv(q.textId()) << '=' << str::toSv(q.text) << std::endl;
+        os << str::toSv(q.textId()) << '='
+           << str::toSv(textEscape.escape(q.text, cache)) << eol;
     }
+}
+
+
+void tf::Ini::save(pugi::xml_node&) const
+{
+    /// @todo [urgent] save!
 }

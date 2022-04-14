@@ -61,7 +61,8 @@ namespace tf {
     {
     public:
         Flags<Fcap> caps() const noexcept override { return {}; }
-        std::u8string_view name() const override { return u8"None"; }
+        std::u8string_view locName() const override { return u8"None"; }
+        std::string_view techName() const override { return "none"; }
         std::unique_ptr<FileFormat> make() const override;
         static const DummyProto INST;
     };
@@ -73,6 +74,7 @@ namespace tf {
             { return std::make_unique<Dummy>(*this); }
 
         const DummyProto& proto() const override { return DummyProto::INST; }
+        void save(pugi::xml_node&) const override {}
     };
 
     ///
@@ -103,7 +105,8 @@ namespace tf {
     public:
         Flags<Fcap> caps() const noexcept override { return Fcap::EXPORT; }
         std::unique_ptr<FileFormat> make() const override;
-        std::u8string_view name() const override { return u8"INI"; }
+        std::u8string_view locName() const override { return u8"INI"; }
+        std::string_view techName() const override { return "ini"; }
 
         static const IniProto INST;
     };
@@ -129,6 +132,7 @@ namespace tf {
         std::string bannedIdChars() const override;
         std::u8string bannedTextSubstring() const override
                 { return textEscape.bannedSubstring(); }
+        void save(pugi::xml_node&) const override;
     };
 
 }   // namespace tf

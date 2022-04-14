@@ -6,6 +6,10 @@
 
 #include "u_TypedFlags.h"
 
+namespace pugi {
+    class xml_node;
+}
+
 namespace tf {
 
     class Loader;
@@ -25,6 +29,13 @@ namespace tf {
     DEFINE_ENUM_OPS(Fcap)
 
     enum class LineBreakStyle { CR, LF, CRLF };
+    constexpr auto LineBreakStyle_N = static_cast<int>(LineBreakStyle::CRLF) + 1;
+
+    struct LineBreakStyleInfo {
+        std::string_view techName;
+        std::string_view eol;
+    };
+    extern LineBreakStyleInfo lineBreakStyleInfo[LineBreakStyle_N];
 
     enum class EscapeMode {
         NONE,           ///< Line-breaks banned
@@ -36,6 +47,8 @@ namespace tf {
     struct TextFormat {
         bool writeBom = true;
         LineBreakStyle lineBreakStyle = LineBreakStyle::CRLF;
+        std::string_view eol() const
+            { return lineBreakStyleInfo[static_cast<int>(lineBreakStyle)].eol; }
     };
 
     ///  Principles of escaping line-breaks
@@ -76,7 +89,8 @@ namespace tf {
         virtual ~FormatProto() = default;
         virtual Flags<Fcap> caps() const noexcept = 0;
         virtual std::unique_ptr<FileFormat> make() const = 0;
-        virtual std::u8string_view name() const = 0;
+        virtual std::u8string_view locName() const = 0;
+        virtual std::string_view techName() const = 0;
     };
 
     ///
@@ -101,6 +115,8 @@ namespace tf {
         virtual std::string bannedIdChars() const { return {}; }
         /// @return characters banned in texts
         virtual std::u8string bannedTextSubstring() const { return {}; }
+
+        virtual void save(pugi::xml_node&) const = 0;
     };
 }
 
