@@ -21,7 +21,7 @@ std::u8string tf::TextEscape::bannedSubstring() const
     case EscapeMode::C_LF:
         return {};
     }
-    throw std::logic_error("[LineBreakEscape.bannedChars] Strange mode");
+    throw std::logic_error("[TextEscape.bannedSubstring] Strange mode");
 }
 
 
@@ -34,8 +34,9 @@ std::u8string_view tf::TextEscape::escape(
     case EscapeMode::SPECIFIED_TEXT:
         return str::replaceSv(x, specifiedText, u8"\n", cache);
     case EscapeMode::C_CR:
-        return escape::cpp(x, 'r', cache);
+        return escape::cppSv(x, 'r', cache);
     case EscapeMode::C_LF:
-        return escape::cpp(x, 'n', cache);
+        return escape::cppSv(x, 'n', cache);
     }
+    throw std::logic_error("[TextEscape.escape] Strange mode");
 }
