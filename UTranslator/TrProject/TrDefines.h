@@ -76,6 +76,7 @@ namespace tf {
         virtual ~FormatProto() = default;
         virtual Flags<Fcap> caps() const noexcept = 0;
         virtual std::unique_ptr<FileFormat> make() const = 0;
+        virtual std::u8string_view name() const = 0;
     };
 
     ///
@@ -87,10 +88,8 @@ namespace tf {
     public:
         virtual ~FileFormat() = default;
 
-        virtual void doImport(Loader& loader) = 0;
-        virtual void doExport(
-                Walker& walker,
-                const std::filesystem::path& path) = 0;
+        virtual void doImport(Loader&) {};
+        virtual void doExport(Walker&, const std::filesystem::path&) {};
 
         virtual const FormatProto& proto() const = 0;
 

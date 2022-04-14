@@ -37,15 +37,21 @@ std::u8string tf::TextInfo::joinGroupId(char c) const
 //    lineBreakEscape = x.lineBreakEscape;
 //}
 
+///// DummyProto ///////////////////////////////////////////////////////////////
+
+
+const tf::DummyProto tf::DummyProto::INST;
+
+std::unique_ptr<tf::FileFormat> tf::DummyProto::make() const
+    { return std::make_unique<Dummy>(); }
+
 
 ///// IniProto /////////////////////////////////////////////////////////////////
 
 const tf::IniProto tf::IniProto::INST;
 
 std::unique_ptr<tf::FileFormat> tf::IniProto::make() const
-{
-    return std::make_unique<Ini>();
-}
+    { return std::make_unique<Ini>(); }
 
 
 ///// Ini //////////////////////////////////////////////////////////////////////

@@ -57,6 +57,24 @@ namespace tf {
         virtual const TextInfo& nextText() = 0;
     };
 
+    class DummyProto final : public FormatProto
+    {
+    public:
+        Flags<Fcap> caps() const noexcept override { return {}; }
+        std::u8string_view name() const override { return u8"None"; }
+        std::unique_ptr<FileFormat> make() const override;
+        static const DummyProto INST;
+    };
+
+    class Dummy final : public FileFormat
+    {
+    public:
+        std::unique_ptr<FileFormat> clone() override
+            { return std::make_unique<Dummy>(*this); }
+
+        const DummyProto& proto() const override { return DummyProto::INST; }
+    };
+
     ///
     /// \brief The EnumText class
     ///   Simple type of file:
@@ -85,19 +103,20 @@ namespace tf {
     public:
         Flags<Fcap> caps() const noexcept override { return Fcap::EXPORT; }
         std::unique_ptr<FileFormat> make() const override;
+        std::u8string_view name() const override { return u8"INI"; }
 
         static const IniProto INST;
     };
 
     class Ini final : public FileFormat
     {
+    public:
         TextFormat textFormat;
         TextEscape textEscape;
         bool writeFlat = false;
         char separator = '.';
 
         /// @todo [future] can import too, but let’s export somehow
-        void doImport(Loader&) override {}
         void doExport(Walker& walker, const std::filesystem::path& fname) override;
 
         std::unique_ptr<FileFormat> clone() override
