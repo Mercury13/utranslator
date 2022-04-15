@@ -281,7 +281,6 @@ namespace tr {
         /// Reads object from XML
         /// @param [in] node   tag of THIS OBJECT
         /// @param [in] info   project info for speed
-        /// @todo [urgent] should be purely virtual
         virtual void readFromXml(const pugi::xml_node& node, const PrjInfo& info) = 0;
         virtual std::shared_ptr<Entity> vclone(
                 const std::shared_ptr<VirtualGroup>& parent) const = 0;

@@ -248,7 +248,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="grpHierarchy">
+        <widget class="QGroupBox" name="grpMultitier">
          <property name="title">
           <string>Hierarchy</string>
          </property>

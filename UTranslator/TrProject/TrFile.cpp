@@ -7,8 +7,9 @@
 
 const tf::DummyProto tf::DummyProto::INST;
 const tf::IniProto tf::IniProto::INST;
+tf::Dummy tf::Dummy::INST;
 
-constinit const tf::FormatProto* tf::formatProtos[I_N] {
+constinit const tf::FormatProto* tf::allProtos[I_N] {
     &tf::DummyProto::INST,
     &tf::IniProto::INST
 };
@@ -62,23 +63,21 @@ std::unique_ptr<tf::FileFormat> tf::IniProto::make() const
 ///// Ini //////////////////////////////////////////////////////////////////////
 
 
-tf::CommonSets tf::Ini::commonSets() const
+tf::UnifiedSets tf::Ini::unifiedSets() const
 {
     return {
         .textFormat = this->textFormat,
         .textEscape = this->textEscape,
         .multitierSeparator = this->separator,
-        .writeFlat = this->writeFlat,
     };
 }
 
 
-void tf::Ini::setCommonSets(const tf::CommonSets& x)
+void tf::Ini::setUnifiedSets(const tf::UnifiedSets& x)
 {
     textFormat = x.textFormat;
     textEscape = x.textEscape;
     separator = x.multitierSeparator;
-    writeFlat = x.writeFlat;
 }
 
 

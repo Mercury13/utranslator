@@ -60,25 +60,25 @@ namespace tf {
         std::u8string_view escape(std::u8string_view x, std::u8string& cache) const;
     };
 
+    enum class Usfg {
+        TEXT_FORMAT = 1,
+        TEXT_ESCAPE = 2,    ///< TEXT_ESCAPE implies TEXT_FORMAT
+        MULTITIER = 4,      ///< has multitierSeparator
+    };
+    DEFINE_ENUM_OPS(Usfg)
+
     ///
+    ///  All possible settings of file
     ///  Very common settings that are often transfered from format to format
     ///  LineBreakStyle and EscapeInfo are probably mutually-exclusive:
     ///    first is when line breaks are actually emitted to text,
     ///    and second is when they are escaped somehow
     ///
-    struct CommonSets {
-        LineBreakStyle lineBreakMode = LineBreakStyle::LF;
+    struct UnifiedSets {
+        //LineBreakStyle binaryLineBreak = LineBreakStyle::LF;   unused right now
         TextFormat textFormat {};
         TextEscape textEscape {};
         char multitierSeparator = '.';
-        /// [+] Avoid grouping:
-        ///      Group.A=Alpha
-        ///      Group.B=Bravo
-        /// [-] Use grouping
-        ///      [Group]
-        ///      A=Alpha
-        ///      B=Bravo
-        bool writeFlat = false;
     };
 
     class FileFormat;
@@ -88,9 +88,18 @@ namespace tf {
     public:
         virtual ~FormatProto() = default;
         virtual Flags<Fcap> caps() const noexcept = 0;
+        virtual Flags<Usfg> workingSets() const noexcept = 0;
         virtual std::unique_ptr<FileFormat> make() const = 0;
+        /// @return  format’s localization name
         virtual std::u8string_view locName() const = 0;
+        /// @return  format’s technical name
         constexpr virtual std::string_view techName() const = 0;
+
+        // Utils
+        /// @return [+] format can import/export
+        bool isWorking() const { return caps().haveAny(Fcap::IMPORT | Fcap::EXPORT); }
+        /// @return [+] format is dummy (= !isWorking, cannot import/export)
+        bool isDummy() const { return !isWorking(); }
     };
 
     ///
@@ -108,8 +117,8 @@ namespace tf {
         virtual const FormatProto& proto() const = 0;
 
         virtual std::unique_ptr<FileFormat> clone() = 0;
-        virtual CommonSets commonSets() const { return {}; }
-        virtual void setCommonSets(const CommonSets&) {}
+        virtual UnifiedSets unifiedSets() const { return {}; }
+        virtual void setUnifiedSets(const UnifiedSets&) {}
 
         /// @return characters banned in IDs
         virtual std::string bannedIdChars() const { return {}; }

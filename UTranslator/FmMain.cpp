@@ -20,6 +20,7 @@
 #include "FmNew.h"
 #include "FmDisambigPair.h"
 #include "FmDecoder.h"
+#include "FmFileFormat.h"
 
 
 ///// PrjTreeModel /////////////////////////////////////////////////////////////
@@ -310,6 +311,7 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->chkIdless, &QCheckBox::clicked, this, &This::tempModify);
     connect(ui->memoTranslation, &QPlainTextEdit::textChanged, this, &This::tempModify);
     connect(ui->memoComment, &QPlainTextEdit::textChanged, this, &This::tempModify);
+    connect(ui->btFileFormat, &QPushButton::clicked, this, &This::editFileFormat);
 
     // Signals/slots: menu
     // Starting screen
@@ -342,6 +344,9 @@ FmMain::FmMain(QWidget *parent)
     // Unused menu items
     ui->acMoveUp->setEnabled(false);
     ui->acMoveDown->setEnabled(false);
+
+    // Unused parts
+    ui->grpCompatId->hide();
 
     setEditorsEnabled(false);   // while no project, let it be false
     updateCaption();
@@ -964,5 +969,15 @@ void FmMain::startLinkClicked(QUrl url)
                 }
             }
         }
+    }
+}
+
+
+void FmMain::editFileFormat()
+{
+    auto index = ui->treeStrings->currentIndex();
+    auto obj = treeModel.toObj(index);
+    if (auto fileInfo = obj->ownFileInfo()) {
+        fmFileFormat.ensure(this).exec(fileInfo->format);
     }
 }

@@ -33,7 +33,7 @@
     <item>
      <widget class="QStackedWidget" name="stackMain">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="pageMain">
        <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -212,7 +212,7 @@
                <item>
                 <widget class="QStackedWidget" name="stackOriginal">
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>1</number>
                  </property>
                  <widget class="QWidget" name="pageOriginal">
                   <layout class="QVBoxLayout" name="verticalLayout_11">
@@ -302,6 +302,30 @@
                          <string>Optional text IDs, identify by original (gettext *.po, Qt *.qm…)</string>
                         </property>
                        </widget>
+                      </item>
+                      <item>
+                       <layout class="QHBoxLayout" name="horizontalLayout_5">
+                        <item>
+                         <widget class="QPushButton" name="btFileFormat">
+                          <property name="text">
+                           <string>File format…</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <spacer name="horizontalSpacer_2">
+                          <property name="orientation">
+                           <enum>Qt::Horizontal</enum>
+                          </property>
+                          <property name="sizeHint" stdset="0">
+                           <size>
+                            <width>40</width>
+                            <height>20</height>
+                           </size>
+                          </property>
+                         </spacer>
+                        </item>
+                       </layout>
                       </item>
                       <item>
                        <spacer name="verticalSpacer_2">
@@ -780,6 +804,7 @@
   <tabstop>edId</tabstop>
   <tabstop>memoOriginal</tabstop>
   <tabstop>chkIdless</tabstop>
+  <tabstop>btFileFormat</tabstop>
   <tabstop>memoTranslation</tabstop>
   <tabstop>memoComment</tabstop>
   <tabstop>browContext</tabstop>
@@ -787,6 +812,8 @@
   <tabstop>btEditCompatId</tabstop>
   <tabstop>btAddHostedFile</tabstop>
   <tabstop>btAddExternalFile</tabstop>
+  <tabstop>btStartEdit</tabstop>
+  <tabstop>browStart</tabstop>
  </tabstops>
  <resources/>
  <connections/>

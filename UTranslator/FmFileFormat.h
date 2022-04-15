@@ -1,7 +1,8 @@
-#ifndef FMFILEFORMAT_H
-#define FMFILEFORMAT_H
+#pragma once
 
 #include <QDialog>
+
+#include "TrDefines.h"
 
 namespace Ui {
 class FmFileFormat;
@@ -10,13 +11,16 @@ class FmFileFormat;
 class FmFileFormat : public QDialog
 {
     Q_OBJECT
-
+    using Super = QDialog;
 public:
     explicit FmFileFormat(QWidget *parent = nullptr);
-    ~FmFileFormat();
+    ~FmFileFormat() override;
 
+    bool exec(CloningUptr<tf::FileFormat>& x);
 private:
     Ui::FmFileFormat *ui;
-};
 
-#endif // FMFILEFORMAT_H
+    using Super::exec;
+    void copyFrom(Flags<tf::Usfg> flags, const tf::UnifiedSets& x);
+    void copyTo(tf::UnifiedSets& x);
+};

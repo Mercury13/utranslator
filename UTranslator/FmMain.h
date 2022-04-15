@@ -20,6 +20,7 @@ QT_END_NAMESPACE
 class FmNew;
 class FmDisambigPair;
 class FmDecoder;
+class FmFileFormat;
 class QPlainTextEdit;
 
 template <class T>
@@ -123,6 +124,7 @@ private slots:
     void treeCurrentChanged(
             const QModelIndex& current, const QModelIndex& former);
     void tempModify();
+    void editFileFormat();
 
     // Starting screen
     void goEdit();
@@ -158,6 +160,7 @@ private:
     Uptr<FmNew> fmNew;
     Uptr<FmDisambigPair> fmDisambigPair;
     Uptr<FmDecoder> fmDecoder;
+    Uptr<FmFileFormat> fmFileFormat;
     std::atomic<bool> isChangingProgrammatically = false;
 
     /// Adapts window’s layout to project type:

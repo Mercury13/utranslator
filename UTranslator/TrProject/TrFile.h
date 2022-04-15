@@ -61,6 +61,7 @@ namespace tf {
     {
     public:
         Flags<Fcap> caps() const noexcept override { return {}; }
+        Flags<Usfg> workingSets() const noexcept override { return {}; }
         std::u8string_view locName() const override { return u8"None"; }
         constexpr std::string_view techName() const override { return "none"; }
         std::unique_ptr<FileFormat> make() const override;
@@ -75,6 +76,8 @@ namespace tf {
 
         const DummyProto& proto() const override { return DummyProto::INST; }
         void save(pugi::xml_node&) const override {}
+
+        static Dummy INST;
     };
 
     ///
@@ -104,6 +107,8 @@ namespace tf {
     {
     public:
         Flags<Fcap> caps() const noexcept override { return Fcap::EXPORT; }
+        Flags<Usfg> workingSets() const noexcept override
+                { return Usfg::TEXT_FORMAT | Usfg::TEXT_ESCAPE | Usfg::MULTITIER; }
         std::unique_ptr<FileFormat> make() const override;
         std::u8string_view locName() const override { return u8"INI"; }
         constexpr std::string_view techName() const override { return "ini"; }
@@ -116,7 +121,6 @@ namespace tf {
     public:
         TextFormat textFormat;
         TextEscape textEscape;
-        bool writeFlat = false;
         char separator = '.';
 
         /// @todo [future] can import too, but let’s export somehow
@@ -126,8 +130,8 @@ namespace tf {
             { return std::make_unique<Ini>(*this); }
 
         const IniProto& proto() const override { return IniProto::INST; }
-        CommonSets commonSets() const override;
-        void setCommonSets(const CommonSets& x) override;
+        UnifiedSets unifiedSets() const override;
+        void setUnifiedSets(const UnifiedSets& x) override;
 
         std::string bannedIdChars() const override;
         std::u8string bannedTextSubstring() const override
@@ -140,6 +144,6 @@ namespace tf {
         I_INI,
         I_N
     };
-    extern const FormatProto* formatProtos[I_N];
+    extern const FormatProto* allProtos[I_N];
 
 }   // namespace tf
