@@ -47,12 +47,14 @@ namespace tf {
     extern const char* const lineBreakEscapeModeNames[LineBreakEscapeMode_N];
 
     struct TextFormat {
+        static constexpr auto DEFAULT_STYLE = LineBreakStyle::CRLF;
         bool writeBom = true;
-        LineBreakStyle lineBreakStyle = LineBreakStyle::CRLF;
+        LineBreakStyle lineBreakStyle = DEFAULT_STYLE;
         std::string_view eol() const
             { return lineBreakStyleInfo[static_cast<int>(lineBreakStyle)].eol; }
         std::string_view lineBreakTechName() const
             { return lineBreakStyleInfo[static_cast<int>(lineBreakStyle)].techName; }
+        static LineBreakStyle parseStyle(std::string_view name);
     };
 
     ///  Principles of escaping line-breaks
@@ -63,6 +65,8 @@ namespace tf {
 
         std::u8string bannedSubstring() const;
         std::u8string_view escapeSv(std::u8string_view x, std::u8string& cache) const;
+
+        void setSpecifiedText(std::u8string_view x);
     };
 
     enum class Usfg {
@@ -147,10 +151,16 @@ namespace tf {
         virtual std::u8string bannedTextSubstring() const { return {}; }
 
         virtual void save(pugi::xml_node&) const = 0;
+        virtual void load(const pugi::xml_node&) = 0;
 
     protected:
-        /// A common utility for unified saving
+        /// A common utility for unified saving.
+        /// Most formats (enumerated text, INI) will not have any new code
         void unifiedSave(pugi::xml_node&) const;
+
+        /// A common utility for unified loading
+        /// Most formats (enumerated text, INI) will not have any new code
+        void unifiedLoad(const pugi::xml_node&);
     };
 }
 
@@ -177,9 +187,6 @@ namespace tr {
     enum class PrjType { ORIGINAL, FULL_TRANSL };
     constexpr int PrjType_N = static_cast<int>(PrjType::FULL_TRANSL) + 1;
     extern const char* const prjTypeNames[PrjType_N];
-
-    constexpr int LineBreakMode_N = static_cast<int>(PrjType::FULL_TRANSL) + 1;
-    extern const char* lineBreakModeNames[PrjType_N];
 
     struct PrjInfo {
         PrjType type = PrjType::ORIGINAL;

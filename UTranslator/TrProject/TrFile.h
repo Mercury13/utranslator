@@ -76,6 +76,7 @@ namespace tf {
 
         const DummyProto& proto() const override { return DummyProto::INST; }
         void save(pugi::xml_node&) const override {}
+        void load(const pugi::xml_node&) override {}
 
         static Dummy INST;
     };
@@ -114,6 +115,7 @@ namespace tf {
         std::u8string bannedTextSubstring() const override
                 { return textEscape.bannedSubstring(); }
         void save(pugi::xml_node&) const override;
+        void load(const pugi::xml_node&) override;
     };
 
     enum {

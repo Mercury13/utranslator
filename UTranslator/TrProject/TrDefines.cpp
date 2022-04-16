@@ -2,6 +2,7 @@
 
 // XML
 #include "pugixml.hpp"
+#include "u_XmlUtils.h"
 
 // Libs
 #include "u_Strings.h"
@@ -24,6 +25,19 @@ constinit const tf::LineBreakStyleInfo tf::lineBreakStyleInfo[LineBreakStyle_N] 
 
 constinit const char* const tf::lineBreakEscapeModeNames[LineBreakEscapeMode_N] {
     "banned", "c-cr", "c-lf", "specified" };
+
+
+///// TextFormat ///////////////////////////////////////////////////////////////
+
+
+tf::LineBreakStyle tf::TextFormat::parseStyle(std::string_view name)
+{
+    for (int i = 0; i < LineBreakStyle_N; ++i) {
+        if (name == lineBreakStyleInfo[i].techName)
+            return static_cast<LineBreakStyle>(i);
+    }
+    return DEFAULT_STYLE;
+}
 
 
 ///// TextEscape ///////////////////////////////////////////////////////////////
@@ -60,6 +74,16 @@ std::u8string_view tf::TextEscape::escapeSv(
     throw std::logic_error("[TextEscape.escape] Strange mode");
 }
 
+
+void tf::TextEscape::setSpecifiedText(std::u8string_view x)
+{
+    if (x.empty()) {
+        mode = LineBreakEscapeMode::SPECIFIED_TEXT;
+        specifiedText = x;
+    } else {
+        mode = LineBreakEscapeMode::BANNED;
+    }
+}
 
 ///// FormatProto //////////////////////////////////////////////////////////////
 
@@ -100,4 +124,45 @@ void tf::FileFormat::unifiedSave(pugi::xml_node& node) const
         auto nodeMulti = node.append_child("multitier");
         nodeMulti.append_attribute("separator") = str::toC(sets.multitier.separator);
     }
+}
+
+
+void tf::FileFormat::unifiedLoad(const pugi::xml_node& node)
+{
+    auto working = proto().workingSets();
+    if (!working)
+        return;
+
+    UnifiedSets sets;
+    if (working.have(Usfg::TEXT_FORMAT)) {
+        if (auto nodeFormat = node.child("text-format")) {
+            sets.textFormat.writeBom = nodeFormat.attribute("bom").as_bool();
+            sets.textFormat.lineBreakStyle =
+                    TextFormat::parseStyle(nodeFormat.attribute("line-break").as_string());
+        }
+    }
+
+    if (working.have(Usfg::TEXT_ESCAPE)) {
+        if (auto nodeEscape = node.child("text-escape")) {
+            if (auto attr = nodeEscape.attribute("line-break-text")) {
+                sets.textEscape.setSpecifiedText(str::toU8sv(attr.as_string()));
+            } else {
+                sets.textEscape.mode = parseEnumDef<LineBreakEscapeMode>(
+                        nodeEscape.attribute("line-break-mode").as_string(),
+                        lineBreakEscapeModeNames,
+                        LineBreakEscapeMode::BANNED);
+                if (sets.textEscape.mode == LineBreakEscapeMode::SPECIFIED_TEXT)
+                    sets.textEscape.mode = LineBreakEscapeMode::BANNED;
+            }
+        }
+    }
+
+    if (working.have(Usfg::MULTITIER)) {
+        if (auto nodeMulti = node.child("multitier")) {
+            sets.multitier.separator = str::toU8sv(
+                    nodeMulti.attribute("separator").as_string());
+        }
+    }
+
+    setUnifiedSets(sets);
 }

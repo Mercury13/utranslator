@@ -9,72 +9,8 @@
 
 // Pugixml
 #include "pugixml.hpp"
+#include "u_XmlUtils.h"
 
-
-///// XML utils ////////////////////////////////////////////////////////////////
-
-namespace {
-
-    template <class T>
-    inline T rq(T&& val, const char* errmsg)
-    {
-        if (!val) throw std::logic_error(errmsg);
-        return std::forward<T>(val);
-    }
-
-    auto rqChild(pugi::xml_node node, const char* name)
-    {
-        auto child = node.child(name);
-        if (!child)
-            throw std::logic_error(
-                    std::string("Tag <") + node.name() + "> needs child <"
-                    + name + ">");
-        return child;
-    }
-
-    /// Need non-null attribute
-    auto rqAttr(pugi::xml_node node, const char* name)
-    {
-        auto attr = node.attribute(name);
-        if (!attr)
-            throw std::logic_error(
-                    std::string("Tag <") + node.name() + "> needs attribute <"
-                    + name + ">");
-        return attr;
-    }
-
-    int parseEnumIntDef(const char* text, int n, const char* const names[], int def)
-    {
-        if (!text)
-            return def;
-        for (int i = 0; i < n; ++i) {
-            if (strcmp(text, names[i]) == 0)
-                return i;
-        }
-        return def;
-    }
-
-    inline std::string toStr(const char* text)
-        { return text ? std::string{text} : std::string{}; }
-
-    [[maybe_unused]] int parseEnumIntRq(const char* text, int n, const char* const names[])
-    {
-        auto val = parseEnumIntDef(text, n, names, -1);
-        if (val < 0)
-            throw std::logic_error("Unknown name <" + toStr(text) + ">");
-        return val;
-    }
-
-    template <class Ec, size_t N> requires std::is_enum_v<Ec>
-    inline Ec parseEnumDef(const char* text, const char* const (&names)[N], Ec def)
-        { return static_cast<Ec>(parseEnumIntDef(
-                text, N, names, static_cast<int>(def))); }
-
-    template <class Ec, size_t N> requires std::is_enum_v<Ec>
-    inline Ec parseEnumRq(const char* text, const char* const (&names)[N])
-        { return static_cast<Ec>(parseEnumIntRq(text, N, names)); }
-
-}   // anon namespace
 
 ///// WrCache //////////////////////////////////////////////////////////////////
 

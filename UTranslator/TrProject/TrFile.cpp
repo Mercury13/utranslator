@@ -108,6 +108,8 @@ void tf::Ini::doExport(
 
 
 void tf::Ini::save(pugi::xml_node& node) const
-{
-    unifiedSave(node);
-}
+    { unifiedSave(node); }
+
+
+void tf::Ini::load(const pugi::xml_node& node)
+    { unifiedLoad(node); }
