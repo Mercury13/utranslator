@@ -781,6 +781,11 @@ void tr::File::writeToXml(pugi::xml_node& root, WrCache& c) const
     auto node = root.append_child("file");
         node.append_attribute("name") = str::toC(id);
         node.append_attribute("idless") = info.isIdless;
+        if (info.format) {
+            auto nodeFormat = node.append_child("format");
+            nodeFormat.append_attribute("name") = info.format->proto().techName().data();  // Tech names are const, so OK
+            info.format->save(nodeFormat);
+        }
     writeCommentsAndChildren(node, c);
 }
 

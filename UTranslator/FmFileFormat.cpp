@@ -95,7 +95,7 @@ void FmFileFormat::copyFrom(const tf::FileFormat& fmt)
                     : QString{'^'});
 
     // Unified: multitier
-    ui->edMultitierChar->setText(str::toQ(sets.multitierSeparator));
+    ui->edMultitierChar->setText(str::toQ(sets.multitier.separator));
 }
 
 void FmFileFormat::copyTo(std::unique_ptr<tf::FileFormat>& r)
@@ -116,7 +116,7 @@ void FmFileFormat::copyTo(std::unique_ptr<tf::FileFormat>& r)
     }
 
     // Unified: multitier
-    sets.multitierSeparator = str::toU8(ui->edMultitierChar->text());
+    sets.multitier.separator = str::toU8(ui->edMultitierChar->text());
 
     auto currProto = filteredProtos[ui->comboFormat->currentIndex()];
     if (currProto->isDummy()) {

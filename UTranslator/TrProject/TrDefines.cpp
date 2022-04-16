@@ -88,7 +88,6 @@ void tf::FileFormat::unifiedSave(pugi::xml_node& node) const
 
     if (working.have(Usfg::TEXT_ESCAPE)) {
         auto nodeEscape = node.append_child("text-escape");
-        nodeEscape.append_attribute("bom") = sets.textFormat.writeBom;
         if (sets.textEscape.mode == LineBreakEscapeMode::SPECIFIED_TEXT) {
             nodeEscape.append_attribute("line-break-text") = str::toC(sets.textEscape.specifiedText);
         } else {

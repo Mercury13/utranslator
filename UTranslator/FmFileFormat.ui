@@ -189,12 +189,12 @@
                </item>
                <item>
                 <property name="text">
-                 <string>C \n</string>
+                 <string>C \r</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>C \r</string>
+                 <string>C \n</string>
                 </property>
                </item>
                <item>
