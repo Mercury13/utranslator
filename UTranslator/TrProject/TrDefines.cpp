@@ -23,12 +23,12 @@ constinit tf::LineBreakStyleInfo tf::lineBreakStyleInfo[LineBreakStyle_N] {
 std::u8string tf::TextEscape::bannedSubstring() const
 {
     switch (mode) {
-    case EscapeMode::NONE:
+    case LineBreakEscapeMode::NONE:
         return u8"\n";
-    case EscapeMode::SPECIFIED_TEXT:
+    case LineBreakEscapeMode::SPECIFIED_TEXT:
         return specifiedText;
-    case EscapeMode::C_CR:
-    case EscapeMode::C_LF:
+    case LineBreakEscapeMode::C_CR:
+    case LineBreakEscapeMode::C_LF:
         return {};
     }
     throw std::logic_error("[TextEscape.bannedSubstring] Strange mode");
@@ -39,14 +39,25 @@ std::u8string_view tf::TextEscape::escape(
         std::u8string_view x, std::u8string& cache) const
 {
     switch (mode) {
-    case EscapeMode::NONE:
+    case LineBreakEscapeMode::NONE:
         return x;
-    case EscapeMode::SPECIFIED_TEXT:
+    case LineBreakEscapeMode::SPECIFIED_TEXT:
         return str::replaceSv(x, specifiedText, u8"\n", cache);
-    case EscapeMode::C_CR:
+    case LineBreakEscapeMode::C_CR:
         return escape::cppSv(x, 'r', cache);
-    case EscapeMode::C_LF:
+    case LineBreakEscapeMode::C_LF:
         return escape::cppSv(x, 'n', cache);
     }
     throw std::logic_error("[TextEscape.escape] Strange mode");
+}
+
+
+///// FormatProto //////////////////////////////////////////////////////////////
+
+
+bool tf::FormatProto::isWithin(const ProtoFilter& filter) const
+{
+    auto c = caps();
+    return (filter.allowEmpty && !c)
+            || (c.haveAll(filter.wantedCaps));
 }

@@ -18,7 +18,7 @@ constinit const tf::FormatProto* tf::allProtos[I_N] {
 ///// TextInfo /////////////////////////////////////////////////////////////////
 
 
-std::u8string tf::TextInfo::joinGroupId(char c) const
+std::u8string tf::TextInfo::joinGroupId(std::u8string_view sep) const
 {
     size_t n = ids.size();
     if (n == 0)
@@ -27,7 +27,7 @@ std::u8string tf::TextInfo::joinGroupId(char c) const
     std::u8string s;
     for (size_t i = 0; i < n; ++i) {
         if (!s.empty())
-            s.push_back(c);
+            s.append(sep);
         s.append(ids[i]);
     }
     return s;
@@ -83,7 +83,10 @@ void tf::Ini::setUnifiedSets(const tf::UnifiedSets& x)
 
 std::string tf::Ini::bannedIdChars() const
 {
-    return std::string("[]=") + separator;
+    std::string r = "[]=";
+    if (separator.length() == 1)
+        return r += separator[0];
+    return r;
 }
 
 

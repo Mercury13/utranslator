@@ -48,7 +48,7 @@ public:
     void setNumeric(Storage x) noexcept { fValue = x; }
 
     // bool
-    constexpr operator bool() const { return fValue; }
+    constexpr explicit operator bool() const { return fValue; }
     operator char() const = delete;
     operator unsigned char() const = delete;
     operator short() const = delete;

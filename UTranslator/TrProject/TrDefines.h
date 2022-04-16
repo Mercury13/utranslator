@@ -37,7 +37,7 @@ namespace tf {
     };
     extern LineBreakStyleInfo lineBreakStyleInfo[LineBreakStyle_N];
 
-    enum class EscapeMode {
+    enum class LineBreakEscapeMode {
         NONE,           ///< Line-breaks banned
         C_CR,           ///< C mode: break = /r, / = //   (actually BACKslash here)
         C_LF,           ///< C mode: break = /n, / = //   (actually BACKslash here)
@@ -53,8 +53,9 @@ namespace tf {
 
     ///  Principles of escaping line-breaks
     struct TextEscape {
-        EscapeMode mode = EscapeMode::NONE;
-        std::u8string specifiedText = u8"^";
+        static constexpr std::u8string_view DEFAULT_LINE_BREAK_TEXT = u8"^";
+        LineBreakEscapeMode mode = LineBreakEscapeMode::NONE;
+        std::u8string specifiedText { DEFAULT_LINE_BREAK_TEXT };
 
         std::u8string bannedSubstring() const;
         std::u8string_view escape(std::u8string_view x, std::u8string& cache) const;
@@ -78,11 +79,22 @@ namespace tf {
         //LineBreakStyle binaryLineBreak = LineBreakStyle::LF;   unused right now
         TextFormat textFormat {};
         TextEscape textEscape {};
-        char multitierSeparator = '.';
+        std::u8string multitierSeparator = u8".";
     };
 
     class FileFormat;
 
+    struct ProtoFilter {
+        Flags<Fcap> wantedCaps;
+        bool allowEmpty;
+    };
+
+    ///
+    ///  Prototype for file format:
+    ///  • Can create format objects
+    ///  • Explains which of unified settings are available
+    ///  • Ecplains importer’s capabilities
+    ///
     class FormatProto   // interface
     {
     public:
@@ -97,9 +109,10 @@ namespace tf {
 
         // Utils
         /// @return [+] format can import/export
-        bool isWorking() const { return caps().haveAny(Fcap::IMPORT | Fcap::EXPORT); }
+        bool isWorking() const { return static_cast<bool>(caps()); }
         /// @return [+] format is dummy (= !isWorking, cannot import/export)
         bool isDummy() const { return !isWorking(); }
+        bool isWithin(const ProtoFilter& filter) const;
     };
 
     ///

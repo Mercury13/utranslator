@@ -497,28 +497,28 @@ namespace {
         }
     }
 
-    std::u8string_view toText(QString x, std::string& cache)
+    std::u8string_view toTextSv(QString x, std::string& cache)
     {
         normalizeEol(x);
         cache = x.toStdString();
         return { reinterpret_cast<const char8_t*>(cache.data()), cache.length() };
     }
 
-    std::u8string_view toText(QPlainTextEdit* x, std::string& cache)
-        { return toText(x->toPlainText(), cache); }
+    std::u8string_view toTextSv(QPlainTextEdit* x, std::string& cache)
+        { return toTextSv(x->toPlainText(), cache); }
 
     /// @todo [transl] There will be button “Translation is empty string”
-    std::optional<std::u8string_view> toOptText(
+    std::optional<std::u8string_view> toOptTextSv(
             QPlainTextEdit* x, std::string& cache)
     {
         auto text = x->toPlainText();
         if (text.isEmpty())
             return std::nullopt;
-        return toText(text, cache);
+        return toTextSv(text, cache);
     }
 
-    std::u8string_view toU8(QLineEdit* x, std::string& cache)
-        { return str::toU8(x->text(), cache); }
+    std::u8string_view toU8sv(QLineEdit* x, std::string& cache)
+        { return str::toU8sv(x->text(), cache); }
 
 }   // anon namespace
 
@@ -531,14 +531,14 @@ void FmMain::acceptObject(tr::UiObject& obj)
     std::string cache;
     switch (project->info.type) {
     case tr::PrjType::ORIGINAL:
-        obj.setId(toU8(ui->edId, cache), tr::Modify::YES);
+        obj.setId(toU8sv(ui->edId, cache), tr::Modify::YES);
         obj.setIdless(ui->chkIdless->isChecked(), tr::Modify::YES);
-        obj.setOriginal(toText(ui->memoOriginal, cache), tr::Modify::YES);
-        obj.setAuthorsComment(toText(ui->memoComment, cache), tr::Modify::YES);
+        obj.setOriginal(toTextSv(ui->memoOriginal, cache), tr::Modify::YES);
+        obj.setAuthorsComment(toTextSv(ui->memoComment, cache), tr::Modify::YES);
         break;
     case tr::PrjType::FULL_TRANSL:
-        obj.setTranslation(toOptText(ui->memoTranslation, cache), tr::Modify::YES);
-        obj.setTranslatorsComment(toText(ui->memoComment, cache), tr::Modify::YES);
+        obj.setTranslation(toOptTextSv(ui->memoTranslation, cache), tr::Modify::YES);
+        obj.setTranslatorsComment(toTextSv(ui->memoComment, cache), tr::Modify::YES);
         break;
     }
     if (project)
@@ -978,6 +978,8 @@ void FmMain::editFileFormat()
     auto index = ui->treeStrings->currentIndex();
     auto obj = treeModel.toObj(index);
     if (auto fileInfo = obj->ownFileInfo()) {
-        fmFileFormat.ensure(this).exec(fileInfo->format);
+        bool isOk = fmFileFormat.ensure(this).exec(fileInfo->format, {});
+        if (isOk)
+            obj->doModify(tr::Mch::ID);
     }
 }

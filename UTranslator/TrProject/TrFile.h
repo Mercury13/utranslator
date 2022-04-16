@@ -46,7 +46,7 @@ namespace tf {
         bool eof() const { return ids.empty(); }
         int plusDepth() const { return actualDepth() - commonDepth; }
         bool groupChanged() const { return (commonDepth != actualDepth()) || (minusDepth != 0); }
-        std::u8string joinGroupId(char c) const;
+        std::u8string joinGroupId(std::u8string_view sep) const;
         std::u8string_view textId() const { return ids.back(); }
     };
 
@@ -121,7 +121,7 @@ namespace tf {
     public:
         TextFormat textFormat;
         TextEscape textEscape;
-        char separator = '.';
+        std::u8string separator = u8".";
 
         /// @todo [future] can import too, but let’s export somehow
         void doExport(Walker& walker, const std::filesystem::path& fname) override;

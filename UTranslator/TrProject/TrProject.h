@@ -252,6 +252,7 @@ namespace tr {
         /// @return  how many texts are there in object’s groups
         Stats stats(bool includeSelf) const;
         void addStatsRecursive(Stats& x, bool includeSelf) const;
+        void doModify(Mch ch);
 
         // Const verions
         const FileInfo* ownFileInfo() const
@@ -261,7 +262,6 @@ namespace tr {
     protected:
         // passkey idiom
         struct PassKey {};
-        void doModify(Mch ch);
     };
 
     class Entity : public UiObject
