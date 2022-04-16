@@ -109,8 +109,11 @@ void FmFileFormat::copyTo(std::unique_ptr<tf::FileFormat>& r)
 
     // Unified: text escape
     sets.textEscape.mode = escapeMode();
-    if (sets.textEscape.mode == tf::LineBreakEscapeMode::SPECIFIED_TEXT)
+    if (sets.textEscape.mode == tf::LineBreakEscapeMode::SPECIFIED_TEXT) {
         sets.textEscape.specifiedText = str::toU8(ui->edLineBreakChar->text());
+        if (sets.textEscape.specifiedText.empty())
+            sets.textEscape.mode = tf::LineBreakEscapeMode::BANNED;
+    }
 
     // Unified: multitier
     sets.multitierSeparator = str::toU8(ui->edMultitierChar->text());

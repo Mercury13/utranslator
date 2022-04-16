@@ -68,7 +68,7 @@ tf::UnifiedSets tf::Ini::unifiedSets() const
     return {
         .textFormat = this->textFormat,
         .textEscape = this->textEscape,
-        .multitierSeparator = this->separator,
+        .multitier = this->multitier,
     };
 }
 
@@ -77,15 +77,15 @@ void tf::Ini::setUnifiedSets(const tf::UnifiedSets& x)
 {
     textFormat = x.textFormat;
     textEscape = x.textEscape;
-    separator = x.multitierSeparator;
+    multitier = x.multitier;
 }
 
 
 std::string tf::Ini::bannedIdChars() const
 {
     std::string r = "[]=";
-    if (separator.length() == 1)
-        return r += separator[0];
+    if (multitier.separator.length() == 1)
+        return r += multitier.separator[0];
     return r;
 }
 
@@ -99,15 +99,15 @@ void tf::Ini::doExport(
     auto eol = textFormat.eol();
     while (auto& q = walker.nextText()) {
         if (q.groupChanged()) {
-            os << '[' << str::toSv(q.joinGroupId(separator)) << ']' << eol;
+            os << '[' << str::toSv(q.joinGroupId(multitier.separator)) << ']' << eol;
         }
         os << str::toSv(q.textId()) << '='
-           << str::toSv(textEscape.escape(q.text, cache)) << eol;
+           << str::toSv(textEscape.escapeSv(q.text, cache)) << eol;
     }
 }
 
 
-void tf::Ini::save(pugi::xml_node&) const
+void tf::Ini::save(pugi::xml_node& node) const
 {
-    /// @todo [urgent] save!
+    unifiedSave(node);
 }

@@ -35,30 +35,34 @@ namespace tf {
         std::string_view techName;
         std::string_view eol;
     };
-    extern LineBreakStyleInfo lineBreakStyleInfo[LineBreakStyle_N];
+    extern const LineBreakStyleInfo lineBreakStyleInfo[LineBreakStyle_N];
 
     enum class LineBreakEscapeMode {
-        NONE,           ///< Line-breaks banned
+        BANNED,         ///< Line-breaks banned
         C_CR,           ///< C mode: break = /r, / = //   (actually BACKslash here)
         C_LF,           ///< C mode: break = /n, / = //   (actually BACKslash here)
         SPECIFIED_TEXT  ///< Specified character that’s banned in text
     };
+    constexpr auto LineBreakEscapeMode_N = static_cast<int>(LineBreakEscapeMode::SPECIFIED_TEXT) + 1;
+    extern const char* const lineBreakEscapeModeNames[LineBreakEscapeMode_N];
 
     struct TextFormat {
         bool writeBom = true;
         LineBreakStyle lineBreakStyle = LineBreakStyle::CRLF;
         std::string_view eol() const
             { return lineBreakStyleInfo[static_cast<int>(lineBreakStyle)].eol; }
+        std::string_view lineBreakTechName() const
+            { return lineBreakStyleInfo[static_cast<int>(lineBreakStyle)].techName; }
     };
 
     ///  Principles of escaping line-breaks
     struct TextEscape {
         static constexpr std::u8string_view DEFAULT_LINE_BREAK_TEXT = u8"^";
-        LineBreakEscapeMode mode = LineBreakEscapeMode::NONE;
+        LineBreakEscapeMode mode = LineBreakEscapeMode::BANNED;
         std::u8string specifiedText { DEFAULT_LINE_BREAK_TEXT };
 
         std::u8string bannedSubstring() const;
-        std::u8string_view escape(std::u8string_view x, std::u8string& cache) const;
+        std::u8string_view escapeSv(std::u8string_view x, std::u8string& cache) const;
     };
 
     enum class Usfg {
@@ -67,6 +71,10 @@ namespace tf {
         MULTITIER = 4,      ///< has multitierSeparator
     };
     DEFINE_ENUM_OPS(Usfg)
+
+    struct MultitierStyle {
+        std::u8string separator = u8".";
+    };
 
     ///
     ///  All possible settings of file
@@ -79,7 +87,7 @@ namespace tf {
         //LineBreakStyle binaryLineBreak = LineBreakStyle::LF;   unused right now
         TextFormat textFormat {};
         TextEscape textEscape {};
-        std::u8string multitierSeparator = u8".";
+        MultitierStyle multitier {};
     };
 
     class FileFormat;
@@ -139,6 +147,10 @@ namespace tf {
         virtual std::u8string bannedTextSubstring() const { return {}; }
 
         virtual void save(pugi::xml_node&) const = 0;
+
+    protected:
+        /// A common utility for unified saving
+        void unifiedSave(pugi::xml_node&) const;
     };
 }
 
@@ -164,7 +176,7 @@ namespace tr {
 
     enum class PrjType { ORIGINAL, FULL_TRANSL };
     constexpr int PrjType_N = static_cast<int>(PrjType::FULL_TRANSL) + 1;
-    extern const char* prjTypeNames[PrjType_N];
+    extern const char* const prjTypeNames[PrjType_N];
 
     constexpr int LineBreakMode_N = static_cast<int>(PrjType::FULL_TRANSL) + 1;
     extern const char* lineBreakModeNames[PrjType_N];

@@ -43,7 +43,7 @@ namespace {
         return attr;
     }
 
-    int parseEnumIntDef(const char* text, int n, const char* names[], int def)
+    int parseEnumIntDef(const char* text, int n, const char* const names[], int def)
     {
         if (!text)
             return def;
@@ -57,7 +57,7 @@ namespace {
     inline std::string toStr(const char* text)
         { return text ? std::string{text} : std::string{}; }
 
-    [[maybe_unused]] int parseEnumIntRq(const char* text, int n, const char* names[])
+    [[maybe_unused]] int parseEnumIntRq(const char* text, int n, const char* const names[])
     {
         auto val = parseEnumIntDef(text, n, names, -1);
         if (val < 0)
@@ -66,12 +66,12 @@ namespace {
     }
 
     template <class Ec, size_t N> requires std::is_enum_v<Ec>
-    inline Ec parseEnumDef(const char* text, const char* (&names)[N], Ec def)
+    inline Ec parseEnumDef(const char* text, const char* const (&names)[N], Ec def)
         { return static_cast<Ec>(parseEnumIntDef(
                 text, N, names, static_cast<int>(def))); }
 
     template <class Ec, size_t N> requires std::is_enum_v<Ec>
-    inline Ec parseEnumRq(const char* text, const char* (&names)[N])
+    inline Ec parseEnumRq(const char* text, const char* const (&names)[N])
         { return static_cast<Ec>(parseEnumIntRq(text, N, names)); }
 
 }   // anon namespace

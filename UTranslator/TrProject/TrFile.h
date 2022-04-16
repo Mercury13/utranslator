@@ -80,29 +80,6 @@ namespace tf {
         static Dummy INST;
     };
 
-    ///
-    /// \brief The EnumText class
-    ///   Simple type of file:
-    ///     This is string one        << id=1
-    ///     And this string two       << id=2
-    ///     String three              << id=3
-    ///
-//    class EnumText final : public FileFormat
-//    {
-//        LineBreakEscape lineBreakEscape;
-
-//        void doImport(Loader& loader) override;
-//        void doExport(Walker&) override {}
-
-//        /// @todo [future] can export too, but let’s import somehow
-//        Flags<Fcap> caps() const noexcept override { return Fcap::IMPORT; }
-//        std::unique_ptr<FileFormat> clone() override
-//            { return std::make_unique<EnumText>(*this); }
-
-//        MobileInfo mobileInfo() const override;
-//        void setMobileInfo(const MobileInfo& x) override;
-//    };
-
     class IniProto : public FormatProto
     {
     public:
@@ -121,7 +98,7 @@ namespace tf {
     public:
         TextFormat textFormat;
         TextEscape textEscape;
-        std::u8string separator = u8".";
+        MultitierStyle multitier;
 
         /// @todo [future] can import too, but let’s export somehow
         void doExport(Walker& walker, const std::filesystem::path& fname) override;
