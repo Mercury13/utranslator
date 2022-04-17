@@ -99,6 +99,8 @@ namespace tf {
     struct ProtoFilter {
         Flags<Fcap> wantedCaps;
         bool allowEmpty;
+
+        static const ProtoFilter ALL_EXPORTING_AND_NULL;
     };
 
     ///

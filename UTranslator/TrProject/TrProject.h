@@ -159,6 +159,11 @@ namespace tr {
         }
     };
 
+    struct UiFileInfo {
+        tr::FileInfo* info;
+        tf::ProtoFilter filter;
+    };
+
     class UiObject : public CanaryObject
     {
     public:
@@ -194,6 +199,10 @@ namespace tr {
         virtual Translatable* translatable() { return nullptr; }
         /// @return  ptr to file info, or null
         virtual FileInfo* ownFileInfo() { return nullptr; }
+        /// @return  ptr to own file foprmat, or null
+        virtual CloningUptr<tf::FileFormat>* ownFileFormat() { return nullptr; }
+        /// Goes together with ownFileFormat. Checks which formats are allowed
+        virtual const tf::ProtoFilter* allowedFormats() const { return nullptr; }
         /// @return  ptr to project
         virtual std::shared_ptr<Project> project() = 0;
         /// @return  one or two parent groups for “Add group” / “Add string”
@@ -414,6 +423,9 @@ namespace tr {
         std::shared_ptr<Entity> vclone(
                 const std::shared_ptr<VirtualGroup>&) const override
             { throw std::logic_error("Cannot clone files"); }
+        CloningUptr<tf::FileFormat>* ownFileFormat() override { return &info.format; }
+        const tf::ProtoFilter* allowedFormats() const override
+            { return &tf::ProtoFilter::ALL_EXPORTING_AND_NULL; }
     protected:
         std::weak_ptr<Project> fProject;
     };

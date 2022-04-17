@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,1">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,2,1">
      <item>
       <widget class="QLabel" name="lbFormat">
        <property name="text">
@@ -24,14 +24,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="comboFormat">
-       <property name="minimumSize">
-        <size>
-         <width>150</width>
-         <height>0</height>
-        </size>
-       </property>
-      </widget>
+      <widget class="QComboBox" name="comboFormat"/>
      </item>
      <item>
       <spacer name="horizontalSpacer">

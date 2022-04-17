@@ -11,20 +11,22 @@
 #include "Decoders.h"
 
 
-const char* const tr::prjTypeNames[tr::PrjType_N] {
+constinit const char* const tr::prjTypeNames[tr::PrjType_N] {
     "original", "full-transl"
 };
-
 
 constinit const tf::LineBreakStyleInfo tf::lineBreakStyleInfo[LineBreakStyle_N] {
     { "lf", "\n" },
     { "crlf", "\r\n" },
 };
 
-
 constinit const char* const tf::lineBreakEscapeModeNames[LineBreakEscapeMode_N] {
     "banned", "c-cr", "c-lf", "specified" };
 
+constinit const tf::ProtoFilter tf::ProtoFilter::ALL_EXPORTING_AND_NULL {
+    .wantedCaps = tf::Fcap::EXPORT,
+    .allowEmpty = true
+};
 
 ///// TextFormat ///////////////////////////////////////////////////////////////
 

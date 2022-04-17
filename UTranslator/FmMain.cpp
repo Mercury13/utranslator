@@ -976,9 +976,10 @@ void FmMain::startLinkClicked(QUrl url)
 void FmMain::editFileFormat()
 {
     auto index = ui->treeStrings->currentIndex();
-    auto obj = treeModel.toObj(index);
-    if (auto fileInfo = obj->ownFileInfo()) {
-        bool isOk = fmFileFormat.ensure(this).exec(fileInfo->format, {});
+    tr::UiObject* obj = treeModel.toObj(index);
+    if (auto format = obj->ownFileFormat()) {
+        bool isOk = fmFileFormat.ensure(this).exec(
+                    *format, *obj->allowedFormats());
         if (isOk)
             obj->doModify(tr::Mch::ID);
     }
