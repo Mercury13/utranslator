@@ -730,6 +730,18 @@ void tr::File::readFromXml(const pugi::xml_node& node, const PrjInfo& pinfo)
 {
     id = str::toU8sv(node.attribute("name").as_string());
     info.isIdless = node.attribute("idless").as_bool(false);
+    if (auto nodeFormat = node.child("format")) {
+        std::string_view sName = nodeFormat.attribute("name").as_string();
+        if (!sName.empty()) {
+            for (auto v : tf::allWorkingProtos) {
+                if (v->techName() == sName) {
+                    info.format = v->make();
+                    info.format->load(nodeFormat);
+                    break;
+                }
+            }
+        }
+    }
     readCommentsAndChildren(node, pinfo);
 }
 

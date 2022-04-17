@@ -123,6 +123,7 @@ namespace tf {
         I_INI,
         I_N
     };
-    extern const FormatProto* allProtos[I_N];
+    extern const FormatProto* const allProtos[I_N];
+    extern const FormatProto* const (&allWorkingProtos)[I_N - 1];
 
 }   // namespace tf

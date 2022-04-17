@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>393</width>
-    <height>219</height>
+    <height>249</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -62,7 +62,7 @@
         <x>0</x>
         <y>0</y>
         <width>375</width>
-        <height>144</height>
+        <height>172</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -99,7 +99,7 @@
           <item>
            <widget class="QCheckBox" name="chkBom">
             <property name="text">
-             <string>Byte order mark</string>
+             <string>Byte order mark¹</string>
             </property>
            </widget>
           </item>
@@ -108,7 +108,7 @@
             <item>
              <widget class="QLabel" name="lbLineBreaksInFile">
               <property name="text">
-               <string>Line breaks in &lt;b&gt;file&lt;/b&gt;</string>
+               <string>Line breaks in &lt;b&gt;file&lt;/b&gt;¹</string>
               </property>
              </widget>
             </item>
@@ -120,11 +120,6 @@
                 <height>0</height>
                </size>
               </property>
-              <item>
-               <property name="text">
-                <string>CR</string>
-               </property>
-              </item>
               <item>
                <property name="text">
                 <string>LF (Unix)</string>
@@ -318,11 +313,22 @@
     </widget>
    </item>
    <item>
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <item>
+      <widget class="QLabel" name="lbLegend">
+       <property name="text">
+        <string>¹ mean for writing only</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDialogButtonBox" name="buttonBox">
+       <property name="standardButtons">
+        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

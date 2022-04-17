@@ -32,6 +32,11 @@ void FmFileFormat::reenableToFormat(const tf::FormatProto& proto)
     ui->grpText->setVisible(flags.have(tf::Usfg::TEXT_FORMAT));
     ui->wiLineBreaksInStrings->setVisible(flags.have(tf::Usfg::TEXT_ESCAPE));
     ui->grpMultitier->setVisible(flags.have(tf::Usfg::MULTITIER));
+
+    // Legend
+        // Marking ¹ (write-only) on two settings of text format
+    constexpr Flags USFGS_LEGEND = tf::Usfg::TEXT_FORMAT;
+    ui->lbLegend->setVisible(flags.haveAny(USFGS_LEGEND));
 }
 
 
@@ -48,7 +53,7 @@ void FmFileFormat::collectFormats(
 {
     filteredProtos.clear();
     size_t iSelected = 0;
-    ui->comboFormat->clear();
+    ui->comboFormat->clear();    
     for (auto v : tf::allProtos) {
         if (v->isWithin(filter)) {
             if (v == myProto)
@@ -74,7 +79,6 @@ void FmFileFormat::reenable()
     ui->edLineBreakChar->setEnabled(
                 escapeMode() == tf::LineBreakEscapeMode::SPECIFIED_TEXT);
 }
-
 
 void FmFileFormat::copyFrom(const tf::FileFormat& fmt)
 {

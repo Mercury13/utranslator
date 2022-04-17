@@ -9,10 +9,13 @@ const tf::DummyProto tf::DummyProto::INST;
 const tf::IniProto tf::IniProto::INST;
 tf::Dummy tf::Dummy::INST;
 
-constinit const tf::FormatProto* tf::allProtos[I_N] {
+constinit const tf::FormatProto* const tf::allProtos[I_N] {
     &tf::DummyProto::INST,
     &tf::IniProto::INST
 };
+
+const tf::FormatProto* const (&tf::allWorkingProtos)[I_N - 1]
+        = reinterpret_cast<const FormatProto* const (&)[I_N - 1]>(allProtos[1]);
 
 
 ///// TextInfo /////////////////////////////////////////////////////////////////

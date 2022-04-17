@@ -17,7 +17,6 @@ const char* const tr::prjTypeNames[tr::PrjType_N] {
 
 
 constinit const tf::LineBreakStyleInfo tf::lineBreakStyleInfo[LineBreakStyle_N] {
-    { "cr", "\r" },
     { "lf", "\n" },
     { "crlf", "\r\n" },
 };
@@ -78,10 +77,10 @@ std::u8string_view tf::TextEscape::escapeSv(
 void tf::TextEscape::setSpecifiedText(std::u8string_view x)
 {
     if (x.empty()) {
+        mode = LineBreakEscapeMode::BANNED;
+    } else {
         mode = LineBreakEscapeMode::SPECIFIED_TEXT;
         specifiedText = x;
-    } else {
-        mode = LineBreakEscapeMode::BANNED;
     }
 }
 

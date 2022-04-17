@@ -28,7 +28,7 @@ namespace tf {
     };
     DEFINE_ENUM_OPS(Fcap)
 
-    enum class LineBreakStyle { CR, LF, CRLF };
+    enum class LineBreakStyle { LF, CRLF };
     constexpr auto LineBreakStyle_N = static_cast<int>(LineBreakStyle::CRLF) + 1;
 
     struct LineBreakStyleInfo {
