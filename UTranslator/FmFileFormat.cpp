@@ -137,7 +137,7 @@ bool FmFileFormat::exec(
     collectFormats(&obj.proto(), filter);
     copyFrom(obj);
     reenable();
-    ui->comboFormat->setFocus();
+    setFocus();     // sensitive form → focus nothing
     bool r = Super::exec();
     if (r) {
         copyTo(x);
