@@ -515,6 +515,43 @@ void tr::VirtualGroup::readCommentsAndChildren(
 }
 
 
+void tr::VirtualGroup::traverseTexts(const TextSink& x)
+{
+    for (auto v : children)
+        v->traverseTexts(x);
+}
+
+
+///// Group ////////////////////////////////////////////////////////////////////
+
+
+tr::Group::Group(
+        const std::shared_ptr<VirtualGroup>& aParent,
+        size_t aIndex, const PassKey&)
+    : fParentGroup(aParent)
+{
+    if (!aParent)
+        throw std::invalid_argument("[Group.ctor] parent should not be null!");
+    fFile = aParent->file();
+    cache.index = aIndex;
+}
+
+
+void tr::Group::writeToXml(pugi::xml_node& root, WrCache& c) const
+{
+    auto node = root.append_child("group");
+        node.append_attribute("id") = str::toC(id);
+    writeCommentsAndChildren(node, c);
+}
+
+
+void tr::Group::readFromXml(const pugi::xml_node& node, const PrjInfo& info)
+{
+    id = str::toU8sv(rqAttr(node, "id").value());
+    readCommentsAndChildren(node, info);
+}
+
+
 std::shared_ptr<tr::Group> tr::Group::clone(
         const std::shared_ptr<VirtualGroup>& parent,
         const IdLib* idlib,
@@ -566,36 +603,6 @@ tr::CloneObj tr::Group::startCloning(const std::shared_ptr<UiObject>& parent) co
         CloneErr::OK,
         std::unique_ptr<CloneObj::Commitable>{ new CloneThing<tr::Group>(*this, vg) }
     };
-}
-
-
-///// Group ////////////////////////////////////////////////////////////////////
-
-
-tr::Group::Group(
-        const std::shared_ptr<VirtualGroup>& aParent,
-        size_t aIndex, const PassKey&)
-    : fParentGroup(aParent)
-{
-    if (!aParent)
-        throw std::invalid_argument("[Group.ctor] parent should not be null!");
-    fFile = aParent->file();
-    cache.index = aIndex;
-}
-
-
-void tr::Group::writeToXml(pugi::xml_node& root, WrCache& c) const
-{
-    auto node = root.append_child("group");
-        node.append_attribute("id") = str::toC(id);
-    writeCommentsAndChildren(node, c);
-}
-
-
-void tr::Group::readFromXml(const pugi::xml_node& node, const PrjInfo& info)
-{
-    id = str::toU8sv(rqAttr(node, "id").value());
-    readCommentsAndChildren(node, info);
 }
 
 
@@ -745,6 +752,53 @@ void tr::File::readFromXml(const pugi::xml_node& node, const PrjInfo& pinfo)
     readCommentsAndChildren(node, pinfo);
 }
 
+
+tf::FileFormat* tr::File::exportableFormat() noexcept
+{
+    if (!id.empty() && info.format
+            && info.format->proto().caps().have(tf::Fcap::EXPORT)) {
+        return info.format.get();
+    }
+    return nullptr;
+}
+
+
+///// FileWalker ///////////////////////////////////////////////////////////////
+
+namespace {
+
+    class FileWalker final :
+            public tf::Walker, private tr::TextSink
+    {
+    public:
+        FileWalker(tr::File& file);
+        const tf::TextInfo& nextText() override;
+    private:
+        mutable SafeVector<tr::Text*> texts;
+        size_t index = 0;
+        tf::TextInfo textInfo;
+
+        void act(tr::Text& x) const override
+            { texts.push_back(&x); }
+    };
+
+    FileWalker::FileWalker(tr::File& file)
+    {
+        file.traverseTexts(*this);
+    }
+
+    const tf::TextInfo& FileWalker::nextText()
+    {
+        if (index >= texts.size()) {
+            textInfo = tf::TextInfo();
+        } else {
+
+        }
+        return textInfo;
+    }
+
+
+}   // anon namespace
 
 ///// Project //////////////////////////////////////////////////////////////////
 
@@ -935,4 +989,52 @@ size_t tr::Project::nOrigExportableFiles() const
         }
     }
     return r;
+}
+
+
+void tr::Project::traverseTexts(const TextSink& x)
+{
+    for (auto v : files)
+        v->traverseTexts(x);
+}
+
+
+tr::WalkChannel tr::Project::walkChannel() const
+{
+    switch (info.type) {
+    case PrjType::ORIGINAL:
+        return WalkChannel::ORIGINAL;
+    case PrjType::FULL_TRANSL:
+        return WalkChannel::TRANSLATION;
+    }
+    throw std::logic_error("[Project.walkChannel] Strange project type");
+}
+
+
+void tr::Project::doBuild()
+{
+    auto fullName = fname;
+    auto saveDir = fullName.parent_path();
+    auto stem = fullName.stem();
+    auto subdir = L"build-" + stem.wstring();
+    auto defaultExportDir = saveDir / subdir;
+
+    for (auto& file : files) {
+        if (auto format = file->exportableFormat()) {
+            std::filesystem::path fnAsked = file->id;
+            // Get export filename:
+            // • simple filename → save/build-xxx/filename.ext
+            // • filename w/path component → save/path/finename.ext
+            // • absolute part → c:/path/filename.ext
+            auto fnExported =
+                    fnAsked.is_absolute()
+                        ? fnAsked
+                        : (fnAsked.has_parent_path()
+                            ? saveDir / fnAsked
+                            : defaultExportDir / fnAsked);
+            std::filesystem::create_directories(fnExported.parent_path());
+            FileWalker walker(*file);
+            format->doExport(walker, fnExported);
+        }
+    }
 }

@@ -164,6 +164,11 @@ namespace tr {
         tf::ProtoFilter filter;
     };
 
+    class TextSink {    // interface
+    public:
+        virtual void act(tr::Text&) const = 0;
+    };
+
     class UiObject : public CanaryObject
     {
     public:
@@ -212,6 +217,7 @@ namespace tr {
         virtual CloneObj startCloning(
                 [[maybe_unused]] const std::shared_ptr<UiObject>& parent) const
             { return { CloneErr::UNCLONEABLE, {} }; }
+        virtual void traverseTexts(const TextSink& x) = 0;
 
         void recache();
         void recursiveRecache();
@@ -314,6 +320,7 @@ namespace tr {
         size_t nChildren() const noexcept override { return children.size(); };
         std::shared_ptr<Entity> child(size_t i) const override;
         std::shared_ptr<Entity> extractChild(size_t i) override;
+        void traverseTexts(const TextSink& x) override;
 
         using Super::Super;
 
@@ -353,6 +360,7 @@ namespace tr {
         void writeToXml(pugi::xml_node&, WrCache&) const override;
         void readFromXml(const pugi::xml_node& node, const PrjInfo& info) override;
         bool isCloneable() const noexcept { return true; }
+        void traverseTexts(const TextSink& x) override { x.act(*this); }
         std::shared_ptr<Text> clone(
                 const std::shared_ptr<VirtualGroup>& parent,
                 const IdLib* idlib,
@@ -429,9 +437,12 @@ namespace tr {
             { return &tf::ProtoFilter::ALL_EXPORTING_AND_NULL; }
 
         constexpr FileMode mode() const noexcept { return FileMode::HOSTED; }
+        tf::FileFormat* exportableFormat() noexcept;
     protected:
         std::weak_ptr<Project> fProject;
     };
+
+    enum class WalkChannel { ORIGINAL, TRANSLATION };
 
     class Project final :
             public UiObject,
@@ -468,12 +479,15 @@ namespace tr {
         void addStats(Stats&, bool) const override {}
         void writeToXml(pugi::xml_node&) const;
         bool unmodify(Forced forced) override;
+        void traverseTexts(const TextSink& x) override;
         void save();
         void save(const std::filesystem::path& aFname);
         void saveCopy(const std::filesystem::path& aFname) const;
         void readFromXml(const pugi::xml_node& node);
         void load(const pugi::xml_document& doc);
         void load(const std::filesystem::path& aFname);
+        void doBuild();
+        WalkChannel walkChannel() const;
 
         // Adds a file in the end of project
         std::shared_ptr<File> addFile(

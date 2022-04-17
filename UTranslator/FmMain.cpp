@@ -1002,3 +1002,11 @@ void FmMain::goFind()
         /// @todo [urgent] really find
     }
 }
+
+
+void FmMain::doBuild()
+{
+    if (!project)
+        return;
+    project->doBuild();
+}

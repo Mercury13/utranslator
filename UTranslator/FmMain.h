@@ -194,4 +194,5 @@ private:
     /// Same but for disabling components
     void banMemo(QWidget* wi, QPlainTextEdit* memo);
     void openFile(std::filesystem::path fname);
+    void doBuild();
 };
