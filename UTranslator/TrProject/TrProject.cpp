@@ -1028,10 +1028,10 @@ void tr::Project::doBuild()
             // • absolute path → c:/path/filename.ext
             auto fnExported =
                     fnAsked.is_absolute()
-                        ? fnAsked                               // abs path
-                        : (fnAsked.has_parent_path()
-                            ? saveDir / fnAsked                 // filename+path
-                            : defaultExportDir / fnAsked);      // bare filename
+                        ? fnAsked                       // 3) abs path
+                        : (fnAsked.has_parent_path()    // …rel path…
+                            ? saveDir / fnAsked                 // 2) filename+path
+                            : defaultExportDir / fnAsked);      // 1) bare filename
             std::filesystem::create_directories(fnExported.parent_path());
             FileWalker walker(*file);
             format->doExport(walker, fnExported);
