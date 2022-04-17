@@ -916,3 +916,16 @@ void tr::Project::load(const std::filesystem::path& aFname)
     load(doc);
     fname = aFname;
 }
+
+
+size_t tr::Project::nExportableFiles() const
+{
+    size_t r = 0;
+    for (auto& f : files) {
+        if (f->info.format
+                && f->info.format->proto().caps().have(tf::Fcap::EXPORT)) {
+            ++r;
+        }
+    }
+    return r;
+}

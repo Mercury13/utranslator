@@ -405,7 +405,6 @@ namespace tr {
         using Super = VirtualGroup;
     public:
         FileInfo info;
-        std::unique_ptr<tf::FileFormat> format;
 
         std::shared_ptr<Project> project() override { return fProject.lock(); }
 
@@ -475,6 +474,7 @@ namespace tr {
         // Adds a file in the end of project
         std::shared_ptr<File> addFile(
                 std::u8string_view name, Modify);
+        size_t nExportableFiles() const;
 
         /// Use instead of ctor
         /// @warning  Refer to private ctors to see which versions are available

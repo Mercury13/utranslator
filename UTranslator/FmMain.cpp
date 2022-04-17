@@ -974,13 +974,20 @@ void FmMain::startLinkClicked(QUrl url)
 
 
 void FmMain::editFileFormat()
-{
+{    
     auto index = ui->treeStrings->currentIndex();
     tr::UiObject* obj = treeModel.toObj(index);
     if (auto format = obj->ownFileFormat()) {
+        auto nExOld = project->nExportableFiles();
         bool isOk = fmFileFormat.ensure(this).exec(
                     *format, *obj->allowedFormats());
-        if (isOk)
+        if (isOk) {
             obj->doModify(tr::Mch::ID);
+            if (nExOld == 0 && project->nExportableFiles() != 0) {
+                QMessageBox::information(this, "Information",
+                    "You have created your first exportable file.\n"
+                    "Press “Save”, and UTranslator will also build your localization.");
+            }
+        }
     }
 }
