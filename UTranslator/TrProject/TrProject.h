@@ -479,7 +479,7 @@ namespace tr {
         std::shared_ptr<File> addFile(
                 std::u8string_view name, Modify);
         /// @return  # of exportable files in ORIGINAL mode
-        /// @warning  In TRANSLATION mode everything should be OK!
+        /// @warning  In TRANSLATION mode original IDs/texts should be OK
         size_t nOrigExportableFiles() const;
 
         /// Use instead of ctor
