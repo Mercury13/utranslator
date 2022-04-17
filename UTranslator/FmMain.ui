@@ -628,6 +628,8 @@
     <addaction name="acGoBack"/>
     <addaction name="acGoNext"/>
     <addaction name="acGoUp"/>
+    <addaction name="separator"/>
+    <addaction name="acGoFind"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -794,6 +796,14 @@
    </property>
    <property name="text">
     <string>S&amp;tarting screen</string>
+   </property>
+  </action>
+  <action name="acGoFind">
+   <property name="text">
+    <string>Find…</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F</string>
    </property>
   </action>
  </widget>

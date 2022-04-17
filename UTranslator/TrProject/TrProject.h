@@ -399,6 +399,8 @@ namespace tr {
         std::weak_ptr<VirtualGroup> fParentGroup;
     };
 
+    enum class FileMode { HOSTED, EXTERNAL };
+
     class File final : public VirtualGroup
     {
     private:
@@ -425,6 +427,8 @@ namespace tr {
         CloningUptr<tf::FileFormat>* ownFileFormat() override { return &info.format; }
         const tf::ProtoFilter* allowedFormats() const override
             { return &tf::ProtoFilter::ALL_EXPORTING_AND_NULL; }
+
+        constexpr FileMode mode() const noexcept { return FileMode::HOSTED; }
     protected:
         std::weak_ptr<Project> fProject;
     };
@@ -474,7 +478,9 @@ namespace tr {
         // Adds a file in the end of project
         std::shared_ptr<File> addFile(
                 std::u8string_view name, Modify);
-        size_t nExportableFiles() const;
+        /// @return  # of exportable files in ORIGINAL mode
+        /// @warning  In TRANSLATION mode everything should be OK!
+        size_t nOrigExportableFiles() const;
 
         /// Use instead of ctor
         /// @warning  Refer to private ctors to see which versions are available

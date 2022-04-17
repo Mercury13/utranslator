@@ -21,6 +21,7 @@
 #include "FmDisambigPair.h"
 #include "FmDecoder.h"
 #include "FmFileFormat.h"
+#include "FmFind.h"
 
 
 ///// PrjTreeModel /////////////////////////////////////////////////////////////
@@ -338,6 +339,7 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->acGoBack, &QAction::triggered, this, &This::goBack);
     connect(ui->acGoNext, &QAction::triggered, this, &This::goNext);
     connect(ui->acGoUp, &QAction::triggered, this, &This::goUp);
+    connect(ui->acGoFind, &QAction::triggered, this, &This::goFind);
     // Tools
     connect(ui->acDecoder, &QAction::triggered, this, &This::runDecoder);
 
@@ -606,6 +608,7 @@ void FmMain::reenable()
     ui->acGoBack->setEnabled(isMainVisible);
     ui->acGoNext->setEnabled(isMainVisible);
     ui->acGoUp->setEnabled(isMainVisible);
+    ui->acGoFind->setEnabled(isMainVisible);
 }
 
 
@@ -978,16 +981,24 @@ void FmMain::editFileFormat()
     auto index = ui->treeStrings->currentIndex();
     tr::UiObject* obj = treeModel.toObj(index);
     if (auto format = obj->ownFileFormat()) {
-        auto nExOld = project->nExportableFiles();
+        auto nExOld = project->nOrigExportableFiles();
         bool isOk = fmFileFormat.ensure(this).exec(
                     *format, *obj->allowedFormats());
         if (isOk) {
             obj->doModify(tr::Mch::ID);
-            if (nExOld == 0 && project->nExportableFiles() != 0) {
+            if (nExOld == 0 && project->nOrigExportableFiles() != 0) {
                 QMessageBox::information(this, "Information",
                     "You have created your first exportable file.\n"
                     "Press “Save”, and UTranslator will also build your localization.");
             }
         }
+    }
+}
+
+
+void FmMain::goFind()
+{
+    if (auto opts = fmFind.ensure(this).exec(project->info.type)) {
+        /// @todo [urgent] really find
     }
 }

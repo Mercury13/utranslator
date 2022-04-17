@@ -918,13 +918,20 @@ void tr::Project::load(const std::filesystem::path& aFname)
 }
 
 
-size_t tr::Project::nExportableFiles() const
+size_t tr::Project::nOrigExportableFiles() const
 {
     size_t r = 0;
     for (auto& f : files) {
-        if (f->info.format
-                && f->info.format->proto().caps().have(tf::Fcap::EXPORT)) {
-            ++r;
+        switch (f->mode()) {
+        case FileMode::HOSTED:
+            if (f->info.format
+                    && f->info.format->proto().caps().have(tf::Fcap::EXPORT)) {
+                ++r;
+            }
+            break;
+        case FileMode::EXTERNAL:
+            // External files are not exported in original mode
+            break;
         }
     }
     return r;

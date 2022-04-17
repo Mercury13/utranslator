@@ -17,6 +17,7 @@ SOURCES += \
     FmDecoder.cpp \
     FmDisambigPair.cpp \
     FmFileFormat.cpp \
+    FmFind.cpp \
     History.cpp \
     TrProject/Decoders.cpp \
     TrProject/Modifiable.cpp \
@@ -41,6 +42,7 @@ HEADERS += \
     FmDecoder.h \
     FmDisambigPair.h \
     FmFileFormat.h \
+    FmFind.h \
     History.h \
     TrProject/Decoders.h \
     TrProject/Modifiable.h \
@@ -61,6 +63,7 @@ FORMS += \
     FmDecoder.ui \
     FmDisambigPair.ui \
     FmFileFormat.ui \
+    FmFind.ui \
     FmMain.ui \
     FmNew.ui
 

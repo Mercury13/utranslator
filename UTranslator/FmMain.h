@@ -21,6 +21,7 @@ class FmNew;
 class FmDisambigPair;
 class FmDecoder;
 class FmFileFormat;
+class FmFind;
 class QPlainTextEdit;
 
 template <class T>
@@ -143,6 +144,7 @@ private slots:
     void goBack();
     void goNext();
     void goUp();
+    void goFind();
     // Menu: Original
     void addHostedFile();
     void addHostedGroup();
@@ -161,6 +163,8 @@ private:
     Uptr<FmDisambigPair> fmDisambigPair;
     Uptr<FmDecoder> fmDecoder;
     Uptr<FmFileFormat> fmFileFormat;
+    Uptr<FmFind> fmFind;
+
     std::atomic<bool> isChangingProgrammatically = false;
 
     /// Adapts window’s layout to project type:
