@@ -1023,9 +1023,9 @@ void tr::Project::doBuild()
         if (auto format = file->exportableFormat()) {
             std::filesystem::path fnAsked = file->id;
             // Get export filename:
-            // • simple filename → save/build-xxx/filename.ext
+            // • bare filename → save/build-xxx/filename.ext
             // • filename w/path component → save/path/finename.ext
-            // • absolute part → c:/path/filename.ext
+            // • absolute path → c:/path/filename.ext
             auto fnExported =
                     fnAsked.is_absolute()
                         ? fnAsked
