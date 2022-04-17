@@ -28,13 +28,19 @@ FindOptions FmFind::exec(tr::PrjType prjType)
         isTransl = true;
         break;
     }
-    ui->chkPlaceTranslation->setEnabled(isTransl);
-    ui->chkPlaceTranslatorsComment->setEnabled(isTransl);
+    ui->chkChanTranslation->setEnabled(isTransl);
+    ui->chkChanTranslatorsComment->setEnabled(isTransl);
     ui->edFind->setFocus();
 
     FindOptions r;
     if (Super::exec()) {
-        /// @todo [urgent] copy
+        r.text = ui->edFind->text();
+        r.channels.id = ui->chkChanId->isChecked();
+        r.channels.original = ui->chkChanOriginal->isChecked();
+        r.channels.authorsComment = ui->chkChanAuthorsComment->isChecked();
+        r.channels.translation = ui->chkChanTranslation->isChecked();
+        r.channels.translatorsComment = ui->chkChanTranslatorsComment->isChecked();
+        r.options.matchCase = ui->chkMatchCase->isChecked();
     }
     return r;
 }

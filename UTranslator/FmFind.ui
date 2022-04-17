@@ -49,14 +49,14 @@
          <number>1</number>
         </property>
         <item>
-         <widget class="QCheckBox" name="chkPlaceId">
+         <widget class="QCheckBox" name="chkChanId">
           <property name="text">
            <string>ID</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="chkPlaceOriginal">
+         <widget class="QCheckBox" name="chkChanOriginal">
           <property name="text">
            <string>Original</string>
           </property>
@@ -66,14 +66,14 @@
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="chkPlaceAuthorsComment">
+         <widget class="QCheckBox" name="chkChanAuthorsComment">
           <property name="text">
            <string>Author’s comment</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="chkPlaceTranslation">
+         <widget class="QCheckBox" name="chkChanTranslation">
           <property name="text">
            <string>Translation</string>
           </property>
@@ -83,7 +83,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="chkPlaceTranslatorsComment">
+         <widget class="QCheckBox" name="chkChanTranslatorsComment">
           <property name="text">
            <string>Translator’s comment</string>
           </property>
