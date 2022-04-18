@@ -9,6 +9,10 @@
 
 #include "TrDefines.h"
 
+namespace bom {
+    constexpr std::string_view u8 = "\xEF\xBB\xBF";
+}
+
 namespace tf {
 
     class Loader     // interface

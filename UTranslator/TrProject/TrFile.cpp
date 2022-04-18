@@ -104,13 +104,19 @@ void tf::Ini::doExport(
 {
     std::u8string cache;
     std::ofstream os(fname, std::ios::binary);
+    if (textFormat.writeBom)
+        os << bom::u8;
     auto eol = textFormat.eol();
+    bool isInitial = true;
     while (auto& q = walker.nextText()) {
         if (q.groupChanged()) {
+            if (!isInitial)
+                os << eol;
             os << '[' << str::toSv(q.joinGroupId(multitier.separator)) << ']' << eol;
         }
         os << str::toSv(q.textId()) << '='
            << str::toSv(textEscape.escapeSv(q.text, cache)) << eol;
+        isInitial = false;
     }
 }
 
