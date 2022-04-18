@@ -34,6 +34,13 @@ constinit const tf::ProtoFilter tf::ProtoFilter::ALL_EXPORTING_AND_NULL {
     .allowEmpty = true
 };
 
+const tf::TechLoc tf::cSubformatInfo[CSubformat_N] {
+    { "bare",   u8"␣Bare␣" },
+    { "quoted", u8"\" Quoted \"" },
+    { "slashs", u8"\\s for space" },
+};
+
+
 ///// TextFormat ///////////////////////////////////////////////////////////////
 
 
@@ -139,6 +146,10 @@ void tf::FileFormat::unifiedSave(pugi::xml_node& node) const
         } else {
             nodeEscape.append_attribute("line-break-mode") =
                     lineBreakEscapeModeNames[static_cast<int>(sets.textEscape.mode)];
+            if (sets.textEscape.isC()) {
+                nodeEscape.append_attribute("c-subformat") =
+                    cSubformatInfo[static_cast<int>(sets.textEscape.cSubformat)].techName.data();
+            }
         }
     }
 
@@ -175,6 +186,10 @@ void tf::FileFormat::unifiedLoad(const pugi::xml_node& node)
                         LineBreakEscapeMode::BANNED);
                 if (sets.textEscape.mode == LineBreakEscapeMode::SPECIFIED_TEXT)
                     sets.textEscape.mode = LineBreakEscapeMode::BANNED;
+                sets.textEscape.cSubformat = parseEnumTechDef(
+                        nodeEscape.attribute("c-subformat").as_string(),
+                        tf::cSubformatInfo,
+                        tf::CSubformat::BARE);
             }
         }
     }

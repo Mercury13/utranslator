@@ -63,11 +63,18 @@ namespace tf {
         static TextLineBreakStyle parseStyle(std::string_view name);
     };
 
+    struct TechLoc {
+        std::string_view techName;
+        std::u8string_view locName;
+    };
+
     enum class CSubformat {
         BARE,
         QUOTED,
         SLASH_SPACE
     };
+    constexpr auto CSubformat_N = static_cast<int>(CSubformat::SLASH_SPACE) + 1;
+    extern const TechLoc cSubformatInfo[CSubformat_N];
 
     ///  Principles of escaping line-breaks
     struct TextEscape {

@@ -45,4 +45,5 @@ private:
     void reenableToFormat(const tf::FormatProto& proto);
     const tf::FormatProto* currentProto() const;
     tf::LineBreakEscapeMode escapeMode() const;
+    bool isC() const;
 };

@@ -821,6 +821,7 @@ namespace {
     {
         auto& v = texts.emplace_back(depthInfo);
         v.text = &x;
+        depthInfo.commonDepth = depthInfo.newDepth;
     }
 
     FileWalker::FileWalker(tr::File& file, tr::WalkChannel aChannel)

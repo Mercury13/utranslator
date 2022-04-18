@@ -29,6 +29,7 @@ FmFileFormat::FmFileFormat(QWidget *parent) :
 {
     ui->setupUi(this);
     fillComboWithLocName(ui->comboLineBreaksInFile, tf::textLineBreakStyleInfo);
+    fillComboWithLocName(ui->comboCSubformat, tf::cSubformatInfo);
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &This::accept);
     connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &This::reject);
     connect(ui->comboFormat, &QComboBox::currentIndexChanged, this, &This::comboChanged);
@@ -91,10 +92,17 @@ tf::LineBreakEscapeMode FmFileFormat::escapeMode() const
 }
 
 
+bool FmFileFormat::isC() const
+{
+    return tf::TextEscape::isC(escapeMode());
+}
+
+
 void FmFileFormat::reenable()
 {
     ui->edLineBreakChar->setEnabled(
                 escapeMode() == tf::LineBreakEscapeMode::SPECIFIED_TEXT);
+    ui->wiCSubformat->setEnabled(isC());
 }
 
 void FmFileFormat::copyFrom(const tf::FileFormat& fmt)
@@ -114,6 +122,8 @@ void FmFileFormat::copyFrom(const tf::FileFormat& fmt)
                 sets.textEscape.mode == tf::LineBreakEscapeMode::SPECIFIED_TEXT
                     ? str::toQ(sets.textEscape.specifiedText)
                     : QString{'^'});
+    ui->comboCSubformat->setCurrentIndex(
+                static_cast<int>(sets.textEscape.cSubformat));
 
     // Unified: multitier
     ui->edMultitierChar->setText(str::toQ(sets.multitier.separator));
@@ -138,6 +148,7 @@ void FmFileFormat::copyTo(std::unique_ptr<tf::FileFormat>& r)
         if (sets.textEscape.specifiedText.empty())
             sets.textEscape.mode = tf::LineBreakEscapeMode::BANNED;
     }
+    sets.textEscape.cSubformat = static_cast<tf::CSubformat>(ui->comboCSubformat->currentIndex());
 
     // Unified: multitier
     sets.multitier.separator = str::toU8(ui->edMultitierChar->text());
