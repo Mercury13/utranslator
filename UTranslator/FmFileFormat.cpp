@@ -3,6 +3,7 @@
 
 // Libs
 #include "u_Qstrings.h"
+#include "QtConsts.h"
 
 // Project
 #include "TrFile.h"
@@ -24,7 +25,7 @@ namespace {
 
 
 FmFileFormat::FmFileFormat(QWidget *parent) :
-    QDialog(parent),
+    QDialog(parent, QDlgType::FIXED),
     ui(new Ui::FmFileFormat)
 {
     ui->setupUi(this);
