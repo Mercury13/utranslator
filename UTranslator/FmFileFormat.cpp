@@ -20,7 +20,7 @@ namespace {
         }
     }
 
-}
+}   // anon namespace
 
 
 FmFileFormat::FmFileFormat(QWidget *parent) :
