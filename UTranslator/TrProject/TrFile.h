@@ -80,6 +80,7 @@ namespace tf {
         std::u8string_view locDescription() const override;
         std::u8string_view locSoftware() const override { return u8"—"; }
         std::u8string_view locIdType() const override { return u8"—"; }
+        tr::WalkOrder walkOrder() const override { return tr::WalkOrder::ECONOMY; }
     };
 
     class Dummy final : public FileFormat
@@ -107,6 +108,7 @@ namespace tf {
         std::u8string_view locDescription() const override;
         std::u8string_view locSoftware() const override { return u8"Various"; }
         std::u8string_view locIdType() const override { return u8"String, 1-nested"; }
+        tr::WalkOrder walkOrder() const override { return tr::WalkOrder::ECONOMY; }
 
         static const IniProto INST;
     };

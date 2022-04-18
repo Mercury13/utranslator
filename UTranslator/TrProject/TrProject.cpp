@@ -515,21 +515,30 @@ void tr::VirtualGroup::readCommentsAndChildren(
 }
 
 
-void tr::VirtualGroup::traverse(TraverseListener& x, EnterMe enterMe)
+void tr::VirtualGroup::traverse(
+        TraverseListener& x, tr::WalkOrder order, EnterMe enterMe)
 {
     if (enterMe != EnterMe::NO)
         x.onEnterGroup(*this);
 
-    // First texts…
-    for (auto& v : children) {
-        if (v->translatable())
-            v->traverse(x, EnterMe::YES);
-    }
-
-    // …then subgroups
-    for (auto& v : children) {
-        if (!v->translatable())
-            v->traverse(x, EnterMe::YES);
+    switch (order) {
+    case tr::WalkOrder::EXACT:
+        for (auto& v : children) {
+            v->traverse(x, order, EnterMe::YES);
+        }
+        break;
+    case tr::WalkOrder::ECONOMY:
+        // First texts…
+        for (auto& v : children) {
+            if (v->translatable())
+                v->traverse(x, order, EnterMe::YES);
+        }
+        // …then subgroups
+        for (auto& v : children) {
+            if (!v->translatable())
+                v->traverse(x, order, EnterMe::YES);
+        }
+        break;
     }
 
     if (enterMe != EnterMe::NO)
@@ -786,7 +795,9 @@ namespace {
             public tf::Walker, private tr::TraverseListener
     {
     public:
-        FileWalker(tr::File& file, tr::WalkChannel aChannel);
+        FileWalker(tr::File& file,
+                   tr::WalkChannel aChannel,
+                   tr::WalkOrder order);
         const tf::TextInfo& nextText() override;
     private:
         struct DepthInfo {
@@ -824,10 +835,11 @@ namespace {
         depthInfo.commonDepth = depthInfo.newDepth;
     }
 
-    FileWalker::FileWalker(tr::File& file, tr::WalkChannel aChannel)
+    FileWalker::FileWalker(
+            tr::File& file, tr::WalkChannel aChannel, tr::WalkOrder order)
         : channel(aChannel)
     {
-        file.traverse(*this, tr::EnterMe::NO);
+        file.traverse(*this, order, tr::EnterMe::NO);
     }
 
     const tf::TextInfo& FileWalker::nextText()
@@ -1068,10 +1080,10 @@ size_t tr::Project::nOrigExportableFiles() const
 }
 
 
-void tr::Project::traverse(TraverseListener& x, tr::EnterMe)
+void tr::Project::traverse(TraverseListener& x, tr::WalkOrder order, tr::EnterMe)
 {
     for (auto& v : files)
-        v->traverse(x, EnterMe::YES);
+        v->traverse(x, order, EnterMe::YES);
 }
 
 
@@ -1111,7 +1123,7 @@ void tr::Project::doBuild()
             auto dirExported = fnExported.parent_path();
             try {
                 std::filesystem::create_directories(dirExported);
-                FileWalker walker(*file, walkChannel());
+                FileWalker walker(*file, walkChannel(), format->proto().walkOrder());
                 format->doExport(walker, fnExported);
             } catch (...) {
                 /// @todo [urgent] which errors?

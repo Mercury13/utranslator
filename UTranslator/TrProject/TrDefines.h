@@ -10,6 +10,20 @@ namespace pugi {
     class xml_node;
 }
 
+namespace tr {
+    ///
+    /// \brief The WalkOrder enum
+    ///    s1
+    ///    --group--s2
+    ///             s3
+    ///    s4
+    ///
+    enum class WalkOrder {
+        EXACT,      ///< Exact order: top down, s1 s2 s3 s4
+        ECONOMY     ///< Economy order: never twice the same group, s1 s4 s2 s3
+    };
+}
+
 namespace tf {
 
     class Loader;
@@ -148,6 +162,7 @@ namespace tf {
         virtual std::u8string_view locDescription() const = 0;
         virtual std::u8string_view locSoftware() const = 0;
         virtual std::u8string_view locIdType() const = 0;
+        virtual tr::WalkOrder walkOrder() const = 0;
 
         // Utils
         /// @return [+] format can import/export
