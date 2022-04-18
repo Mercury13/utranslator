@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <resources>
+            <!-- Please don't change the name of the application -->
+            <string name="app.name">"TODO List"</string>
+            <string name="app.login.text">"Enter your credentials below to login"</string>
+            <string name="app.login.message.success">"Login successful !
+            Welcome back %s !"</string>
+            <string name="app.login.message.error">"Make sure you've entered the correct username and password"</string>
+            <string name="app.login.password.forget">"I forgot my password"</string>
+            <string name="app.login.password.reset">"Enter your address in the field below. A new password will be sent to your inbox."</string>
+            <string name="app.register.text">"Sign up for free! No credit card required!"</string>
+            <string name="app.register.message.success">"Thank you for signing up !
+            Please check your email address to activate your account."</string>
+            <string name="app.register.message.error">"We were unable to sign you up.
+            Please correct the marked fields."</string>
+            <string name="app.menu.terms">"Terms and conditions"</string>
+
+            <!-- form_label -->
+            <string name="app.login.text">"Username"</string>
+            <plurals name="app.users.active">
+                    <item quantity="one">"Just one user online"</item>
+                    <item quantity="other">"There are %d users online"</item>
+            </plurals>
+
+            <!-- form_label -->
+            <string name="app.login.pass">"Password"</string>
+    </resources>

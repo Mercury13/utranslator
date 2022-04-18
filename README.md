@@ -13,3 +13,7 @@ Most of Unicodia’s texts are wiki. So it is hard to edit them in marked-up for
 ## Portable version
 
 Set in “UTranslator.xml” file “portable=1”
+
+## Interesting data
+
+https://poeditor.com/localization/files/qt-ts :: A few L10n samples

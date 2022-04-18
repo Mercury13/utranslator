@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd">
+  <file original="MyApp/Base.lproj/Main.storyboard" datatype="plaintext" xml:space="preserve" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="poeditor.com" tool-name="POEditor"/>
+    </header>
+    <body>
+      <trans-unit id="app.name">
+        <source>TODO List</source>
+        <target>TODO List</target>
+      </trans-unit>
+      <trans-unit id="app.login.text">
+        <source>Enter your credentials below to login</source>
+        <target>Entrez vos identifiants ci-dessous pour vous connecter:</target>
+      </trans-unit>
+      <trans-unit id="app.login.message.success">
+        <source>Login successful !\nWelcome back %s !</source>
+        <target>Connexion réussie !\nBon retour %s !</target>
+      </trans-unit>
+      <trans-unit id="app.login.message.error">
+        <source>Make sure you've entered the correct username and password</source>
+        <target>Assurez-vous que vous avez entré le nom d'utilisateur correct et le mot de passe</target>
+      </trans-unit>
+      <trans-unit id="app.login.password.forget">
+        <source>I forgot my password</source>
+        <target>J'ai oublié mon mot de passe</target>
+      </trans-unit>
+      <trans-unit id="app.login.password.reset">
+        <source>Enter your address in the field below. A new password will be sent to your inbox.</source>
+        <target>Entrez votre adresse dans le champ ci-dessous. Un nouveau mot de passe sera envoyé à votre boîte de réception.</target>
+      </trans-unit>
+      <trans-unit id="app.register.text">
+        <source>Sign up for free! No credit card required!</source>
+        <target>Inscrivez-vous gratuitement ! Aucune carte de crédit !</target>
+      </trans-unit>
+      <trans-unit id="app.register.message.success">
+        <source>Thank you for signing up !\nPlease check your email address to activate your account.</source>
+        <target>Je vous remercie pour vous inscrire !\nVeuillez vérifier votre adresse e-mail pour activer votre compte.</target>
+      </trans-unit>
+      <trans-unit id="app.register.message.error">
+        <source>We were unable to sign you up.\nPlease correct the marked fields.</source>
+        <target>Nous n'avons pas pu vous inscrire.\nVeuillez corriger les champs marqués.</target>
+      </trans-unit>
+      <trans-unit id="app.menu.terms">
+        <source>Terms and conditions</source>
+        <target>Termes et conditions</target>
+      </trans-unit>
+      <trans-unit id="app.users.active:dict/users:dict/one:dict/:string">
+        <source>Just one user online</source>
+        <target>Un seul utilisateur en ligne</target>
+      </trans-unit>
+      <trans-unit id="app.users.active:dict/users:dict/other:dict/:string">
+        <source>There are %d users online</source>
+        <target>Il y a %d utilisateurs en ligne</target>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="form_label" datatype="plaintext" xml:space="preserve" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="poeditor.com" tool-name="POEditor"/>
+    </header>
+    <body>
+      <trans-unit id="app.login.text">
+        <source>Username</source>
+        <target>Nom d'utilisateur</target>
+      </trans-unit>
+      <trans-unit id="app.login.pass">
+        <source>Password</source>
+        <target>Mot de passe</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
