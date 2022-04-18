@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>393</width>
-    <height>249</height>
+    <width>399</width>
+    <height>251</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -48,8 +48,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>375</width>
-        <height>169</height>
+        <width>381</width>
+        <height>171</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -211,6 +211,63 @@
             </layout>
            </widget>
           </item>
+          <item>
+           <widget class="QWidget" name="widget" native="true">
+            <layout class="QHBoxLayout" name="horizontalLayout_6">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="lbCSubformat">
+               <property name="text">
+                <string>Subformat of C-style strings</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="comboCSubformat">
+               <item>
+                <property name="text">
+                 <string>␣Bare␣</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>&quot; Quoted &quot;</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>\s for spaces</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>10</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
@@ -220,6 +277,9 @@
           <string>Hierarchy</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_5">
+          <property name="spacing">
+           <number>3</number>
+          </property>
           <property name="topMargin">
            <number>2</number>
           </property>
@@ -311,11 +371,13 @@
  </widget>
  <tabstops>
   <tabstop>comboFormat</tabstop>
+  <tabstop>btAbout</tabstop>
   <tabstop>scrollArea</tabstop>
   <tabstop>chkBom</tabstop>
   <tabstop>comboLineBreaksInFile</tabstop>
   <tabstop>comboLineBreaksInStrings</tabstop>
   <tabstop>edLineBreakChar</tabstop>
+  <tabstop>comboCSubformat</tabstop>
   <tabstop>edMultitierChar</tabstop>
  </tabstops>
  <resources/>

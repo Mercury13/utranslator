@@ -811,20 +811,20 @@ void FmMain::doSaveAs()
         project->save(fname);
         config::history.pushFile(project->fname);
         doBuild();
-    } catch (std::exception& e) {
+    } catch (const std::exception& e) {
         QMessageBox::critical(this, "Save", QString::fromStdString(e.what()));
     }
 }
 
 
-void FmMain::openFile(std::filesystem::path fname)
+void FmMain::openFile(std::filesystem::path fname)      // by-value + move
 {
     auto prj = tr::Project::make();
     try {
         prj->load(fname);
         plantNewProject(std::move(prj));
         config::history.pushFile(std::move(fname));
-    } catch (std::exception& e) {
+    } catch (const std::exception& e) {
         QMessageBox::critical(this, "Open", QString::fromStdString(e.what()));
     }
 }

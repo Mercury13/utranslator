@@ -63,16 +63,28 @@ namespace tf {
         static TextLineBreakStyle parseStyle(std::string_view name);
     };
 
+    enum class CSubformat {
+        BARE,
+        QUOTED,
+        SLASH_SPACE
+    };
+
     ///  Principles of escaping line-breaks
     struct TextEscape {
         static constexpr std::u8string_view DEFAULT_LINE_BREAK_TEXT = u8"^";
         LineBreakEscapeMode mode = LineBreakEscapeMode::BANNED;
         std::u8string specifiedText { DEFAULT_LINE_BREAK_TEXT };
+        CSubformat cSubformat;
 
         std::u8string bannedSubstring() const;
         std::u8string_view escapeSv(std::u8string_view x, std::u8string& cache) const;
 
         void setSpecifiedText(std::u8string_view x);
+        /// @return [+] cSubformat means
+        static bool isC(LineBreakEscapeMode mode);
+        bool isC() const { return isC(mode); }
+        /// @return [+] need to enquote C
+        bool isQuoted() const { return isC() && cSubformat == CSubformat::QUOTED; }
     };
 
     enum class Usfg {

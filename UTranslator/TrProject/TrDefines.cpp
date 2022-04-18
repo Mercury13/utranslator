@@ -92,6 +92,21 @@ void tf::TextEscape::setSpecifiedText(std::u8string_view x)
     }
 }
 
+
+bool tf::TextEscape::isC(LineBreakEscapeMode mode)
+{
+    switch (mode) {
+    case LineBreakEscapeMode::BANNED:
+    case LineBreakEscapeMode::SPECIFIED_TEXT:
+        return false;
+    case LineBreakEscapeMode::C_CR:
+    case LineBreakEscapeMode::C_LF:
+        return true;
+    }
+    throw std::logic_error("[TextEscape.isC] Strange mode");
+}
+
+
 ///// FormatProto //////////////////////////////////////////////////////////////
 
 
