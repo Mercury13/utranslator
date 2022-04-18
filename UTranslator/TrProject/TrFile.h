@@ -30,8 +30,9 @@ namespace tf {
     };
 
     struct TextInfo {
+        int prevDepth = 0;
         int commonDepth = 0;
-        int minusDepth = 0;
+        /// SafeVector is OK, as std::vector never shrinks memory
         SafeVector<std::u8string_view> ids;
         /// @warning  DO NOT use for dual-language data!
         ///           Use original() and translation() instead.
@@ -44,9 +45,13 @@ namespace tf {
         bool isOk() const { return !eof(); }
         explicit operator bool() const { return isOk(); }
         bool eof() const { return ids.empty(); }
+        int minusDepth() const { return prevDepth - commonDepth; }
         int plusDepth() const { return actualDepth() - commonDepth; }
-        bool groupChanged() const { return (commonDepth != actualDepth()) || (minusDepth != 0); }
+        bool groupChanged() const { return (commonDepth != actualDepth()) || (commonDepth != prevDepth); }
+
+        std::u8string joinIdToDepth(std::u8string_view sep, size_t depth) const;
         std::u8string joinGroupId(std::u8string_view sep) const;
+        std::u8string joinTextId(std::u8string_view sep) const;
         std::u8string_view textId() const { return ids.back(); }
     };
 

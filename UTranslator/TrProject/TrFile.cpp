@@ -20,35 +20,28 @@ const tf::FormatProto* const (&tf::allWorkingProtos)[I_N - 1]
 
 ///// TextInfo /////////////////////////////////////////////////////////////////
 
-
 std::u8string tf::TextInfo::joinGroupId(std::u8string_view sep) const
 {
-    size_t n = ids.size();
-    if (n == 0)
-        return {};
-    --n;
+    return joinIdToDepth(sep, actualDepth());
+}
+
+
+std::u8string tf::TextInfo::joinTextId(std::u8string_view sep) const
+{
+    return joinIdToDepth(sep, ids.size());
+}
+
+std::u8string tf::TextInfo::joinIdToDepth(std::u8string_view sep, size_t depth) const
+{
     std::u8string s;
-    for (size_t i = 0; i < n; ++i) {
-        if (!s.empty())
+    for (size_t i = 0; i < depth; ++i) {
+        if (i != 0)
             s.append(sep);
         s.append(ids[i]);
     }
     return s;
 }
 
-
-//tf::MobileInfo tf::EnumText::mobileInfo() const
-//{
-//    return {
-//        .lineBreakEscape = this->lineBreakEscape,
-//    };
-//}
-
-
-//void tf::EnumText::setMobileInfo(const tf::MobileInfo& x)
-//{
-//    lineBreakEscape = x.lineBreakEscape;
-//}
 
 ///// DummyProto ///////////////////////////////////////////////////////////////
 

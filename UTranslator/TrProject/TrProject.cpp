@@ -515,10 +515,16 @@ void tr::VirtualGroup::readCommentsAndChildren(
 }
 
 
-void tr::VirtualGroup::traverseTexts(const TextSink& x)
+void tr::VirtualGroup::traverse(TraverseListener& x, EnterMe enterMe)
 {
-    for (auto v : children)
-        v->traverseTexts(x);
+    if (enterMe != EnterMe::NO)
+        x.onEnterGroup(*this);
+
+    for (auto& v : children)
+        v->traverse(x, EnterMe::YES);
+
+    if (enterMe != EnterMe::NO)
+        x.onLeaveGroup(*this);
 }
 
 
@@ -768,35 +774,95 @@ tf::FileFormat* tr::File::exportableFormat() noexcept
 namespace {
 
     class FileWalker final :
-            public tf::Walker, private tr::TextSink
+            public tf::Walker, private tr::TraverseListener
     {
     public:
-        FileWalker(tr::File& file);
+        FileWalker(tr::File& file, tr::WalkChannel aChannel);
         const tf::TextInfo& nextText() override;
     private:
-        mutable SafeVector<tr::Text*> texts;
+        struct DepthInfo {
+            int commonDepth = 0, newDepth = 0;
+            const tr::Text* text = nullptr;
+        };
+
+        tr::WalkChannel channel;
+        SafeVector<DepthInfo> texts;
         size_t index = 0;
+        DepthInfo depthInfo;
         tf::TextInfo textInfo;
 
-        void act(tr::Text& x) const override
-            { texts.push_back(&x); }
+        void onEnterGroup(tr::VirtualGroup& x) override;
+        void onLeaveGroup(tr::VirtualGroup& x) override;
+        void onText(tr::Text& x) override;
     };
 
-    FileWalker::FileWalker(tr::File& file)
+    void FileWalker::onEnterGroup(tr::VirtualGroup&)
     {
-        file.traverseTexts(*this);
+        ++depthInfo.newDepth;
+    }
+
+    void FileWalker::onLeaveGroup(tr::VirtualGroup&)
+    {
+        if ((--depthInfo.newDepth) < depthInfo.commonDepth) {
+            depthInfo.commonDepth = depthInfo.newDepth;
+        }
+    }
+
+    void FileWalker::onText(tr::Text& x)
+    {
+        auto& v = texts.emplace_back(depthInfo);
+        v.text = &x;
+    }
+
+    FileWalker::FileWalker(tr::File& file, tr::WalkChannel aChannel)
+        : channel(aChannel)
+    {
+        file.traverse(*this, tr::EnterMe::NO);
     }
 
     const tf::TextInfo& FileWalker::nextText()
     {
-        if (index >= texts.size()) {
-            textInfo = tf::TextInfo();
-        } else {
+        // Shift depth
+        textInfo.prevDepth = textInfo.actualDepth();        // 1. prevDepth
 
+        if (index >= texts.size()) {
+            // End?
+            textInfo.commonDepth = 0;
+            textInfo.ids.clear();
+        } else {
+            // OK
+            auto& di = texts[index++];
+            textInfo.commonDepth = di.commonDepth;          // 2. commonDepth
+            auto depth = di.newDepth;
+
+            // Set IDs, assign text ID
+            textInfo.ids.resize(depth + 1);                 // 3. ids
+            textInfo.ids.back() = di.text->id;
+
+            // Assign rest IDs from depth to commonDepth
+            auto pText = di.text->parent();
+            while (depth > di.commonDepth) {
+                if (!pText)
+                    throw std::logic_error("[FileWalker.nextText] File was destroyed somehow");
+                textInfo.ids[--depth] = pText->idColumn();
+                pText = pText->parent();
+            }
+
+            // Assign fixed text
+            textInfo.original = di.text->tr.original;       // 4. original
+            textInfo.translation = di.text->tr.translationSv(); // 5. translation
+            // Assign text of channel
+            switch (channel) {                              // 6. text
+            case tr::WalkChannel::ORIGINAL:
+                textInfo.text = textInfo.original;
+                break;
+            case tr::WalkChannel::TRANSLATION:
+                textInfo.text = textInfo.translation;
+                break;
+            }
         }
         return textInfo;
     }
-
 
 }   // anon namespace
 
@@ -992,10 +1058,10 @@ size_t tr::Project::nOrigExportableFiles() const
 }
 
 
-void tr::Project::traverseTexts(const TextSink& x)
+void tr::Project::traverse(TraverseListener& x, tr::EnterMe)
 {
-    for (auto v : files)
-        v->traverseTexts(x);
+    for (auto& v : files)
+        v->traverse(x, EnterMe::YES);
 }
 
 
@@ -1033,7 +1099,7 @@ void tr::Project::doBuild()
                             ? saveDir / fnAsked                 // 2) filename+path
                             : defaultExportDir / fnAsked);      // 1) bare filename
             std::filesystem::create_directories(fnExported.parent_path());
-            FileWalker walker(*file);
+            FileWalker walker(*file, walkChannel());
             format->doExport(walker, fnExported);
         }
     }

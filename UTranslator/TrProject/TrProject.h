@@ -164,10 +164,14 @@ namespace tr {
         tf::ProtoFilter filter;
     };
 
-    class TextSink {    // interface
+    class TraverseListener {    // interface
     public:
-        virtual void act(tr::Text&) const = 0;
+        virtual void onText(Text&) = 0;
+        virtual void onEnterGroup(VirtualGroup&) {}
+        virtual void onLeaveGroup(VirtualGroup&) {}
     };
+
+    enum class EnterMe { NO, YES };
 
     class UiObject : public CanaryObject
     {
@@ -217,7 +221,7 @@ namespace tr {
         virtual CloneObj startCloning(
                 [[maybe_unused]] const std::shared_ptr<UiObject>& parent) const
             { return { CloneErr::UNCLONEABLE, {} }; }
-        virtual void traverseTexts(const TextSink& x) = 0;
+        virtual void traverse(TraverseListener& x, EnterMe enterMe) = 0;
 
         void recache();
         void recursiveRecache();
@@ -320,7 +324,7 @@ namespace tr {
         size_t nChildren() const noexcept override { return children.size(); };
         std::shared_ptr<Entity> child(size_t i) const override;
         std::shared_ptr<Entity> extractChild(size_t i) override;
-        void traverseTexts(const TextSink& x) override;
+        void traverse(TraverseListener& x, EnterMe enterMe) override;
 
         using Super::Super;
 
@@ -360,7 +364,7 @@ namespace tr {
         void writeToXml(pugi::xml_node&, WrCache&) const override;
         void readFromXml(const pugi::xml_node& node, const PrjInfo& info) override;
         bool isCloneable() const noexcept { return true; }
-        void traverseTexts(const TextSink& x) override { x.act(*this); }
+        void traverse(TraverseListener& x, EnterMe) override { x.onText(*this); }
         std::shared_ptr<Text> clone(
                 const std::shared_ptr<VirtualGroup>& parent,
                 const IdLib* idlib,
@@ -479,7 +483,7 @@ namespace tr {
         void addStats(Stats&, bool) const override {}
         void writeToXml(pugi::xml_node&) const;
         bool unmodify(Forced forced) override;
-        void traverseTexts(const TextSink& x) override;
+        void traverse(TraverseListener& x, EnterMe enterMe) override;
         void save();
         void save(const std::filesystem::path& aFname);
         void saveCopy(const std::filesystem::path& aFname) const;
