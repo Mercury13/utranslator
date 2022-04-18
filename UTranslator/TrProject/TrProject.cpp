@@ -1107,9 +1107,14 @@ void tr::Project::doBuild()
                         : (fnAsked.has_parent_path()    // …rel path…
                             ? saveDir / fnAsked                 // 2) filename+path
                             : defaultExportDir / fnAsked);      // 1) bare filename
-            std::filesystem::create_directories(fnExported.parent_path());
-            FileWalker walker(*file, walkChannel());
-            format->doExport(walker, fnExported);
+            auto dirExported = fnExported.parent_path();
+            try {
+                std::filesystem::create_directories(dirExported);
+                FileWalker walker(*file, walkChannel());
+                format->doExport(walker, fnExported);
+            } catch (...) {
+                /// @todo [urgent] which errors?
+            }
         }
     }
 }

@@ -810,6 +810,7 @@ void FmMain::doSaveAs()
     try {
         project->save(fname);
         config::history.pushFile(project->fname);
+        doBuild();
     } catch (std::exception& e) {
         QMessageBox::critical(this, "Save", QString::fromStdString(e.what()));
     }
@@ -853,6 +854,7 @@ void FmMain::doSave()
         try {
             project->save();
             config::history.pushFile(project->fname);
+            doBuild();
         } catch (std::exception& e) {
             QMessageBox::critical(this, "Save problem", QString::fromStdString(e.what()));
         }
