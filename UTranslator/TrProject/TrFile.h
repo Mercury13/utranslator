@@ -51,6 +51,8 @@ namespace tf {
         bool eof() const { return ids.empty(); }
         int minusDepth() const { return prevDepth - commonDepth; }
         int plusDepth() const { return actualDepth() - commonDepth; }
+
+        /// @return  [+] group was changed compared to previous group
         bool groupChanged() const { return (commonDepth != actualDepth()) || (commonDepth != prevDepth); }
 
         std::u8string joinIdToDepth(std::u8string_view sep, size_t depth) const;

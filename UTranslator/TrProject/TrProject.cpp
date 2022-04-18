@@ -520,8 +520,17 @@ void tr::VirtualGroup::traverse(TraverseListener& x, EnterMe enterMe)
     if (enterMe != EnterMe::NO)
         x.onEnterGroup(*this);
 
-    for (auto& v : children)
-        v->traverse(x, EnterMe::YES);
+    // First texts…
+    for (auto& v : children) {
+        if (v->translatable())
+            v->traverse(x, EnterMe::YES);
+    }
+
+    // …then subgroups
+    for (auto& v : children) {
+        if (!v->translatable())
+            v->traverse(x, EnterMe::YES);
+    }
 
     if (enterMe != EnterMe::NO)
         x.onLeaveGroup(*this);
