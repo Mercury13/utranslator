@@ -28,14 +28,20 @@ namespace tf {
     };
     DEFINE_ENUM_OPS(Fcap)
 
-    enum class LineBreakStyle { LF, CRLF };
-    constexpr auto LineBreakStyle_N = static_cast<int>(LineBreakStyle::CRLF) + 1;
+    enum class TextLineBreakStyle { LF, CRLF };
+    constexpr auto TextLineBreakStyle_N = static_cast<int>(TextLineBreakStyle::CRLF) + 1;
 
     struct LineBreakStyleInfo {
         std::string_view techName;
+        std::string_view locName;
         std::string_view eol;
     };
-    extern const LineBreakStyleInfo lineBreakStyleInfo[LineBreakStyle_N];
+    extern const LineBreakStyleInfo textLineBreakStyleInfo[TextLineBreakStyle_N];
+
+    enum class BinaryLineBreakStyle { CR, LF, CRLF };
+    constexpr auto BinaryLineBreakStyle_N = static_cast<int>(BinaryLineBreakStyle::CRLF) + 1;
+
+    extern const LineBreakStyleInfo binaryLineBreakStyleInfo[BinaryLineBreakStyle_N];
 
     enum class LineBreakEscapeMode {
         BANNED,         ///< Line-breaks banned
@@ -47,14 +53,14 @@ namespace tf {
     extern const char* const lineBreakEscapeModeNames[LineBreakEscapeMode_N];
 
     struct TextFormat {
-        static constexpr auto DEFAULT_STYLE = LineBreakStyle::CRLF;
+        static constexpr auto DEFAULT_STYLE = TextLineBreakStyle::CRLF;
         bool writeBom = true;
-        LineBreakStyle lineBreakStyle = DEFAULT_STYLE;
+        TextLineBreakStyle lineBreakStyle = DEFAULT_STYLE;
         std::string_view eol() const
-            { return lineBreakStyleInfo[static_cast<int>(lineBreakStyle)].eol; }
+            { return textLineBreakStyleInfo[static_cast<int>(lineBreakStyle)].eol; }
         std::string_view lineBreakTechName() const
-            { return lineBreakStyleInfo[static_cast<int>(lineBreakStyle)].techName; }
-        static LineBreakStyle parseStyle(std::string_view name);
+            { return textLineBreakStyleInfo[static_cast<int>(lineBreakStyle)].techName; }
+        static TextLineBreakStyle parseStyle(std::string_view name);
     };
 
     ///  Principles of escaping line-breaks
@@ -119,7 +125,10 @@ namespace tf {
         /// @return  format’s localization name
         virtual std::u8string_view locName() const = 0;
         /// @return  format’s technical name
-        constexpr virtual std::string_view techName() const = 0;
+        constexpr virtual std::string_view techName() const noexcept = 0;
+        virtual std::u8string_view locDescription() const = 0;
+        virtual std::u8string_view locSoftware() const = 0;
+        virtual std::u8string_view locIdType() const = 0;
 
         // Utils
         /// @return [+] format can import/export

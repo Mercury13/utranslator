@@ -14,6 +14,7 @@ SOURCES += \
     ../Libs/SelfMade/u_Qstrings.cpp \
     ../Libs/SelfMade/u_Strings.cpp \
     ../Libs/SelfMade/u_XmlUtils.cpp \
+    FmAboutFormat.cpp \
     FmDecoder.cpp \
     FmDisambigPair.cpp \
     FmFileFormat.cpp \
@@ -38,7 +39,9 @@ HEADERS += \
     ../Libs/SelfMade/u_Qstrings.h \
     ../Libs/SelfMade/u_Strings.h \
     ../Libs/SelfMade/u_TypedFlags.h \
+    ../Libs/SelfMade/u_Uptr.h \
     ../Libs/SelfMade/u_XmlUtils.h \
+    FmAboutFormat.h \
     FmDecoder.h \
     FmDisambigPair.h \
     FmFileFormat.h \
@@ -60,6 +63,7 @@ INCLUDEPATH += \
     TrProject
 
 FORMS += \
+    FmAboutFormat.ui \
     FmDecoder.ui \
     FmDisambigPair.ui \
     FmFileFormat.ui \

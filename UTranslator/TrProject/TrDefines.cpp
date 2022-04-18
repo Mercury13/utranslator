@@ -15,9 +15,15 @@ constinit const char* const tr::prjTypeNames[tr::PrjType_N] {
     "original", "full-transl"
 };
 
-constinit const tf::LineBreakStyleInfo tf::lineBreakStyleInfo[LineBreakStyle_N] {
-    { "lf", "\n" },
-    { "crlf", "\r\n" },
+constinit const tf::LineBreakStyleInfo tf::textLineBreakStyleInfo[TextLineBreakStyle_N] {
+    { "lf",   "LF (Unix)",       "\n"   },
+    { "crlf", "CR+LF (Windows)", "\r\n" },
+};
+
+constinit const tf::LineBreakStyleInfo tf::binaryLineBreakStyleInfo[BinaryLineBreakStyle_N] {
+    { "cr",   "CR #13 (Pascal/Windows)", "\r"   },
+    { "lf",   "LF #10 (C/Unix)",         "\n"   },
+    { "crlf", "CR+LF #13#10",            "\r\n" },
 };
 
 constinit const char* const tf::lineBreakEscapeModeNames[LineBreakEscapeMode_N] {
@@ -31,11 +37,11 @@ constinit const tf::ProtoFilter tf::ProtoFilter::ALL_EXPORTING_AND_NULL {
 ///// TextFormat ///////////////////////////////////////////////////////////////
 
 
-tf::LineBreakStyle tf::TextFormat::parseStyle(std::string_view name)
+tf::TextLineBreakStyle tf::TextFormat::parseStyle(std::string_view name)
 {
-    for (int i = 0; i < LineBreakStyle_N; ++i) {
-        if (name == lineBreakStyleInfo[i].techName)
-            return static_cast<LineBreakStyle>(i);
+    for (int i = 0; i < TextLineBreakStyle_N; ++i) {
+        if (name == textLineBreakStyleInfo[i].techName)
+            return static_cast<TextLineBreakStyle>(i);
     }
     return DEFAULT_STYLE;
 }

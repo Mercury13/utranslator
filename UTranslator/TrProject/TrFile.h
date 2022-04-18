@@ -63,9 +63,12 @@ namespace tf {
         Flags<Fcap> caps() const noexcept override { return {}; }
         Flags<Usfg> workingSets() const noexcept override { return {}; }
         std::u8string_view locName() const override { return u8"None"; }
-        constexpr std::string_view techName() const override { return "none"; }
+        constexpr std::string_view techName() const noexcept override { return "none"; }
         std::unique_ptr<FileFormat> make() const override;
         static const DummyProto INST;
+        std::u8string_view locDescription() const override;
+        std::u8string_view locSoftware() const override { return u8"—"; }
+        std::u8string_view locIdType() const override { return u8"—"; }
     };
 
     class Dummy final : public FileFormat
@@ -89,7 +92,10 @@ namespace tf {
                 { return Usfg::TEXT_FORMAT | Usfg::TEXT_ESCAPE | Usfg::MULTITIER; }
         std::unique_ptr<FileFormat> make() const override;
         std::u8string_view locName() const override { return u8"INI"; }
-        constexpr std::string_view techName() const override { return "ini"; }
+        constexpr std::string_view techName() const noexcept override { return "ini"; }
+        std::u8string_view locDescription() const override;
+        std::u8string_view locSoftware() const override { return u8"Various"; }
+        std::u8string_view locIdType() const override { return u8"String, 1-nested"; }
 
         static const IniProto INST;
     };

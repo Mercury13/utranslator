@@ -57,11 +57,23 @@ std::unique_ptr<tf::FileFormat> tf::DummyProto::make() const
     { return std::make_unique<Dummy>(); }
 
 
+std::u8string_view tf::DummyProto::locDescription() const
+{
+    return u8"UTranslator will not build this file.";
+}
+
 ///// IniProto /////////////////////////////////////////////////////////////////
 
 std::unique_ptr<tf::FileFormat> tf::IniProto::make() const
     { return std::make_unique<Ini>(); }
 
+std::u8string_view tf::IniProto::locDescription() const
+{
+    return u8"Windows settings file often used for localization."
+           "<p>[Group1.Group2]<br>"
+           "id1=String 1<br>"
+           "id2=String 2";
+}
 
 ///// Ini //////////////////////////////////////////////////////////////////////
 

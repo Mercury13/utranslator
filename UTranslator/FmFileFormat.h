@@ -4,12 +4,16 @@
 
 // Libs
 #include "u_Vector.h"
+#include "u_Uptr.h"
 
+// Translation
 #include "TrDefines.h"
 
 namespace Ui {
 class FmFileFormat;
 }
+
+class FmAboutFormat;
 
 class FmFileFormat : public QDialog
 {
@@ -26,9 +30,11 @@ public:
 private slots:
     void comboChanged(int index);
     void reenable();
+    void aboutFormat();
 private:
     Ui::FmFileFormat *ui;
     EnlargingVector<const tf::FormatProto*> filteredProtos;
+    Uptr<FmAboutFormat> fmAboutFormat;
 
     using Super::exec;
     void collectFormats(
@@ -37,5 +43,6 @@ private:
     void copyFrom(const tf::FileFormat& fmt);
     void copyTo(std::unique_ptr<tf::FileFormat>& r);
     void reenableToFormat(const tf::FormatProto& proto);
+    const tf::FormatProto* currentProto() const;
     tf::LineBreakEscapeMode escapeMode() const;
 };

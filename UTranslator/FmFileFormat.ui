@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,2,1">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,2,0">
      <item>
       <widget class="QLabel" name="lbFormat">
        <property name="text">
@@ -27,17 +27,11 @@
       <widget class="QComboBox" name="comboFormat"/>
      </item>
      <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+      <widget class="QPushButton" name="btAbout">
+       <property name="text">
+        <string>About</string>
        </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
+      </widget>
      </item>
     </layout>
    </item>
@@ -55,7 +49,7 @@
         <x>0</x>
         <y>0</y>
         <width>375</width>
-        <height>172</height>
+        <height>169</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -113,16 +107,6 @@
                 <height>0</height>
                </size>
               </property>
-              <item>
-               <property name="text">
-                <string>LF (Unix)</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>CR+LF (Windows)</string>
-               </property>
-              </item>
              </widget>
             </item>
             <item>
@@ -177,12 +161,12 @@
                </item>
                <item>
                 <property name="text">
-                 <string>C \r</string>
+                 <string>C-like \r</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>C \n</string>
+                 <string>C-like \n</string>
                 </property>
                </item>
                <item>

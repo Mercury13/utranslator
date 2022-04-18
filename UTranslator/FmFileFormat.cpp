@@ -7,16 +7,33 @@
 // Project
 #include "TrFile.h"
 
+// UI forms
+#include "FmAboutFormat.h"
+
+
+namespace {
+
+    template <class Elem, size_t N>
+    void fillComboWithLocName(QComboBox* combo, const Elem (&arr)[N]) {
+        for (auto& v : arr) {
+            combo->addItem(str::toQ(v.locName));
+        }
+    }
+
+}
+
 
 FmFileFormat::FmFileFormat(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::FmFileFormat)
 {
     ui->setupUi(this);
+    fillComboWithLocName(ui->comboLineBreaksInFile, tf::textLineBreakStyleInfo);
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &This::accept);
     connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &This::reject);
     connect(ui->comboFormat, &QComboBox::currentIndexChanged, this, &This::comboChanged);
     connect(ui->comboLineBreaksInStrings, &QComboBox::currentIndexChanged, this, &This::reenable);
+    connect(ui->btAbout, &QPushButton::clicked, this, &This::aboutFormat);
 }
 
 FmFileFormat::~FmFileFormat()
@@ -102,14 +119,17 @@ void FmFileFormat::copyFrom(const tf::FileFormat& fmt)
     ui->edMultitierChar->setText(str::toQ(sets.multitier.separator));
 }
 
+const tf::FormatProto* FmFileFormat::currentProto() const
+    { return filteredProtos[ui->comboFormat->currentIndex()]; }
+
+
 void FmFileFormat::copyTo(std::unique_ptr<tf::FileFormat>& r)
 {
     tf::UnifiedSets sets;
     // Unified: text format
     sets.textFormat.writeBom = ui->chkBom->isChecked();
-    sets.textFormat.lineBreakStyle = static_cast<tf::LineBreakStyle>(
+    sets.textFormat.lineBreakStyle = static_cast<tf::TextLineBreakStyle>(
                 ui->comboLineBreaksInFile->currentIndex());
-
 
     // Unified: text escape
     sets.textEscape.mode = escapeMode();
@@ -122,7 +142,7 @@ void FmFileFormat::copyTo(std::unique_ptr<tf::FileFormat>& r)
     // Unified: multitier
     sets.multitier.separator = str::toU8(ui->edMultitierChar->text());
 
-    auto currProto = filteredProtos[ui->comboFormat->currentIndex()];
+    auto currProto = currentProto();
     if (currProto->isDummy()) {
         r.reset();
     } else {
@@ -141,10 +161,15 @@ bool FmFileFormat::exec(
     collectFormats(&obj.proto(), filter);
     copyFrom(obj);
     reenable();
-    setFocus();     // sensitive form → focus nothing
+    ui->btAbout->setFocus();     // sensitive form → focus About button
     bool r = Super::exec();
     if (r) {
         copyTo(x);
     }
     return r;
+}
+
+void FmFileFormat::aboutFormat()
+{
+    fmAboutFormat.ensure(this).exec(currentProto());
 }
