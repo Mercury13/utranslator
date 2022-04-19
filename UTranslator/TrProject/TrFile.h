@@ -80,7 +80,6 @@ namespace tf {
         std::u8string_view locDescription() const override;
         std::u8string_view locSoftware() const override { return u8"—"; }
         std::u8string_view locIdType() const override { return u8"—"; }
-        tr::WalkOrder walkOrder() const override { return tr::WalkOrder::ECONOMY; }
     };
 
     class Dummy final : public FileFormat
@@ -90,6 +89,7 @@ namespace tf {
             { return std::make_unique<Dummy>(*this); }
 
         const DummyProto& proto() const override { return DummyProto::INST; }
+        tr::WalkOrder walkOrder() const override { return tr::WalkOrder::ECONOMY; }
         void save(pugi::xml_node&) const override {}
         void load(const pugi::xml_node&) override {}
 
@@ -108,7 +108,6 @@ namespace tf {
         std::u8string_view locDescription() const override;
         std::u8string_view locSoftware() const override { return u8"Various"; }
         std::u8string_view locIdType() const override { return u8"String, 1-nested"; }
-        tr::WalkOrder walkOrder() const override { return tr::WalkOrder::ECONOMY; }
 
         static const IniProto INST;
     };
@@ -133,6 +132,7 @@ namespace tf {
         std::string bannedIdChars() const override;
         std::u8string bannedTextSubstring() const override
                 { return textEscape.bannedSubstring(); }
+        tr::WalkOrder walkOrder() const override { return tr::WalkOrder::ECONOMY; }
         void save(pugi::xml_node&) const override;
         void load(const pugi::xml_node&) override;
     };

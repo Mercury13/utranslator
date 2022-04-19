@@ -1123,7 +1123,7 @@ void tr::Project::doBuild()
             auto dirExported = fnExported.parent_path();
             try {
                 std::filesystem::create_directories(dirExported);
-                FileWalker walker(*file, walkChannel(), format->proto().walkOrder());
+                FileWalker walker(*file, walkChannel(), format->walkOrder());
                 format->doExport(walker, fnExported);
             } catch (...) {
                 /// @todo [urgent] which errors?

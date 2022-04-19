@@ -162,7 +162,6 @@ namespace tf {
         virtual std::u8string_view locDescription() const = 0;
         virtual std::u8string_view locSoftware() const = 0;
         virtual std::u8string_view locIdType() const = 0;
-        virtual tr::WalkOrder walkOrder() const = 0;
 
         // Utils
         /// @return [+] format can import/export
@@ -194,6 +193,7 @@ namespace tf {
         virtual std::string bannedIdChars() const { return {}; }
         /// @return characters banned in texts
         virtual std::u8string bannedTextSubstring() const { return {}; }
+        virtual tr::WalkOrder walkOrder() const = 0;
 
         virtual void save(pugi::xml_node&) const = 0;
         virtual void load(const pugi::xml_node&) = 0;
