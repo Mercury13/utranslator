@@ -81,9 +81,15 @@ std::u8string_view tf::TextEscape::escapeSv(
     case LineBreakEscapeMode::SPECIFIED_TEXT:
         return str::replaceSv(x, specifiedText, u8"\n", cache);
     case LineBreakEscapeMode::C_CR:
-        return escape::cppSv(x, 'r', cache);
+        return escape::cppSv(x, 'r',
+            (cSubformat == CSubformat::SLASH_SPACE),
+            (cSubformat == CSubformat::QUOTED),
+            cache);
     case LineBreakEscapeMode::C_LF:
-        return escape::cppSv(x, 'n', cache);
+        return escape::cppSv(x, 'n',
+            (cSubformat == CSubformat::SLASH_SPACE),
+            (cSubformat == CSubformat::QUOTED),
+            cache);
     }
     throw std::logic_error("[TextEscape.escape] Strange mode");
 }

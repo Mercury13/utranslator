@@ -4,6 +4,8 @@
 // C++
 #include <regex>
 
+using namespace std::string_view_literals;
+
 constexpr char32_t PARA_SEP_32 = 0x2029;      // U+2029 paragraph separator
 constexpr wchar_t PARA_SEP_16 = PARA_SEP_32;
 
@@ -377,18 +379,53 @@ std::wstring decode::htmlBr(std::wstring_view x)
 std::u8string_view escape::cppSv(
         std::u8string_view x,
         char8_t lf,
+        bool escapeSpaces,
+        bool enquote,
         std::u8string& cache)
 {
-    auto n = std::count_if(x.begin(), x.end(),
-                [](auto c){ return (c == '\n' || c == '\\'); });
-    if (n == 0)
-        return x;
+    char data[5] { '\n', '\\' };
+    char* dend = data + 2;
+    if (enquote)
+        *(dend++) = '"';
+    *dend = 0;
 
-    size_t newSize = x.size() + n;
+    // Special bhv on " " → now leading space is not the same as trailing
+    if (escapeSpaces && x == u8" "sv) {
+        return enquote
+            ? u8R"("\s")"
+            : u8R"(\s)";
+    }
+
+    bool hasLeadingSpace = false;
+    bool hasTrailingSpace = false;
+    if (enquote) {
+        hasLeadingSpace = x.starts_with(' ');
+        hasTrailingSpace = x.ends_with(' ');
+    }
+    bool hasSpace = hasLeadingSpace || hasTrailingSpace;
+
+    auto n = std::count_if(x.begin(), x.end(),
+                [&data](auto c){ return strchr(data, c); });
+    // Simple check
+    if (n == 0 && !enquote && !hasSpace) {
+        return x;
+    }
+
+    int myOffset = hasLeadingSpace;
+    int myLength = x.length() - myOffset - static_cast<int>(hasTrailingSpace);
+    auto xx = x.substr(myOffset, myLength);
+
+    size_t newSize = x.size() + n + 16;     // enough for
     if (cache.size() < static_cast<size_t>(newSize))
         cache.resize(newSize);
     auto p = cache.data();
-    for (auto c : x) {
+    if (enquote)
+        *(p++) = '"';
+    if (hasLeadingSpace) {
+        *(p++) = '\\';
+        *(p++) = 's';
+    }
+    for (auto c : xx) {
         switch (c) {
         case '\n':
             *(p++) = '\\';
@@ -398,9 +435,22 @@ std::u8string_view escape::cppSv(
             *(p++) = '\\';
             *(p++) = '\\';
             break;
+        case '"':
+            if (enquote) {
+                *(p++) = '\\';
+                *(p++) = '"';
+                break;
+            }
+            [[fallthrough]];
         default:
             *(p++) = c;
         }
     }
+    if (hasTrailingSpace) {
+        *(p++) = '\\';
+        *(p++) = 's';
+    }
+    if (enquote)
+        *(p++) = '"';
     return { cache.data(), p };
 }

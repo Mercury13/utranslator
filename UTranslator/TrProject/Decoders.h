@@ -10,7 +10,15 @@ namespace escape {
     std::u8string_view cppSv(
             std::u8string_view x,
             char8_t lf,
+            bool escapeSpaces,
+            bool enquote,
             std::u8string& cache);
+
+    inline std::u8string_view cppSv(
+            std::u8string_view x,
+            char8_t lf,
+            std::u8string& cache)
+        { return cppSv(x, lf, false, false, cache); }
 
 }
 

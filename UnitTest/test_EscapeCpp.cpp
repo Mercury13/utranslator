@@ -16,7 +16,7 @@ TEST(EscapeCpp, Basic)
     std::u8string cache;
     auto r = escape::cppSv(std::u8string_view{data}, 'Q', cache);
     EXPECT_EQ(u8"alpha\\Qbravo\\\\charlie", r);
-    EXPECT_EQ(u8"alpha\\Qbravo\\\\charlie", cache);
+    EXPECT_TRUE(cache.starts_with(u8"alpha\\Qbravo\\\\charlie"));
     EXPECT_EQ(r.data(), cache.data());
 }
 
@@ -46,11 +46,11 @@ TEST(EscapeCpp, Shorter)
     // Escape 1
     auto r = escape::cppSv(data, 'Q', cache);
     EXPECT_EQ(u8"alpha\\Qbravo\\\\charlie", r);
-    EXPECT_EQ(u8"alpha\\Qbravo\\\\charlie", cache);
+    EXPECT_TRUE(cache.starts_with(u8"alpha\\Qbravo\\\\charlie"));
     EXPECT_EQ(r.data(), cache.data());
     // Escape2
     r = escape::cppSv(data2, 'Q', cache);
     EXPECT_EQ(u8"a\\Qb", r);
-    EXPECT_EQ(u8"a\\Qba\\Qbravo\\\\charlie", cache);
+    EXPECT_TRUE(cache.starts_with(u8"a\\Qba\\Qbravo\\\\charlie"));
     EXPECT_EQ(r.data(), cache.data());
 }
