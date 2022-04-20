@@ -398,7 +398,7 @@ std::u8string_view escape::cppSv(
             } else {
                 return static_cast<bool>(enquote)
                     ? std::u8string_view { u8R"(" ")" }
-                    : x;
+                    : std::u8string_view { u8" " };
             }
         }
         break;
