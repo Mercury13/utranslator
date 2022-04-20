@@ -378,27 +378,42 @@ std::wstring decode::htmlBr(std::wstring_view x)
 
 std::u8string_view escape::cppSv(
         std::u8string_view x,
+        std::u8string& cache,
         char8_t lf,
-        bool escapeSpaces,
-        bool enquote,
-        std::u8string& cache)
+        escape::Spaces escapeSpaces,
+        Enquote enquote)
 {
+    switch (x.length()) {
+    case 0:
+        return static_cast<bool>(enquote)
+            ? std::u8string_view { u8"\"\"" }
+            : std::u8string_view {};
+    case 1:
+        // Special bhv on " " → now leading space is not the same as trailing
+        if (x[0] == ' ') {
+            if (static_cast<bool>(escapeSpaces)) {
+                return static_cast<bool>(enquote)
+                    ? std::u8string_view { u8R"("\s")" }
+                    : std::u8string_view { u8R"(\s)" };
+            } else {
+                return static_cast<bool>(enquote)
+                    ? std::u8string_view { u8R"(" ")" }
+                    : x;
+            }
+        }
+        break;
+    default: ;
+    }
+
     char data[5] { '\n', '\\' };
     char* dend = data + 2;
-    if (enquote)
+    if (static_cast<bool>(enquote))
         *(dend++) = '"';
     *dend = 0;
 
-    // Special bhv on " " → now leading space is not the same as trailing
-    if (escapeSpaces && x == u8" "sv) {
-        return enquote
-            ? u8R"("\s")"
-            : u8R"(\s)";
-    }
-
     bool hasLeadingSpace = false;
     bool hasTrailingSpace = false;
-    if (enquote) {
+    if (static_cast<bool>(escapeSpaces)) {
         hasLeadingSpace = x.starts_with(' ');
         hasTrailingSpace = x.ends_with(' ');
     }
@@ -407,7 +422,7 @@ std::u8string_view escape::cppSv(
     auto n = std::count_if(x.begin(), x.end(),
                 [&data](auto c){ return strchr(data, c); });
     // Simple check
-    if (n == 0 && !enquote && !hasSpace) {
+    if (n == 0 && !static_cast<bool>(enquote) && !hasSpace) {
         return x;
     }
 
@@ -419,7 +434,7 @@ std::u8string_view escape::cppSv(
     if (cache.size() < static_cast<size_t>(newSize))
         cache.resize(newSize);
     auto p = cache.data();
-    if (enquote)
+    if (static_cast<bool>(enquote))
         *(p++) = '"';
     if (hasLeadingSpace) {
         *(p++) = '\\';
@@ -436,7 +451,7 @@ std::u8string_view escape::cppSv(
             *(p++) = '\\';
             break;
         case '"':
-            if (enquote) {
+            if (static_cast<bool>(enquote)) {
                 *(p++) = '\\';
                 *(p++) = '"';
                 break;
@@ -450,7 +465,7 @@ std::u8string_view escape::cppSv(
         *(p++) = '\\';
         *(p++) = 's';
     }
-    if (enquote)
+    if (static_cast<bool>(enquote))
         *(p++) = '"';
     return { cache.data(), p };
 }

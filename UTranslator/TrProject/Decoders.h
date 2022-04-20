@@ -5,20 +5,28 @@
 #include "u_Vector.h"
 #include "u_Strings.h"
 
+template<class Ec>
+constexpr Ec ecIf(bool x) {
+    if constexpr(static_cast<int>(Ec::NO) == 0
+              && static_cast<int>(Ec::YES) == 1) {
+        return static_cast<Ec>(x);
+    } else {
+        return x ? Ec::YES : Ec::NO;
+    }
+}
+
+enum class Enquote { NO, YES };
+
 namespace escape {
+
+    enum class Spaces { NO, YES };
 
     std::u8string_view cppSv(
             std::u8string_view x,
+            std::u8string& cache,
             char8_t lf,
-            bool escapeSpaces,
-            bool enquote,
-            std::u8string& cache);
-
-    inline std::u8string_view cppSv(
-            std::u8string_view x,
-            char8_t lf,
-            std::u8string& cache)
-        { return cppSv(x, lf, false, false, cache); }
+            escape::Spaces escapeSpaces = escape::Spaces::NO,
+            Enquote enquote = Enquote::NO);
 
 }
 
