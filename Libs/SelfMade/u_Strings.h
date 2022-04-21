@@ -14,11 +14,10 @@ namespace str {
     inline bool isBlank(char8_t c) { return (c <= 32); }
     inline bool isBlank(char16_t c) { return (c <= 32); }
     inline bool isBlank(char32_t c) { return (c <= 32); }
-    void trim(const char* &start, const char* &end);
-    void trim(const char8_t* &start, const char8_t* &end);
-    std::string_view trimSv(std::string_view s);
-    [[nodiscard]] SafeVector<std::string_view> splitSv(std::string_view s, char comma, bool skipEmpty = true);
-    [[nodiscard]] SafeVector<std::u8string_view> splitSv(std::u8string_view s, char comma, bool skipEmpty = true);
+
+    template <class Ch> void trim(const Ch* &start, const Ch* &end);
+    template <class Ch> void trimLeft(const Ch* &start, const Ch* &end);
+    template <class Ch> void trimRight(const Ch* &start, const Ch* &end);
 
     /// @return [+] is letter digits+ [letter]
     ///       (used for Linear B etc. where chars are marked with these indexes)
@@ -179,6 +178,9 @@ namespace str {
         return reinterpret_cast<const char8_t*>(x);
     }
 
+    inline std::u8string toU8(std::string_view x)
+        { return { reinterpret_cast<const char8_t*>(x.data()), x.length() }; }
+
     inline const char* toC(const std::u8string& x)
         { return reinterpret_cast<const char*>(x.c_str()); }
 
@@ -226,6 +228,14 @@ namespace str {
     }
 
     namespace detail {
+        template <class Sv> Sv trimSv(Sv s);
+        template <class Sv> Sv trimLeftSv(Sv s);
+        template <class Sv> Sv trimRightSv(Sv s);
+
+        template <class Sv>
+        [[nodiscard]] SafeVector<Sv> splitSv(
+                Sv s, trait::Ch<Sv> comma, bool skipEmpty = true);
+
         template <class Sv>
         Sv remainderSv(Sv s, Sv prefix, Sv suffix)
         {
@@ -303,7 +313,7 @@ namespace str {
     ///         remainderSv("string", "st", "g") = "rin"
     ///    No prefix and/or suffix → returns ⌀
     ///         remainderSv("string", "a", "g") = ""
-    template <class S>
+    template <detail::Svable S>
     inline auto remainderSv(const S& s, trait::Sv<S> prefix, trait::Sv<S> suffix) -> trait::Sv<S>
         { return detail::remainderSv<trait::Sv<S>>(s, prefix, suffix); }
 
@@ -331,6 +341,26 @@ namespace str {
     template <class S>
     inline bool containsWord(const S& haystack, trait::Sv<S> needle)
         { return detail::containsWord<trait::Sv<S>>(haystack, needle); }
+
+    /// @return  the same string, all isBlank’s on the left and right are removed
+    template <class S>
+    [[nodiscard]] inline trait::Sv<S> trimSv(const S& s)
+        { return detail::trimSv<trait::Sv<S>>(s); }
+
+    /// @return  the same string, all isBlank’s on the left are removed
+    template <class S>
+    [[nodiscard]] inline trait::Sv<S> trimLeftSv(const S& s)
+        { return detail::trimLeftSv<trait::Sv<S>>(s); }
+
+    /// @return  the same string, all isBlank’s on the right are removed
+    template <class S>
+    [[nodiscard]] inline trait::Sv<S> trimRightSv(const S& s)
+        { return detail::trimRightSv<trait::Sv<S>>(s); }
+
+    template <class S, class Co>
+    [[nodiscard]] inline SafeVector<trait::Sv<S>> splitSv(
+            const S& s, const Co& comma, bool skipEmpty = true)
+        { return detail::splitSv<trait::Sv<S>>(s, comma, skipEmpty); }
 
 }   // namespace str
 
@@ -402,3 +432,116 @@ namespace detail {
         struct constexpr_string_type { const char * chars = string_literal; }; \
         return detail::apply_range<sizeof(string_literal)-1, detail::string_builder<constexpr_string_type>::produce>::result::sv(); \
     }()
+
+
+template <class Ch>
+void str::trim(const Ch* &start, const Ch* &end)
+{
+    while (start != end
+           && isBlank(*start))
+        ++start;
+    if (start == end) return;
+    while (isBlank(*(end - 1)))
+        --end;
+}
+
+extern template void str::trim<char>(const char*&, const char*&);
+extern template void str::trim<wchar_t>(const wchar_t*&, const wchar_t*&);
+extern template void str::trim<char8_t>(const char8_t*&, const char8_t*&);
+extern template void str::trim<char16_t>(const char16_t*&, const char16_t*&);
+extern template void str::trim<char32_t>(const char32_t*&, const char32_t*&);
+
+
+template <class Ch>
+void str::trimLeft(const Ch* &start, const Ch* &end)
+{
+    while (start != end && isBlank(*start))
+        ++start;
+}
+
+extern template void str::trimLeft<char>(const char*&, const char*&);
+extern template void str::trimLeft<wchar_t>(const wchar_t*&, const wchar_t*&);
+extern template void str::trimLeft<char8_t>(const char8_t*&, const char8_t*&);
+extern template void str::trimLeft<char16_t>(const char16_t*&, const char16_t*&);
+extern template void str::trimLeft<char32_t>(const char32_t*&, const char32_t*&);
+
+
+template <class Ch>
+void str::trimRight(const Ch* &start, const Ch* &end)
+{
+    while (start != end && isBlank(*(end - 1)))
+        --end;
+}
+
+
+extern template void str::trimRight<char>(const char*&, const char*&);
+extern template void str::trimRight<wchar_t>(const wchar_t*&, const wchar_t*&);
+extern template void str::trimRight<char8_t>(const char8_t*&, const char8_t*&);
+extern template void str::trimRight<char16_t>(const char16_t*&, const char16_t*&);
+extern template void str::trimRight<char32_t>(const char32_t*&, const char32_t*&);
+
+
+template <class Sv> Sv inline str::detail::trimSv(Sv s)
+{
+    using Ch = str::trait::Ch<Sv>;
+    const Ch* start = s.data();
+    const Ch* end = start + s.length();
+    trim(start, end);
+    return Sv(start, end);
+}
+
+
+template <class Sv> inline Sv str::detail::trimLeftSv(Sv s)
+{
+    auto start = s.data();
+    auto end = start + s.length();
+    trimLeft(start, end);
+    return Sv(start, end);
+}
+
+
+template <class Sv> inline Sv str::detail::trimRightSv(Sv s)
+{
+    using Ch = str::trait::Ch<Sv>;
+    const Ch* start = s.data();
+    const Ch* end = start + s.length();
+    trimRight(start, end);
+    return Sv(start, end);
+}
+
+
+template <class Sv>
+[[nodiscard]] SafeVector<Sv> str::detail::splitSv(
+        Sv s, str::trait::Ch<Sv> comma, bool skipEmpty)
+{
+    SafeVector<Sv> r;
+    using Ch = str::trait::Ch<Sv>;
+
+    const Ch* start = s.data();
+    const Ch* end = start + s.length();
+    str::trim(start, end);
+    if (start == end)
+        return r;
+
+    const Ch* sstart = start;
+    for (const Ch* p = start; p != end; ++p)
+    {
+        if (*p != comma) continue;
+        const Ch* send = p;
+        str::trim(sstart, send);
+        if (p != sstart || !skipEmpty)
+            r.emplace_back(sstart, send-sstart);
+        sstart = p + 1;
+    }
+    str::trim(sstart, end);
+    if (sstart != end || !skipEmpty)
+        r.emplace_back(sstart, end-sstart);
+    return r;
+}
+
+
+extern template SafeVector<std::string_view> str::detail::splitSv<std::string_view>(std::string_view, char, bool);
+extern template SafeVector<std::wstring_view> str::detail::splitSv<std::wstring_view>(std::wstring_view, wchar_t, bool);
+extern template SafeVector<std::u8string_view> str::detail::splitSv<std::u8string_view>(std::u8string_view, char8_t, bool);
+extern template SafeVector<std::u16string_view> str::detail::splitSv<std::u16string_view>(std::u16string_view, char16_t, bool);
+extern template SafeVector<std::u32string_view> str::detail::splitSv<std::u32string_view>(std::u32string_view, char32_t, bool);
