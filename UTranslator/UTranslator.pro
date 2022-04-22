@@ -11,9 +11,9 @@ SOURCES += \
     ../Libs/QModels/QModels.cpp \
     ../Libs/SelfMade/i_OpenSave.cpp \
     ../Libs/SelfMade/u_OpenSaveStrings.cpp \
-    ../Libs/SelfMade/u_Qstrings.cpp \
-    ../Libs/SelfMade/u_Strings.cpp \
     ../Libs/SelfMade/u_XmlUtils.cpp \
+    ../Libs/SelfMade/Strings/u_Qstrings.cpp \
+    ../Libs/SelfMade/Strings/u_Strings.cpp \
     FmAboutFormat.cpp \
     FmDecoder.cpp \
     FmDisambigPair.cpp \
@@ -36,11 +36,11 @@ HEADERS += \
     ../Libs/QModels/QModels.h \
     ../Libs/SelfMade/i_OpenSave.h \
     ../Libs/SelfMade/u_OpenSaveStrings.h \
-    ../Libs/SelfMade/u_Qstrings.h \
-    ../Libs/SelfMade/u_Strings.h \
     ../Libs/SelfMade/u_TypedFlags.h \
     ../Libs/SelfMade/u_Uptr.h \
     ../Libs/SelfMade/u_XmlUtils.h \
+    ../Libs/SelfMade/Strings/u_Qstrings.h \
+    ../Libs/SelfMade/Strings/u_Strings.h \
     FmAboutFormat.h \
     FmDecoder.h \
     FmDisambigPair.h \
@@ -60,6 +60,7 @@ INCLUDEPATH += \
     ../Libs/PugiXml \
     ../Libs/QModels \
     ../Libs/SelfMade \
+    ../Libs/SelfMade/Strings \
     TrProject
 
 FORMS += \
