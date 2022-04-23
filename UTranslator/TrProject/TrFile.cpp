@@ -100,6 +100,7 @@ std::string tf::Ini::bannedIdChars() const
 
 void tf::Ini::doExport(
         Walker& walker,
+        const std::filesystem::path&,
         const std::filesystem::path& fname)
 {
     std::u8string cache;

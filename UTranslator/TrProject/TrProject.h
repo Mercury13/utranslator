@@ -493,7 +493,7 @@ namespace tr {
         void readFromXml(const pugi::xml_node& node);
         void load(const pugi::xml_document& doc);
         void load(const std::filesystem::path& aFname);
-        void doBuild();
+        void doBuild(const std::filesystem::path& destDir);
         WalkChannel walkChannel() const;
 
         // Adds a file in the end of project

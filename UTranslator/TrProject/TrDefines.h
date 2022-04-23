@@ -181,7 +181,10 @@ namespace tf {
         virtual ~FileFormat() = default;
 
         virtual void doImport(Loader&) {};
-        virtual void doExport(Walker&, const std::filesystem::path&) {};
+        virtual void doExport(
+                Walker&,
+                [[maybe_unused]] const std::filesystem::path& fnExisting,
+                [[maybe_unused]] const std::filesystem::path& fnExported) {};
 
         virtual const FormatProto& proto() const = 0;
 

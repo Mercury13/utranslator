@@ -1010,5 +1010,5 @@ void FmMain::doBuild()
 {
     if (!project)
         return;
-    project->doBuild();
+    project->doBuild({});
 }

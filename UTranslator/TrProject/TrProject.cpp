@@ -1099,7 +1099,7 @@ tr::WalkChannel tr::Project::walkChannel() const
 }
 
 
-void tr::Project::doBuild()
+void tr::Project::doBuild(const std::filesystem::path& destDir)
 {
     auto fullName = fname;
     auto saveDir = fullName.parent_path();
@@ -1114,17 +1114,29 @@ void tr::Project::doBuild()
             // • bare filename → save/build-xxx/filename.ext
             // • filename w/path component → save/path/finename.ext
             // • absolute path → c:/path/filename.ext
-            auto fnExported =
+            auto fnExisting =
                     fnAsked.is_absolute()
                         ? fnAsked                       // 3) abs path
                         : (fnAsked.has_parent_path()    // …rel path…
                             ? saveDir / fnAsked                 // 2) filename+path
                             : defaultExportDir / fnAsked);      // 1) bare filename
-            auto dirExported = fnExported.parent_path();
+            std::filesystem::path fnExported, dirExported;
+            if (destDir.empty()) {
+                if (format->proto().caps().have(tf::Fcap::NEEDS_FILE)) {
+                    dirExported = defaultExportDir;
+                    fnExported = dirExported / fnExisting.filename();
+                } else {
+                    fnExported = fnExisting;
+                    dirExported = fnExported.parent_path();
+                }
+            } else {
+                dirExported = destDir;
+                fnExported = dirExported / fnExisting.filename();
+            }
             try {
                 std::filesystem::create_directories(dirExported);
                 FileWalker walker(*file, walkChannel(), format->walkOrder());
-                format->doExport(walker, fnExported);
+                format->doExport(walker, fnExisting, fnExported);
             } catch (...) {
                 /// @todo [urgent] which errors?
             }

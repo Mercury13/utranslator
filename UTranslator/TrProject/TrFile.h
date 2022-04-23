@@ -120,7 +120,9 @@ namespace tf {
         MultitierStyle multitier;
 
         /// @todo [future] can import too, but let’s export somehow
-        void doExport(Walker& walker, const std::filesystem::path& fname) override;
+        void doExport(Walker& walker,
+                      const std::filesystem::path&,
+                      const std::filesystem::path& fname) override;
 
         std::unique_ptr<FileFormat> clone() override
             { return std::make_unique<Ini>(*this); }
