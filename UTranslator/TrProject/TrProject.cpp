@@ -1123,9 +1123,11 @@ void tr::Project::doBuild(const std::filesystem::path& destDir)
             std::filesystem::path fnExported, dirExported;
             if (destDir.empty()) {
                 if (format->proto().caps().have(tf::Fcap::NEEDS_FILE)) {
+                    // Needs file → do not touch it, create at defaultExportDir
                     dirExported = defaultExportDir;
                     fnExported = dirExported / fnExisting.filename();
                 } else {
+                    // Does not need → work as usually
                     fnExported = fnExisting;
                     dirExported = fnExported.parent_path();
                 }
