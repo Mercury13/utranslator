@@ -11,6 +11,9 @@
 #include "pugixml.hpp"
 #include "u_XmlUtils.h"
 
+// Project
+#include "TrFile.h"
+
 
 ///// WrCache //////////////////////////////////////////////////////////////////
 

@@ -5,7 +5,9 @@ CONFIG -= qt
 
 win32-g++ {
     QMAKE_CXXFLAGS += -municode -static-libgcc -static-libstdc++
+    QMAKE_CXXFLAGS_RELEASE += -flto
     QMAKE_LFLAGS += -municode
+    QMAKE_LFLAGS_RELEASE += -flto
     LIBS += -static -lpthread
 }
 

@@ -7,7 +7,6 @@
 #include <filesystem>
 
 // Translator
-#include "TrFile.h"
 #include "TrDefines.h"
 #include "Modifiable.h"
 
