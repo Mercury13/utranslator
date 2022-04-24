@@ -179,7 +179,7 @@ namespace {
 
     const tr::IdLib myIds {
         .filePrefix = u8"file",
-        .fileSuffix = u8"txt",
+        .fileSuffix = u8".txt",
         .groupPrefix = u8"g",
         .textPrefix = {}
     };
@@ -280,6 +280,21 @@ void PrjTreeModel::paint(QPainter *painter,
 }
 
 
+QModelIndex PrjTreeModel::moveUp(const QModelIndex& index)
+{
+    /// @todo [urgent] moveUp
+    return {};
+}
+
+
+QModelIndex PrjTreeModel::moveDown(const QModelIndex& index)
+{
+    /// @todo [urgent] moveDown
+    return {};
+}
+
+
+
 ///// FmMain ///////////////////////////////////////////////////////////////////
 
 FmMain::FmMain(QWidget *parent)
@@ -332,6 +347,8 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->acAddText, &QAction::triggered, this, &This::addText);
     connect(ui->acDelete, &QAction::triggered, this, &This::doDelete);
     connect(ui->acClone, &QAction::triggered, this, &This::doClone);
+    connect(ui->acMoveUp, &QAction::triggered, this, &This::doMoveUp);
+    connect(ui->acMoveDown, &QAction::triggered, this, &This::doMoveDown);
     // Edit
     connect(ui->acAcceptChanges, &QAction::triggered, this, &This::acceptCurrObject);
     connect(ui->acRevertChanges, &QAction::triggered, this, &This::revertCurrObject);
@@ -342,10 +359,6 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->acGoFind, &QAction::triggered, this, &This::goFind);
     // Tools
     connect(ui->acDecoder, &QAction::triggered, this, &This::runDecoder);
-
-    // Unused menu items
-    ui->acMoveUp->setEnabled(false);
-    ui->acMoveDown->setEnabled(false);
 
     // Unused parts
     ui->grpCompatId->hide();
@@ -599,6 +612,8 @@ void FmMain::reenable()
     ui->acAddText->setEnabled(isOriginal);
     ui->acDelete->setEnabled(isOriginal);
     ui->acClone->setEnabled(isOriginal);
+    ui->acMoveUp->setEnabled(isOriginal);
+    ui->acMoveDown->setEnabled(isOriginal);
 
     // Edit
     ui->acAcceptChanges->setEnabled(isMainVisible);
@@ -1011,4 +1026,22 @@ void FmMain::doBuild()
     if (!project)
         return;
     project->doBuild({});
+}
+
+
+void FmMain::doMoveUp()
+{
+    QModelIndex index = ui->treeStrings->currentIndex();
+    index = treeModel.moveUp(index);
+    if (index.isValid())
+        ui->treeStrings->setCurrentIndex(index);
+}
+
+
+void FmMain::doMoveDown()
+{
+    QModelIndex index = ui->treeStrings->currentIndex();
+    index = treeModel.moveDown(index);
+    if (index.isValid())
+        ui->treeStrings->setCurrentIndex(index);
 }

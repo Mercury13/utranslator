@@ -85,6 +85,9 @@ public:
     };
     /// Clones this object
     CloneResult doClone(const QModelIndex& index);
+    QModelIndex moveUp(const QModelIndex& index);
+    QModelIndex moveDown(const QModelIndex& index);
+
 private:
     static constexpr int DUMMY_COL = 0;
     std::shared_ptr<tr::Project> project;   // will hold old project
@@ -123,6 +126,8 @@ private slots:
     void doSaveAs();
     void goToggleStart();
     void goStart();
+    void doMoveUp();
+    void doMoveDown();
     // Menu: Edit
     tr::UiObject* acceptCurrObject();
     void revertCurrObject();
