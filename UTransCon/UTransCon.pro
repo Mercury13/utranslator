@@ -4,7 +4,8 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 win32-g++ {
-    QMAKE_CXXFLAGS += -static-libgcc -static-libstdc++
+    QMAKE_CXXFLAGS += -municode -static-libgcc -static-libstdc++
+    QMAKE_LFLAGS += -municode
     LIBS += -static -lpthread
 }
 
@@ -14,6 +15,7 @@ DEFINES += AT_RANGE_CHECK
 SOURCES += \
         ../Libs/PugiXml/pugixml.cpp \
         ../Libs/SelfMade/Strings/u_Strings.cpp \
+        ../Libs/SelfMade/u_Args.cpp \
         ../Libs/SelfMade/u_XmlUtils.cpp \
         ../UTranslator/TrProject/Decoders.cpp \
         ../UTranslator/TrProject/Modifiable.cpp \
@@ -26,15 +28,18 @@ SOURCES += \
 INCLUDEPATH += \
     ../Libs/PugiXml \
     ../Libs/SelfMade \
-    ../Libs/SelfMade/Strings
+    ../Libs/SelfMade/Strings \
+    ../Libs/Unicode \
     ../UTranslator/TrProject
 
 HEADERS += \
     ../Libs/PugiXml/pugiconfig.hpp \
     ../Libs/PugiXml/pugixml.hpp \
     ../Libs/SelfMade/Strings/u_Strings.h \
+    ../Libs/SelfMade/u_Args.h \
     ../Libs/SelfMade/u_Vector.h \
     ../Libs/SelfMade/u_XmlUtils.h \
+    ../Libs/Unicode/unicode.h \
     ../UTranslator/TrProject/Decoders.h \
     ../UTranslator/TrProject/Modifiable.h \
     ../UTranslator/TrProject/TrDefines.h \
