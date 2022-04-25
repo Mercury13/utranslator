@@ -59,14 +59,16 @@ FmDecoder::FmDecoder(QWidget *parent) :
     connect(ui->btDecodeC, &QPushButton::clicked, this, &This::decodeCpp);
 
     ui->memo->setWhatsThis(
-                "Type or paste text here.<br>"
+              u8"Type or paste text here.<br>"
                 "To revert decoding use Undo (Ctrl+Z).");
     ui->btDecodeC->setWhatsThis(
-                "Decode C++ strings<br>"
+              u8"Decode strings pasted from C++ source<br>"
                 "Before: <b>u8\"first\\n\" \"\\\\second\"sv,</b><br>"
                 "After: <b>first<br>\\second</b>");
     ui->btDecodeBr->setWhatsThis(
-                "Partly turns HTML to wikitext<br>"
+              u8"It’s hard to do linebreak-related wikitext things "
+                  "right in programming language source. "
+                  "Such wikitext contains &lt;br&gt; and &lt;p&gt; tags.<br>"
                 "<b>&lt;br&gt;</b> → <b>&lt;br&gt;⤶</b><br>"
                 "<b>&lt;p&gt;</b> → <b>⤶⤶</b>");
 
