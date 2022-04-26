@@ -138,7 +138,7 @@ QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
             auto obj = toObj(index);
             switch (index.column()) {
             case COL_ID:
-                if (obj->cache.mod.has(tr::Mch::ID))
+                if (obj->cache.mod.has(tr::Mch::META_ID))
                     return BG_MODIFIED;
                 return {};
             case COL_ORIG:
@@ -283,15 +283,34 @@ void PrjTreeModel::paint(QPainter *painter,
 
 QModelIndex PrjTreeModel::moveUp(const QModelIndex& index)
 {
-    /// @todo [urgent] moveUp
-    return {};
+    auto child = toObj(index);
+    auto parent = child->parent();
+    if (!parent->canMoveUp(child))
+        return {};
+    auto indParent = toIndex(parent, 0);
+    if (!beginMoveRows(indParent, index.row(), index.row(), indParent, index.row() - 1))
+        return {};
+    parent->moveUp(child);
+    endMoveRows();
+    child->checkCanary();
+    return toIndex(child, 0);
 }
 
 
 QModelIndex PrjTreeModel::moveDown(const QModelIndex& index)
 {
-    /// @todo [urgent] moveDown
-    return {};
+    auto child = toObj(index);
+    auto parent = child->parent();
+    if (!parent->canMoveDown(child))
+        return {};
+    auto indParent = toIndex(parent, 0);
+    // See doc — both index and index+1 are IMMOBILE
+    if (!beginMoveRows(indParent, index.row(), index.row(), indParent, index.row() + 2))
+        return {};
+    parent->moveDown(child);
+    endMoveRows();
+    child->checkCanary();
+    return toIndex(child, 0);
 }
 
 
@@ -1003,7 +1022,7 @@ void FmMain::editFileFormat()
         bool isOk = fmFileFormat.ensure(this).exec(
                     *format, *obj->allowedFormats());
         if (isOk) {
-            obj->doModify(tr::Mch::ID);
+            obj->doModify(tr::Mch::META);
             if (nExOld == 0 && project->nOrigExportableFiles() != 0) {
                 QMessageBox::information(this, "Information",
                     "You have created your first exportable file.\n"
@@ -1034,8 +1053,10 @@ void FmMain::doMoveUp()
 {
     QModelIndex index = ui->treeStrings->currentIndex();
     index = treeModel.moveUp(index);
-    if (index.isValid())
+    if (index.isValid()) {
         ui->treeStrings->setCurrentIndex(index);
+        ui->treeStrings->scrollTo(index);
+    }
 }
 
 
@@ -1043,6 +1064,8 @@ void FmMain::doMoveDown()
 {
     QModelIndex index = ui->treeStrings->currentIndex();
     index = treeModel.moveDown(index);
-    if (index.isValid())
+    if (index.isValid()) {
         ui->treeStrings->setCurrentIndex(index);
+        ui->treeStrings->scrollTo(index);
+    }
 }

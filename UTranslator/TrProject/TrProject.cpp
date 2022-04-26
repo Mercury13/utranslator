@@ -254,6 +254,50 @@ std::shared_ptr<tr::Entity> tr::UiObject::extract()
 }
 
 
+bool tr::UiObject::canMoveUp(const UiObject* aChild) const
+{
+    size_t index = aChild->cache.index;
+    return (index > 0 && index < nChildren() && child(index).get() == aChild);
+}
+
+
+bool tr::UiObject::canMoveDown(const UiObject* aChild) const
+{
+    size_t index = aChild->cache.index;
+    return (index + 1 < nChildren() && child(index).get() == aChild);
+}
+
+
+void tr::UiObject::swapChildren(size_t index1, size_t index2)
+{
+    doSwapChildren(index1, index2);
+    child(index1)->cache.index = index1;
+    child(index2)->cache.index = index2;
+}
+
+
+bool tr::UiObject::moveUp(UiObject* aChild)
+{
+    if (!canMoveUp(aChild))
+        return false;
+    auto ind = aChild->cache.index;
+    swapChildren(ind - 1, ind);
+    aChild->doModify(Mch::META);
+    return true;
+}
+
+
+bool tr::UiObject::moveDown(UiObject* aChild)
+{
+    if (!canMoveDown(aChild))
+        return false;
+    auto ind = aChild->cache.index;
+    swapChildren(ind, ind + 1);
+    aChild->doModify(Mch::META);
+    return true;
+}
+
+
 ///// Entity ///////////////////////////////////////////////////////////////////
 
 
@@ -449,7 +493,7 @@ std::shared_ptr<tr::Text> tr::VirtualGroup::addText(
     r->id = std::move(id);
     r->tr.original = std::move(original);
     if (wantModify != Modify::NO) {
-        doModify(Mch::ID);
+        doModify(Mch::META);
     }
     children.push_back(r);
     return r;
@@ -464,7 +508,7 @@ std::shared_ptr<tr::Group> tr::VirtualGroup::addGroup(
     r->fSelf = r;
     r->id = std::move(id);
     if (wantModify != Modify::NO) {
-        doModify(Mch::ID);
+        doModify(Mch::META);
     }
     children.push_back(r);
     return r;
@@ -549,6 +593,13 @@ void tr::VirtualGroup::traverse(
 }
 
 
+void tr::VirtualGroup::doSwapChildren(size_t index1, size_t index2)
+{
+    if (index1 < children.size() && index2 < children.size())
+        std::swap(children[index1], children[index2]);
+}
+
+
 ///// Group ////////////////////////////////////////////////////////////////////
 
 
@@ -591,10 +642,10 @@ std::shared_ptr<tr::Group> tr::Group::clone(
     }
     newGroup->comm = this->comm;
     if (wantModify != tr::Modify::NO) {
-        newGroup->cache.mod.set(Mch::ID);
+        newGroup->cache.mod.set(Mch::META);
         if (!newGroup->comm.authors.empty())
             newGroup->cache.mod.set(Mch::COMMENT);
-        parent->cache.mod.set(Mch::ID);
+        parent->cache.mod.set(Mch::META);
         parent->project()->modify();
     }
     return newGroup;
@@ -706,12 +757,12 @@ std::shared_ptr<tr::Text> tr::Text::clone(
     newText->tr = this->tr;
     newText->comm = this->comm;
     if (wantModify != tr::Modify::NO) {
-        newText->cache.mod.set(Mch::ID);
+        newText->cache.mod.set(Mch::META);
         if (!newText->tr.original.empty())
             newText->cache.mod.set(Mch::ORIG);
         if (!newText->comm.authors.empty())
             newText->cache.mod.set(Mch::COMMENT);
-        parent->cache.mod.set(Mch::ID);
+        parent->cache.mod.set(Mch::META);
         parent->project()->modify();
     }
     return newText;
@@ -926,7 +977,7 @@ std::shared_ptr<tr::File> tr::Project::addFile(
     r->fSelf = r;
     r->id = name;
     if (wantModify != Modify::NO) {
-        doModify(Mch::ID);
+        doModify(Mch::META);
     }
     files.push_back(r);
     return r;
@@ -1087,6 +1138,13 @@ void tr::Project::traverse(TraverseListener& x, tr::WalkOrder order, tr::EnterMe
 {
     for (auto& v : files)
         v->traverse(x, order, EnterMe::YES);
+}
+
+
+void tr::Project::doSwapChildren(size_t index1, size_t index2)
+{
+    if (index1 < files.size() && index2 < files.size())
+        std::swap(files[index1], files[index2]);
 }
 
 

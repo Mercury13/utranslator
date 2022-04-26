@@ -22,10 +22,12 @@ namespace tr {
 
     /// Modification channel
     enum class Mch {
-        ID      = 1,
-        ORIG    = 2,
-        TRANSL  = 4,
-        COMMENT = 8   ///< as we do not show comments in table, let it be…
+        META    = 1,
+        ID      = 2,
+        ORIG    = 4,
+        TRANSL  = 8,
+        COMMENT = 10,   ///< as we do not show comments in table, let it be…
+        META_ID = META | ID,
     };
 
     class Mod {
@@ -198,8 +200,7 @@ namespace tr {
         /// @return extracted child
         /// @warning  Because of recache, complexity is O(n)
         virtual std::shared_ptr<Entity> extractChild(size_t) { return {}; }
-        // New virtuals
-        virtual std::shared_ptr<File> file() = 0;
+        virtual std::shared_ptr<File> file() = 0;        
 
         /// @return  ptr to comments, or null
         virtual Comments* comments() { return nullptr; }
@@ -272,6 +273,11 @@ namespace tr {
         Stats stats(bool includeSelf) const;
         void addStatsRecursive(Stats& x, bool includeSelf) const;
         void doModify(Mch ch);
+        bool canMoveUp(const UiObject* aChild) const;
+        bool canMoveDown(const UiObject* aChild) const;
+        bool moveUp(UiObject* aChild);
+        bool moveDown(UiObject* aChild);
+        void swapChildren(size_t index1, size_t index2);
 
         // Const verions
         const FileInfo* ownFileInfo() const
@@ -281,6 +287,9 @@ namespace tr {
     protected:
         // passkey idiom
         struct PassKey {};
+
+        /// Exchanges child[i] and child[i+1]
+        virtual void doSwapChildren(size_t index1, size_t index2) = 0;
     };
 
     class Entity : public UiObject
@@ -339,6 +348,8 @@ namespace tr {
                 { if (includeSelf) ++x.nGroups; }
     protected:
         friend class Project;
+        void doSwapChildren(size_t index1, size_t index2) override;
+
         void writeCommentsAndChildren(pugi::xml_node&, WrCache&) const;
         void readCommentsAndChildren(const pugi::xml_node& node, const PrjInfo& info);
     };
@@ -377,6 +388,7 @@ namespace tr {
         std::shared_ptr<Entity> vclone(
                 const std::shared_ptr<VirtualGroup>& parent) const override
             { return clone(parent, nullptr, Modify::NO); }
+        void doSwapChildren(size_t, size_t) override {}
     private:
         std::weak_ptr<VirtualGroup> fParentGroup;
     };
@@ -512,6 +524,8 @@ namespace tr {
         template <class... T>
             Project(const PassKey&, T&&... x)
                 : Project(std::forward<T>(x)...) {}
+    protected:
+        void doSwapChildren(size_t index1, size_t index2) override;
     private:
         /// Ctors are private, use make!
         Project() = default;
