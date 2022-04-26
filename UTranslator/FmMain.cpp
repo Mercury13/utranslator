@@ -281,7 +281,7 @@ void PrjTreeModel::paint(QPainter *painter,
 }
 
 
-QModelIndex PrjTreeModel::moveUp(const QModelIndex& index)
+auto PrjTreeModel::moveUp(const QModelIndex& index) -> MoveResult
 {
     auto child = toObj(index);
     auto parent = child->parent();
@@ -293,11 +293,21 @@ QModelIndex PrjTreeModel::moveUp(const QModelIndex& index)
     parent->moveUp(child);
     endMoveRows();
     child->checkCanary();
-    return toIndex(child, 0);
+    auto mainInd = toIndex(child, 0);
+    if (child->cache.index == 0) {
+        auto parentInd = toIndex(parent, 0);
+        if (parentInd.isValid()) {
+            return { mainInd, parentInd };
+        } else {
+            return { mainInd, mainInd };
+        }
+    } else {
+        return { mainInd, toIndex(parent->child(child->cache.index - 1).get(), 0) };
+    }
 }
 
 
-QModelIndex PrjTreeModel::moveDown(const QModelIndex& index)
+auto PrjTreeModel::moveDown(const QModelIndex& index) -> MoveResult
 {
     auto child = toObj(index);
     auto parent = child->parent();
@@ -310,7 +320,12 @@ QModelIndex PrjTreeModel::moveDown(const QModelIndex& index)
     parent->moveDown(child);
     endMoveRows();
     child->checkCanary();
-    return toIndex(child, 0);
+    auto mainInd = toIndex(child, 0);
+    if (static_cast<size_t>(child->cache.index) + 1 >= parent->nChildren()) {
+        return { mainInd, mainInd };
+    } else {
+        return { mainInd, toIndex(parent->child(child->cache.index + 1), 0) };
+    }
 }
 
 
@@ -1052,10 +1067,10 @@ void FmMain::doBuild()
 void FmMain::doMoveUp()
 {
     QModelIndex index = ui->treeStrings->currentIndex();
-    index = treeModel.moveUp(index);
-    if (index.isValid()) {
-        ui->treeStrings->setCurrentIndex(index);
-        ui->treeStrings->scrollTo(index);
+    if (auto r = treeModel.moveUp(index)) {
+        ui->treeStrings->setCurrentIndex(r.that);
+        ui->treeStrings->scrollTo(r.next);
+        ui->treeStrings->scrollTo(r.that);
     }
 }
 
@@ -1063,9 +1078,9 @@ void FmMain::doMoveUp()
 void FmMain::doMoveDown()
 {
     QModelIndex index = ui->treeStrings->currentIndex();
-    index = treeModel.moveDown(index);
-    if (index.isValid()) {
-        ui->treeStrings->setCurrentIndex(index);
-        ui->treeStrings->scrollTo(index);
+    if (auto r = treeModel.moveDown(index)) {
+        ui->treeStrings->setCurrentIndex(r.that);
+        ui->treeStrings->scrollTo(r.next);
+        ui->treeStrings->scrollTo(r.that);
     }
 }

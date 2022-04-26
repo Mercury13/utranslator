@@ -85,8 +85,13 @@ public:
     };
     /// Clones this object
     CloneResult doClone(const QModelIndex& index);
-    QModelIndex moveUp(const QModelIndex& index);
-    QModelIndex moveDown(const QModelIndex& index);
+    struct MoveResult {
+        QModelIndex that {};
+        QModelIndex next {};
+        explicit operator bool() const { return that.isValid(); }
+    };
+    MoveResult moveUp(const QModelIndex& index);
+    MoveResult moveDown(const QModelIndex& index);
 
 private:
     static constexpr int DUMMY_COL = 0;
