@@ -163,6 +163,8 @@ void FmFileFormat::copyTo(std::unique_ptr<tf::FileFormat>& r)
         }
         r->setUnifiedSets(sets);
     }
+
+    // Specific (not unified) — right now do not exist
 }
 
 bool FmFileFormat::exec(
@@ -172,6 +174,8 @@ bool FmFileFormat::exec(
     auto& obj = x ? *x : tf::Dummy::INST;
     collectFormats(&obj.proto(), filter);
     copyFrom(obj);
+    /// @todo [urgent] What to do with import?
+    ui->grpImport->hide();
     reenable();
     ui->btAbout->setFocus();     // sensitive form → focus About button
     bool r = Super::exec();
