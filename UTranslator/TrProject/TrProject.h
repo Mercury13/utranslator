@@ -87,7 +87,7 @@ namespace tr {
         /// Checks whether canary is OK
         void checkCanary() const;
     protected:
-        std::atomic<uint32_t> canary  = 0;
+        volatile std::atomic<uint32_t> canary  = 0;
         uint32_t goodCanary() const;
     };
 
