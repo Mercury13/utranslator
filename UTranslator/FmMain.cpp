@@ -1115,7 +1115,7 @@ void FmMain::doLoadText()
     if (fmFileFormat.ensure(this).exec(
                 fileFormat, &loadSetsCache.text,
                 tf::ProtoFilter::ALL_IMPORTING)) {
-        // Save as soon as we chose smth → save even if we press Cancel
+        // Save as soon as we chose smth, even if we press Cancel afterwards
         loadSetsCache.format = std::move(fileFormat);
         loadSetsCache.fileKey = file.get();
         auto filter = fileFormat->fileFilter();
