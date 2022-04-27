@@ -99,9 +99,10 @@ namespace tf {
     class IniProto : public FormatProto
     {
     public:
-        Flags<Fcap> caps() const noexcept override { return Fcap::EXPORT; }
+        Flags<Fcap> caps() const noexcept override
+            { return Fcap::IMPORT | Fcap::EXPORT | Fcap::NEEDS_ID; }
         Flags<Usfg> workingSets() const noexcept override
-                { return Usfg::TEXT_FORMAT | Usfg::TEXT_ESCAPE | Usfg::MULTITIER; }
+            { return Usfg::TEXT_FORMAT | Usfg::TEXT_ESCAPE | Usfg::MULTITIER; }
         std::unique_ptr<FileFormat> make() const override;
         std::u8string_view locName() const override { return u8"INI"; }
         constexpr std::string_view techName() const noexcept override { return "ini"; }

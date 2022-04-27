@@ -38,7 +38,7 @@ namespace tf {
         /// [−] creates file from scratch (e.g. simple text/binary file, Transifex XLIFF)
         NEEDS_FILE = 4,
         NEEDS_ID = 8,           ///< [+] needs non-empty ID
-        HAS_ORDER = 16,         ///< [+] Lines are made in specified order
+        HAS_ORDER = 16,         ///< [+] Lines are put in specified order
     };
     DEFINE_ENUM_OPS(Fcap)
 

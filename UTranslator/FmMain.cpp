@@ -384,6 +384,7 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->acClone, &QAction::triggered, this, &This::doClone);
     connect(ui->acMoveUp, &QAction::triggered, this, &This::doMoveUp);
     connect(ui->acMoveDown, &QAction::triggered, this, &This::doMoveDown);
+    connect(ui->acLoadTexts, &QAction::triggered, this, &This::doLoadText);
     // Edit
     connect(ui->acAcceptChanges, &QAction::triggered, this, &This::acceptCurrObject);
     connect(ui->acRevertChanges, &QAction::triggered, this, &This::revertCurrObject);

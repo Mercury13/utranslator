@@ -29,6 +29,13 @@ FmFileFormat::FmFileFormat(QWidget *parent) :
     ui(new Ui::FmFileFormat)
 {
     ui->setupUi(this);
+
+    radioExisting.setRadio(tf::Existing::KEEP, ui->radioExistingKeep);
+    radioExisting.setRadio(tf::Existing::OVERWRITE, ui->radioExistingOverwrite);
+
+    radioLoadTo.setRadio(tf::LoadTo::ROOT, ui->radioPlaceRoot);
+    radioLoadTo.setRadio(tf::LoadTo::SELECTED, ui->radioPlaceSelected);
+
     fillComboWithLocName(ui->comboLineBreaksInFile, tf::textLineBreakStyleInfo);
     fillComboWithLocName(ui->comboCSubformat, tf::cSubformatInfo);
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &This::accept);
@@ -130,21 +137,6 @@ void FmFileFormat::copyFrom(const tf::FileFormat& fmt)
     ui->edMultitierChar->setText(str::toQ(sets.multitier.separator));
 }
 
-void FmFileFormat::copyFrom(const tf::LoadTextsSettings* x)
-{
-    ui->grpLoadTexts->setVisible(x);
-    if (x) {
-        switch (x->loadTo) {
-        case tf::LoadTo::ROOT:
-            ui->radioPlaceRoot->setChecked(true);
-            break;
-        case tf::LoadTo::SELECTED:
-            ui->radioPlaceSelected->setChecked(true);
-            break;
-        }
-    }
-}
-
 const tf::FormatProto* FmFileFormat::currentProto() const
     { return filteredProtos[ui->comboFormat->currentIndex()]; }
 
@@ -182,6 +174,24 @@ void FmFileFormat::copyTo(std::unique_ptr<tf::FileFormat>& r)
     // Specific (not unified) — right now do not exist
 }
 
+void FmFileFormat::copyFrom(const tf::LoadTextsSettings* x)
+{
+    ui->grpLoadTexts->setVisible(x);
+    if (x) {
+        radioLoadTo.set(x->loadTo);
+        radioExisting.set(x->existing);
+    }
+}
+
+void FmFileFormat::copyTo(tf::LoadTextsSettings* r)
+{
+    if (r) {
+        r->loadTo = radioLoadTo.get();
+        r->existing = radioExisting.get();
+    }
+}
+
+
 bool FmFileFormat::exec(
         std::unique_ptr<tf::FileFormat>& x,
         tf::LoadTextsSettings* loadSets,
@@ -196,6 +206,7 @@ bool FmFileFormat::exec(
     bool r = Super::exec();
     if (r) {
         copyTo(x);
+        copyTo(loadSets);
     }
     return r;
 }

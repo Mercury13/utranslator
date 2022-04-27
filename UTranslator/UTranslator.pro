@@ -9,6 +9,7 @@ CONFIG(debug, debug|release) {
 SOURCES += \
     ../Libs/PugiXml/pugixml.cpp \
     ../Libs/QModels/QModels.cpp \
+    ../Libs/SelfMade/Qt/QtMultiRadio.cpp \
     ../Libs/SelfMade/i_OpenSave.cpp \
     ../Libs/SelfMade/u_OpenSaveStrings.cpp \
     ../Libs/SelfMade/u_XmlUtils.cpp \
@@ -34,6 +35,8 @@ HEADERS += \
     ../Libs/PugiXml/pugiconfig.hpp \
     ../Libs/PugiXml/pugixml.hpp \
     ../Libs/QModels/QModels.h \
+    ../Libs/SelfMade/Qt/QtConsts.h \
+    ../Libs/SelfMade/Qt/QtMultiRadio.h \
     ../Libs/SelfMade/i_OpenSave.h \
     ../Libs/SelfMade/u_OpenSaveStrings.h \
     ../Libs/SelfMade/u_TypedFlags.h \
