@@ -93,6 +93,28 @@ public:
     MoveResult moveUp(const QModelIndex& index);
     MoveResult moveDown(const QModelIndex& index);
 
+    struct LockAll {
+        LockAll(const LockAll&) = delete;
+        LockAll(LockAll&& x) noexcept
+            { owner = x.owner; x.owner = nullptr; }
+        LockAll& operator = (const LockAll&) = delete;
+        LockAll& operator = (LockAll&& x) noexcept
+            { owner = x.owner; x.owner = nullptr; return *this; }
+
+        ~LockAll() {
+            if (owner) {
+                owner->endResetModel();
+            }
+        }
+    private:
+        friend class PrjTreeModel;
+        LockAll(PrjTreeModel& x) : owner(&x)
+            { owner->beginResetModel();  }
+        PrjTreeModel* owner = nullptr;
+    };
+
+    LockAll lock() { return LockAll(*this); }
+
 private:
     static constexpr int DUMMY_COL = 0;
     std::shared_ptr<tr::Project> project;   // will hold old project

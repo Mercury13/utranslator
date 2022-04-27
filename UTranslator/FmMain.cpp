@@ -885,7 +885,7 @@ void FmMain::openFile(std::filesystem::path fname)      // by-value + move
 void FmMain::doOpen()
 {
     filedlg::Filters filters
-      { { L"UTranslator files", L"*.uorig *.ufull" }, { L"All files", L"*" } };
+      { { L"UTranslator files", L"*.uorig *.ufull" }, filedlg::ALL_FILES };
     auto fname = filedlg::open(
                 this, nullptr, filters, {},
                 filedlg::AddToRecent::YES);
@@ -1092,12 +1092,20 @@ void FmMain::doMoveDown()
 
 void FmMain::doLoadText()
 {
-    // Get current file
-    CloningUptr<tf::FileFormat> fileFormat;
     QModelIndex index = ui->treeStrings->currentIndex();
     auto obj = treeModel.toObj(index);
+    auto selectedGroup = obj->nearestGroup();
     auto file = obj->file();
-    if (file && file.get() != loadSetsCache.fileKey) {
+    if (!selectedGroup || !file) {
+        QMessageBox::warning(this, "Load texts", "Please select something!");
+        return;
+    }
+
+    acceptCurrObject();
+
+    // Get current file
+    CloningUptr<tf::FileFormat> fileFormat;
+    if (file.get() != loadSetsCache.fileKey) {
         fileFormat = file->info.format->clone();
     }
     if (!fileFormat && loadSetsCache.format) {
@@ -1107,7 +1115,33 @@ void FmMain::doLoadText()
     if (fmFileFormat.ensure(this).exec(
                 fileFormat, &loadSetsCache.text,
                 tf::ProtoFilter::ALL_IMPORTING)) {
+        // Save as soon as we chose smth → save even if we press Cancel
         loadSetsCache.format = std::move(fileFormat);
         loadSetsCache.fileKey = file.get();
+        auto filter = fileFormat->fileFilter();
+        filedlg::Filters filters { filter, filedlg::ALL_FILES };
+        std::filesystem::path fileName = filedlg::open(
+                this, {}, filters, filter.extension(),
+                filedlg::AddToRecent::NO);
+
+        if (!fileName.empty()) {
+            std::shared_ptr<tr::VirtualGroup> destGroup;
+            switch (loadSetsCache.text.loadTo) {
+            case tf::LoadTo::ROOT:
+                destGroup = file;
+                break;
+            case tf::LoadTo::SELECTED:
+                destGroup = selectedGroup;
+                break;
+            }
+
+            try {
+                auto thing = treeModel.lock();
+                /// @todo [urgent] loadText
+                //destGroup->loadText(fileFormat);
+            } catch (std::exception& e) {
+                QMessageBox::critical(this, "Load texts", QString::fromStdString(e.what()));
+            }
+        }
     }
 }

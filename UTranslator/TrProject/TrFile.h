@@ -92,6 +92,7 @@ namespace tf {
         tr::WalkOrder walkOrder() const override { return tr::WalkOrder::ECONOMY; }
         void save(pugi::xml_node&) const override {}
         void load(const pugi::xml_node&) override {}
+        filedlg::Filter fileFilter() const override { return {}; }
 
         static Dummy INST;
     };
@@ -138,6 +139,7 @@ namespace tf {
         tr::WalkOrder walkOrder() const override { return tr::WalkOrder::ECONOMY; }
         void save(pugi::xml_node&) const override;
         void load(const pugi::xml_node&) override;
+        filedlg::Filter fileFilter() const override;
     };
 
     enum {

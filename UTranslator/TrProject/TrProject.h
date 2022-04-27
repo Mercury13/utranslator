@@ -223,6 +223,7 @@ namespace tr {
             { return { CloneErr::UNCLONEABLE, {} }; }
         virtual void traverse(
                 TraverseListener& x, tr::WalkOrder order, EnterMe enterMe) = 0;
+        virtual std::shared_ptr<VirtualGroup> nearestGroup() = 0;
 
         void recache();
         void recursiveRecache();
@@ -346,6 +347,7 @@ namespace tr {
         std::shared_ptr<Project> project() override;
         void addStats(Stats& x, bool includeSelf) const override
                 { if (includeSelf) ++x.nGroups; }
+        std::shared_ptr<VirtualGroup> nearestGroup() override { return fSelf.lock(); }
     protected:
         friend class Project;
         void doSwapChildren(size_t index1, size_t index2) override;
@@ -378,6 +380,7 @@ namespace tr {
         bool isCloneable() const noexcept { return true; }
         void traverse(TraverseListener& x, tr::WalkOrder, EnterMe) override
             { x.onText(*this); }
+        std::shared_ptr<VirtualGroup> nearestGroup() override { return fParentGroup.lock(); }
         std::shared_ptr<Text> clone(
                 const std::shared_ptr<VirtualGroup>& parent,
                 const IdLib* idlib,
@@ -498,6 +501,8 @@ namespace tr {
         void writeToXml(pugi::xml_node&) const;
         bool unmodify(Forced forced) override;
         void traverse(TraverseListener& x, tr::WalkOrder order, EnterMe enterMe) override;
+        std::shared_ptr<VirtualGroup> nearestGroup() override { return {}; }
+
         void save();
         void save(const std::filesystem::path& aFname);
         void saveCopy(const std::filesystem::path& aFname) const;

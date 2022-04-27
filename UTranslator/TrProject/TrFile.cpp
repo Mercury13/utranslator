@@ -128,3 +128,7 @@ void tf::Ini::save(pugi::xml_node& node) const
 
 void tf::Ini::load(const pugi::xml_node& node)
     { unifiedLoad(node); }
+
+
+filedlg::Filter tf::Ini::fileFilter() const
+    { return { L"INI files", L"*.ini" }; }

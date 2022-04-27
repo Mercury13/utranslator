@@ -5,6 +5,7 @@
 #include <filesystem>
 
 #include "u_TypedFlags.h"
+#include "u_OpenSaveStrings.h"
 
 namespace pugi {
     class xml_node;
@@ -201,6 +202,7 @@ namespace tf {
 
         virtual void save(pugi::xml_node&) const = 0;
         virtual void load(const pugi::xml_node&) = 0;
+        virtual filedlg::Filter fileFilter() const = 0;
 
     protected:
         /// A common utility for unified saving.
@@ -242,7 +244,7 @@ public:
         : Super(std::move(x)) {}
     CloningUptr<T>& operator = (const CloningUptr<T>& x);
     CloningUptr<T>& operator = (CloningUptr<T>&& x)
-        { reset(x.release()); }
+        { reset(x.release()); return *this; }
     std::unique_ptr<T> upClone();
     CloningUptr<T> clone() { return upClone(); }
 };

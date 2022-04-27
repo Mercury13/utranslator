@@ -20,11 +20,16 @@ namespace filedlg
     struct Filter {
         std::wstring description,   ///< “Spreadsheet files”    so no mask
                      fileMask;      ///< “*.csv *.xls *.xlsx”   so space-separated
+
+        const wchar_t* extension() const;
     };
     using Filters = SafeVector<Filter>;
 
     std::wstring filterToW32(const Filters& aFilter);
     std::wstring filterToQt(const Filters& aFilter);
+
+    /// @warning Unlocalized!!
+    extern const Filter ALL_FILES;
 }
 
 #endif // U_OPENSAVESTRINGS_H

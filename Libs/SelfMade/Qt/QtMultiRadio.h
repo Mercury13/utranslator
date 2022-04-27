@@ -42,4 +42,6 @@ public:
         { return static_cast<Ec>(Super::get(static_cast<int>(def))); }
     QAbstractButton* buttonAt(Ec value) const
         { return Super::buttonAt(static_cast<int>(value)); }
+    UintRadio& unified() { return *this; }
+    const UintRadio& unified() const { return *this; }
 };
