@@ -190,6 +190,7 @@ bool FmFileFormat::exec(
     auto& obj = x ? *x : tf::Dummy::INST;
     collectFormats(&obj.proto(), filter);
     copyFrom(obj);
+    copyFrom(loadSets);
     reenable();
     ui->btAbout->setFocus();     // sensitive form → focus About button
     bool r = Super::exec();

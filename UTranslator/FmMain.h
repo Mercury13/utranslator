@@ -147,6 +147,7 @@ private slots:
     void addText();
     void doDelete();
     void doClone();
+    void doLoadText();
     // Menu: Tools
     void runDecoder();
 private:
@@ -161,6 +162,11 @@ private:
     Uptr<FmFileFormat> fmFileFormat;
     Uptr<FmFind> fmFind;
 
+    struct loadSetsCache {
+        void* fileKey = nullptr;
+        CloningUptr<tf::FileFormat> format;
+        tf::LoadTextsSettings text;
+    } loadSetsCache;
     std::atomic<bool> isChangingProgrammatically = false;
 
     /// Adapts window’s layout to project type:

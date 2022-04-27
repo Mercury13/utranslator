@@ -1087,3 +1087,26 @@ void FmMain::doMoveDown()
         ui->treeStrings->scrollTo(r.that);
     }
 }
+
+
+void FmMain::doLoadText()
+{
+    // Get current file
+    CloningUptr<tf::FileFormat> fileFormat;
+    QModelIndex index = ui->treeStrings->currentIndex();
+    auto obj = treeModel.toObj(index);
+    auto file = obj->file();
+    if (file && file.get() != loadSetsCache.fileKey) {
+        fileFormat = file->info.format->clone();
+    }
+    if (!fileFormat && loadSetsCache.format) {
+        fileFormat = loadSetsCache.format->clone();
+    }
+
+    if (fmFileFormat.ensure(this).exec(
+                fileFormat, &loadSetsCache.text,
+                tf::ProtoFilter::ALL_IMPORTING)) {
+        loadSetsCache.format = std::move(fileFormat);
+        loadSetsCache.fileKey = file.get();
+    }
+}

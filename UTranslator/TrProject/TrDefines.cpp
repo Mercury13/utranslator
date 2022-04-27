@@ -33,6 +33,10 @@ constinit const tf::ProtoFilter tf::ProtoFilter::ALL_EXPORTING_AND_NULL {
     .wantedCaps = tf::Fcap::EXPORT,
     .allowEmpty = true
 };
+constinit const tf::ProtoFilter tf::ProtoFilter::ALL_IMPORTING {
+    .wantedCaps = tf::Fcap::IMPORT,
+    .allowEmpty = false
+};
 
 const tf::TechLoc tf::cSubformatInfo[CSubformat_N] {
     { "bare",   u8"␣Bare␣" },

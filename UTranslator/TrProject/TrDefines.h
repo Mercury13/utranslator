@@ -140,6 +140,7 @@ namespace tf {
         bool allowEmpty;
 
         static const ProtoFilter ALL_EXPORTING_AND_NULL;
+        static const ProtoFilter ALL_IMPORTING;
     };
 
     ///
@@ -232,10 +233,43 @@ private:
     using Super = std::unique_ptr<T>;
 public:
     using Super::Super;
-    using Super::operator =;
-    CloningUptr<T>& operator = (const CloningUptr<T>& x)
-        { *this = x.clone(); }
+    using Super::reset;
+    using Super::operator =;    
+
+    CloningUptr(const CloningUptr<T>& x)
+        : Super(x.upClone()) {}
+    CloningUptr(CloningUptr<T>&& x)
+        : Super(std::move(x)) {}
+    CloningUptr<T>& operator = (const CloningUptr<T>& x);
+    CloningUptr<T>& operator = (CloningUptr<T>&& x)
+        { reset(x.release()); }
+    std::unique_ptr<T> upClone();
+    CloningUptr<T> clone() { return upClone(); }
 };
+
+
+template <UpCloneable T>
+std::unique_ptr<T> CloningUptr<T>::upClone()
+{
+    if (*this) {
+        return this->clone();
+    } else {
+        return {};
+    }
+}
+
+
+template <UpCloneable T>
+CloningUptr<T>& CloningUptr<T>::operator = (const CloningUptr<T>& x)
+{
+    if (x) {
+        *this = x->clone();
+    } else {
+        reset();
+    }
+    return *this;
+}
+
 
 
 namespace tr {
