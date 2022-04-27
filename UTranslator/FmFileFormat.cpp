@@ -130,6 +130,21 @@ void FmFileFormat::copyFrom(const tf::FileFormat& fmt)
     ui->edMultitierChar->setText(str::toQ(sets.multitier.separator));
 }
 
+void FmFileFormat::copyFrom(const tf::LoadTextsSettings* x)
+{
+    ui->grpLoadTexts->setVisible(x);
+    if (x) {
+        switch (x->loadTo) {
+        case tf::LoadTo::ROOT:
+            ui->radioPlaceRoot->setChecked(true);
+            break;
+        case tf::LoadTo::SELECTED:
+            ui->radioPlaceSelected->setChecked(true);
+            break;
+        }
+    }
+}
+
 const tf::FormatProto* FmFileFormat::currentProto() const
     { return filteredProtos[ui->comboFormat->currentIndex()]; }
 
@@ -169,13 +184,12 @@ void FmFileFormat::copyTo(std::unique_ptr<tf::FileFormat>& r)
 
 bool FmFileFormat::exec(
         std::unique_ptr<tf::FileFormat>& x,
+        tf::LoadTextsSettings* loadSets,
         const tf::ProtoFilter& filter)
 {
     auto& obj = x ? *x : tf::Dummy::INST;
     collectFormats(&obj.proto(), filter);
     copyFrom(obj);
-    /// @todo [urgent] What to do with import?
-    ui->grpImport->hide();
     reenable();
     ui->btAbout->setFocus();     // sensitive form → focus About button
     bool r = Super::exec();

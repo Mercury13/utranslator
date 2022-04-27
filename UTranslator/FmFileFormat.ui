@@ -317,9 +317,9 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="grpImport">
+        <widget class="QGroupBox" name="grpLoadTexts">
          <property name="title">
-          <string>Import</string>
+          <string>Load texts</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_4">
           <property name="spacing">
@@ -336,7 +336,7 @@
             <item>
              <widget class="QLabel" name="lbPlace">
               <property name="text">
-               <string>Import point</string>
+               <string>Load to</string>
               </property>
              </widget>
             </item>
@@ -353,7 +353,7 @@
             <item>
              <widget class="QRadioButton" name="radioPlaceRoot">
               <property name="text">
-               <string>File root</string>
+               <string>File’s root</string>
               </property>
              </widget>
             </item>

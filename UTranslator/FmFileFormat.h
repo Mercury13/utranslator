@@ -26,6 +26,7 @@ public:
 
     bool exec(
             std::unique_ptr<tf::FileFormat>& x,
+            tf::LoadTextsSettings* loadSets,
             const tf::ProtoFilter& filter);
 private slots:
     void comboChanged(int index);
@@ -41,6 +42,7 @@ private:
             const tf::FormatProto* myProto,
             const tf::ProtoFilter& filter);
     void copyFrom(const tf::FileFormat& fmt);
+    void copyFrom(const tf::LoadTextsSettings* x);
     void copyTo(std::unique_ptr<tf::FileFormat>& r);
     void reenableToFormat(const tf::FormatProto& proto);
     const tf::FormatProto* currentProto() const;

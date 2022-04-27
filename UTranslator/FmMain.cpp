@@ -649,6 +649,7 @@ void FmMain::reenable()
     ui->acClone->setEnabled(isOriginal);
     ui->acMoveUp->setEnabled(isOriginal);
     ui->acMoveDown->setEnabled(isOriginal);
+    ui->acLoadTexts->setEnabled(isOriginal);
 
     // Edit
     ui->acAcceptChanges->setEnabled(isMainVisible);
@@ -1035,7 +1036,9 @@ void FmMain::editFileFormat()
     if (auto format = obj->ownFileFormat()) {
         auto nExOld = project->nOrigExportableFiles();
         bool isOk = fmFileFormat.ensure(this).exec(
-                    *format, *obj->allowedFormats());
+                    *format,
+                    static_cast<tf::LoadTextsSettings*>(nullptr),
+                    *obj->allowedFormats());
         if (isOk) {
             obj->doModify(tr::Mch::META);
             if (nExOld == 0 && project->nOrigExportableFiles() != 0) {

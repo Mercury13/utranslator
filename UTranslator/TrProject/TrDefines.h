@@ -210,7 +210,15 @@ namespace tf {
         /// Most formats (enumerated text, INI) will not have any new code
         void unifiedLoad(const pugi::xml_node&);
     };
-}
+
+    enum class LoadTo { SELECTED, ROOT };
+    enum class Existing { KEEP, OVERWRITE };
+    struct LoadTextsSettings {
+        LoadTo loadTo;
+        Existing existing;
+    };
+
+}   // namespace tf
 
 template <class T>
 concept UpCloneable = requires(T& t) {

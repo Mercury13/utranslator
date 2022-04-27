@@ -620,6 +620,8 @@
     <addaction name="separator"/>
     <addaction name="acMoveUp"/>
     <addaction name="acMoveDown"/>
+    <addaction name="separator"/>
+    <addaction name="acLoadTexts"/>
    </widget>
    <widget class="QMenu" name="menuGo">
     <property name="title">
@@ -804,6 +806,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+F</string>
+   </property>
+  </action>
+  <action name="acLoadTexts">
+   <property name="text">
+    <string>Load texts…</string>
    </property>
   </action>
  </widget>

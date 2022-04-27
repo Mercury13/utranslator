@@ -60,6 +60,7 @@ INCLUDEPATH += \
     ../Libs/PugiXml \
     ../Libs/QModels \
     ../Libs/SelfMade \
+    ../Libs/SelfMade/Qt \
     ../Libs/SelfMade/Strings \
     TrProject
 
