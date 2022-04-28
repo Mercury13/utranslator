@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <iostream>
 
 #include "u_Vector.h"
 #include "u_Strings.h"
@@ -31,6 +32,15 @@ namespace escape {
 }
 
 namespace decode {
+
+    enum class BomType { NONE, UTF8, UTF16BE, UTF16LE };
+
+    ///
+    /// \brief detectBom
+    ///    Reads and skips byte order mark
+    /// \return BOM type
+    ///
+    BomType detectBom(std::istream& is);
 
     /// @return 0..15 if x = 0..F
     ///         999 otherwise

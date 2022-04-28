@@ -9,6 +9,73 @@ using namespace std::string_view_literals;
 constexpr char32_t PARA_SEP_32 = 0x2029;      // U+2029 paragraph separator
 constexpr wchar_t PARA_SEP_16 = PARA_SEP_32;
 
+
+namespace {
+
+    constexpr auto I_EOF = std::istream::traits_type::eof();
+
+    void myPutBack(std::istream& is, std::istream::traits_type::int_type x)
+    {
+        if (x != I_EOF)
+            is.putback(x);
+    }
+
+    decode::BomType detectBomEnd(
+            std::istream& is, unsigned char cRead, unsigned char cNext,
+            decode::BomType btWanted, std::istream::iostate state)
+    {
+        auto c2 = is.get();
+        if (c2 != cNext) {
+            is.clear(state);
+            myPutBack(is, c2);
+            is.putback(cRead);
+            return decode::BomType::NONE;
+        }
+        return btWanted;
+    }
+
+}
+
+decode::BomType decode::detectBom(std::istream& is)
+{
+    auto state = is.rdstate();
+    auto c1 = is.get();
+    if (!is)
+        return BomType::NONE;
+
+    switch (c1) {
+    case 0xEF: {  // UTF-8
+            // Char 2
+            auto c2 = is.get();
+            if (c2 != 0xBB) {
+                is.clear(state);
+                myPutBack(is, c2);
+                is.putback(c1);
+                return BomType::NONE;
+            }
+            // Char 3
+            int c3 = is.get();
+            if (c3 != 0xBF) {
+                is.clear(state);
+                myPutBack(is, c3);
+                is.putback(c2);
+                is.putback(c1);
+                return BomType::NONE;
+            }
+            return BomType::UTF8;
+        }
+    case 0xFF:
+        return detectBomEnd(is, 0xFF, 0xFE, BomType::UTF16LE, state);
+    case 0xFE:
+        return detectBomEnd(is, 0xFE, 0xFF, BomType::UTF16BE, state);
+    default:    // also I_EOF
+        is.clear(state);
+        myPutBack(is, c1);
+        return BomType::NONE;
+    }
+}
+
+
 std::u32string_view decode::normalizeEolSv(
         std::u32string_view x,
         std::u32string &cache)

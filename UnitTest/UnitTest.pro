@@ -12,10 +12,11 @@ win32-g++: {
 SOURCES += \
     ../Libs/GoogleTest/src/gtest-all.cc \
     ../Libs/GoogleTest/src/gtest_main.cc \
-    ../Libs/SelfMade/u_Strings.cpp \
+    ../Libs/SelfMade/Strings/u_Strings.cpp \
     ../UTranslator/TrProject/Decoders.cpp \
     test_DecodeBr.cpp \
     test_DecodeCpp.cpp \
+    test_DetectBom.cpp \
     test_EscapeCpp.cpp
 
 HEADERS += \
@@ -25,4 +26,5 @@ INCLUDEPATH += \
     ../Libs/GoogleTest \
     ../Libs/GoogleTest/include \
     ../Libs/SelfMade \
+    ../Libs/SelfMade/Strings \
     ../UTranslator/TrProject
