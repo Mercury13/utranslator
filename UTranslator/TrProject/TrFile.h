@@ -34,7 +34,8 @@ namespace tf {
         /// Goes to a subgroup. If it’s missing, creates it.
         virtual void goToGroupRel(std::u8string_view groupId) = 0;
 
-        /// Adds a text. When overwriting and comment is empty →
+        /// Adds a text to CURRENT group.
+        /// When overwriting and comment is empty →
         ///   SHOULD NOT TOUCH existing comment
         virtual void addText(
                 std::u8string_view textId,
