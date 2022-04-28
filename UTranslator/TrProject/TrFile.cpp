@@ -134,8 +134,9 @@ void tf::Ini::doExport(
                 os << eol;
             os << '[' << str::toSv(q.joinGroupId(multitier.separator)) << ']' << eol;
         }
-        os << str::toSv(q.textId()) << '='
-           << str::toSv(textEscape.escapeSv(q.text, cache)) << eol;
+        os << str::toSv(q.textId()) << '=';
+        textEscape.write(os, q.text, cache);
+        os << eol;
         isInitial = false;
     }
 }

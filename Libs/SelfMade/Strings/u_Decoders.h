@@ -48,11 +48,20 @@ namespace escape {
         std::u8string spaceDemimiter { DEFAULT_SPACE_DELIMITER };
 
         std::u8string bannedSubstring() const;
-        std::u8string_view escapeSv(std::u8string_view x, std::u8string& cache) const;
+        static void writeQuoted(std::ostream& os, std::u8string_view x);
+        void writeSimpleString(std::ostream& os, std::u8string_view x) const;
+        void write(std::ostream& os, std::u8string_view x, std::u8string& cache) const;
 
         void setLineBreakText(std::u8string_view x);
         std::u8string_view visibleLineBreakText() const noexcept;
+
+        /// @return  space delimiter visible in UI
+        ///          (default if not demimited)
         std::u8string_view visibleSpaceDelimiter() const noexcept;
+
+        /// @return  space delimiter that actually works
+        ///          (empty if not demimited)
+        std::u8string_view activeSpaceDelimiter() const noexcept;
     };
 
     enum class Spaces { NO, YES };

@@ -28,25 +28,58 @@ std::u8string escape::Text::bannedSubstring() const
 }
 
 
-std::u8string_view escape::Text::escapeSv(
-        std::u8string_view x, std::u8string& cache) const
+void escape::Text::writeQuoted(std::ostream& os, std::u8string_view x)
+{
+#define S_QUOTE "\""
+    constexpr auto C_QUOTE = '"';
+    os << C_QUOTE;
+    if (x.find(C_QUOTE) != std::u8string_view::npos) { // Char-by-char
+        for (auto v : x) {
+            if (v == C_QUOTE) {
+                os << S_QUOTE S_QUOTE;
+            } else {
+                os << static_cast<char>(v);
+            }
+        }
+    } else { // Quick
+        os << str::toSv(x);
+    }
+    os << C_QUOTE;
+#undef S_QUOTE
+}
+
+
+void escape::Text::writeSimpleString(std::ostream& os, std::u8string_view x) const
+{
+    if (space == SpaceMode::QUOTED) {
+        writeQuoted(os, x);
+    } else {
+        os << str::toSv(x);
+    }
+}
+
+
+void escape::Text::write(
+        std::ostream& os, std::u8string_view x, std::u8string& cache) const
 {
     switch (lineBreak) {
     case LineBreakMode::BANNED:
-        /// @todo [urgent] other types of escapeSv
-        return x;
-    case LineBreakMode::SPECIFIED_TEXT:
-        return str::replaceSv(x, u8"\n", lineBreakText, cache);
+        writeSimpleString(os, x);
+        break;
+    case LineBreakMode::SPECIFIED_TEXT: {
+            auto s = str::replaceSv(x, u8"\n", lineBreakText, cache);
+            writeSimpleString(os, s);
+        } break;
     case LineBreakMode::C_CR:
-        return escape::cppSv(x, cache, 'r',
-            ecIf<escape::Spaces>(space == SpaceMode::SLASH_SPACE),
-            ecIf<Enquote>(space == SpaceMode::QUOTED));
-    case LineBreakMode::C_LF:
-        return escape::cppSv(x, cache, 'n',
-            ecIf<escape::Spaces>(space == SpaceMode::SLASH_SPACE),
-            ecIf<Enquote>(space == SpaceMode::QUOTED));
+    case LineBreakMode::C_LF: {
+            auto ch = (lineBreak == LineBreakMode::C_CR) ? 'r' : 'n';
+            auto s = escape::cppSv(x, cache, ch,
+                ecIf<escape::Spaces>(space == SpaceMode::SLASH_SPACE),
+                ecIf<Enquote>(space == SpaceMode::QUOTED));
+            os << str::toSv(s);
+        } break;
     }
-    throw std::logic_error("[TextEscape.escape] Strange mode");
+    os << str::toSv(activeSpaceDelimiter());
 }
 
 
@@ -74,6 +107,14 @@ std::u8string_view escape::Text::visibleSpaceDelimiter() const noexcept
     return (space == escape::SpaceMode::DELIMITED)
             ? spaceDemimiter
             : DEFAULT_SPACE_DELIMITER;
+}
+
+
+std::u8string_view escape::Text::activeSpaceDelimiter() const noexcept
+{
+    return (space == escape::SpaceMode::DELIMITED)
+            ? spaceDemimiter
+            : std::u8string_view{};
 }
 
 
@@ -523,7 +564,7 @@ std::u8string_view escape::cppSv(
     case 0:
         return static_cast<bool>(enquote)
             ? std::u8string_view { u8"\"\"" }
-            : std::u8string_view {};
+            : std::u8string_view{};
     case 1:
         // Special bhv on " " → now leading space is not the same as trailing
         if (x[0] == ' ') {
