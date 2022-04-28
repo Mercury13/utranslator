@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>405</width>
+    <width>411</width>
     <height>298</height>
    </rect>
   </property>
@@ -48,7 +48,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>387</width>
+        <width>393</width>
         <height>218</height>
        </rect>
       </property>
@@ -191,7 +191,7 @@
                 </size>
                </property>
                <property name="text">
-                <string notr="true">^</string>
+                <string notr="true"/>
                </property>
               </widget>
              </item>
@@ -227,14 +227,33 @@
               <number>0</number>
              </property>
              <item>
-              <widget class="QLabel" name="lbCSubformat">
+              <widget class="QLabel" name="lbSpaceEscape">
                <property name="text">
-                <string>Subformat of C-style strings</string>
+                <string>Leading/trailing spaces</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QComboBox" name="comboCSubformat"/>
+              <widget class="QComboBox" name="comboSpaceEscape"/>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="edSpaceDelimiter">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>60</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string notr="true"/>
+               </property>
+              </widget>
              </item>
              <item>
               <spacer name="horizontalSpacer">
@@ -504,8 +523,13 @@
   <tabstop>comboLineBreaksInFile</tabstop>
   <tabstop>comboLineBreaksInStrings</tabstop>
   <tabstop>edLineBreakChar</tabstop>
-  <tabstop>comboCSubformat</tabstop>
+  <tabstop>comboSpaceEscape</tabstop>
+  <tabstop>edSpaceDelimiter</tabstop>
   <tabstop>edMultitierChar</tabstop>
+  <tabstop>radioPlaceSelected</tabstop>
+  <tabstop>radioPlaceRoot</tabstop>
+  <tabstop>radioExistingKeep</tabstop>
+  <tabstop>radioExistingOverwrite</tabstop>
  </tabstops>
  <resources/>
  <connections/>

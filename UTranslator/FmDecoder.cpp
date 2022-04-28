@@ -10,7 +10,7 @@
 #include "QtConsts.h"
 
 // Decoder
-#include "Decoders.h"
+#include "u_Decoders.h"
 
 
 ///// MemoObject ///////////////////////////////////////////////////////////////

@@ -8,7 +8,7 @@
 #include "u_Strings.h"
 
 // Project-local
-#include "Decoders.h"
+#include "u_Decoders.h"
 
 
 constinit const char* const tr::prjTypeNames[tr::PrjType_N] {
@@ -38,10 +38,11 @@ constinit const tf::ProtoFilter tf::ProtoFilter::ALL_IMPORTING {
     .allowEmpty = false
 };
 
-const tf::TechLoc tf::cSubformatInfo[CSubformat_N] {
-    { "bare",   u8"␣Bare␣" },
-    { "quoted", u8"\" Quoted \"" },
-    { "slashs", u8"\\s for space" },
+const tf::TechLoc tf::spaceEscapeModeInfo[SpaceEscapeMode_N] {
+    { "bare",    u8"␣Bare␣"            },
+    { "delim",   u8"␣Delimiter␣|"      },
+    { "quoted",  u8"\" Quoted \""       },
+    { "slashs",  u8"\\s (C-like only!)" },
 };
 
 
@@ -63,11 +64,11 @@ tf::TextLineBreakStyle tf::TextFormat::parseStyle(std::string_view name)
 
 std::u8string tf::TextEscape::bannedSubstring() const
 {
-    switch (mode) {
+    switch (lineBreak) {
     case LineBreakEscapeMode::BANNED:
         return u8"\n";
     case LineBreakEscapeMode::SPECIFIED_TEXT:
-        return specifiedText;
+        return lineBreakText;
     case LineBreakEscapeMode::C_CR:
     case LineBreakEscapeMode::C_LF:
         return {};
@@ -79,31 +80,31 @@ std::u8string tf::TextEscape::bannedSubstring() const
 std::u8string_view tf::TextEscape::escapeSv(
         std::u8string_view x, std::u8string& cache) const
 {
-    switch (mode) {
+    switch (lineBreak) {
     case LineBreakEscapeMode::BANNED:
         return x;
     case LineBreakEscapeMode::SPECIFIED_TEXT:
-        return str::replaceSv(x, specifiedText, u8"\n", cache);
+        return str::replaceSv(x, u8"\n", lineBreakText, cache);
     case LineBreakEscapeMode::C_CR:
         return escape::cppSv(x, cache, 'r',
-            ecIf<escape::Spaces>(cSubformat == CSubformat::SLASH_SPACE),
-            ecIf<Enquote>(cSubformat == CSubformat::QUOTED));
+            ecIf<escape::Spaces>(spaceEscape == SpaceEscapeMode::SLASH_SPACE),
+            ecIf<Enquote>(spaceEscape == SpaceEscapeMode::QUOTED));
     case LineBreakEscapeMode::C_LF:
         return escape::cppSv(x, cache, 'n',
-            ecIf<escape::Spaces>(cSubformat == CSubformat::SLASH_SPACE),
-            ecIf<Enquote>(cSubformat == CSubformat::QUOTED));
+            ecIf<escape::Spaces>(spaceEscape == SpaceEscapeMode::SLASH_SPACE),
+            ecIf<Enquote>(spaceEscape == SpaceEscapeMode::QUOTED));
     }
     throw std::logic_error("[TextEscape.escape] Strange mode");
 }
 
 
-void tf::TextEscape::setSpecifiedText(std::u8string_view x)
+void tf::TextEscape::setLineBreakText(std::u8string_view x)
 {
     if (x.empty()) {
-        mode = LineBreakEscapeMode::BANNED;
+        lineBreak = LineBreakEscapeMode::BANNED;
     } else {
-        mode = LineBreakEscapeMode::SPECIFIED_TEXT;
-        specifiedText = x;
+        lineBreak = LineBreakEscapeMode::SPECIFIED_TEXT;
+        lineBreakText = x;
     }
 }
 
@@ -149,16 +150,14 @@ void tf::FileFormat::unifiedSave(pugi::xml_node& node) const
 
     if (working.have(Usfg::TEXT_ESCAPE)) {
         auto nodeEscape = node.append_child("text-escape");
-        if (sets.textEscape.mode == LineBreakEscapeMode::SPECIFIED_TEXT) {
-            nodeEscape.append_attribute("line-break-text") = str::toC(sets.textEscape.specifiedText);
+        if (sets.textEscape.lineBreak == LineBreakEscapeMode::SPECIFIED_TEXT) {
+            nodeEscape.append_attribute("line-break-text") = str::toC(sets.textEscape.lineBreakText);
         } else {
             nodeEscape.append_attribute("line-break-mode") =
-                    lineBreakEscapeModeNames[static_cast<int>(sets.textEscape.mode)];
-            if (sets.textEscape.isC()) {
-                nodeEscape.append_attribute("c-subformat") =
-                    cSubformatInfo[static_cast<int>(sets.textEscape.cSubformat)].techName.data();
-            }
+                    lineBreakEscapeModeNames[static_cast<int>(sets.textEscape.lineBreak)];
         }
+        nodeEscape.append_attribute("space-escape") =
+            spaceEscapeModeInfo[static_cast<int>(sets.textEscape.spaceEscape)].techName.data();
     }
 
     if (working.have(Usfg::MULTITIER)) {
@@ -186,19 +185,19 @@ void tf::FileFormat::unifiedLoad(const pugi::xml_node& node)
     if (working.have(Usfg::TEXT_ESCAPE)) {
         if (auto nodeEscape = node.child("text-escape")) {
             if (auto attr = nodeEscape.attribute("line-break-text")) {
-                sets.textEscape.setSpecifiedText(str::toU8sv(attr.as_string()));
+                sets.textEscape.setLineBreakText(str::toU8sv(attr.as_string()));
             } else {
-                sets.textEscape.mode = parseEnumDef<LineBreakEscapeMode>(
+                sets.textEscape.lineBreak = parseEnumDef<LineBreakEscapeMode>(
                         nodeEscape.attribute("line-break-mode").as_string(),
                         lineBreakEscapeModeNames,
                         LineBreakEscapeMode::BANNED);
-                if (sets.textEscape.mode == LineBreakEscapeMode::SPECIFIED_TEXT)
-                    sets.textEscape.mode = LineBreakEscapeMode::BANNED;
-                sets.textEscape.cSubformat = parseEnumTechDef(
-                        nodeEscape.attribute("c-subformat").as_string(),
-                        tf::cSubformatInfo,
-                        tf::CSubformat::BARE);
+                if (sets.textEscape.lineBreak == LineBreakEscapeMode::SPECIFIED_TEXT)
+                    sets.textEscape.lineBreak = LineBreakEscapeMode::BANNED;
             }
+            sets.textEscape.spaceEscape = parseEnumTechDef(
+                    nodeEscape.attribute("space-escape").as_string(),
+                    tf::spaceEscapeModeInfo,
+                    tf::SpaceEscapeMode::BARE);
         }
     }
 

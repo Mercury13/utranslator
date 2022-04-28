@@ -13,6 +13,7 @@ SOURCES += \
     ../Libs/SelfMade/i_OpenSave.cpp \
     ../Libs/SelfMade/u_OpenSaveStrings.cpp \
     ../Libs/SelfMade/u_XmlUtils.cpp \
+    ../Libs/SelfMade/Strings/u_Decoders.cpp \
     ../Libs/SelfMade/Strings/u_Qstrings.cpp \
     ../Libs/SelfMade/Strings/u_Strings.cpp \
     FmAboutFormat.cpp \
@@ -21,7 +22,6 @@ SOURCES += \
     FmFileFormat.cpp \
     FmFind.cpp \
     History.cpp \
-    TrProject/Decoders.cpp \
     TrProject/Modifiable.cpp \
     TrProject/TrDefines.cpp \
     TrProject/TrFile.cpp \
@@ -42,6 +42,7 @@ HEADERS += \
     ../Libs/SelfMade/u_TypedFlags.h \
     ../Libs/SelfMade/u_Uptr.h \
     ../Libs/SelfMade/u_XmlUtils.h \
+    ../Libs/SelfMade/Strings/u_Decoders.h \
     ../Libs/SelfMade/Strings/u_Qstrings.h \
     ../Libs/SelfMade/Strings/u_Strings.h \
     FmAboutFormat.h \
@@ -50,7 +51,6 @@ HEADERS += \
     FmFileFormat.h \
     FmFind.h \
     History.h \
-    TrProject/Decoders.h \
     TrProject/Modifiable.h \
     TrProject/TrDefines.h \
     TrProject/TrFile.h \

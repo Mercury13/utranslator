@@ -58,15 +58,6 @@ namespace tf {
 
     extern const LineBreakStyleInfo binaryLineBreakStyleInfo[BinaryLineBreakStyle_N];
 
-    enum class LineBreakEscapeMode {
-        BANNED,         ///< Line-breaks banned
-        C_CR,           ///< C mode: break = /r, / = //   (actually BACKslash here)
-        C_LF,           ///< C mode: break = /n, / = //   (actually BACKslash here)
-        SPECIFIED_TEXT  ///< Specified character that’s banned in text
-    };
-    constexpr auto LineBreakEscapeMode_N = static_cast<int>(LineBreakEscapeMode::SPECIFIED_TEXT) + 1;
-    extern const char* const lineBreakEscapeModeNames[LineBreakEscapeMode_N];
-
     struct TextFormat {
         static constexpr auto DEFAULT_STYLE = TextLineBreakStyle::CRLF;
         bool writeBom = true;
@@ -83,30 +74,42 @@ namespace tf {
         std::u8string_view locName;
     };
 
-    enum class CSubformat {
+    enum class LineBreakEscapeMode {
+        BANNED,         ///< Line-breaks banned
+        C_CR,           ///< C mode: break = /r, / = //   (actually BACKslash here)
+        C_LF,           ///< C mode: break = /n, / = //   (actually BACKslash here)
+        SPECIFIED_TEXT  ///< Specified character that’s banned in text
+    };
+    constexpr auto LineBreakEscapeMode_N = static_cast<int>(LineBreakEscapeMode::SPECIFIED_TEXT) + 1;
+    extern const char* const lineBreakEscapeModeNames[LineBreakEscapeMode_N];
+
+    enum class SpaceEscapeMode {
         BARE,
+        DELIMITED,
         QUOTED,
         SLASH_SPACE
     };
-    constexpr auto CSubformat_N = static_cast<int>(CSubformat::SLASH_SPACE) + 1;
-    extern const TechLoc cSubformatInfo[CSubformat_N];
+    constexpr auto SpaceEscapeMode_N = static_cast<int>(SpaceEscapeMode::SLASH_SPACE) + 1;
+    extern const TechLoc spaceEscapeModeInfo[SpaceEscapeMode_N];
 
     ///  Principles of escaping line-breaks
     struct TextEscape {
         static constexpr std::u8string_view DEFAULT_LINE_BREAK_TEXT = u8"^";
-        LineBreakEscapeMode mode = LineBreakEscapeMode::BANNED;
-        std::u8string specifiedText { DEFAULT_LINE_BREAK_TEXT };
-        CSubformat cSubformat;
+        static constexpr std::u8string_view DEFAULT_SPACE_ESCAPE_TEXT = u8"|";
+        LineBreakEscapeMode lineBreak = LineBreakEscapeMode::BANNED;
+        std::u8string lineBreakText { DEFAULT_LINE_BREAK_TEXT };
+        SpaceEscapeMode spaceEscape;
+        std::u8string spaceDemimiter { DEFAULT_SPACE_ESCAPE_TEXT };
 
         std::u8string bannedSubstring() const;
         std::u8string_view escapeSv(std::u8string_view x, std::u8string& cache) const;
 
-        void setSpecifiedText(std::u8string_view x);
+        void setLineBreakText(std::u8string_view x);
         /// @return [+] cSubformat means
         static bool isC(LineBreakEscapeMode mode);
-        bool isC() const { return isC(mode); }
+        bool isC() const { return isC(lineBreak); }
         /// @return [+] need to enquote C
-        bool isQuoted() const { return isC() && cSubformat == CSubformat::QUOTED; }
+        bool isQuoted() const { return (spaceEscape == SpaceEscapeMode::QUOTED); }
     };
 
     enum class Usfg {
