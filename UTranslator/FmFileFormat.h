@@ -52,6 +52,6 @@ private:
     void copyTo(tf::LoadTextsSettings* r);
     void reenableToFormat(const tf::FormatProto& proto);
     const tf::FormatProto* currentProto() const;
-    tf::LineBreakEscapeMode escapeMode() const;
-    bool isC() const;
+    escape::LineBreakMode escapeMode() const;
+    escape::SpaceMode spaceMode() const;
 };

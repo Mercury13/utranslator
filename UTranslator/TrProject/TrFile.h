@@ -136,7 +136,7 @@ namespace tf {
     {
     public:
         TextFormat textFormat;
-        TextEscape textEscape;
+        escape::Text textEscape;
         MultitierStyle multitier;
 
         /// @todo [future] can import too, but let’s export somehow

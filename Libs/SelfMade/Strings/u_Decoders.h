@@ -20,6 +20,41 @@ enum class Enquote { NO, YES };
 
 namespace escape {
 
+    enum class LineBreakMode {
+        BANNED,         ///< Line-breaks banned
+        C_CR,           ///< C mode: break = /r, / = //   (actually BACKslash here)
+        C_LF,           ///< C mode: break = /n, / = //   (actually BACKslash here)
+        SPECIFIED_TEXT, ///< Specified character that’s banned in text
+        Z_LAST = SPECIFIED_TEXT
+    };
+    constexpr auto LineBreakMode_N = static_cast<int>(LineBreakMode::SPECIFIED_TEXT) + 1;
+
+    enum class SpaceMode {
+        BARE,
+        DELIMITED,
+        QUOTED,
+        SLASH_SPACE,
+        Z_LAST = SLASH_SPACE
+    };
+    constexpr auto SpaceMode_N = static_cast<int>(SpaceMode::SLASH_SPACE) + 1;
+
+    ///  Principles of escaping line-breaks
+    struct Text {
+        static constexpr std::u8string_view DEFAULT_LINE_BREAK_TEXT = u8"^";
+        static constexpr std::u8string_view DEFAULT_SPACE_DELIMITER = u8"|";
+        LineBreakMode lineBreak = LineBreakMode::BANNED;
+        std::u8string lineBreakText { DEFAULT_LINE_BREAK_TEXT };
+        SpaceMode space;
+        std::u8string spaceDemimiter { DEFAULT_SPACE_DELIMITER };
+
+        std::u8string bannedSubstring() const;
+        std::u8string_view escapeSv(std::u8string_view x, std::u8string& cache) const;
+
+        void setLineBreakText(std::u8string_view x);
+        std::u8string_view visibleLineBreakText() const noexcept;
+        std::u8string_view visibleSpaceDelimiter() const noexcept;
+    };
+
     enum class Spaces { NO, YES };
 
     std::u8string_view cppSv(

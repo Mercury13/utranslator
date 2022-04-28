@@ -93,24 +93,26 @@ void FmFileFormat::collectFormats(
 }
 
 
-tf::LineBreakEscapeMode FmFileFormat::escapeMode() const
+escape::LineBreakMode FmFileFormat::escapeMode() const
 {
-    return static_cast<tf::LineBreakEscapeMode>(
+    return static_cast<escape::LineBreakMode>(
                     ui->comboLineBreaksInStrings->currentIndex());
 }
 
 
-bool FmFileFormat::isC() const
+escape::SpaceMode FmFileFormat::spaceMode() const
 {
-    return tf::TextEscape::isC(escapeMode());
+    return static_cast<escape::SpaceMode>(
+                    ui->comboSpaceEscape->currentIndex());
 }
 
 
 void FmFileFormat::reenable()
 {
     ui->edLineBreakChar->setEnabled(
-                escapeMode() == tf::LineBreakEscapeMode::SPECIFIED_TEXT);
-    ui->wiCSubformat->setEnabled(isC());
+                escapeMode() == escape::LineBreakMode::SPECIFIED_TEXT);
+    ui->edSpaceDelimiter->setEnabled(
+                spaceMode() == escape::SpaceMode::DELIMITED);
 }
 
 void FmFileFormat::copyFrom(const tf::FileFormat& fmt)
@@ -126,13 +128,10 @@ void FmFileFormat::copyFrom(const tf::FileFormat& fmt)
     // Unified: text escape
     ui->comboLineBreaksInStrings->setCurrentIndex(
                 static_cast<int>(sets.textEscape.lineBreak));
-    ui->edLineBreakChar->setText(
-                sets.textEscape.lineBreak == tf::LineBreakEscapeMode::SPECIFIED_TEXT
-                    ? str::toQ(sets.textEscape.lineBreakText)
-                    : QString{'^'});
+    ui->edLineBreakChar->setText(str::toQ(sets.textEscape.visibleLineBreakText()));
     ui->comboSpaceEscape->setCurrentIndex(
-                static_cast<int>(sets.textEscape.spaceEscape));
-
+                static_cast<int>(sets.textEscape.space));
+    ui->edSpaceDelimiter->setText(str::toQ(sets.textEscape.visibleSpaceDelimiter()));
     // Unified: multitier
     ui->edMultitierChar->setText(str::toQ(sets.multitier.separator));
 }
@@ -151,12 +150,12 @@ void FmFileFormat::copyTo(std::unique_ptr<tf::FileFormat>& r)
 
     // Unified: text escape
     sets.textEscape.lineBreak = escapeMode();
-    if (sets.textEscape.lineBreak == tf::LineBreakEscapeMode::SPECIFIED_TEXT) {
+    if (sets.textEscape.lineBreak == escape::LineBreakMode::SPECIFIED_TEXT) {
         sets.textEscape.lineBreakText = str::toU8(ui->edLineBreakChar->text());
         if (sets.textEscape.lineBreakText.empty())
-            sets.textEscape.lineBreak = tf::LineBreakEscapeMode::BANNED;
+            sets.textEscape.lineBreak = escape::LineBreakMode::BANNED;
     }
-    sets.textEscape.spaceEscape = static_cast<tf::SpaceEscapeMode>(ui->comboSpaceEscape->currentIndex());
+    sets.textEscape.space = static_cast<escape::SpaceMode>(ui->comboSpaceEscape->currentIndex());
 
     // Unified: multitier
     sets.multitier.separator = str::toU8(ui->edMultitierChar->text());

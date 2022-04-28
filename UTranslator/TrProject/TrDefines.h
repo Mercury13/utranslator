@@ -6,6 +6,7 @@
 
 #include "u_TypedFlags.h"
 #include "u_OpenSaveStrings.h"
+#include "u_Decoders.h"
 
 namespace pugi {
     class xml_node;
@@ -74,43 +75,8 @@ namespace tf {
         std::u8string_view locName;
     };
 
-    enum class LineBreakEscapeMode {
-        BANNED,         ///< Line-breaks banned
-        C_CR,           ///< C mode: break = /r, / = //   (actually BACKslash here)
-        C_LF,           ///< C mode: break = /n, / = //   (actually BACKslash here)
-        SPECIFIED_TEXT  ///< Specified character that’s banned in text
-    };
-    constexpr auto LineBreakEscapeMode_N = static_cast<int>(LineBreakEscapeMode::SPECIFIED_TEXT) + 1;
-    extern const char* const lineBreakEscapeModeNames[LineBreakEscapeMode_N];
-
-    enum class SpaceEscapeMode {
-        BARE,
-        DELIMITED,
-        QUOTED,
-        SLASH_SPACE
-    };
-    constexpr auto SpaceEscapeMode_N = static_cast<int>(SpaceEscapeMode::SLASH_SPACE) + 1;
-    extern const TechLoc spaceEscapeModeInfo[SpaceEscapeMode_N];
-
-    ///  Principles of escaping line-breaks
-    struct TextEscape {
-        static constexpr std::u8string_view DEFAULT_LINE_BREAK_TEXT = u8"^";
-        static constexpr std::u8string_view DEFAULT_SPACE_ESCAPE_TEXT = u8"|";
-        LineBreakEscapeMode lineBreak = LineBreakEscapeMode::BANNED;
-        std::u8string lineBreakText { DEFAULT_LINE_BREAK_TEXT };
-        SpaceEscapeMode spaceEscape;
-        std::u8string spaceDemimiter { DEFAULT_SPACE_ESCAPE_TEXT };
-
-        std::u8string bannedSubstring() const;
-        std::u8string_view escapeSv(std::u8string_view x, std::u8string& cache) const;
-
-        void setLineBreakText(std::u8string_view x);
-        /// @return [+] cSubformat means
-        static bool isC(LineBreakEscapeMode mode);
-        bool isC() const { return isC(lineBreak); }
-        /// @return [+] need to enquote C
-        bool isQuoted() const { return (spaceEscape == SpaceEscapeMode::QUOTED); }
-    };
+    extern const char* const lineBreakEscapeModeNames[escape::LineBreakMode_N];
+    extern const TechLoc spaceEscapeModeInfo[escape::SpaceMode_N];
 
     enum class Usfg {
         TEXT_FORMAT = 1,
@@ -133,7 +99,7 @@ namespace tf {
     struct UnifiedSets {
         //LineBreakStyle binaryLineBreak = LineBreakStyle::LF;   unused right now
         TextFormat textFormat {};
-        TextEscape textEscape {};
+        escape::Text textEscape {};
         MultitierStyle multitier {};
     };
 

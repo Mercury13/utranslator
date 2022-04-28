@@ -10,6 +10,75 @@ constexpr char32_t PARA_SEP_32 = 0x2029;      // U+2029 paragraph separator
 constexpr wchar_t PARA_SEP_16 = PARA_SEP_32;
 
 
+///// escape::Text /////////////////////////////////////////////////////////////
+
+
+std::u8string escape::Text::bannedSubstring() const
+{
+    switch (lineBreak) {
+    case LineBreakMode::BANNED:
+        return u8"\n";
+    case LineBreakMode::SPECIFIED_TEXT:
+        return lineBreakText;
+    case LineBreakMode::C_CR:
+    case LineBreakMode::C_LF:
+        return {};
+    }
+    throw std::logic_error("[TextEscape.bannedSubstring] Strange mode");
+}
+
+
+std::u8string_view escape::Text::escapeSv(
+        std::u8string_view x, std::u8string& cache) const
+{
+    switch (lineBreak) {
+    case LineBreakMode::BANNED:
+        /// @todo [urgent] other types of escapeSv
+        return x;
+    case LineBreakMode::SPECIFIED_TEXT:
+        return str::replaceSv(x, u8"\n", lineBreakText, cache);
+    case LineBreakMode::C_CR:
+        return escape::cppSv(x, cache, 'r',
+            ecIf<escape::Spaces>(space == SpaceMode::SLASH_SPACE),
+            ecIf<Enquote>(space == SpaceMode::QUOTED));
+    case LineBreakMode::C_LF:
+        return escape::cppSv(x, cache, 'n',
+            ecIf<escape::Spaces>(space == SpaceMode::SLASH_SPACE),
+            ecIf<Enquote>(space == SpaceMode::QUOTED));
+    }
+    throw std::logic_error("[TextEscape.escape] Strange mode");
+}
+
+
+void escape::Text::setLineBreakText(std::u8string_view x)
+{
+    if (x.empty()) {
+        lineBreak = LineBreakMode::BANNED;
+    } else {
+        lineBreak = LineBreakMode::SPECIFIED_TEXT;
+        lineBreakText = x;
+    }
+}
+
+
+std::u8string_view escape::Text::visibleLineBreakText() const noexcept
+{
+    return (lineBreak == escape::LineBreakMode::SPECIFIED_TEXT)
+            ? lineBreakText
+            : DEFAULT_LINE_BREAK_TEXT;
+}
+
+
+std::u8string_view escape::Text::visibleSpaceDelimiter() const noexcept
+{
+    return (space == escape::SpaceMode::DELIMITED)
+            ? spaceDemimiter
+            : DEFAULT_SPACE_DELIMITER;
+}
+
+
+///// Misc functions ///////////////////////////////////////////////////////////
+
 namespace {
 
     constexpr auto I_EOF = std::istream::traits_type::eof();
