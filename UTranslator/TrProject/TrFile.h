@@ -15,12 +15,27 @@ namespace bom {
 
 namespace tf {
 
+    ///
+    /// @brief
+    ///   To lessen O(n) search, we make Loader stateful.
+    ///   E.g. we can go to any group using three functions,
+    ///   then ad text.
+    ///
     class Loader     // interface
     {
     public:
+        /// Goes right to root group.
         virtual void goToRoot() = 0;
+
+        /// Goes one group up;   [+] OK   [-] it’s root
+        /// @throw  some strange problems
         virtual bool goUp() = 0;
+
+        /// Goes to a subgroup. If it’s missing, creates it.
         virtual void goToGroupRel(std::u8string_view groupId) = 0;
+
+        /// Adds a text. When overwriting and comment is empty →
+        ///   SHOULD NOT TOUCH existing comment
         virtual void addText(
                 std::u8string_view textId,
                 std::u8string_view original,
@@ -28,7 +43,9 @@ namespace tf {
         /// Virtual dtor
         virtual ~Loader() = default;
 
-        /// Utils
+        // Utils
+        /// Goes to absolute address.
+        /// Equiv.to goToRoot, then several goToGroupRel.
         void goToGroupAbs(std::span<const std::u8string_view> groupIds);
         void goToGroupAbs(std::span<const std::u8string> groupIds);
     };
