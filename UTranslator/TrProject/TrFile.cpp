@@ -18,6 +18,25 @@ const tf::FormatProto* const (&tf::allWorkingProtos)[I_N - 1]
         = reinterpret_cast<const FormatProto* const (&)[I_N - 1]>(allProtos[1]);
 
 
+///// Loader ///////////////////////////////////////////////////////////////////
+
+
+void tf::Loader::goToGroupAbs(std::span<const std::u8string_view> groupIds)
+{
+    goToRoot();
+    for (auto v : groupIds)
+        goToGroupRel(v);
+}
+
+
+void tf::Loader::goToGroupAbs(std::span<const std::u8string> groupIds)
+{
+    goToRoot();
+    for (auto v : groupIds)
+        goToGroupRel(v);
+}
+
+
 ///// TextInfo /////////////////////////////////////////////////////////////////
 
 std::u8string tf::TextInfo::joinGroupId(std::u8string_view sep) const

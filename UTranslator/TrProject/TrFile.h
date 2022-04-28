@@ -18,19 +18,19 @@ namespace tf {
     class Loader     // interface
     {
     public:
+        virtual void goToRoot() = 0;
+        virtual bool goUp() = 0;
+        virtual void goToGroupRel(std::u8string_view groupId) = 0;
         virtual void addText(
-                std::span<const std::u8string> ids,
-                const std::u8string& original,
-                const std::u8string& comment) = 0;
+                std::u8string_view textId,
+                std::u8string_view original,
+                std::u8string_view comment) = 0;
         /// Virtual dtor
         virtual ~Loader() = default;
 
-        // Utils
-        void addText(
-                const std::u8string& id,
-                const std::u8string& original,
-                const std::u8string& comment)
-            { addText(std::span<const std::u8string>(&id, 1), original, comment); }
+        /// Utils
+        void goToGroupAbs(std::span<const std::u8string_view> groupIds);
+        void goToGroupAbs(std::span<const std::u8string> groupIds);
     };
 
     struct TextInfo {

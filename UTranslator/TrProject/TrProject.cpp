@@ -473,6 +473,81 @@ void tr::Entity::readComments(
     readTranslatorsComment(node, info);
 }
 
+namespace {
+
+    ///
+    /// @warning
+    ///   Means for ORIGINAL only, as we create things
+    ///
+    class GroupLoader : public tf::Loader
+    {
+    public:
+        GroupLoader(std::shared_ptr<tr::VirtualGroup> aRoot, tf::Existing aExisting)
+            : root(std::move(aRoot)), curr(root), existing(aExisting) {}
+        void goToRoot() override { curr = root; }
+        bool goUp() override;
+        void goToGroupRel(std::u8string_view groupId) override;
+        void addText(
+                std::u8string_view textId,
+                std::u8string_view original,
+                std::u8string_view comment) override;
+    private:
+        std::shared_ptr<tr::VirtualGroup> root, curr;
+        tf::Existing existing;
+    };
+
+    bool GroupLoader::goUp()
+    {
+        if (curr == root) {
+            return false;
+        } else {
+            curr = std::dynamic_pointer_cast<tr::VirtualGroup>(curr->parent());
+            if (!curr)
+                throw std::logic_error("[GroupLoader::goUp] Did not get parent");
+            return true;
+        }
+    }
+
+    void GroupLoader::goToGroupRel(std::u8string_view groupId)
+    {
+        auto q = curr->findGroup(groupId);
+        if (q) {
+            curr = std::move(q);
+        } else {
+            curr = curr->addGroup(std::u8string{groupId}, tr::Modify::YES);
+        }
+    }
+
+    void GroupLoader::addText(
+            std::u8string_view textId,
+            std::u8string_view original,
+            std::u8string_view comment)
+    {
+        auto text = curr->findText(textId);
+        if (text) {
+            // Exists
+            switch (existing) {
+            case tf::Existing::KEEP:
+                break;  // do nothing
+            case tf::Existing::OVERWRITE: {
+                    text->setOriginal(original, tr::Modify::YES);
+                    if (!comment.empty())
+                        text->setAuthorsComment(comment, tr::Modify::YES);
+                }
+                break;
+            }
+        } else {
+            // Does not exist
+            auto text = curr->addText(
+                        std::u8string{textId}, std::u8string{original}, tr::Modify::YES);
+            if (!comment.empty())
+                text->setAuthorsComment(comment, tr::Modify::YES);
+        }
+    }
+
+}   // anon namespace
+
+
 ///// VirtualGroup /////////////////////////////////////////////////////////////
 
 
@@ -597,6 +672,37 @@ void tr::VirtualGroup::doSwapChildren(size_t index1, size_t index2)
 {
     if (index1 < children.size() && index2 < children.size())
         std::swap(children[index1], children[index2]);
+}
+
+
+std::shared_ptr<tr::VirtualGroup> tr::VirtualGroup::findGroup(std::u8string_view id)
+{
+    for (auto& v : children) {
+        if (auto vg = std::dynamic_pointer_cast<tr::VirtualGroup>(v)) {
+            if (vg->id == id)
+                return vg;
+        }
+    }
+    return {};
+}
+
+
+std::shared_ptr<tr::Text> tr::VirtualGroup::findText(std::u8string_view id)
+{
+    for (auto& v : children) {
+        if (auto vg = std::dynamic_pointer_cast<tr::Text>(v)) {
+            if (vg->id == id)
+                return vg;
+        }
+    }
+    return {};
+}
+
+
+void tr::VirtualGroup::loadText(tf::FileFormat& fmt, tf::Existing existing)
+{
+    GroupLoader loader(fSelf.lock(), existing);
+    fmt.doImport(loader);
 }
 
 
