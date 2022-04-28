@@ -13,14 +13,14 @@ SOURCES += \
     ../Libs/GoogleTest/src/gtest-all.cc \
     ../Libs/GoogleTest/src/gtest_main.cc \
     ../Libs/SelfMade/Strings/u_Strings.cpp \
-    ../UTranslator/TrProject/Decoders.cpp \
+    ../Libs/SelfMade/Strings/u_Decoders.cpp \
     test_DecodeBr.cpp \
     test_DecodeCpp.cpp \
     test_DetectBom.cpp \
     test_EscapeCpp.cpp
 
 HEADERS += \
-    ../UTranslator/TrProject/Decoders.h
+    ../Libs/SelfMade/Strings/u_Decoders.h
 
 INCLUDEPATH += \
     ../Libs/GoogleTest \

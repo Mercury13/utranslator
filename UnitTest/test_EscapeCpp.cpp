@@ -1,8 +1,8 @@
+// What we test
+#include "u_Decoders.h"
+
 // Google test
 #include "gtest/gtest.h"
-
-// What we test
-#include "Decoders.h"
 
 namespace {
 

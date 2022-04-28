@@ -1,6 +1,8 @@
-#include "gtest/gtest.h"
+// What we test
+#include "u_Decoders.h"
 
-#include "Decoders.h"
+// Google test
+#include "gtest/gtest.h"
 
 
 //// Decode C++ ////////////////////////////////////////////////////////////////
