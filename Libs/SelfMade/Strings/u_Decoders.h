@@ -45,7 +45,7 @@ namespace escape {
         LineBreakMode lineBreak = LineBreakMode::BANNED;
         std::u8string lineBreakText { DEFAULT_LINE_BREAK_TEXT };
         SpaceMode space;
-        std::u8string spaceDemimiter { DEFAULT_SPACE_DELIMITER };
+        std::u8string spaceDelimiter { DEFAULT_SPACE_DELIMITER };
 
         std::u8string bannedSubstring() const;
         static void writeQuoted(std::ostream& os, std::u8string_view x);
@@ -62,6 +62,8 @@ namespace escape {
         /// @return  space delimiter that actually works
         ///          (empty if not demimited)
         std::u8string_view activeSpaceDelimiter() const noexcept;
+
+        std::u8string_view unescapeSv(std::u8string_view text, std::u8string& cache) const;
     };
 
     enum class Spaces { NO, YES };
@@ -112,6 +114,21 @@ namespace decode {
         ///  @return [+] x is Latin letter a..z A..Z, or underscore _
         bool isAlpha(char32_t x);
     }
+
+    enum class ForceUnquoted { NO, YES };
+
+    /// Lighter C++ decode
+    /// Supports:
+    /// • \s for space
+    ///
+    /// Does NOT support:
+    /// • C++ syntax peculiarities: prefixes, suffixes, raw strings, "str" "str"
+    /// • \xXX, \oXXX, \uXXXX
+    /// • trails of source code "xxxx" },
+    ///
+    /// @param [in] forceUnquoted  [+] the string is surely unquoted
+    ///
+    std::u8string cppLite(std::u8string_view x, ForceUnquoted forceUnquoted);
 
     /// Decodes C++
     /// "alpha\nbravo" → alpha<LF>bravo

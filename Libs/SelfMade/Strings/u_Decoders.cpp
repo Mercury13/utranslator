@@ -83,6 +83,23 @@ void escape::Text::write(
 }
 
 
+std::u8string_view escape::Text::unescapeSv(
+        std::u8string_view text, std::u8string& cache) const
+{
+    if (space == SpaceMode::DELIMITED && text.ends_with(spaceDelimiter))
+        text = text.substr(text.length() - spaceDelimiter.length());
+    switch (lineBreak) {
+    case LineBreakMode::BANNED:
+    case LineBreakMode::SPECIFIED_TEXT:
+    case LineBreakMode::C_CR:
+    case LineBreakMode::C_LF:   // We don’t distunguish them while reading
+        /// @todo [urgent] what to do?
+        return {};
+    }
+    return {};
+}
+
+
 void escape::Text::setLineBreakText(std::u8string_view x)
 {
     if (x.empty()) {
@@ -105,7 +122,7 @@ std::u8string_view escape::Text::visibleLineBreakText() const noexcept
 std::u8string_view escape::Text::visibleSpaceDelimiter() const noexcept
 {
     return (space == escape::SpaceMode::DELIMITED)
-            ? spaceDemimiter
+            ? spaceDelimiter
             : DEFAULT_SPACE_DELIMITER;
 }
 
@@ -113,7 +130,7 @@ std::u8string_view escape::Text::visibleSpaceDelimiter() const noexcept
 std::u8string_view escape::Text::activeSpaceDelimiter() const noexcept
 {
     return (space == escape::SpaceMode::DELIMITED)
-            ? spaceDemimiter
+            ? spaceDelimiter
             : std::u8string_view{};
 }
 

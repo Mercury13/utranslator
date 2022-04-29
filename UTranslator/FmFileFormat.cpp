@@ -42,6 +42,7 @@ FmFileFormat::FmFileFormat(QWidget *parent) :
     connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &This::reject);
     connect(ui->comboFormat, &QComboBox::currentIndexChanged, this, &This::comboChanged);
     connect(ui->comboLineBreaksInStrings, &QComboBox::currentIndexChanged, this, &This::reenable);
+    connect(ui->comboSpaceEscape, &QComboBox::currentIndexChanged, this, &This::reenable);
     connect(ui->btAbout, &QPushButton::clicked, this, &This::aboutFormat);
 }
 
