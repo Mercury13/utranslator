@@ -152,11 +152,14 @@ void FmFileFormat::copyTo(std::unique_ptr<tf::FileFormat>& r)
     // Unified: text escape
     sets.textEscape.lineBreak = escapeMode();
     if (sets.textEscape.lineBreak == escape::LineBreakMode::SPECIFIED_TEXT) {
-        sets.textEscape.lineBreakText = str::toU8(ui->edLineBreakChar->text());
-        if (sets.textEscape.lineBreakText.empty())
-            sets.textEscape.lineBreak = escape::LineBreakMode::BANNED;
+        sets.textEscape.setLineBreakText(str::toU8(ui->edLineBreakChar->text()));
     }
-    sets.textEscape.space = static_cast<escape::SpaceMode>(ui->comboSpaceEscape->currentIndex());
+
+    // Unified: leading/trailing spaces
+    sets.textEscape.space = spaceMode();
+    if (sets.textEscape.space == escape::SpaceMode::DELIMITED) {
+        sets.textEscape.setSpaceDelimiter(str::toU8(ui->edSpaceDelimiter->text()));
+    }
 
     // Unified: multitier
     sets.multitier.separator = str::toU8(ui->edMultitierChar->text());
