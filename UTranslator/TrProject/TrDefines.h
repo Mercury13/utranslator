@@ -209,10 +209,10 @@ public:
 
     CloningUptr(const CloningUptr<T>& x)
         : Super(x.upClone()) {}
-    CloningUptr(CloningUptr<T>&& x)
+    CloningUptr(CloningUptr<T>&& x) noexcept
         : Super(std::move(x)) {}
     CloningUptr<T>& operator = (const CloningUptr<T>& x);
-    CloningUptr<T>& operator = (CloningUptr<T>&& x)
+    CloningUptr<T>& operator = (CloningUptr<T>&& x) noexcept
         { reset(x.release()); return *this; }
     std::unique_ptr<T> upClone();
     CloningUptr<T> clone() { return upClone(); }

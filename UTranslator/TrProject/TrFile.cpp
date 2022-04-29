@@ -32,7 +32,7 @@ void tf::Loader::goToGroupAbs(std::span<const std::u8string_view> groupIds)
 void tf::Loader::goToGroupAbs(std::span<const std::u8string> groupIds)
 {
     goToRoot();
-    for (auto v : groupIds)
+    for (auto& v : groupIds)
         goToGroupRel(v);
 }
 

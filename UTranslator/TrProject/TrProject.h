@@ -69,9 +69,9 @@ namespace tr {
     public:
         Self() = default;
         Self(const Self&) {}
-        Self(Self&&) {}
+        Self(Self&&) noexcept {}
         Self& operator = (const Self&) { return *this; }
-        Self& operator = (Self&&) { return *this; }
+        Self& operator = (Self&&) noexcept { return *this; }
         std::weak_ptr<T> fSelf;
     };
 

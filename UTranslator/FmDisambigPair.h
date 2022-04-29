@@ -17,7 +17,7 @@ public:
 
     std::optional<std::shared_ptr<tr::VirtualGroup>> exec(
             std::u8string_view title,
-            const tr::Pair<tr::VirtualGroup> groups);
+            const tr::Pair<tr::VirtualGroup>& groups);
 
 private:
     Ui::FmDisambigPair *ui;

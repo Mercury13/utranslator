@@ -18,7 +18,7 @@ FmDisambigPair::~FmDisambigPair()
 
 std::optional<std::shared_ptr<tr::VirtualGroup>> FmDisambigPair::exec(
         std::u8string_view title,
-        const tr::Pair<tr::VirtualGroup> groups)
+        const tr::Pair<tr::VirtualGroup>& groups)
 {
     if (!groups.first || !groups.second)
         throw std::logic_error("[FmDisambigPair.exec] First and second should both exist");

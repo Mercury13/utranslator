@@ -27,8 +27,8 @@ namespace QDlgType {
 constexpr auto Q_EDITKEY = Qt::Key_F2;
 
 #define Q_IS_VERSION_ABOVE(major, minor) \
-        (QT_VERSION_MAJOR > major  \
-        || (QT_VERSION_MAJOR == major && QT_VERSION_MINOR >= minor))
+        (QT_VERSION_MAJOR > (major)  \
+        || (QT_VERSION_MAJOR == (major) && QT_VERSION_MINOR >= (minor)))
 
 
 inline QKeySequence qSeq(Qt::Modifier modifier, Qt::Key key)

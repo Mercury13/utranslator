@@ -192,7 +192,7 @@ hist::FilePlace::FilePlace(std::filesystem::path&& aPath)
     : fPath(std::move(aPath))
 {
     if (!fPath.is_absolute()) {
-        fPath = toCanonicalNe(aPath);
+        fPath = toCanonicalNe(fPath);
     }
 }
 
