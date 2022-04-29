@@ -126,7 +126,11 @@ namespace decode {
     /// • \xXX, \oXXX, \uXXXX
     /// • trails of source code "xxxx" },
     ///
-    /// @param [in] maybeQuoted  [+] the string is possibly quoted
+    /// @warning Special bhv when maybeQuoted+ → cannot make 2 functions
+    ///               "\" → ",  \ = everything
+    /// @warning Is NOT bug-compatible with decodeCpp
+    ///
+    /// @param [in] maybeQuoted  [+] the string is possibly quoted    ///
     ///
     std::u8string cppLite(std::u8string_view x, MaybeQuoted maybeQuoted);
 
