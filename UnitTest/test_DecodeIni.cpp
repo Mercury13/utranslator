@@ -58,6 +58,18 @@ TEST (DecodeIni, Simple)
 
 
 ///
+///  Bad BOM
+///
+TEST (DecodeIni, BadBom)
+{
+    std::string_view ini = "\xFF\xFE" "Alpha=  Bravo  ";
+    EXPECT_THROW(
+        { runTest(ini); },
+        std::logic_error);
+}
+
+
+///
 ///  Empty lines + comments
 ///
 TEST (DecodeIni, Comments)
