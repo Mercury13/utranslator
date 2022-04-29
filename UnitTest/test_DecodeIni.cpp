@@ -14,6 +14,8 @@ namespace {
 
         void onGroup(std::u8string_view) override;
         void onVar(std::u8string_view name, std::u8string_view rawValue) override;
+        void onEmptyLine() override;
+        void onComment(std::u8string_view x) override;
     };
 
     void MyCb::onGroup(std::u8string_view x)
@@ -29,6 +31,18 @@ namespace {
         s.append(name);
         s.push_back('=');
         s.append(rawValue);
+        s.push_back('\n');
+    }
+
+    void MyCb::onEmptyLine()
+    {
+        s.append(u8"e\n");
+    }
+
+    void MyCb::onComment(std::u8string_view x)
+    {
+        s.append(u8"c:");
+        s.append(x);
         s.push_back('\n');
     }
 
@@ -51,7 +65,7 @@ namespace {
 ///
 TEST (DecodeIni, Simple)
 {
-    std::string_view ini = "\xEF\xBB\xBF" "Alpha=  Bravo  ";
+    std::string_view ini = "\xEF\xBB\xBF" "Alpha=  Bravo  \n";
     auto r = runTest(ini);
     EXPECT_EQ(u8"v:Alpha=  Bravo  \n", r);
 }
@@ -81,12 +95,17 @@ TEST (DecodeIni, Comments)
             "  \t  ;3=4\n"
             "   \v   \n"
             "5=6\n"
-            "  \f#7=8\n"
+            "  \f#7=8   \n"
             "9=10";
     auto r = runTest(ini);
     EXPECT_EQ(
-            u8"v:1=2\n"
+            u8"e\n"
+              "e\n"
+              "v:1=2\n"
+              "c:3=4\n"
+              "e\n"
               "v:5=6\n"
+              "c:7=8\n"
               "v:9=10\n", r);
 }
 

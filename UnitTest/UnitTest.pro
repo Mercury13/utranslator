@@ -17,6 +17,7 @@ SOURCES += \
     test_DecodeBr.cpp \
     test_DecodeCpp.cpp \
     test_DecodeIni.cpp \
+    test_DecodeQuoted.cpp \
     test_DetectBom.cpp \
     test_EscapeCpp.cpp \
     test_EscapeText.cpp

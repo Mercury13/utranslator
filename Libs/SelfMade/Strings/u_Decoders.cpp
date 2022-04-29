@@ -83,18 +83,38 @@ void escape::Text::write(
 }
 
 
-std::u8string_view escape::Text::unescapeSv(
-        std::u8string_view text, std::u8string& cache) const
+std::u8string escape::Text::unescapeMaybeQuoted(std::u8string_view text) const
 {
+    if (space == SpaceMode::QUOTED) {
+        return decode::quoted(text);
+    } else {
+        return std::u8string{text};
+    }
+}
+
+
+std::u8string escape::Text::unescape(std::u8string_view text) const
+{
+    // Delimited mode: ends → remove
     if (space == SpaceMode::DELIMITED && text.ends_with(spaceDelimiter))
         text = text.substr(text.length() - spaceDelimiter.length());
     switch (lineBreak) {
-    case LineBreakMode::BANNED:
     case LineBreakMode::SPECIFIED_TEXT:
+        if (!lineBreakText.empty()) {
+            std::u8string tmp {text};
+            str::replace(tmp, lineBreakText, u8"\n");
+            return unescapeMaybeQuoted(tmp);
+        }
+        [[fallthrough]];
+    case LineBreakMode::BANNED:
+        return unescapeMaybeQuoted(text);
     case LineBreakMode::C_CR:
-    case LineBreakMode::C_LF:   // We don’t distunguish them while reading
-        /// @todo [urgent] what to do?
-        return {};
+    case LineBreakMode::C_LF: { // We recognize both \r and \n
+            // Only two modes remain here: bare/quoted
+            // \s will be recognized anyway
+            auto mq = ecIf<decode::MaybeQuoted>(space == SpaceMode::QUOTED);
+            return decode::cppLite(text, mq);
+        }
     }
     return {};
 }
@@ -678,8 +698,15 @@ void decode::ini(std::istream& is, IniCallback& cb)
     std::string line;
     while (std::getline(is, line)) {
         std::u8string_view s = str::toU8sv(str::trimLeftSv(line));
-        if (s.empty() || s.starts_with(';') || s.starts_with('#'))
+        if (s.empty()) {
+            cb.onEmptyLine();
             continue;
+        }
+        if (s.starts_with(';') || s.starts_with('#')) {
+            s = str::trimSv(s.substr(1));
+            cb.onComment(s);
+            continue;
+        }
         if (s.starts_with('[')) {   // “[ group ] ”
             // GROUP
             s = s.substr(1);        // “ group ] ”
@@ -705,4 +732,91 @@ void decode::ini(std::istream& is, IniCallback& cb)
             }
         }
     }
+}
+
+
+std::u8string decode::cppLite(std::u8string_view x, MaybeQuoted maybeQuoted)
+{
+    bool hasRightQuote = false;
+    if (maybeQuoted != MaybeQuoted::NO) {
+        auto x1 = str::trimLeftSv(x);
+        if (x1.starts_with('"')) {
+            x = x.substr(1);
+            auto x2 = str::trimRightSv(x);
+            if (x2.ends_with('"')) {
+                x = x2.substr(0, x2.length() - 1);
+                hasRightQuote = true;
+            }
+        }
+    }
+    // Totally unescaped?
+    if (x.find('\\') != std::u8string_view::npos) {
+        return std::u8string{x};
+    }
+    std::u8string r;
+    auto p = std::to_address(x.begin());
+    auto end = std::to_address(x.end());
+    while (p != end) {
+        auto c = *(p++);
+        if (c == '\\') {
+            if (p == end) {
+                if (hasRightQuote)
+                    r += '"';
+            } else {
+                c = *(p++);
+                switch (c) {
+                case 'n':
+                case 'r':
+                    r += '\n';
+                    break;
+                case 's':
+                    r += ' ';
+                    break;
+                case '\\':
+                    r += '\\';
+                    break;
+                default:
+                    r += c;
+                }
+            }
+        } else {
+            r += c;
+        }
+    }
+    return r;
+}
+
+
+std::u8string decode::quoted(std::u8string_view x)
+{
+    // Does not start with quote → return param
+    auto x1 = str::trimLeftSv(x);
+    if (!x1.starts_with('"')) {
+        return std::u8string(x);
+    }
+    // Now have starting quote
+    x = x1.substr(1);
+
+    // Find ending quote; cut it if found
+    auto x2 = str::trimRightSv(x1);
+    if (x2.ends_with('"'))
+        x = x2.substr(0, x2.length() - 1);
+
+    std::u8string r;
+    r.reserve(x.length());
+    auto p = std::to_address(x.begin());
+    auto end = std::to_address(x.end());
+    while (p != end) {
+        auto c = *p;
+        if (c == '"') {
+            // Skip one more quote
+            if (p != end && *p == '"')
+                ++p;
+            r += '"';
+        } else {
+            r += c;
+        }
+    }
+    r.shrink_to_fit();
+    return r;
 }
