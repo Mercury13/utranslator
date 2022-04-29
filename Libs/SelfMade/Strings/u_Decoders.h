@@ -115,7 +115,7 @@ namespace decode {
         bool isAlpha(char32_t x);
     }
 
-    enum class ForceUnquoted { NO, YES };
+    enum class MaybeQuoted { NO, YES };
 
     /// Lighter C++ decode
     /// Supports:
@@ -126,9 +126,9 @@ namespace decode {
     /// • \xXX, \oXXX, \uXXXX
     /// • trails of source code "xxxx" },
     ///
-    /// @param [in] forceUnquoted  [+] the string is surely unquoted
+    /// @param [in] maybeQuoted  [+] the string is possibly quoted
     ///
-    std::u8string cppLite(std::u8string_view x, ForceUnquoted forceUnquoted);
+    std::u8string cppLite(std::u8string_view x, MaybeQuoted maybeQuoted);
 
     /// Decodes C++
     /// "alpha\nbravo" → alpha<LF>bravo
