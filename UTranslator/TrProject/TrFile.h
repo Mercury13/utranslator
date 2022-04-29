@@ -143,6 +143,8 @@ namespace tf {
         void doExport(Walker& walker,
                       const std::filesystem::path&,
                       const std::filesystem::path& fname) override;
+        void doImport(Loader& loader,
+                      const std::filesystem::path& fname) override;
 
         std::unique_ptr<FileFormat> clone() override
             { return std::make_unique<Ini>(*this); }

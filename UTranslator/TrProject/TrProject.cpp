@@ -699,10 +699,13 @@ std::shared_ptr<tr::Text> tr::VirtualGroup::findText(std::u8string_view id)
 }
 
 
-void tr::VirtualGroup::loadText(tf::FileFormat& fmt, tf::Existing existing)
+void tr::VirtualGroup::loadText(
+        tf::FileFormat& fmt,
+        const std::filesystem::path& fname,
+        tf::Existing existing)
 {
     GroupLoader loader(fSelf.lock(), existing);
-    fmt.doImport(loader);
+    fmt.doImport(loader, fname);
 }
 
 

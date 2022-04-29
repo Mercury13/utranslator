@@ -91,8 +91,12 @@ void tf::FileFormat::unifiedSave(pugi::xml_node& node) const
             nodeEscape.append_attribute("line-break-mode") =
                     lineBreakEscapeModeNames[static_cast<int>(sets.textEscape.lineBreak)];
         }
-        nodeEscape.append_attribute("space-escape") =
-            spaceEscapeModeInfo[static_cast<int>(sets.textEscape.space)].techName.data();
+        if (sets.textEscape.space == escape::SpaceMode::DELIMITED) {
+            nodeEscape.append_attribute("space-delimiter") = str::toC(sets.textEscape.spaceDelimiter);
+        } else {
+            nodeEscape.append_attribute("space-escape") =
+                spaceEscapeModeInfo[static_cast<int>(sets.textEscape.space)].techName.data();
+        }
     }
 
     if (working.have(Usfg::MULTITIER)) {
@@ -129,10 +133,14 @@ void tf::FileFormat::unifiedLoad(const pugi::xml_node& node)
                 if (sets.textEscape.lineBreak == escape::LineBreakMode::SPECIFIED_TEXT)
                     sets.textEscape.lineBreak = escape::LineBreakMode::BANNED;
             }
-            sets.textEscape.space = parseEnumTechDef(
-                    nodeEscape.attribute("space-escape").as_string(),
-                    tf::spaceEscapeModeInfo,
-                    escape::SpaceMode::BARE);
+            if (auto attr = nodeEscape.attribute("space-delimiter")) {
+                sets.textEscape.setSpaceDelimiter(str::toU8sv(attr.as_string()));
+            } else {
+                sets.textEscape.space = parseEnumTechDef(
+                        nodeEscape.attribute("space-escape").as_string(),
+                        tf::spaceEscapeModeInfo,
+                        escape::SpaceMode::BARE);
+            }
         }
     }
 

@@ -142,6 +142,14 @@ void tf::Ini::doExport(
 }
 
 
+void tf::Ini::doImport(Loader& loader,
+              const std::filesystem::path& fname)
+{
+
+}
+
+
+
 void tf::Ini::save(pugi::xml_node& node) const
     { unifiedSave(node); }
 

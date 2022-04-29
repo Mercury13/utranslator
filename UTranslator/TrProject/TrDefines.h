@@ -151,7 +151,8 @@ namespace tf {
     public:
         virtual ~FileFormat() = default;
 
-        virtual void doImport(Loader&) {};
+        virtual void doImport(
+                Loader&, const std::filesystem::path&) {};
         virtual void doExport(
                 Walker&,
                 [[maybe_unused]] const std::filesystem::path& fnExisting,

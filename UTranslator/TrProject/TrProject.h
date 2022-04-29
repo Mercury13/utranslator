@@ -348,7 +348,10 @@ namespace tr {
         void addStats(Stats& x, bool includeSelf) const override
                 { if (includeSelf) ++x.nGroups; }
         std::shared_ptr<VirtualGroup> nearestGroup() override { return fSelf.lock(); }
-        void loadText(tf::FileFormat& fmt, tf::Existing existing);
+        void loadText(
+                tf::FileFormat& fmt,
+                const std::filesystem::path& fname,
+                tf::Existing existing);
         std::shared_ptr<VirtualGroup> findGroup(std::u8string_view id);
         std::shared_ptr<Text> findText(std::u8string_view id);
     protected:

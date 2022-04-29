@@ -1137,7 +1137,8 @@ void FmMain::doLoadText()
 
             try {
                 auto thing = treeModel.lock();
-                destGroup->loadText(*loadSetsCache.format, loadSetsCache.text.existing);
+                destGroup->loadText(*loadSetsCache.format, fileName,
+                                    loadSetsCache.text.existing);
             } catch (std::exception& e) {
                 QMessageBox::critical(this, "Load texts", QString::fromStdString(e.what()));
             }
