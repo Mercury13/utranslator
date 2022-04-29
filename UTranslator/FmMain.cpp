@@ -1118,7 +1118,7 @@ void FmMain::doLoadText()
         // Save as soon as we chose smth, even if we press Cancel afterwards
         loadSetsCache.format = std::move(fileFormat);
         loadSetsCache.fileKey = file.get();
-        auto filter = fileFormat->fileFilter();
+        auto filter = loadSetsCache.format->fileFilter();
         filedlg::Filters filters { filter, filedlg::ALL_FILES };
         std::filesystem::path fileName = filedlg::open(
                 this, {}, filters, filter.extension(),
@@ -1137,7 +1137,7 @@ void FmMain::doLoadText()
 
             try {
                 auto thing = treeModel.lock();
-                destGroup->loadText(*fileFormat, loadSetsCache.text.existing);
+                destGroup->loadText(*loadSetsCache.format, loadSetsCache.text.existing);
             } catch (std::exception& e) {
                 QMessageBox::critical(this, "Load texts", QString::fromStdString(e.what()));
             }
