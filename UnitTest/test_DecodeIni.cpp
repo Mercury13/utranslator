@@ -119,6 +119,7 @@ TEST (DecodeIni, TrimValues)
             "[Gr]\n"                // Some group
             "  9 =10 \n"            // Trims
             "  A= 12 \n"            // Should not trim
+            "   = QQ \n"            // Treat as empty line
             "  B \f= 34 \n";        // Should not trim
     auto r = runTest(ini);
     EXPECT_EQ(
@@ -128,6 +129,7 @@ TEST (DecodeIni, TrimValues)
               "g:Gr\n"
               "v:9=10 \n"
               "v:A= 12 \n"
+              "e\n"
               "v:B= 34 \n", r);
 
 }

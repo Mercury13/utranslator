@@ -729,6 +729,8 @@ void decode::ini(std::istream& is, IniCallback& cb)
                 }
                 name = str::trimRightSv(name);
                 cb.onVar(name, value);
+            } else {
+                cb.onEmptyLine();
             }
         }
     }
@@ -798,7 +800,7 @@ std::u8string decode::quoted(std::u8string_view x)
     x = x1.substr(1);
 
     // Find ending quote; cut it if found
-    auto x2 = str::trimRightSv(x1);
+    auto x2 = str::trimRightSv(x);
     if (x2.ends_with('"'))
         x = x2.substr(0, x2.length() - 1);
 
@@ -807,7 +809,7 @@ std::u8string decode::quoted(std::u8string_view x)
     auto p = std::to_address(x.begin());
     auto end = std::to_address(x.end());
     while (p != end) {
-        auto c = *p;
+        auto c = *(p++);
         if (c == '"') {
             // Skip one more quote
             if (p != end && *p == '"')

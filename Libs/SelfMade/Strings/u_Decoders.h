@@ -95,6 +95,7 @@ namespace decode {
         /// @warning  decode rawValue as you want!!
         ///           No text formats here!
         virtual void onVar(std::u8string_view name, std::u8string_view rawValue) = 0;
+        /// @warning  Also on bad line
         virtual void onEmptyLine() {}
         virtual void onComment(std::u8string_view) {}
         virtual ~IniCallback() = default;
