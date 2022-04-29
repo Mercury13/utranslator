@@ -88,6 +88,18 @@ namespace decode {
     ///
     BomType detectBom(std::istream& is);
 
+    class IniCallback {     // interface
+    public:
+        virtual void onGroup(std::u8string_view) = 0;
+        /// @warning  decode rawValue as you want!!
+        ///           No text formats here!
+        virtual void onVar(std::u8string_view name, std::u8string_view rawValue) = 0;
+        virtual ~IniCallback() = default;
+    };
+
+    void ini(std::istream& is, IniCallback& cb);
+
+
     /// @return 0..15 if x = 0..F
     ///         999 otherwise
     unsigned int hexDigitValue(char32_t x);

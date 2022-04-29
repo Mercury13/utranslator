@@ -16,6 +16,7 @@ SOURCES += \
     ../Libs/SelfMade/Strings/u_Decoders.cpp \
     test_DecodeBr.cpp \
     test_DecodeCpp.cpp \
+    test_DecodeIni.cpp \
     test_DetectBom.cpp \
     test_EscapeCpp.cpp \
     test_EscapeText.cpp

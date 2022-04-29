@@ -663,3 +663,46 @@ std::u8string_view escape::cppSv(
         *(p++) = '"';
     return { cache.data(), p };
 }
+
+
+void decode::ini(std::istream& is, IniCallback& cb)
+{
+    auto bomType = detectBom(is);
+    switch (bomType) {
+    case BomType::UTF16BE:
+    case BomType::UTF16LE:
+        throw std::logic_error("UTF-16 INI files are not supported!");
+    case BomType::NONE:     // These two are supported
+    case BomType::UTF8:;
+    }
+    std::string line;
+    while (std::getline(is, line)) {
+        std::u8string_view s = str::toU8sv(str::trimLeftSv(line));
+        if (s.empty() || s.starts_with(';') || s.starts_with('#'))
+            continue;
+        if (s.starts_with('[')) {   // “[ group ] ”
+            // GROUP
+            s = s.substr(1);        // “ group ] ”
+            auto s1 = str::trimRightSv(s);  // “ group ]”
+            if (s1.ends_with(']'))
+                s = s1.substr(0, s1.length() - 1);  // “ group ”
+            s = str::trimSv(s);     // Let it be: IDs are trimmed, values are not
+            cb.onGroup(s);
+        } else {
+            // VARIABLE
+            auto pEq = s.find('=');
+            if (pEq != 0 && pEq != std::string_view::npos) {
+                auto name = s.substr(0, pEq);  // starts with non-blank!
+                auto value = s.substr(pEq + 1);
+                // Check for “name = value”, rather common
+                if (name.back() == ' '
+                        && !value.empty()
+                        && str::isBlank(value.front())) {
+                    value = value.substr(1);
+                }
+                name = str::trimRightSv(name);
+                cb.onVar(name, value);
+            }
+        }
+    }
+}
