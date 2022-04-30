@@ -259,3 +259,55 @@ TEST (CppFuture, UnquotedEscape)
     auto x = decode::cpp(UR"qqq(abc\ndef)qqq");
     EXPECT_EQ(U"abc\\ndef", x);
 }
+
+
+///// decode::cppLite //////////////////////////////////////////////////////////
+
+
+TEST (DecodeCppLite, Simple)
+{
+    auto r = decode::cppLite(u8"  alpha  ", decode::MaybeQuoted::NO);
+    EXPECT_EQ(u8"  alpha  ", r);
+}
+
+
+TEST (DecodeCppLite, Escapes)
+{
+    auto r = decode::cppLite(u8R"(\r\"alpha \s)", decode::MaybeQuoted::NO);
+    EXPECT_EQ(u8"\n\"alpha  ", r);
+}
+
+
+TEST (DecodeCppLite, Quotes)
+{
+    auto r = decode::cppLite(u8R"( " alpha " )", decode::MaybeQuoted::YES);
+    EXPECT_EQ(u8" alpha ", r);
+}
+
+
+TEST (DecodeCppLite, SingleSideQuotes)
+{
+    auto r = decode::cppLite(u8R"( " alpha  )", decode::MaybeQuoted::YES);
+    EXPECT_EQ(u8" alpha  ", r);
+}
+
+
+TEST (DecodeCppLite, QuotesAndEscapes)
+{
+    auto r = decode::cppLite(u8R"( "alpha\n\"bravo"  )", decode::MaybeQuoted::YES);
+    EXPECT_EQ(u8"alpha\n\"bravo", r);
+}
+
+
+TEST (DecodeCppLite, LastQuoteEscape)
+{
+    auto r = decode::cppLite(u8R"( "alpha bravo\"  )", decode::MaybeQuoted::YES);
+    EXPECT_EQ(u8"alpha bravo\"", r);
+}
+
+
+TEST (DecodeCppLite, NoQuote)
+{
+    auto r = decode::cppLite(u8R"( alpha bravo\"  )", decode::MaybeQuoted::YES);
+    EXPECT_EQ(u8" alpha bravo\"  ", r);
+}
