@@ -230,7 +230,7 @@ std::u8string tr::UiObject::makeTextId(const IdLib& idlib) const
 }
 
 
-std::shared_ptr<tr::Entity> tr::UiObject::extract()
+std::shared_ptr<tr::Entity> tr::UiObject::extract(Modify wantModify)
 {
     auto pnt = parent();
     // No parent?
@@ -241,13 +241,13 @@ std::shared_ptr<tr::Entity> tr::UiObject::extract()
     // Initial cache lookup
     if (static_cast<size_t>(cache.index) < nc
             && pnt->child(cache.index).get() == this) {
-        return pnt->extractChild(cache.index);
+        return pnt->extractChild(cache.index, wantModify);
     }
 
     // Search by cache
     for (size_t i = 0; i < nc; ++i) {
         if (pnt->child(i).get() == this) {
-            return pnt->extractChild(cache.index);
+            return pnt->extractChild(cache.index, wantModify);
         }
     }
     return {};
@@ -598,13 +598,16 @@ std::shared_ptr<tr::Project> tr::VirtualGroup::project()
 }
 
 
-std::shared_ptr<tr::Entity> tr::VirtualGroup::extractChild(size_t i)
+std::shared_ptr<tr::Entity> tr::VirtualGroup::extractChild(
+        size_t i, Modify wantModify)
 {
     if (i >= children.size())
         return {};
     auto r = children[i];
     children.erase(children.begin() + i);
     recache();
+    if (wantModify != Modify::NO)
+        doModify(Mch::META);
     return r;
 }
 
@@ -1118,13 +1121,16 @@ void tr::Project::doShare(const std::shared_ptr<Project>& x)
 }
 
 
-std::shared_ptr<tr::Entity> tr::Project::extractChild(size_t i)
+std::shared_ptr<tr::Entity> tr::Project::extractChild(
+        size_t i, Modify wantModify)
 {
     if (i >= files.size())
         return {};
     auto r = files[i];
     files.erase(files.begin() + i);
     recache();
+    if (wantModify != Modify::NO)
+        doModify(Mch::META);
     return r;
 }
 

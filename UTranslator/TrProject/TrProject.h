@@ -199,7 +199,7 @@ namespace tr {
         /// Deletes i’th child
         /// @return extracted child
         /// @warning  Because of recache, complexity is O(n)
-        virtual std::shared_ptr<Entity> extractChild(size_t) { return {}; }
+        virtual std::shared_ptr<Entity> extractChild(size_t, Modify) { return {}; }
         virtual std::shared_ptr<File> file() = 0;        
 
         /// @return  ptr to comments, or null
@@ -266,7 +266,7 @@ namespace tr {
         const FileInfo* inheritedFileInfo() const;
 
         /// @return  [+] s_p to this  [0] nothing happened
-        std::shared_ptr<Entity> extract();
+        std::shared_ptr<Entity> extract(Modify wantModify);
         /// Adds statistics about a single object (not children)
         /// @param [in] includeSelf   Include self to stats unless it is text
         virtual void addStats(Stats& x, bool includeSelf) const = 0;
@@ -333,7 +333,7 @@ namespace tr {
 
         size_t nChildren() const noexcept override { return children.size(); };
         std::shared_ptr<Entity> child(size_t i) const override;
-        std::shared_ptr<Entity> extractChild(size_t i) override;
+        std::shared_ptr<Entity> extractChild(size_t i, Modify wantModify) override;
         void traverse(
                 TraverseListener& x, tr::WalkOrder order, EnterMe enterMe) override;
 
@@ -502,7 +502,7 @@ namespace tr {
         std::u8string_view idColumn() const override { return {}; }
         std::shared_ptr<Project> project() override { return self(); }
         Pair<VirtualGroup> additionParents() override { return {}; }
-        std::shared_ptr<Entity> extractChild(size_t i) override;
+        std::shared_ptr<Entity> extractChild(size_t i, Modify wantModify) override;
         void addStats(Stats&, bool) const override {}
         void writeToXml(pugi::xml_node&) const;
         bool unmodify(Forced forced) override;

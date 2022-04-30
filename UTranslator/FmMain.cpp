@@ -240,7 +240,7 @@ std::shared_ptr<tr::Entity> PrjTreeModel::extract(tr::UiObject* obj)
     if (obj != obj1)
         throw std::logic_error("[PrjTreeModel.doDelete] Check failed!");
     beginRemoveRows(pntIndex, myIndex, myIndex);
-    auto r = toObj(pntIndex)->extractChild(myIndex);
+    auto r = toObj(pntIndex)->extractChild(myIndex, tr::Modify::YES);
     endRemoveRows();
     if (!r)
         throw std::logic_error("[PrjTreeModel.doDelete] Identified as deletable, but did not delete");

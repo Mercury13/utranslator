@@ -142,10 +142,62 @@ void tf::Ini::doExport(
 }
 
 
+namespace {
+
+    class IniImporter : public decode::IniCallback {
+    public:
+        IniImporter(tf::Loader& aLoader, const escape::Text& aSets,
+                    const tf::MultitierStyle& aMultitierStyle)
+            : loader(aLoader), sets(aSets), multitierStyle(aMultitierStyle) {}
+        void onGroup(std::u8string_view name) override;
+        void onVar(std::u8string_view name, std::u8string_view rawValue) override;
+        void onEmptyLine() override;
+        void onComment(std::u8string_view) override;
+    private:
+        tf::Loader& loader;
+        const escape::Text& sets;
+        tf::MultitierStyle multitierStyle;
+        std::u8string comment;
+    };
+
+    void IniImporter::onGroup(std::u8string_view name)
+    {
+        auto things = str::splitSv(name, multitierStyle.separator);
+        loader.goToGroupAbs(things);
+        comment.clear();
+    }
+
+    void IniImporter::onEmptyLine()
+    {
+        comment.clear();
+    }
+
+    void IniImporter::onComment(std::u8string_view x)
+    {
+        if (!comment.empty())
+            comment += '\n';
+        comment += x;
+    }
+
+    void IniImporter::onVar(std::u8string_view name, std::u8string_view rawValue)
+    {
+        auto text = sets.unescape(rawValue);
+        loader.addText(name, text, comment);
+        comment.clear();
+    }
+
+}   // anon namespace
+
+
 void tf::Ini::doImport(Loader& loader,
               const std::filesystem::path& fname)
 {
-
+    std::ifstream is(fname);
+    if (!is.is_open()) {
+        throw std::runtime_error("Cannot open file " + str::toStr(fname.filename().u8string()));
+    }
+    IniImporter im(loader, textEscape, multitier);
+    decode::ini(is, im);
 }
 
 
