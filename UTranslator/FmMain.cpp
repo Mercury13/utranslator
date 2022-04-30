@@ -1106,7 +1106,8 @@ void FmMain::doLoadText()
     // Get current file
     CloningUptr<tf::FileFormat> fileFormat;
     if (file.get() != loadSetsCache.fileKey) {
-        fileFormat = file->info.format->clone();
+        if (file->info.format)
+            fileFormat = file->info.format->clone();
     }
     if (!fileFormat && loadSetsCache.format) {
         fileFormat = loadSetsCache.format->clone();
