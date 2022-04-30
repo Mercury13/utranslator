@@ -709,7 +709,7 @@
   </action>
   <action name="acAddHostedGroup">
    <property name="text">
-    <string>Add hosted &amp;group</string>
+    <string>Add &amp;group</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+G</string>
@@ -731,9 +731,9 @@
     <string>Ctrl+Del</string>
    </property>
   </action>
-  <action name="acAddExternalGroup">
+  <action name="acAddSyncGroup">
    <property name="text">
-    <string>Add &amp;one-way external group…</string>
+    <string>Add &amp;synchronized group…</string>
    </property>
   </action>
   <action name="acGoBack">
@@ -802,7 +802,7 @@
   </action>
   <action name="acGoFind">
    <property name="text">
-    <string>Find…</string>
+    <string>&amp;Find…</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+F</string>
@@ -810,7 +810,7 @@
   </action>
   <action name="acLoadTexts">
    <property name="text">
-    <string>Load texts…</string>
+    <string>&amp;Load texts…</string>
    </property>
   </action>
  </widget>
