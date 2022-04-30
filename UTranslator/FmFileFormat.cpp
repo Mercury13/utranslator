@@ -204,6 +204,7 @@ bool FmFileFormat::exec(
     collectFormats(&obj.proto(), filter);
     copyFrom(obj);
     copyFrom(loadSets);
+    comboChanged(ui->comboFormat->currentIndex());
     reenable();
     ui->btAbout->setFocus();     // sensitive form → focus About button
     bool r = Super::exec();

@@ -541,7 +541,7 @@ namespace {
             auto text = curr->addText(
                         std::u8string{textId}, std::u8string{original}, tr::Modify::YES);
             if (!comment.empty())
-                text->setAuthorsComment(comment, tr::Modify::YES);
+                text->setAuthorsComment(comment, tr::Modify::NO);
         }
     }
 
