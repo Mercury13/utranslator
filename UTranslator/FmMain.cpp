@@ -177,9 +177,13 @@ QVariant PrjTreeModel::headerData(
 
 namespace {
 
+    #define FILE_PREFIX u8"file"
+    #define FILE_SUFFIX u8".txt"
+    #define FILE_INITIAL   FILE_PREFIX "0" FILE_SUFFIX
+
     const tr::IdLib myIds {
-        .filePrefix = u8"file",
-        .fileSuffix = u8".txt",
+        .filePrefix = FILE_PREFIX,
+        .fileSuffix = FILE_SUFFIX,
         .groupPrefix = u8"g",
         .textPrefix = {}
     };
@@ -436,6 +440,7 @@ void FmMain::doNew()
 {
     if (auto result = fmNew.ensure(this).exec(0)) {
         auto x = tr::Project::make(std::move(*result));
+        x->addFile(FILE_INITIAL, tr::Modify::NO);
         plantNewProject(std::move(x));
     }
 }
