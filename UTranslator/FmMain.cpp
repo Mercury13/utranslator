@@ -232,7 +232,6 @@ Thing<tr::Text> PrjTreeModel::addText(
 
 std::shared_ptr<tr::Entity> PrjTreeModel::extract(tr::UiObject* obj)
 {
-    /// @todo [urgent] modify??
     if (!obj)
         return {};
     // Get parent/check once again
