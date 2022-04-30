@@ -139,7 +139,6 @@ namespace tf {
         escape::Text textEscape;
         MultitierStyle multitier;
 
-        /// @todo [future] can import too, but let’s export somehow
         void doExport(Walker& walker,
                       const std::filesystem::path&,
                       const std::filesystem::path& fname) override;
