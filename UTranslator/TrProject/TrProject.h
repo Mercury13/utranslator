@@ -224,6 +224,7 @@ namespace tr {
         virtual void traverse(
                 TraverseListener& x, tr::WalkOrder order, EnterMe enterMe) = 0;
         virtual std::shared_ptr<VirtualGroup> nearestGroup() = 0;
+        virtual HIcon icon() const { return nullptr; }
 
         void recache();
         void recursiveRecache();

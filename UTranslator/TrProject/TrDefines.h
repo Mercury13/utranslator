@@ -24,6 +24,11 @@ namespace tr {
         EXACT,      ///< Exact order: top down, s1 s2 s3 s4
         ECONOMY     ///< Economy order: never twice the same group, s1 s4 s2 s3
     };
+
+    class IconObject {};
+    ///  Opaque handle for icons
+    using HIcon = const IconObject*;
+
 }
 
 namespace tf {
