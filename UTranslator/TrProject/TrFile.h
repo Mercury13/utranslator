@@ -98,6 +98,7 @@ namespace tf {
         std::u8string_view locDescription() const override;
         std::u8string_view locSoftware() const override { return u8"—"; }
         std::u8string_view locIdType() const override { return u8"—"; }
+        const char* iconName() const override { return "noformat"; }
     };
 
     class Dummy final : public FileFormat
@@ -128,6 +129,7 @@ namespace tf {
         std::u8string_view locDescription() const override;
         std::u8string_view locSoftware() const override { return u8"Various"; }
         std::u8string_view locIdType() const override { return u8"String, 1-nested"; }
+        const char* iconName() const override { return "ini"; }
 
         static const IniProto INST;
     };

@@ -25,7 +25,13 @@ namespace tr {
         ECONOMY     ///< Economy order: never twice the same group, s1 s4 s2 s3
     };
 
-    class IconObject {};
+    ///  Opaque handle, but may be used as interface
+    class IconObject
+    {
+    public:
+        virtual const char* iconName() const { return nullptr; }
+        virtual ~IconObject() = default;
+    };
     ///  Opaque handle for icons
     using HIcon = const IconObject*;
 
@@ -124,7 +130,7 @@ namespace tf {
     ///  • Explains which of unified settings are available
     ///  • Ecplains importer’s capabilities
     ///
-    class FormatProto   // interface
+    class FormatProto : public tr::IconObject   // interface
     {
     public:
         virtual ~FormatProto() = default;

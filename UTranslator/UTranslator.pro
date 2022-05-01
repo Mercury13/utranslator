@@ -22,6 +22,7 @@ SOURCES += \
     FmFileFormat.cpp \
     FmFind.cpp \
     History.cpp \
+    QtIconLib.cpp \
     TrProject/Modifiable.cpp \
     TrProject/TrDefines.cpp \
     TrProject/TrFile.cpp \
@@ -51,6 +52,7 @@ HEADERS += \
     FmFileFormat.h \
     FmFind.h \
     History.h \
+    QtIconLib.h \
     TrProject/Modifiable.h \
     TrProject/TrDefines.h \
     TrProject/TrFile.h \

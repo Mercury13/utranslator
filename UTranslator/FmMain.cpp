@@ -114,6 +114,13 @@ int PrjTreeModel::columnCount(const QModelIndex &) const
 
 namespace {
     constexpr QColor BG_MODIFIED { 0xFA, 0xF0, 0xE6 };
+
+    QString brushLineEnds(std::u8string_view x)
+    {
+        auto r = str::toQ(x);
+        r.replace('\n', QChar{L'¶'});
+        return r;
+    }
 }
 
 QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
@@ -127,9 +134,10 @@ QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
             case COL_ID:
                 return str::toQ(obj->idColumn());
             case COL_ORIG:
-                return str::toQ(obj->origColumn());
+                /// @todo [urgent] get rid of origColumn
+                return brushLineEnds(obj->origColumn());
             case COL_TRANSL:
-                return str::toQ(obj->translColumn());
+                return brushLineEnds(obj->translColumn());
             default:
                 return {};
             }

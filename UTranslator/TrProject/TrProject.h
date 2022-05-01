@@ -18,6 +18,33 @@ namespace pugi {
     class xml_node;
 }
 
+namespace detail {
+    enum class TriBool : unsigned char { NO, UNK, YES };
+}
+
+class TriBool
+{
+public:
+    static constexpr detail::TriBool NO = detail::TriBool::NO;
+    static constexpr detail::TriBool UNK = detail::TriBool::UNK;
+    static constexpr detail::TriBool YES = detail::TriBool::YES;
+    friend constexpr bool operator == (TriBool, detail::TriBool) noexcept;
+    friend constexpr bool operator == (detail::TriBool, TriBool) noexcept;
+    constexpr TriBool() noexcept = default;
+    constexpr TriBool(detail::TriBool x) noexcept : d(x) {}
+    constexpr TriBool(bool x) noexcept : d(x ? YES : NO) {}
+    constexpr bool isYes() const noexcept { return (d == YES); }
+    constexpr bool isNo() const noexcept { return (d == NO); }
+    constexpr bool isUnk() const noexcept { return (d == UNK); }
+    constexpr bool isSet() const noexcept { return (d != UNK); }
+private:
+    detail::TriBool d = detail::TriBool::UNK;
+};
+
+constexpr bool operator == (TriBool x, detail::TriBool y) noexcept { return (x.d == y); }
+constexpr bool operator == (detail::TriBool x, TriBool y) noexcept { return (x == y.d); };
+
+
 namespace tr {
 
     /// Modification channel
@@ -182,6 +209,7 @@ namespace tr {
             //bool isExpanded = false;    ///< [+] was expanded in tree; unused right now
             //bool isDeleted = false;     ///< [+] deleted from original and left for history; unused right now
             Mod mod;
+            TriBool isExpanded;
         } cache;
         // Just here we use virtual dtor!
         virtual ~UiObject() = default;
@@ -463,9 +491,10 @@ namespace tr {
         CloningUptr<tf::FileFormat>* ownFileFormat() override { return &info.format; }
         const tf::ProtoFilter* allowedFormats() const override
             { return &tf::ProtoFilter::ALL_EXPORTING_AND_NULL; }
+        HIcon icon() const override;
 
         constexpr FileMode mode() const noexcept { return FileMode::HOSTED; }
-        tf::FileFormat* exportableFormat() noexcept;
+        tf::FileFormat* exportableFormat() noexcept;        
     protected:
         std::weak_ptr<Project> fProject;
     };

@@ -953,6 +953,14 @@ tf::FileFormat* tr::File::exportableFormat() noexcept
 }
 
 
+tr::HIcon tr::File::icon() const
+{
+    return info.format
+            ? static_cast<HIcon>(&info.format->proto())
+            : static_cast<HIcon>(&tf::DummyProto::INST);
+}
+
+
 ///// FileWalker ///////////////////////////////////////////////////////////////
 
 namespace {
