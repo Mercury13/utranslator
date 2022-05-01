@@ -642,7 +642,7 @@ void FmMain::reenable()
     bool isMainVisible = (ui->stackMain->currentWidget() == ui->pageMain);
     bool hasProject { project };
     bool isOriginal = (isMainVisible && hasProject
-                       && project->info.type == tr::PrjType::ORIGINAL);
+                       && project->info.canEditOriginal());
 
     // Starting screen
     ui->btStartEdit->setVisible(hasProject);

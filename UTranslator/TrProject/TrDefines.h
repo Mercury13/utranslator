@@ -269,6 +269,8 @@ namespace tr {
         struct Transl {
             std::string lang;
         } transl;
+
+        bool canEditOriginal() const;
     };
 
     struct FileInfo {

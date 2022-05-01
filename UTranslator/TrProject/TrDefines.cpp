@@ -69,6 +69,21 @@ bool tf::FormatProto::isWithin(const ProtoFilter& filter) const
 }
 
 
+///// PrjInfo //////////////////////////////////////////////////////////////////
+
+
+bool tr::PrjInfo::canEditOriginal() const
+{
+    switch (type) {
+    case PrjType::ORIGINAL:
+        return true;
+    case PrjType::FULL_TRANSL:
+        return false;
+    }
+    throw std::logic_error("[canEditOriginal] Strange project type");
+}
+
+
 ///// FileFormat ///////////////////////////////////////////////////////////////
 
 

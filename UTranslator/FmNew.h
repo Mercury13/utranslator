@@ -2,6 +2,11 @@
 #define FMNEW_H
 
 #include <QDialog>
+
+// Qt ex
+#include "QtMultiRadio.h"
+
+// Project
 #include "TrDefines.h"
 
 namespace Ui {
@@ -20,6 +25,7 @@ public:
 protected:
 private:
     Ui::FmNew *ui;
+    EcRadio<tr::PrjType> radioType;
 
     using Super::exec;
     void copyTo(tr::PrjInfo&);

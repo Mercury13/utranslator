@@ -12,12 +12,18 @@ FmNew::FmNew(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    // radioType
+    radioType.setRadio(tr::PrjType::ORIGINAL, ui->radioOriginal);
+    radioType.setRadio(tr::PrjType::FULL_TRANSL, ui->radioTranslation);
+    radioType.set(tr::PrjType::ORIGINAL);
+
     // Initial setup
     ui->edOrigLang->setCurrentText("en");
 
     // Accept/reject
-    connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &This::accept);
-    connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &This::reject);
+    connect(ui->btCancel, &QPushButton::clicked, this, &This::reject);
+    //connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &This::accept);
+    //connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &This::reject);
 }
 
 FmNew::~FmNew()
@@ -27,6 +33,8 @@ FmNew::~FmNew()
 
 std::unique_ptr<tr::PrjInfo> FmNew::exec(int)
 {
+    // Start wizard
+    ui->stackWizard->setCurrentWidget(ui->pageType);
     if (!Super::exec()) return {};
     auto r = std::make_unique<tr::PrjInfo>();
     copyTo(*r);
