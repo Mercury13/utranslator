@@ -2,14 +2,26 @@
 #define FMNEW_H
 
 #include <QDialog>
+#include <QRadioButton>
 
 // Qt ex
 #include "QtMultiRadio.h"
 
 // Project
-#include "TrDefines.h"
+#include "TrProject.h"
 
 class QStackedWidget;
+
+class DblClickRadio : public QRadioButton {
+    Q_OBJECT
+    using Super = QRadioButton;
+public:
+    using Super::Super;
+signals:
+    void doubleClicked();
+protected:
+    void mouseDoubleClickEvent(QMouseEvent *event) override;
+};
 
 class WizardManager : public QObject
 {
@@ -49,7 +61,10 @@ class FmNew : public QDialog
 public:
     explicit FmNew(QWidget *parent = nullptr);
     ~FmNew() override;
-    std::unique_ptr<tr::PrjInfo> exec(int dummy=0);
+    /// @param [in] defaultFile   default file name for ORIGINAL
+    ///                           (stored somewhere in FmMain)
+    ///                           Does not mean for other project types
+    std::shared_ptr<tr::Project> exec(std::u8string_view defaultFile);
 protected:
 private:
     Ui::FmNew *ui;

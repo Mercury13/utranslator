@@ -445,10 +445,8 @@ void FmMain::plantNewProject(std::shared_ptr<tr::Project>&& x)
 
 void FmMain::doNew()
 {
-    if (auto result = fmNew.ensure(this).exec(0)) {
-        auto x = tr::Project::make(std::move(*result));
-        x->addFile(FILE_INITIAL, tr::Modify::NO);
-        plantNewProject(std::move(x));
+    if (auto result = fmNew.ensure(this).exec(FILE_INITIAL)) {
+        plantNewProject(std::move(result));
     }
 }
 

@@ -41,14 +41,14 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
-           <widget class="QRadioButton" name="radioOriginal">
+           <widget class="DblClickRadio" name="radioOriginal">
             <property name="text">
              <string>Original</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="radioTranslation">
+           <widget class="DblClickRadio" name="radioTranslation">
             <property name="text">
              <string>Translation of *.uorig</string>
             </property>
@@ -213,6 +213,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>DblClickRadio</class>
+   <extends>QRadioButton</extends>
+   <header>FmNew.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>radioOriginal</tabstop>
   <tabstop>radioTranslation</tabstop>

@@ -7,6 +7,16 @@
 #include "QtConsts.h"
 
 
+///// DblClickRadio ////////////////////////////////////////////////////////////
+
+
+void DblClickRadio::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    Super::mouseDoubleClickEvent(event);
+    emit doubleClicked();
+}
+
+
 ///// WizardManager ////////////////////////////////////////////////////////////
 
 
@@ -84,6 +94,9 @@ FmNew::FmNew(QWidget *parent) :
     // Initial setup
     ui->edOrigLang->setCurrentText("en");
 
+    // Radio double clicks
+    connect(ui->radioOriginal, &DblClickRadio::doubleClicked, this, &This::nextPressed);
+    connect(ui->radioTranslation, &DblClickRadio::doubleClicked, this, &This::nextPressed);
     // Accept/reject
     connect(ui->btCancel, &QPushButton::clicked, this, &This::reject);
     connect(ui->btBack, &QPushButton::clicked, wizard.get(), &WizardManager::goBack);
@@ -110,21 +123,31 @@ void FmNew::nextPressed()
 }
 
 
-std::unique_ptr<tr::PrjInfo> FmNew::exec(int)
+std::shared_ptr<tr::Project> FmNew::exec(std::u8string_view defaultFile)
 {
-    // Start wizard
-    ui->stackWizard->setCurrentWidget(ui->pageType);
+    wizard->start();
     if (!Super::exec()) return {};
-    auto r = std::make_unique<tr::PrjInfo>();
-    copyTo(*r);
-    return r;
+    tr::PrjInfo info;
+    copyTo(info);
+    switch (info.type) {
+    case tr::PrjType::ORIGINAL: {
+            auto x = tr::Project::make(std::move(info));
+            x->addFile(defaultFile, tr::Modify::NO);
+            return x;
+        }
+    case tr::PrjType::FULL_TRANSL:
+        /// @todo [transl] full translation
+        return {};
+    }
+    // Strange type
+    return {};
 }
 
 
 void FmNew::copyTo(tr::PrjInfo& r)
 {
     /// @todo [transl] Translation is not implemented in FmNew
-    r.type = tr::PrjType::ORIGINAL;
+    r.type = radioType.get();
     r.orig.lang = ui->edOrigLang->currentText().toStdString();
     r.transl.lang.clear();
 }
