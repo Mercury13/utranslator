@@ -6,11 +6,75 @@
 // Qt ex
 #include "QtConsts.h"
 
+
+///// WizardManager ////////////////////////////////////////////////////////////
+
+
+WizardManager::WizardManager(
+        QStackedWidget* aStack, QWidget* aStartingPage,
+        QAbstractButton* abtBack, QAbstractButton* abtNext,
+        const QString& asFinish)
+    : stack(aStack), startingPage(aStartingPage),
+      btBack(abtBack), btNext(abtNext), sFinish(asFinish)
+{
+    sNext = abtNext->text();
+}
+
+
+void WizardManager::updateButtons()
+{
+    btBack->setEnabled(hasBack());
+    if (hasNext()) {
+        btNext->setText(sNext);
+    } else {
+        btNext->setText(sFinish);
+    }
+}
+
+
+void WizardManager::start()
+{
+    history.clear();
+    fHasNext = true;
+    stack->setCurrentWidget(startingPage);
+    updateButtons();
+}
+
+
+QWidget* WizardManager::page() const { return stack->currentWidget(); }
+
+
+void WizardManager::goNext(QWidget* newPage, bool hasNext)
+{
+    history.push_back(page());
+    fHasNext = hasNext;
+    stack->setCurrentWidget(newPage);
+    updateButtons();
+}
+
+
+void WizardManager::goBack()
+{
+    if (history.empty())
+        return;
+    auto lastPage = history.back();
+    history.pop_back();
+    stack->setCurrentWidget(lastPage);
+    fHasNext = true;
+    updateButtons();
+}
+
+
+///// FmNew ////////////////////////////////////////////////////////////////////
+
 FmNew::FmNew(QWidget *parent) :
     QDialog(parent, QDlgType::FIXED),
     ui(new Ui::FmNew)
 {
     ui->setupUi(this);
+    wizard = std::make_unique<WizardManager>(
+                ui->stackWizard, ui->pageType,
+                ui->btBack, ui->btNext, "Finish");
 
     // radioType
     radioType.setRadio(tr::PrjType::ORIGINAL, ui->radioOriginal);
@@ -22,14 +86,29 @@ FmNew::FmNew(QWidget *parent) :
 
     // Accept/reject
     connect(ui->btCancel, &QPushButton::clicked, this, &This::reject);
-    //connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &This::accept);
-    //connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &This::reject);
+    connect(ui->btBack, &QPushButton::clicked, wizard.get(), &WizardManager::goBack);
+    connect(ui->btNext, &QPushButton::clicked, this, &This::nextPressed);
 }
+
 
 FmNew::~FmNew()
 {
     delete ui;
 }
+
+
+void FmNew::nextPressed()
+{
+    switch (wizard->index()) {
+    case 0:
+        wizard->goNext(ui->pageOriginal, false);
+        break;
+    case 1:
+        accept();
+        break;
+    }
+}
+
 
 std::unique_ptr<tr::PrjInfo> FmNew::exec(int)
 {
