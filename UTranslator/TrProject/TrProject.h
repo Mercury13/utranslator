@@ -127,9 +127,10 @@ namespace tr {
         std::optional<std::u8string>
                     knownOriginal,  ///< Known original string we translated
                     translation;    ///< Translation for known original (if present) or original
-        bool needsAttention = false;
+        bool forceAttention = false;
         std::u8string_view translationSv() const
             { return translation ? *translation : std::u8string_view(); }
+        bool needsAttention(const tr::PrjInfo& prjInfo) const;
     };
 
     enum class Modify { NO, YES };
@@ -316,6 +317,8 @@ namespace tr {
             { return const_cast<UiObject*>(this)->ownFileInfo(); }
         std::shared_ptr<const File> file() const
             { return const_cast<UiObject*>(this)->file(); }
+        std::shared_ptr<const Project> project() const
+            { return const_cast<UiObject*>(this)->project(); }
     protected:
         // passkey idiom
         struct PassKey {};
@@ -411,6 +414,7 @@ namespace tr {
         Translatable* translatable() override { return &tr; }
         std::shared_ptr<File> file() override;
         std::shared_ptr<Project> project() override;
+            using Entity::project;
         void addStats(Stats& x, bool) const override { ++x.nTexts; }
         void writeToXml(pugi::xml_node&, WrCache&) const override;
         void readFromXml(const pugi::xml_node& node, const PrjInfo& info) override;
@@ -424,7 +428,7 @@ namespace tr {
                 tr::Modify wantModify) const;
         CloneObj startCloning(
                 const std::shared_ptr<UiObject>& parent) const override;
-        bool doesNeedAttention() const { return tr.needsAttention; }
+        bool doesNeedAttention() const override;
     protected:
         std::shared_ptr<Entity> vclone(
                 const std::shared_ptr<VirtualGroup>& parent) const override

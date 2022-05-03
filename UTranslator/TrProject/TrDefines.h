@@ -265,6 +265,7 @@ namespace tr {
         PrjType type = PrjType::ORIGINAL;
         struct Orig {
             std::string lang;
+            std::filesystem::path absPath;
         } orig;
         struct Transl {
             std::string lang;
@@ -283,6 +284,12 @@ namespace tr {
         ///             incl. column, transl. settings…
         static bool isTranslation(PrjType type);
         bool isTranslation() const { return isTranslation(type); }
+        /// @return [+] is full translation, e.g. empty translation automatically needs attention.
+        /// @todo [patch] what to do?
+        bool isFullTranslation() const { return isTranslation(); }
+        /// @return [+] original path matters
+        static bool hasOriginalPath(PrjType type);
+        bool hasOriginalPath() { return hasOriginalPath(type); }
     };
 
     struct FileInfo {

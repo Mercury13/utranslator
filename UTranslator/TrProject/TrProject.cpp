@@ -65,6 +65,21 @@ tr::CanaryObject::~CanaryObject()
 }
 
 
+///// Translatable /////////////////////////////////////////////////////////////
+
+
+bool tr::Translatable::needsAttention(const tr::PrjInfo& prjInfo) const
+{
+    if (prjInfo.isTranslation()) {
+        if (!knownOriginal->empty())
+            return true;
+        if (prjInfo.isFullTranslation() && translation->empty())
+            return true;
+    }
+    return forceAttention;
+}
+
+
 ///// UiObject /////////////////////////////////////////////////////////////////
 
 
@@ -826,8 +841,8 @@ void tr::Text::writeToXml(pugi::xml_node& root, WrCache& c) const
 {
     auto node = root.append_child("text");
         node.append_attribute("id") = str::toC(id);
-        if (tr.needsAttention) {
-            node.append_attribute("needs-attention") = true;
+        if (tr.forceAttention) {
+            node.append_attribute("force-attention") = true;
         }
     writeTextInTag(node, "orig", tr.original, c);
     writeAuthorsComment(node, c);
@@ -889,6 +904,15 @@ tr::CloneObj tr::Text::startCloning(const std::shared_ptr<UiObject>& parent) con
         CloneErr::OK,
         std::unique_ptr<CloneObj::Commitable>(new CloneThing<Text>(*this, vg))
     };
+}
+
+
+bool tr::Text::doesNeedAttention() const
+{
+    auto prj = project();
+    if (!prj)       // if so → big troubles
+        return false;
+    return tr.needsAttention(prj->info);
 }
 
 

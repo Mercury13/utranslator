@@ -108,6 +108,18 @@ bool tr::PrjInfo::isTranslation(PrjType type)
 }
 
 
+bool tr::PrjInfo::hasOriginalPath(PrjType type)
+{
+    switch (type) {
+    case PrjType::ORIGINAL:
+        return false;
+    case PrjType::FULL_TRANSL:
+        return true;
+    }
+    throw std::logic_error("[hasOriginalPath] Strange project type");
+}
+
+
 ///// FileFormat ///////////////////////////////////////////////////////////////
 
 

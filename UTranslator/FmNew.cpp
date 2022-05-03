@@ -152,6 +152,7 @@ bool FmNew::chooseOriginal()
         project = tr::Project::make();
         project->load(fname);
         project->info.type = tr::PrjType::FULL_TRANSL;
+        project->info.orig.absPath = std::filesystem::absolute(fname);
         return true;
     } catch (std::exception& e) {
         QMessageBox::critical(this, "Original", e.what());

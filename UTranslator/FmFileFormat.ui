@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>411</width>
-    <height>298</height>
+    <width>420</width>
+    <height>351</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -48,8 +48,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>393</width>
-        <height>218</height>
+        <width>402</width>
+        <height>271</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -331,6 +331,41 @@
              </spacer>
             </item>
            </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="grpIncomplete">
+         <property name="title">
+          <string>Incomplete translations</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_6">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="leftMargin">
+           <number>9</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>1</number>
+          </property>
+          <item>
+           <widget class="QRadioButton" name="radioIncompleteYes">
+            <property name="text">
+             <string>Allow, the engine will take strings from other languages</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="radioIncompleteNo">
+            <property name="text">
+             <string>Forbid, translation tool must create a full text resource</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
