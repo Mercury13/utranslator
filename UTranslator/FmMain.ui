@@ -212,7 +212,7 @@
                <item>
                 <widget class="QStackedWidget" name="stackOriginal">
                  <property name="currentIndex">
-                  <number>1</number>
+                  <number>2</number>
                  </property>
                  <widget class="QWidget" name="pageOriginal">
                   <layout class="QVBoxLayout" name="verticalLayout_11">
@@ -339,6 +339,56 @@
                          </size>
                         </property>
                        </spacer>
+                      </item>
+                     </layout>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                 <widget class="QWidget" name="pageUneditableOriginal">
+                  <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0">
+                   <property name="leftMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>0</number>
+                   </property>
+                   <item>
+                    <widget class="QGroupBox" name="grpUneditableOriginal">
+                     <property name="title">
+                      <string>Original</string>
+                     </property>
+                     <layout class="QVBoxLayout" name="verticalLayout_15">
+                      <property name="leftMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>1</number>
+                      </property>
+                      <item>
+                       <widget class="QTextBrowser" name="browOriginal">
+                        <property name="focusPolicy">
+                         <enum>Qt::ClickFocus</enum>
+                        </property>
+                        <property name="styleSheet">
+                         <string notr="true">QTextBrowser { background-color: palette(button); }</string>
+                        </property>
+                        <property name="frameShape">
+                         <enum>QFrame::NoFrame</enum>
+                        </property>
+                       </widget>
                       </item>
                      </layout>
                     </widget>
@@ -821,6 +871,7 @@
   <tabstop>edId</tabstop>
   <tabstop>memoOriginal</tabstop>
   <tabstop>chkIdless</tabstop>
+  <tabstop>browOriginal</tabstop>
   <tabstop>btFileFormat</tabstop>
   <tabstop>memoTranslation</tabstop>
   <tabstop>memoComment</tabstop>
