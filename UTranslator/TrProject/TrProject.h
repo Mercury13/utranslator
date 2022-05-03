@@ -88,6 +88,8 @@ namespace tr {
 
     enum class ObjType { PROJECT, FILE, GROUP, TEXT };
 
+    enum class ObjState { UNCHANGED, ADDED, DELETED };
+
     class Entity;
 
     template <class T>
@@ -208,8 +210,6 @@ namespace tr {
     public:
         struct Cache {
             int index = -1;             ///< index in tree
-            //bool isExpanded = false;    ///< [+] was expanded in tree; unused right now
-            //bool isDeleted = false;     ///< [+] deleted from original and left for history; unused right now
             Mod mod;
             TriBool isExpanded;
         } cache;
@@ -332,6 +332,7 @@ namespace tr {
     public:
         std::u8string id;               ///< Identifier of group or string
         Comments comm;
+        ObjState state = ObjState::UNCHANGED;
 
         std::u8string_view idColumn() const override { return id; }
         Comments* comments() override { return &comm; }
