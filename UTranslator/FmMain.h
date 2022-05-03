@@ -197,6 +197,7 @@ private:
 
     /// Loads an UI object
     void loadObject(tr::UiObject& obj);
+    void loadContext(tr::UiObject* lastSon);
     /// Saves an UI object to project
     void acceptObject(tr::UiObject& obj);
     /// Enables-disables UI actions according to current things edited

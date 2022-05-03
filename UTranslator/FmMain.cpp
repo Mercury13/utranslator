@@ -2,6 +2,9 @@
 #include "FmMain.h"
 #include "ui_FmMain.h"
 
+// STL
+#include <deque>
+
 // Qt
 #include <QItemSelectionModel>
 #include <QMessageBox>
@@ -504,6 +507,30 @@ void FmMain::banMemo(QWidget* wi, QPlainTextEdit* memo)
 }
 
 
+void FmMain::loadContext(tr::UiObject* lastSon)
+{
+    // Build HTML backwards
+    QString html = "</dl>";
+    for (auto p = lastSon;
+            p && p->objType() != tr::ObjType::PROJECT;
+            p = p->parent().get()) {
+        auto itsText = u8"<dt>•&nbsp;" + str::toQ(p->idColumn()).toHtmlEscaped() + "</dt>";
+        if (auto cmt = p->comments()) {
+            if (!cmt->authors.empty()) {
+                itsText += "<dd>";
+                auto text = str::toQ(cmt->authors).toHtmlEscaped();
+                text.replace("\n", "<br>");
+                itsText += text;
+                itsText += "</dd>";
+            }
+        }
+        html = itsText + html;
+    }
+    html = "<dl>" + html;
+    ui->browContext->setHtml(html);
+}
+
+
 void FmMain::loadObject(tr::UiObject& obj)
 {
     ui->edId->setText(str::toQ(obj.idColumn()));
@@ -543,6 +570,14 @@ void FmMain::loadObject(tr::UiObject& obj)
         }
     } else {
         banMemo(ui->grpComment, ui->memoComment);
+    }
+    // Context
+    if (project->info.canEditOriginal()) {
+        // If we edit original → load parent
+        loadContext(obj.parent().get());
+    } else {
+        // Otherwise load self!
+        loadContext(&obj);
     }
 }
 
