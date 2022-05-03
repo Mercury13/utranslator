@@ -594,7 +594,7 @@ void FmMain::acceptObject(tr::UiObject& obj)
         obj.setId(toU8sv(ui->edId, cache), tr::Modify::YES);
         obj.setIdless(ui->chkIdless->isChecked(), tr::Modify::YES);
         obj.setOriginal(toTextSv(ui->memoOriginal, cache), tr::Modify::YES);
-        // Bilingua (currently unimplemented):
+        // Bilingual (currently unimplemented):
         // can edit original → author’s comment; cannot → translator’s
         obj.setAuthorsComment(toTextSv(ui->memoComment, cache), tr::Modify::YES);
     } else {
