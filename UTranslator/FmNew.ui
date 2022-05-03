@@ -17,7 +17,7 @@
    <item>
     <widget class="QStackedWidget" name="stackWizard">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="pageType">
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -73,75 +73,60 @@
       </layout>
      </widget>
      <widget class="QWidget" name="pageOriginal">
-      <layout class="QFormLayout" name="formLayout_2">
-       <item row="0" column="0">
-        <widget class="QLabel" name="lbOrigLang">
-         <property name="text">
-          <string>Language</string>
-         </property>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <widget class="QWidget" name="wiOriginal" native="true">
+         <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1">
+          <item>
+           <widget class="QLabel" name="lbOrigLang">
+            <property name="text">
+             <string>Original language</string>
+            </property>
+            <property name="buddy">
+             <cstring>edOriginal</cstring>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="edOriginal">
+            <property name="editable">
+             <bool>true</bool>
+            </property>
+            <property name="maxVisibleItems">
+             <number>20</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
-       <item row="0" column="1">
-        <widget class="QComboBox" name="edOrigLang">
-         <property name="editable">
-          <bool>true</bool>
-         </property>
-         <property name="maxVisibleItems">
-          <number>20</number>
-         </property>
-         <item>
-          <property name="text">
-           <string>cz</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>cn</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>de</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>en</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>es</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>fr</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>hi</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>jp</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>ru</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>uk</string>
-          </property>
-         </item>
+       <item>
+        <widget class="QWidget" name="wiTranslation" native="true">
+         <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,1">
+          <item>
+           <widget class="QLabel" name="lbTranslation">
+            <property name="text">
+             <string>Translation language</string>
+            </property>
+            <property name="buddy">
+             <cstring>edTranslation</cstring>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="edTranslation">
+            <property name="editable">
+             <bool>true</bool>
+            </property>
+            <property name="maxVisibleItems">
+             <number>20</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
-       <item row="1" column="0">
+       <item>
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -223,7 +208,8 @@
  <tabstops>
   <tabstop>radioOriginal</tabstop>
   <tabstop>radioTranslation</tabstop>
-  <tabstop>edOrigLang</tabstop>
+  <tabstop>edOriginal</tabstop>
+  <tabstop>edTranslation</tabstop>
   <tabstop>btCancel</tabstop>
   <tabstop>btBack</tabstop>
   <tabstop>btNext</tabstop>

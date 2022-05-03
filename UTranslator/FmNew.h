@@ -11,6 +11,7 @@
 #include "TrProject.h"
 
 class QStackedWidget;
+class QComboBox;
 
 class DblClickRadio : public QRadioButton {
     Q_OBJECT
@@ -69,11 +70,15 @@ protected:
 private:
     Ui::FmNew *ui;
     EcRadio<tr::PrjType> radioType;
-
     std::unique_ptr<WizardManager> wizard;
 
+    std::shared_ptr<tr::Project> project;
+
     using Super::exec;
+    void fillLangs(QComboBox*, const char* defaultText);
     void copyTo(tr::PrjInfo&);
+    bool chooseOriginal();
+    void reenableSettingsPage();
 private slots:
     void nextPressed();
 };

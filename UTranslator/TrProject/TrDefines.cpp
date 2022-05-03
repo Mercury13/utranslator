@@ -84,6 +84,30 @@ bool tr::PrjInfo::canEditOriginal() const
 }
 
 
+bool tr::PrjInfo::isOrigUnlocked(PrjType type)
+{
+    switch (type) {
+    case PrjType::ORIGINAL:
+        return true;
+    case PrjType::FULL_TRANSL:
+        return false;
+    }
+    throw std::logic_error("[isOrigUnlocked] Strange project type");
+}
+
+
+bool tr::PrjInfo::isTranslation(PrjType type)
+{
+    switch (type) {
+    case PrjType::ORIGINAL:
+        return false;
+    case PrjType::FULL_TRANSL:
+        return true;
+    }
+    throw std::logic_error("[isTranslation] Strange project type");
+}
+
+
 ///// FileFormat ///////////////////////////////////////////////////////////////
 
 

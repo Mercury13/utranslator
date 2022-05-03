@@ -590,17 +590,18 @@ void FmMain::acceptObject(tr::UiObject& obj)
     auto idx9 = treeModel.toIndex(obj, treeModel.columnCount() - 1);
     treeModel.dataChanged(idx0, idx9);
     std::string cache;
-    switch (project->info.type) {
-    case tr::PrjType::ORIGINAL:
+    if (project->info.canEditOriginal()) {
         obj.setId(toU8sv(ui->edId, cache), tr::Modify::YES);
         obj.setIdless(ui->chkIdless->isChecked(), tr::Modify::YES);
         obj.setOriginal(toTextSv(ui->memoOriginal, cache), tr::Modify::YES);
+        // Bilingua (currently unimplemented):
+        // can edit original → author’s comment; cannot → translator’s
         obj.setAuthorsComment(toTextSv(ui->memoComment, cache), tr::Modify::YES);
-        break;
-    case tr::PrjType::FULL_TRANSL:
-        obj.setTranslation(toOptTextSv(ui->memoTranslation, cache), tr::Modify::YES);
+    } else {
         obj.setTranslatorsComment(toTextSv(ui->memoComment, cache), tr::Modify::YES);
-        break;
+    }
+    if (project->info.isTranslation()) {
+        obj.setTranslation(toOptTextSv(ui->memoTranslation, cache), tr::Modify::YES);
     }
     if (project)
         project->tempRevert();
@@ -857,8 +858,8 @@ void FmMain::doSaveAs()
         extension = L".uorig";
         break;
     case tr::PrjType::FULL_TRANSL:
-        filters.emplace_back(L"Full translations", L"*.ufull");
-        extension = L".ufull";
+        filters.emplace_back(L"Translations", L"*.utran");
+        extension = L".utran";
         break;
     }
     filters.emplace_back(L"All files", L"*");
@@ -895,7 +896,7 @@ void FmMain::openFile(std::filesystem::path fname)      // by-value + move
 void FmMain::doOpen()
 {
     filedlg::Filters filters
-      { { L"UTranslator files", L"*.uorig *.ufull" }, filedlg::ALL_FILES };
+      { { L"UTranslator files", L"*.uorig *.utran" }, filedlg::ALL_FILES };
     auto fname = filedlg::open(
                 this, nullptr, filters, {},
                 filedlg::AddToRecent::YES);

@@ -270,7 +270,19 @@ namespace tr {
             std::string lang;
         } transl;
 
+        /// @return [+] can edit original, incl. adding files
         bool canEditOriginal() const;
+        /// @return [+] can add/remove files
+        ///      @todo [future] we’ll have freestyle translation,
+        ///                     ot can edit files, but cannot edit original
+        bool canAddFiles() const { return canEditOriginal(); }
+        /// @return [+] Original’s settings are unlocked
+        static bool isOrigUnlocked(PrjType type);
+        bool isOrigUnlocked() const { return isOrigUnlocked(type); }
+        /// @return [+] Everything translation-related is available,
+        ///             incl. column, transl. settings…
+        static bool isTranslation(PrjType type);
+        bool isTranslation() const { return isTranslation(type); }
     };
 
     struct FileInfo {

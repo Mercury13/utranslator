@@ -2,9 +2,25 @@
 #include "ui_FmNew.h"
 
 #include <QDialogButtonBox>
+#include <QMessageBox>
 
 // Qt ex
 #include "QtConsts.h"
+#include "i_OpenSave.h"
+
+// Libs
+#include "u_Qstrings.h"
+
+
+namespace {
+
+    std::string_view langList[] = {
+        "be", "cz", "cn", "de", "en", "es", "fr", "he", // Hebrew
+        "hi",   // Hindi
+        "jp", "ru", "uk"
+    };
+
+}   // anon namespace
 
 
 ///// DblClickRadio ////////////////////////////////////////////////////////////
@@ -77,6 +93,16 @@ void WizardManager::goBack()
 
 ///// FmNew ////////////////////////////////////////////////////////////////////
 
+
+void FmNew::fillLangs(QComboBox* x, const char* defaultText)
+{
+    for (auto& v : langList) {
+        x->addItem(str::toQ(v));
+    }
+    x->setCurrentText(defaultText);
+}
+
+
 FmNew::FmNew(QWidget *parent) :
     QDialog(parent, QDlgType::FIXED),
     ui(new Ui::FmNew)
@@ -92,7 +118,8 @@ FmNew::FmNew(QWidget *parent) :
     radioType.set(tr::PrjType::ORIGINAL);
 
     // Initial setup
-    ui->edOrigLang->setCurrentText("en");
+    fillLangs(ui->edOriginal,    "en");
+    fillLangs(ui->edTranslation, "de");
 
     // Radio double clicks
     connect(ui->radioOriginal, &DblClickRadio::doubleClicked, this, &This::nextPressed);
@@ -110,11 +137,55 @@ FmNew::~FmNew()
 }
 
 
+bool FmNew::chooseOriginal()
+{
+    /// @todo [L10n,repeat] Strings like UTranslator originals, *.uorig
+    filedlg::Filters filters {
+        { L"UTranslator originals", L"*.uorig" },
+        { L"All files", L"*" },
+    };
+    auto fname = filedlg::open(this, L"Choose original", filters, L".uorig",
+                                filedlg::AddToRecent::NO);
+    if (fname.empty())
+        return false;
+    try {
+        project = tr::Project::make();
+        project->load(fname);
+        project->info.type = tr::PrjType::FULL_TRANSL;
+        return true;
+    } catch (std::exception& e) {
+        QMessageBox::critical(this, "Original", e.what());
+        return false;
+    }
+}
+
+
+void FmNew::reenableSettingsPage()
+{
+    auto type = radioType.get();
+    if (project) {
+        ui->edOriginal->setCurrentText(QString::fromStdString(project->info.orig.lang));
+    }
+    ui->wiOriginal->setEnabled(tr::PrjInfo::isOrigUnlocked(type));
+    ui->wiTranslation->setVisible(tr::PrjInfo::isTranslation(type));
+}
+
+
 void FmNew::nextPressed()
 {
+
     switch (wizard->index()) {
     case 0:
+        switch (radioType.get()) {
+        case tr::PrjType::ORIGINAL:
+            break;
+        case tr::PrjType::FULL_TRANSL:
+            if (!chooseOriginal())
+                return;
+            break;
+        }
         wizard->goNext(ui->pageOriginal, false);
+        reenableSettingsPage();
         break;
     case 1:
         accept();
@@ -125,19 +196,22 @@ void FmNew::nextPressed()
 
 std::shared_ptr<tr::Project> FmNew::exec(std::u8string_view defaultFile)
 {
+    project.reset();
     wizard->start();
     if (!Super::exec()) return {};
     tr::PrjInfo info;
     copyTo(info);
     switch (info.type) {
     case tr::PrjType::ORIGINAL: {
+            // Create a project from scratch
             auto x = tr::Project::make(std::move(info));
             x->addFile(defaultFile, tr::Modify::NO);
             return x;
         }
     case tr::PrjType::FULL_TRANSL:
-        /// @todo [transl] full translation
-        return {};
+        project->info = info;
+        project->fname.clear();
+        return std::move(project);
     }
     // Strange type
     return {};
@@ -146,8 +220,11 @@ std::shared_ptr<tr::Project> FmNew::exec(std::u8string_view defaultFile)
 
 void FmNew::copyTo(tr::PrjInfo& r)
 {
-    /// @todo [transl] Translation is not implemented in FmNew
     r.type = radioType.get();
-    r.orig.lang = ui->edOrigLang->currentText().toStdString();
-    r.transl.lang.clear();
+    r.orig.lang = ui->edOriginal->currentText().toStdString();
+    if (tr::PrjInfo::isTranslation(r.type)) {
+        r.transl.lang = ui->edTranslation->currentText().toStdString();
+    } else {
+        r.transl.lang.clear();
+    }
 }
