@@ -378,15 +378,18 @@
                        <number>1</number>
                       </property>
                       <item>
-                       <widget class="QTextBrowser" name="browOriginal">
+                       <widget class="QTextEdit" name="richedOriginal">
                         <property name="focusPolicy">
                          <enum>Qt::ClickFocus</enum>
                         </property>
                         <property name="styleSheet">
-                         <string notr="true">QTextBrowser { background-color: palette(button); }</string>
+                         <string notr="true">QTextEdit { background-color: palette(button); }</string>
                         </property>
                         <property name="frameShape">
                          <enum>QFrame::NoFrame</enum>
+                        </property>
+                        <property name="readOnly">
+                         <bool>true</bool>
                         </property>
                        </widget>
                       </item>
@@ -871,7 +874,6 @@
   <tabstop>edId</tabstop>
   <tabstop>memoOriginal</tabstop>
   <tabstop>chkIdless</tabstop>
-  <tabstop>browOriginal</tabstop>
   <tabstop>btFileFormat</tabstop>
   <tabstop>memoTranslation</tabstop>
   <tabstop>memoComment</tabstop>

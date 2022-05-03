@@ -826,16 +826,15 @@ void tr::Text::writeToXml(pugi::xml_node& root, WrCache& c) const
 {
     auto node = root.append_child("text");
         node.append_attribute("id") = str::toC(id);
+        if (tr.needsAttention) {
+            node.append_attribute("needs-attention") = true;
+        }
     writeTextInTag(node, "orig", tr.original, c);
     writeAuthorsComment(node, c);
-    switch (c.info.type) {
-    case PrjType::ORIGINAL:
-        break;
-    case PrjType::FULL_TRANSL:
+    if (c.info.isTranslation()) {
         writeTextInTagOpt(node, "known-orig", tr.knownOriginal, c);
         writeTextInTagOpt(node, "transl", tr.translation, c);
         writeTranslatorsComment(node, c);
-        break;
     }
 }
 
