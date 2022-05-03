@@ -455,12 +455,10 @@ void FmMain::adaptLayout()
 {
     switch (project->info.type) {
     case tr::PrjType::ORIGINAL:
-        ui->wiId->show();
         ui->grpTranslation->hide();
         ui->menuOriginal->setEnabled(true);
         break;
     case tr::PrjType::FULL_TRANSL:
-        ui->wiId->hide();
         ui->grpTranslation->show();
         ui->menuOriginal->setEnabled(false);
         break;
@@ -520,11 +518,21 @@ void FmMain::loadObject(tr::UiObject& obj)
     if (auto fi = obj.ownFileInfo()) {
         ui->stackOriginal->setCurrentWidget(ui->pageFile);
         ui->chkIdless->setChecked(fi->isIdless);
+        bool canAddFiles = project->info.canAddFiles();
+        ui->pageFile->setEnabled(canAddFiles);
+        ui->wiId->show();
+        ui->wiId->setEnabled(canAddFiles);
     } else if (auto tr = obj.translatable()) {      // mutually exclusive with fileInfo
-        ui->stackOriginal->setCurrentWidget(ui->pageOriginal);
-        setMemo(ui->grpOriginal, ui->memoOriginal, tr->original);
+        ui->wiId->setVisible(project->info.canEditOriginal());
+        if (project->info.canEditOriginal()) {
+            ui->stackOriginal->setCurrentWidget(ui->pageOriginal);
+            setMemo(ui->grpOriginal, ui->memoOriginal, tr->original);
+        } else {
+            /// @todo [urgent] load
+        }
         setMemo(ui->grpTranslation, ui->memoTranslation, tr->translationSv());
     } else {
+        ui->wiId->setVisible(project->info.canEditOriginal());
         ui->stackOriginal->setCurrentWidget(ui->pageOriginal);
         ui->grpOriginal->setEnabled(false);
         ui->grpTranslation->setEnabled(false);
