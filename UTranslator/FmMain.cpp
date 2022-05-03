@@ -453,16 +453,9 @@ void FmMain::doNew()
 
 void FmMain::adaptLayout()
 {
-    switch (project->info.type) {
-    case tr::PrjType::ORIGINAL:
-        ui->grpTranslation->hide();
-        ui->menuOriginal->setEnabled(true);
-        break;
-    case tr::PrjType::FULL_TRANSL:
-        ui->grpTranslation->show();
-        ui->menuOriginal->setEnabled(false);
-        break;
-    }
+    ui->wiId->setVisible(project->info.canAddFiles());
+    ui->grpTranslation->setVisible(project->info.isTranslation());
+    ui->menuOriginal->setEnabled(project->info.canAddFiles());
 }
 
 
@@ -523,12 +516,12 @@ void FmMain::loadObject(tr::UiObject& obj)
         ui->wiId->show();
         ui->wiId->setEnabled(canAddFiles);
     } else if (auto tr = obj.translatable()) {      // mutually exclusive with fileInfo
-        ui->wiId->setVisible(project->info.canEditOriginal());
         if (project->info.canEditOriginal()) {
             ui->stackOriginal->setCurrentWidget(ui->pageOriginal);
             setMemo(ui->grpOriginal, ui->memoOriginal, tr->original);
         } else {
-            /// @todo [urgent] load
+            ui->stackOriginal->setCurrentWidget(ui->pageUneditableOriginal);
+            ui->richedOriginal->setPlainText(str::toQ(tr->original));
         }
         setMemo(ui->grpTranslation, ui->memoTranslation, tr->translationSv());
     } else {
