@@ -533,13 +533,12 @@ void FmMain::loadObject(tr::UiObject& obj)
     }
     // Comment
     if (auto comm = obj.comments()) {
-        switch (project->info.type) {
-        case tr::PrjType::ORIGINAL:
+        if (project->info.canEditOriginal()) {
+            // Bilingual (currently unimplemented):
+            // can edit original → author’s comment; cannot → translator’s
             setMemo(ui->grpComment, ui->memoComment, comm->authors);
-            break;
-        case tr::PrjType::FULL_TRANSL:
+        } else {
             setMemo(ui->grpComment, ui->memoComment, comm->translators);
-            break;
         }
     } else {
         banMemo(ui->grpComment, ui->memoComment);
