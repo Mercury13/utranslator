@@ -4,7 +4,7 @@ A simple program for: a) making original text; b) translating it.
 
 As it is designed for open-source projects, no patch translations here.
 
-**Lifecycle phase: 2** (pre-alpha). Actually used by developer, though greatly incomplete.
+**Lifecycle phase: 3** (alpha). Actually used by people close to developer though not ready for general public. Architecture is obvious.
 
 ## Why?
 
