@@ -458,7 +458,6 @@ void FmMain::adaptLayout()
 {
     ui->wiId->setVisible(project->info.canAddFiles());
     ui->grpTranslation->setVisible(project->info.isTranslation());
-    ui->menuOriginal->setEnabled(project->info.canAddFiles());
 }
 
 
