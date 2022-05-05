@@ -256,6 +256,10 @@ namespace tr {
         virtual std::shared_ptr<VirtualGroup> nearestGroup() = 0;
         virtual HIcon icon() const { return nullptr; }
         virtual bool doesNeedAttention() const { return false; }
+        /// Makes nChildren == 0
+        /// @warning For project: clear() makes a brand new project
+        ///                       clearChildren() just removes all files
+        virtual void clearChildren() = 0;
 
         void recache();
         void recursiveRecache();
@@ -389,6 +393,7 @@ namespace tr {
                 tf::Existing existing);
         std::shared_ptr<VirtualGroup> findGroup(std::u8string_view id);
         std::shared_ptr<Text> findText(std::u8string_view id);
+        void clearChildren() override { children.clear(); }
     protected:
         friend class Project;
         void doSwapChildren(size_t index1, size_t index2) override;
@@ -430,6 +435,7 @@ namespace tr {
         CloneObj startCloning(
                 const std::shared_ptr<UiObject>& parent) const override;
         bool doesNeedAttention() const override;
+        void clearChildren() override {}
     protected:
         std::shared_ptr<Entity> vclone(
                 const std::shared_ptr<VirtualGroup>& parent) const override
@@ -528,6 +534,7 @@ namespace tr {
         Project& operator = (const Project&) = default;
         Project& operator = (Project&&) = default;
 
+        void clearChildren() override { files.clear(); }
         void clear();
         /// @return  maybe alias-constructed s_p, but never null
         std::shared_ptr<Project> self();

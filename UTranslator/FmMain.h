@@ -92,6 +92,7 @@ public:
     };
     MoveResult moveUp(const QModelIndex& index);
     MoveResult moveDown(const QModelIndex& index);
+    QModelIndex clearGroup(tr::UiObject* obj);
 
     struct LockAll {
         LockAll(const LockAll&) = delete;
@@ -170,6 +171,7 @@ private slots:
     void doDelete();
     void doClone();
     void doLoadText();
+    void clearGroup();
     // Menu: Tools
     void runDecoder();
 private:

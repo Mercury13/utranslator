@@ -670,6 +670,7 @@
     <addaction name="acAddText"/>
     <addaction name="acClone"/>
     <addaction name="acDelete"/>
+    <addaction name="acClearGroup"/>
     <addaction name="separator"/>
     <addaction name="acMoveUp"/>
     <addaction name="acMoveDown"/>
@@ -864,6 +865,11 @@
   <action name="acLoadTexts">
    <property name="text">
     <string>&amp;Load texts…</string>
+   </property>
+  </action>
+  <action name="acClearGroup">
+   <property name="text">
+    <string>Cl&amp;ear group</string>
    </property>
   </action>
  </widget>

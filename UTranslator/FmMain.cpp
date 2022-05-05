@@ -321,6 +321,23 @@ auto PrjTreeModel::moveUp(const QModelIndex& index) -> MoveResult
 }
 
 
+QModelIndex PrjTreeModel::clearGroup(tr::UiObject* obj)
+{
+    if (!obj)
+        return {};
+    obj->checkCanary();
+    auto index = toIndex(obj, 0);
+    auto nCh = obj->nChildren();
+    if (nCh != 0 && index.isValid()) {
+        beginRemoveRows(index, 0, nCh - 1);
+        obj->clearChildren();
+        obj->doModify(tr::Mch::META);
+        endRemoveRows();
+    }
+    return index;
+}
+
+
 auto PrjTreeModel::moveDown(const QModelIndex& index) -> MoveResult
 {
     auto child = toObj(index);
@@ -398,6 +415,7 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->acClone, &QAction::triggered, this, &This::doClone);
     connect(ui->acMoveUp, &QAction::triggered, this, &This::doMoveUp);
     connect(ui->acMoveDown, &QAction::triggered, this, &This::doMoveDown);
+    connect(ui->acClearGroup, &QAction::triggered, this, &This::clearGroup);
     connect(ui->acLoadTexts, &QAction::triggered, this, &This::doLoadText);
     // Edit
     connect(ui->acAcceptChanges, &QAction::triggered, this, &This::acceptCurrObject);
@@ -676,6 +694,8 @@ void FmMain::reenable()
     bool hasProject { project };
     bool isOriginal = (isMainVisible && hasProject
                        && project->info.canEditOriginal());
+    bool canAddFiles = (isMainVisible && hasProject
+                       && project->info.canAddFiles());
 
     // Starting screen
     ui->btStartEdit->setVisible(hasProject);
@@ -688,16 +708,18 @@ void FmMain::reenable()
         ui->acStartingScreen->setChecked(hasProject && isStartVisible);
 
     // Menu: Original; always isOriginal
-    ui->acAddHostedFile->setEnabled(isOriginal);
+    ui->acAddHostedFile->setEnabled(canAddFiles);
     ui->acAddHostedGroup->setEnabled(isOriginal);
     ui->acAddText->setEnabled(isOriginal);
-    ui->acDelete->setEnabled(isOriginal);
+        /// @todo [freestyle] Freestyle translation should remove files only
+    ui->acDelete->setEnabled(canAddFiles);
     ui->acClone->setEnabled(isOriginal);
+    ui->acClearGroup->setEnabled(isOriginal);
     ui->acMoveUp->setEnabled(isOriginal);
     ui->acMoveDown->setEnabled(isOriginal);
     ui->acLoadTexts->setEnabled(isOriginal);
 
-    // Edit
+    // Menu: Edit
     ui->acAcceptChanges->setEnabled(isMainVisible);
     ui->acRevertChanges->setEnabled(isMainVisible);
 
@@ -1131,6 +1153,25 @@ void FmMain::doMoveDown()
         ui->treeStrings->setCurrentIndex(r.that);
         ui->treeStrings->scrollTo(r.next);
         ui->treeStrings->scrollTo(r.that);
+    }
+}
+
+
+void FmMain::clearGroup()
+{
+    QModelIndex index = ui->treeStrings->currentIndex();
+    auto obj = treeModel.toObj(index);
+    auto selectedGroup = obj->nearestGroup();
+    if (!selectedGroup) {
+        QMessageBox::warning(this, "Clear group", "Please select something!");
+        return;
+    }
+
+    QString text = QString(u8"Clear group “%1”?").arg(str::toQ(selectedGroup->idColumn()));
+    if (QMessageBox::question(this, "Clear group", text) == QMessageBox::Yes) {
+        auto newIndex = treeModel.clearGroup(selectedGroup.get());
+        if (newIndex.isValid())
+            ui->treeStrings->setCurrentIndex(newIndex);
     }
 }
 
