@@ -377,9 +377,6 @@ FmMain::FmMain(QWidget *parent)
     ui->splitMain->setStretchFactor(0, 2);
     ui->splitMain->setStretchFactor(1, 1);
 
-    // Helps
-    ui->wiOriginalHelp->hide();
-
     // Model
     ui->treeStrings->setModel(&treeModel);
     ui->treeStrings->setItemDelegate(&treeModel);
