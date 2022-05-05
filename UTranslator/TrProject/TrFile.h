@@ -62,6 +62,8 @@ namespace tf {
         /// @warning  DO NOT use for single-language data!
         ///           Use text instead.
         std::u8string_view original, translation;
+        /// [+] The text is in fallback locale
+        bool isFallbackLocale = false;
 
         int actualDepth() const { return ids.size() - 1; }
         bool isOk() const { return !eof(); }

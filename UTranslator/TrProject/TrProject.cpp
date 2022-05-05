@@ -1007,10 +1007,12 @@ namespace {
         size_t index = 0;
         DepthInfo depthInfo;
         tf::TextInfo textInfo;
+        std::u8string pseudoLoced;
 
         void onEnterGroup(tr::VirtualGroup& x) override;
         void onLeaveGroup(tr::VirtualGroup& x) override;
         void onText(tr::Text& x) override;
+        std::u8string_view pseudoLoc(std::u8string_view s);
     };
 
     void FileWalker::onEnterGroup(tr::VirtualGroup&)
@@ -1037,6 +1039,18 @@ namespace {
         : channel(aChannel)
     {
         file.traverse(*this, order, tr::EnterMe::NO);
+    }
+
+    std::u8string_view FileWalker::pseudoLoc(std::u8string_view s)
+    {
+        static constexpr std::u8string_view EPAULET1 = u8"‹§ƻ-";
+        static constexpr std::u8string_view EPAULET2 = u8"-αԶ›";
+        pseudoLoced.clear();
+        pseudoLoced.reserve(s.length() + EPAULET1.length() + EPAULET2.length());
+        pseudoLoced.append(EPAULET1);
+        pseudoLoced.append(s);
+        pseudoLoced.append(EPAULET2);
+        return pseudoLoced;
     }
 
     const tf::TextInfo& FileWalker::nextText()
@@ -1074,9 +1088,16 @@ namespace {
             switch (channel) {                              // 6. text
             case tr::WalkChannel::ORIGINAL:
                 textInfo.text = textInfo.original;
+                textInfo.isFallbackLocale = false;
                 break;
             case tr::WalkChannel::TRANSLATION:
-                textInfo.text = textInfo.translation;
+                if (di.text->tr.translation) {
+                    textInfo.text = textInfo.translation;
+                    textInfo.isFallbackLocale = false;
+                } else {
+                    textInfo.text = pseudoLoc(textInfo.original);
+                    textInfo.isFallbackLocale = true;
+                }
                 break;
             }
         }
