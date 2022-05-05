@@ -78,6 +78,9 @@
              <number>0</number>
             </property>
             <item>
+             <widget class="WiFind" name="wiFind" native="true"/>
+            </item>
+            <item>
              <widget class="QTreeView" name="treeStrings">
               <property name="frameShape">
                <enum>QFrame::NoFrame</enum>
@@ -632,6 +635,9 @@
     <addaction name="acGoUp"/>
     <addaction name="separator"/>
     <addaction name="acGoFind"/>
+    <addaction name="acGoFindNext"/>
+    <addaction name="acGoFindPrev"/>
+    <addaction name="acGoCloseSearch"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -818,7 +824,39 @@
     <string>Cl&amp;ear group</string>
    </property>
   </action>
+  <action name="acGoFindNext">
+   <property name="text">
+    <string>Find next</string>
+   </property>
+   <property name="shortcut">
+    <string>F3</string>
+   </property>
+  </action>
+  <action name="acGoFindPrev">
+   <property name="text">
+    <string>Find previous</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+F3</string>
+   </property>
+  </action>
+  <action name="acGoCloseSearch">
+   <property name="text">
+    <string>Close search</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F3</string>
+   </property>
+  </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>WiFind</class>
+   <extends>QWidget</extends>
+   <header>WiFind.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>btStartNew</tabstop>
   <tabstop>btStartOpen</tabstop>

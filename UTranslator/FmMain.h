@@ -164,6 +164,9 @@ private slots:
     void goNext();
     void goUp();
     void goFind();
+    void goFindNext();
+    void goFindPrev();
+    void goCloseSearch();
     // Menu: Original
     void addHostedFile();
     void addHostedGroup();
@@ -225,4 +228,5 @@ private:
     void openFile(std::filesystem::path fname);
     void doBuild();
     bool checkSave(std::string_view caption);
+    void closeSearchInner();
 };

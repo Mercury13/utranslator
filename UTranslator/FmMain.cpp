@@ -371,6 +371,9 @@ FmMain::FmMain(QWidget *parent)
     ui->setupUi(this);
     config::history.setListener(this);
 
+
+    closeSearchInner();
+
     // Splitter
     auto h = height();
     ui->splitMain->setSizes({ h, 1 });
@@ -423,6 +426,9 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->acGoNext, &QAction::triggered, this, &This::goNext);
     connect(ui->acGoUp, &QAction::triggered, this, &This::goUp);
     connect(ui->acGoFind, &QAction::triggered, this, &This::goFind);
+    connect(ui->acGoFindNext, &QAction::triggered, this, &This::goFindNext);
+    connect(ui->acGoFindPrev, &QAction::triggered, this, &This::goFindPrev);
+    connect(ui->acGoCloseSearch, &QAction::triggered, this, &This::goCloseSearch);
     // Tools
     connect(ui->acDecoder, &QAction::triggered, this, &This::runDecoder);
 
@@ -696,6 +702,7 @@ void FmMain::reenable()
                        && project->info.canEditOriginal());
     bool canAddFiles = (isMainVisible && hasProject
                        && project->info.canAddFiles());
+    bool canSearch = ui->wiFind->isVisible() && isMainVisible;
 
     // Starting screen
     ui->btStartEdit->setVisible(hasProject);
@@ -727,6 +734,9 @@ void FmMain::reenable()
     ui->acGoNext->setEnabled(isMainVisible);
     ui->acGoUp->setEnabled(isMainVisible);
     ui->acGoFind->setEnabled(isMainVisible);
+    ui->acGoFindNext->setEnabled(canSearch);
+    ui->acGoFindPrev->setEnabled(canSearch);
+    ui->acGoCloseSearch->setEnabled(canSearch);
 }
 
 
@@ -1267,4 +1277,29 @@ bool FmMain::checkSave(std::string_view caption)
 void FmMain::closeEvent(QCloseEvent *event)
 {
     event->setAccepted(checkSave("Exit"));
+}
+
+
+void FmMain::closeSearchInner()
+{
+    ui->wiFind->hide();
+}
+
+
+void FmMain::goFindNext()
+{
+
+}
+
+
+void FmMain::goFindPrev()
+{
+
+}
+
+
+void FmMain::goCloseSearch()
+{
+    closeSearchInner();
+    reenable();
 }

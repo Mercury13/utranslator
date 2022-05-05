@@ -9,6 +9,7 @@ CONFIG(debug, debug|release) {
 SOURCES += \
     ../Libs/PugiXml/pugixml.cpp \
     ../Libs/QModels/QModels.cpp \
+    ../Libs/Qt/ElidedLabel.cpp \
     ../Libs/SelfMade/Qt/QtMultiRadio.cpp \
     ../Libs/SelfMade/i_OpenSave.cpp \
     ../Libs/SelfMade/u_OpenSaveStrings.cpp \
@@ -27,6 +28,7 @@ SOURCES += \
     TrProject/TrDefines.cpp \
     TrProject/TrFile.cpp \
     TrProject/TrProject.cpp \
+    WiFind.cpp \
     d_Config.cpp \
     FmNew.cpp \
     main.cpp \
@@ -36,6 +38,7 @@ HEADERS += \
     ../Libs/PugiXml/pugiconfig.hpp \
     ../Libs/PugiXml/pugixml.hpp \
     ../Libs/QModels/QModels.h \
+    ../Libs/Qt/ElidedLabel.h \
     ../Libs/SelfMade/Qt/QtConsts.h \
     ../Libs/SelfMade/Qt/QtMultiRadio.h \
     ../Libs/SelfMade/i_OpenSave.h \
@@ -57,6 +60,7 @@ HEADERS += \
     TrProject/TrDefines.h \
     TrProject/TrFile.h \
     TrProject/TrProject.h \
+    WiFind.h \
     d_Config.h \
     FmMain.h \
     FmNew.h \
@@ -64,6 +68,7 @@ HEADERS += \
 
 INCLUDEPATH += \
     ../Libs/PugiXml \
+    ../Libs/Qt \
     ../Libs/QModels \
     ../Libs/SelfMade \
     ../Libs/SelfMade/Qt \
@@ -77,7 +82,8 @@ FORMS += \
     FmFileFormat.ui \
     FmFind.ui \
     FmMain.ui \
-    FmNew.ui
+    FmNew.ui \
+    WiFind.ui
 
 win32 {         # and W64 too
     LIBS += -lcomdlg32
