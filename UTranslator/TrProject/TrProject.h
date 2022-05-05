@@ -127,7 +127,7 @@ namespace tr {
     struct Translatable {
         std::u8string original;     ///< Current original string
         std::optional<std::u8string>
-                    knownOriginal,  ///< Known original string we translated
+                    knownOriginal,  ///< Known original string we translated (never == original!)
                     translation;    ///< Translation for known original (if present) or original
         bool forceAttention = false;
         std::u8string_view translationSv() const
@@ -221,7 +221,6 @@ namespace tr {
         virtual size_t nChildren() const noexcept = 0;
         virtual std::shared_ptr<Entity> child(size_t i) const = 0;
         virtual std::u8string_view idColumn() const = 0;
-        /// @todo [architecture] How to invent parallel VMTs?
         virtual std::u8string_view origColumn() const { return {}; }
         /// @return [+] was changed
         virtual bool setId(std::u8string_view, tr::Modify) { return false; }

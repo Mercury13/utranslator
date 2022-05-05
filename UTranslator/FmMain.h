@@ -12,6 +12,7 @@
 // Project
 // No one uses FmMain → you can import EVERYTHING
 #include "TrProject.h"
+#include "TrWrappers.h"
 
 // Project-local
 #include "History.h"
@@ -41,6 +42,8 @@ struct Thing {
 class PrjTreeModel final : public QAbstractItemModel, public QStyledItemDelegate
 {
 public:
+    PrjTreeModel();
+
     /// Converts index to object
     /// @param [in] index   QAbstractItemModel’s index
     /// @param [in] dflt    What’s instead of root
@@ -119,6 +122,7 @@ public:
 private:
     static constexpr int DUMMY_COL = 0;
     std::shared_ptr<tr::Project> project;   // will hold old project
+    mutable tw::Flyweight fly;
 };
 
 class FmMain :

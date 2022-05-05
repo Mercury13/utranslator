@@ -4,3 +4,4 @@
 
 #define STR_UNTITLED       "(Untitled)"
 #define STR_UNTRANSLATED   "(Not yet translated)"
+#define STR_EMPTY_STRING   "(Empty string)"

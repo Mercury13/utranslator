@@ -38,7 +38,19 @@ namespace {
         N_ORIG = COL_ORIG + 1,
         N_TRANSL = COL_TRANSL + 1,
     };
+
+    constinit const tw::L10n treeL10n {
+        .untranslated = S8(STR_UNTRANSLATED),
+        .emptyString = S8(STR_EMPTY_STRING),
+    };
 }   // anon namespace
+
+
+PrjTreeModel::PrjTreeModel()
+{
+    fly.setL10n(treeL10n);
+}
+
 
 void PrjTreeModel::setProject(std::shared_ptr<tr::Project> aProject)
 {
@@ -125,6 +137,23 @@ namespace {
         r.replace('\n', QChar{L'¶'});
         return r;
     }
+
+    QString brushLineEnds(const tw::TranslObj& x)
+    {
+        auto r = str::toQ(x.str());
+        if (x.mayContainEols()) {
+            r.replace('\n', QChar{L'¶'});
+        }
+        return r;
+    }
+
+    constinit const QColor fgColors[tw::Fg_N] = {
+        QColor(),               // NORMAL,
+        { 0xDC, 0x14, 0x3C },   // ATTENTION — HTML crimson
+        { 0x00, 0x80, 0x00 },   // OK — dumb green
+        { 0x69, 0x69, 0x69 },   // STATS — HTML dim gray
+        { 0xD3, 0xD3, 0xD3 },   // LIGHT — HTML light gray
+    };
 }
 
 QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
@@ -141,17 +170,7 @@ QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
                 /// @todo [urgent] get rid of origColumn
                 return brushLineEnds(obj->origColumn());
             case COL_TRANSL:
-                if (auto tr = obj->translatable()) {
-                    if (tr->translation) {
-                        /// @todo [table] what to write
-                        return brushLineEnds(*tr->translation);
-                    } else {
-                        /// @todo [patch] Write smth like “Untouched”
-                        return STR_UNTRANSLATED;
-                    }
-                    /// @todo [table] What to write?
-                }
-                return {};
+                return brushLineEnds(fly.getTransl(*obj));
             default:
                 return {};
             }
@@ -178,15 +197,9 @@ QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
     case Qt::ForegroundRole: {
             auto obj = toObj(index);
             switch (index.column()) {
-            case COL_TRANSL:
-                if (auto tr = obj->translatable()) {
-                    if (tr->translation) {
-                        return {};
-                    } else {
-                        /// @todo [patch] Write smth like “Untouched”
-                        return STR_UNTRANSLATED;
-                    }
-                    /// @todo [urgent] What to write?
+            case COL_TRANSL: {
+                    auto& cl = fgColors[fly.getTransl(*obj).iFg()];
+                    return cl.isValid() ? cl : QVariant();
                 }
             default:
                 return {};
