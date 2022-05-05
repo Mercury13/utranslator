@@ -1352,3 +1352,14 @@ void tr::Project::doBuild(const std::filesystem::path& destDir)
         }
     }
 }
+
+
+std::u8string tr::Project::shownFname(std::u8string_view fallback)
+{
+    auto r = fname.filename().u8string();
+    if (r.empty()) {
+        return std::u8string { fallback } ;
+    } else {
+        return r;
+    }
+}

@@ -18,6 +18,7 @@
 
 // Project-local
 #include "d_Config.h"
+#include "d_Strings.h"
 
 // UI forms
 #include "FmNew.h"
@@ -466,6 +467,8 @@ void FmMain::plantNewProject(std::shared_ptr<tr::Project>&& x)
 
 void FmMain::doNew()
 {
+    if (!checkSave("New"))
+        return;
     if (auto result = fmNew.ensure(this).exec(FILE_INITIAL)) {
         plantNewProject(std::move(result));
     }
@@ -889,12 +892,7 @@ void FmMain::updateCaption()
         case ModState::TEMP: s += u8"? "; break;
         case ModState::MOD: s += u8"✱ "; break;
         }
-        auto fname = project->fname.filename().u8string();
-        if (fname.empty()) {
-            s += "(Untitled)";
-        } else {
-            str::append(s, fname);
-        }
+        str::append(s, project->shownFname(STR8_UNTITLED));
         s += u8" · ";
     }
     s += "UTranslator";
@@ -902,10 +900,10 @@ void FmMain::updateCaption()
 }
 
 
-void FmMain::doSaveAs()
+bool FmMain::doSaveAs()
 {
     if (!project)
-        return;
+        return false;
     filedlg::Filters filters;
     const wchar_t* extension = nullptr;
     switch (project->info.type) {
@@ -925,13 +923,15 @@ void FmMain::doSaveAs()
                 this, nullptr, filters, extension, {},
                 filedlg::AddToRecent::YES);
     if (fname.empty())
-        return;
+        return false;
     try {
         project->save(fname);
         config::history.pushFile(project->fname);
         doBuild();
+        return true;
     } catch (const std::exception& e) {
         QMessageBox::critical(this, "Save", QString::fromStdString(e.what()));
+        return false;
     }
 }
 
@@ -951,6 +951,8 @@ void FmMain::openFile(std::filesystem::path fname)      // by-value + move
 
 void FmMain::doOpen()
 {
+    if (!checkSave("Open"))
+        return;
     filedlg::Filters filters
       { { L"UTranslator files", L"*.uorig *.utran" }, filedlg::ALL_FILES };
     auto fname = filedlg::open(
@@ -962,20 +964,22 @@ void FmMain::doOpen()
 }
 
 
-void FmMain::doSave()
+bool FmMain::doSave()
 {
     if (!project)
-        return;
+        return false;
     if (project->fname.empty()) {
-        doSaveAs();
+        return doSaveAs();
     } else {
         acceptCurrObject();
         try {
             project->save();
             config::history.pushFile(project->fname);
             doBuild();
+            return true;
         } catch (std::exception& e) {
             QMessageBox::critical(this, "Save problem", QString::fromStdString(e.what()));
+            return false;
         }
     }
 }
@@ -1088,8 +1092,10 @@ void FmMain::startLinkClicked(QUrl url)
         auto i = s.toInt(&isOk);
         if (isOk) {
             if (auto place = config::history[i]) {
-                if (auto fplace = std::dynamic_pointer_cast<hist::FilePlace>(place)) {
-                    openFile(fplace->path());
+                if (checkSave("Open")) {
+                    if (auto fplace = std::dynamic_pointer_cast<hist::FilePlace>(place)) {
+                        openFile(fplace->path());
+                    }
                 }
             }
         }
@@ -1231,4 +1237,37 @@ void FmMain::doLoadText()
             }
         }
     }
+}
+
+
+bool FmMain::checkSave(std::string_view caption)
+{
+    if (!project || !project->isModified())
+        return true;
+
+    QString text = "Save untitled file?";
+    auto shname = project->shownFname({});
+    if (!shname.empty()) {
+        text = QString{u8"Save “%1”?"}.arg(str::toQ(shname));
+    }
+    static constexpr auto SAVE    = QMessageBox::Save;
+    static constexpr auto DISCARD = QMessageBox::Discard;
+    static constexpr auto CANCEL  = QMessageBox::Cancel;
+    auto result = QMessageBox::question(
+                this, str::toQ(caption), text,
+                SAVE | DISCARD | CANCEL);
+    switch (result) {
+    case SAVE:
+        return doSave();
+    case DISCARD:
+        return true;
+    default:
+        return false;
+    }
+}
+
+
+void FmMain::closeEvent(QCloseEvent *event)
+{
+    event->setAccepted(checkSave("Exit"));
 }

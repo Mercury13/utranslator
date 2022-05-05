@@ -150,8 +150,8 @@ private slots:
     // Menu: File
     void doNew();
     void doOpen();
-    void doSave();
-    void doSaveAs();
+    bool doSave();
+    bool doSaveAs();
     void goToggleStart();
     void goStart();
     void doMoveUp();
@@ -174,6 +174,8 @@ private slots:
     void clearGroup();
     // Menu: Tools
     void runDecoder();
+protected:
+    void closeEvent(QCloseEvent *event) override;
 private:
     Ui::FmMain *ui;
 
@@ -222,4 +224,5 @@ private:
     void banMemo(QWidget* wi, QPlainTextEdit* memo);
     void openFile(std::filesystem::path fname);
     void doBuild();
+    bool checkSave(std::string_view caption);
 };

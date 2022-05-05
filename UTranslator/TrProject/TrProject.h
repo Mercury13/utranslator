@@ -570,6 +570,8 @@ namespace tr {
         /// @warning  In TRANSLATION mode original IDs/texts should be OK
         size_t nOrigExportableFiles() const;
 
+        std::u8string shownFname(std::u8string_view fallback);
+
         /// Use instead of ctor
         /// @warning  Refer to private ctors to see which versions are available
         template<class... T>

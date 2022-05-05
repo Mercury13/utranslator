@@ -59,7 +59,8 @@ HEADERS += \
     TrProject/TrProject.h \
     d_Config.h \
     FmMain.h \
-    FmNew.h
+    FmNew.h \
+    d_Strings.h
 
 INCLUDEPATH += \
     ../Libs/PugiXml \
