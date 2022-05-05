@@ -141,7 +141,17 @@ QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
                 /// @todo [urgent] get rid of origColumn
                 return brushLineEnds(obj->origColumn());
             case COL_TRANSL:
-                return brushLineEnds(obj->translColumn());
+                if (auto tr = obj->translatable()) {
+                    if (tr->translation) {
+                        /// @todo [table] what to write
+                        return brushLineEnds(*tr->translation);
+                    } else {
+                        /// @todo [patch] Write smth like “Untouched”
+                        return STR_UNTRANSLATED;
+                    }
+                    /// @todo [table] What to write?
+                }
+                return {};
             default:
                 return {};
             }
@@ -161,6 +171,23 @@ QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
                 if (obj->cache.mod.has(tr::Mch::TRANSL))
                     return BG_MODIFIED;
                 return {};
+            default:
+                return {};
+            }
+        }
+    case Qt::ForegroundRole: {
+            auto obj = toObj(index);
+            switch (index.column()) {
+            case COL_TRANSL:
+                if (auto tr = obj->translatable()) {
+                    if (tr->translation) {
+                        return {};
+                    } else {
+                        /// @todo [patch] Write smth like “Untouched”
+                        return STR_UNTRANSLATED;
+                    }
+                    /// @todo [urgent] What to write?
+                }
             default:
                 return {};
             }
@@ -899,7 +926,7 @@ void FmMain::updateCaption()
         case ModState::TEMP: s += u8"? "; break;
         case ModState::MOD: s += u8"✱ "; break;
         }
-        str::append(s, project->shownFname(STR8_UNTITLED));
+        str::append(s, project->shownFname(S8(STR_UNTITLED)));
         s += u8" · ";
     }
     s += "UTranslator";

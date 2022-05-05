@@ -28,6 +28,7 @@ SOURCES += \
     TrProject/TrDefines.cpp \
     TrProject/TrFile.cpp \
     TrProject/TrProject.cpp \
+    TrProject/TrWrappers.cpp \
     WiFind.cpp \
     d_Config.cpp \
     FmNew.cpp \
@@ -60,6 +61,7 @@ HEADERS += \
     TrProject/TrDefines.h \
     TrProject/TrFile.h \
     TrProject/TrProject.h \
+    TrProject/TrWrappers.h \
     WiFind.h \
     d_Config.h \
     FmMain.h \

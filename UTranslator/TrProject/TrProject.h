@@ -223,7 +223,6 @@ namespace tr {
         virtual std::u8string_view idColumn() const = 0;
         /// @todo [architecture] How to invent parallel VMTs?
         virtual std::u8string_view origColumn() const { return {}; }
-        virtual std::u8string_view translColumn() const { return {}; }
         /// @return [+] was changed
         virtual bool setId(std::u8string_view, tr::Modify) { return false; }
         /// Deletes i’th child
@@ -413,8 +412,6 @@ namespace tr {
         size_t nChildren() const noexcept override { return 0; };
         std::shared_ptr<Entity> child(size_t) const override { return {}; }
         std::u8string_view origColumn() const override { return tr.original; }
-        std::u8string_view translColumn() const override
-            { return tr.translation.has_value() ? *tr.translation : std::u8string_view{}; }
         std::shared_ptr<UiObject> parent() const override { return fParentGroup.lock(); }
         Pair<VirtualGroup> additionParents() override { return fParentGroup.lock(); }
         Translatable* translatable() override { return &tr; }

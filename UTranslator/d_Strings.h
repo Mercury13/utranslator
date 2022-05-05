@@ -1,4 +1,6 @@
 #pragma once
 
-#define STR_UNTITLED  "(Untitled)"
-#define STR8_UNTITLED  u8"" STR_UNTITLED
+#define S8(x)  u8"" x
+
+#define STR_UNTITLED       "(Untitled)"
+#define STR_UNTRANSLATED   "(Not yet translated)"
