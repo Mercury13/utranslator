@@ -1033,7 +1033,7 @@ void FmMain::historyChanged()
                 "text-decoration: none; "
             " }"
             "</style>";
-    html += "<table border='0'>";
+    html += "<table border='0' cellspacing='6'>";
     for (auto& v : config::history) {
         html += "<tr>"
             // 1st cell
