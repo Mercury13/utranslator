@@ -841,7 +841,7 @@ void FmMain::addText()
 
 void FmMain::doDelete()
 {
-    /// @todo [freestyle] #12 Freestyle translation can add/remove files only
+    /// @todo [freestyle] #12 Freestyle translation can add/remove files only, not groups
     auto index = treeIndex();
     if (!index.isValid())
         return;
