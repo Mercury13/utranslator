@@ -114,7 +114,7 @@
             </property>
             <item>
              <widget class="QWidget" name="wiEditors" native="true">
-              <layout class="QVBoxLayout" name="layEditors" stretch="0,1,1,1">
+              <layout class="QVBoxLayout" name="layEditors" stretch="0,2,2,1">
                <property name="spacing">
                 <number>0</number>
                </property>
@@ -161,7 +161,7 @@
                <item>
                 <widget class="QStackedWidget" name="stackOriginal">
                  <property name="currentIndex">
-                  <number>2</number>
+                  <number>0</number>
                  </property>
                  <widget class="QWidget" name="pageOriginal">
                   <layout class="QVBoxLayout" name="verticalLayout_11">
@@ -197,6 +197,13 @@
                       </property>
                       <item>
                        <widget class="QPlainTextEdit" name="memoOriginal">
+                        <property name="font">
+                         <font>
+                          <family>Segoe UI</family>
+                          <pointsize>10</pointsize>
+                          <stylestrategy>PreferAntialias</stylestrategy>
+                         </font>
+                        </property>
                         <property name="frameShape">
                          <enum>QFrame::NoFrame</enum>
                         </property>
@@ -328,6 +335,13 @@
                       </property>
                       <item>
                        <widget class="QTextEdit" name="richedOriginal">
+                        <property name="font">
+                         <font>
+                          <family>Segoe UI</family>
+                          <pointsize>10</pointsize>
+                          <stylestrategy>PreferAntialias</stylestrategy>
+                         </font>
+                        </property>
                         <property name="focusPolicy">
                          <enum>Qt::ClickFocus</enum>
                         </property>
@@ -369,6 +383,13 @@
                   </property>
                   <item>
                    <widget class="QPlainTextEdit" name="memoTranslation">
+                    <property name="font">
+                     <font>
+                      <family>Segoe UI</family>
+                      <pointsize>10</pointsize>
+                      <stylestrategy>PreferAntialias</stylestrategy>
+                     </font>
+                    </property>
                     <property name="frameShape">
                      <enum>QFrame::NoFrame</enum>
                     </property>
