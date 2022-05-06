@@ -413,6 +413,7 @@ FmMain::FmMain(QWidget *parent)
 
 
     closeSearchInner();
+    dismissChanges();
 
     // Splitter
     auto h = height();
@@ -985,6 +986,7 @@ bool FmMain::doSaveAs()
 
 void FmMain::openFile(std::filesystem::path fname)      // by-value + move
 {
+    dismissChanges();
     auto prj = tr::Project::make();
     try {
         prj->load(fname);
@@ -1019,6 +1021,7 @@ bool FmMain::doSave()
         return doSaveAs();
     } else {
         acceptCurrObject();
+        dismissChanges();
         try {
             project->save();
             config::history.pushFile(project->fname);
@@ -1342,4 +1345,10 @@ void FmMain::goCloseSearch()
 {
     closeSearchInner();
     reenable();
+}
+
+
+void FmMain::dismissChanges()
+{
+    ui->wiUpdate->hide();
 }

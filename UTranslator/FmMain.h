@@ -147,6 +147,7 @@ private slots:
             const QModelIndex& current, const QModelIndex& former);
     void tempModify();
     void editFileFormat();
+    void dismissChanges();
 
     // Starting screen
     void goEdit();

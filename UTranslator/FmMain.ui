@@ -110,7 +110,7 @@ QLabel {
                   <enum>Qt::NoFocus</enum>
                  </property>
                  <property name="text">
-                  <string>Info</string>
+                  <string>More</string>
                  </property>
                 </widget>
                </item>
