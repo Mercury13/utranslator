@@ -903,7 +903,7 @@ void FmMain::doDelete()
     if (obj->objType() == tr::ObjType::TEXT) {
         message = "Delete text?";
     } else {
-        auto stats = obj->stats(false);
+        auto& stats = obj->stats(tr::StatsMode::CACHED, tr::CascadeDropCache::YES);
         switch (stats.nTexts) {
         case 0:
             if (stats.nGroups == 0)

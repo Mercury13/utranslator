@@ -152,11 +152,6 @@ namespace tr {
             { return reinterpret_cast<const char*>(nts(beg, end)); }
     };
 
-    struct Stats {
-        size_t nTexts = 0;
-        size_t nGroups = 0;
-    };
-
     struct IdLib {
         std::u8string_view filePrefix;
         std::u8string_view fileSuffix;
@@ -205,6 +200,25 @@ namespace tr {
 
     enum class EnterMe { NO, YES };
 
+    enum class CascadeDropCache { NO, YES };
+
+    enum class StatsMode {
+        CACHED,         ///< Use cache if present
+        SEMICACHED,     ///< Do not use cache for my object
+        DIRECT          ///< Do not use cache at all
+    };
+
+    struct Stats {
+        size_t nGroups = 0;  ///< # of groups NOT INCLUDING me
+        size_t nTexts = 0;
+        size_t nGood = 0;
+        bool isGroup = false;
+
+        void clear() { *this = Stats(); }
+        Stats& operator += (const Stats& x);
+        bool operator == (const Stats& x) const = default;
+    };
+
     class UiObject : public CanaryObject
     {
     public:
@@ -212,6 +226,7 @@ namespace tr {
             int index = -1;             ///< index in tree
             Mod mod;
             TriBool isExpanded;
+            std::optional<Stats> stats;
         } cache;
         // Just here we use virtual dtor!
         virtual ~UiObject() = default;
@@ -258,6 +273,8 @@ namespace tr {
         /// @warning For project: clear() makes a brand new project
         ///                       clearChildren() just removes all files
         virtual void clearChildren() = 0;
+        /// Gets statistics, can use cache
+        virtual const Stats& stats(StatsMode mode, CascadeDropCache cascade);
 
         void recache();
         void recursiveRecache();
@@ -302,11 +319,6 @@ namespace tr {
         /// @return  [+] s_p to this  [0] nothing happened
         std::shared_ptr<Entity> extract(Modify wantModify);
         /// Adds statistics about a single object (not children)
-        /// @param [in] includeSelf   Include self to stats unless it is text
-        virtual void addStats(Stats& x, bool includeSelf) const = 0;
-        /// @return  how many texts are there in object’s groups
-        Stats stats(bool includeSelf) const;
-        void addStatsRecursive(Stats& x, bool includeSelf) const;
         void doModify(Mch ch);
         bool canMoveUp(const UiObject* aChild) const;
         bool canMoveDown(const UiObject* aChild) const;
@@ -327,6 +339,8 @@ namespace tr {
 
         /// Exchanges child[i] and child[i+1]
         virtual void doSwapChildren(size_t index1, size_t index2) = 0;
+        const Stats& resetCacheIf(const Stats& r, CascadeDropCache cascade);
+        void cascadeDropStats();
     };
 
     class Entity : public UiObject
@@ -382,8 +396,6 @@ namespace tr {
         std::shared_ptr<Group> addGroup(
                 std::u8string id, Modify wantModify);
         std::shared_ptr<Project> project() override;
-        void addStats(Stats& x, bool includeSelf) const override
-                { if (includeSelf) ++x.nGroups; }
         std::shared_ptr<VirtualGroup> nearestGroup() override { return fSelf.lock(); }
         void loadText(
                 tf::FileFormat& fmt,
@@ -391,7 +403,7 @@ namespace tr {
                 tf::Existing existing);
         std::shared_ptr<VirtualGroup> findGroup(std::u8string_view id);
         std::shared_ptr<Text> findText(std::u8string_view id);
-        void clearChildren() override { children.clear(); }
+        void clearChildren() override { children.clear(); cascadeDropStats(); }
     protected:
         friend class Project;
         void doSwapChildren(size_t index1, size_t index2) override;
@@ -417,7 +429,6 @@ namespace tr {
         std::shared_ptr<File> file() override;
         std::shared_ptr<Project> project() override;
             using Entity::project;
-        void addStats(Stats& x, bool) const override { ++x.nTexts; }
         void writeToXml(pugi::xml_node&, WrCache&) const override;
         void readFromXml(const pugi::xml_node& node, const PrjInfo& info) override;
         bool isCloneable() const noexcept { return true; }
@@ -432,6 +443,7 @@ namespace tr {
                 const std::shared_ptr<UiObject>& parent) const override;
         bool doesNeedAttention() const override;
         void clearChildren() override {}
+        const Stats& stats(StatsMode mode, CascadeDropCache cascade) override;
     protected:
         std::shared_ptr<Entity> vclone(
                 const std::shared_ptr<VirtualGroup>& parent) const override
@@ -530,7 +542,7 @@ namespace tr {
         Project& operator = (const Project&) = default;
         Project& operator = (Project&&) = default;
 
-        void clearChildren() override { files.clear(); }
+        void clearChildren() override { files.clear(); cache.stats.reset(); }
         void clear();
         /// @return  maybe alias-constructed s_p, but never null
         std::shared_ptr<Project> self();
@@ -544,7 +556,6 @@ namespace tr {
         std::shared_ptr<Project> project() override { return self(); }
         Pair<VirtualGroup> additionParents() override { return {}; }
         std::shared_ptr<Entity> extractChild(size_t i, Modify wantModify) override;
-        void addStats(Stats&, bool) const override {}
         void writeToXml(pugi::xml_node&) const;
         bool unmodify(Forced forced) override;
         void traverse(TraverseListener& x, tr::WalkOrder order, EnterMe enterMe) override;

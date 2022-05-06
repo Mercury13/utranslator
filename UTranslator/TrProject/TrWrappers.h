@@ -2,8 +2,8 @@
 
 ///
 ///  Translation wrappers on the border of UI and Translation.
-///  DO NOT CONTAIN Qt, L10n
-///  But may draw L10n form outside using some function
+///  DOES NOT CONTAIN Qt, L10n
+///  But may draw L10n from outside using some function
 ///
 
 #include "TrProject.h"

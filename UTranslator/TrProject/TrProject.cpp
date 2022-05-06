@@ -80,6 +80,18 @@ bool tr::Translatable::needsAttention(const tr::PrjInfo& prjInfo) const
 }
 
 
+///// Stats ////////////////////////////////////////////////////////////////////
+
+
+tr::Stats& tr::Stats::operator += (const Stats& x)
+{
+    nGroups += (x.nGroups + x.isGroup);
+    nTexts += x.nTexts;
+    nGood += x.nGood;
+    return *this;
+}
+
+
 ///// UiObject /////////////////////////////////////////////////////////////////
 
 
@@ -129,6 +141,7 @@ bool tr::UiObject::setOriginal(std::u8string_view x, tr::Modify wantModify)
     if (auto t = translatable()) {
         if (t->original != x) {
             t->original = x;
+            stats(StatsMode::DIRECT, CascadeDropCache::YES);
             if (wantModify != Modify::NO) {
                 doModify(Mch::ORIG);
             }
@@ -159,6 +172,7 @@ bool tr::UiObject::setTranslation(
     if (auto t = translatable()) {
         if (t->translation != x) {
             t->translation = x;
+            stats(StatsMode::DIRECT, CascadeDropCache::YES);
             if (wantModify != Modify::NO) {
                 doModify(Mch::TRANSL);
             }
@@ -313,6 +327,46 @@ bool tr::UiObject::moveDown(UiObject* aChild)
 }
 
 
+const tr::Stats& tr::UiObject::stats(StatsMode mode, CascadeDropCache cascade)
+{
+    if (cache.stats && mode == StatsMode::CACHED)
+        return *cache.stats;
+
+    if (mode == StatsMode::SEMICACHED)
+        mode = StatsMode::CACHED;
+
+    Stats r;
+    r.isGroup = true;
+    for (size_t i = 0; i < nChildren(); ++i) {
+        auto ch = child(i);
+        r += ch->stats(mode, CascadeDropCache::NO);
+    }
+
+    return resetCacheIf(r, cascade);
+}
+
+
+void tr::UiObject::cascadeDropStats()
+{
+    cache.stats.reset();
+    for (auto q = parent(); q; q = q->parent()) {
+        q->cache.stats.reset();
+    }
+}
+
+
+const tr::Stats& tr::UiObject::resetCacheIf(const Stats& r, CascadeDropCache cascade)
+{
+    if (cascade != CascadeDropCache::NO) {
+        if (!cache.stats || *cache.stats != r) {
+            cascadeDropStats();
+        }
+    }
+    cache.stats = r;
+    return *cache.stats;
+}
+
+
 ///// Entity ///////////////////////////////////////////////////////////////////
 
 
@@ -329,23 +383,6 @@ bool tr::Entity::setId(std::u8string_view x, tr::Modify wantModify)
     }
 }
 
-
-void tr::UiObject::addStatsRecursive(Stats& x, bool includeSelf) const
-{
-    addStats(x, includeSelf);
-    auto nc = nChildren();
-    for (size_t i = 0; i < nc; ++i) {
-        child(i)->addStatsRecursive(x, true);
-    }
-}
-
-
-tr::Stats tr::UiObject::stats(bool includeSelf) const
-{
-    Stats r;
-    addStatsRecursive(r, includeSelf);
-    return r;
-}
 
 namespace {
 
@@ -586,6 +623,7 @@ std::shared_ptr<tr::Text> tr::VirtualGroup::addText(
         doModify(Mch::META);
     }
     children.push_back(r);
+    cascadeDropStats();
     return r;
 }
 
@@ -601,6 +639,7 @@ std::shared_ptr<tr::Group> tr::VirtualGroup::addGroup(
         doModify(Mch::META);
     }
     children.push_back(r);
+    cascadeDropStats();
     return r;
 }
 
@@ -621,6 +660,7 @@ std::shared_ptr<tr::Entity> tr::VirtualGroup::extractChild(
     auto r = children[i];
     children.erase(children.begin() + i);
     recache();
+    cascadeDropStats();
     if (wantModify != Modify::NO)
         doModify(Mch::META);
     return r;
@@ -916,6 +956,17 @@ bool tr::Text::doesNeedAttention() const
 }
 
 
+const tr::Stats& tr::Text::stats(StatsMode, CascadeDropCache cascade)
+{
+    Stats r;
+    r.nTexts = 1;
+    if (!doesNeedAttention())
+        r.nGood = 1;
+
+    return resetCacheIf(r, cascade);
+}
+
+
 ///// File /////////////////////////////////////////////////////////////////////
 
 
@@ -1144,6 +1195,7 @@ std::shared_ptr<tr::File> tr::Project::addFile(
         doModify(Mch::META);
     }
     files.push_back(r);
+    cascadeDropStats();
     return r;
 }
 
@@ -1181,6 +1233,7 @@ std::shared_ptr<tr::Entity> tr::Project::extractChild(
     auto r = files[i];
     files.erase(files.begin() + i);
     recache();
+    cascadeDropStats();
     if (wantModify != Modify::NO)
         doModify(Mch::META);
     return r;
