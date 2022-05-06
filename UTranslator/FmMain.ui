@@ -84,7 +84,7 @@
              <widget class="QWidget" name="wiUpdate" native="true">
               <property name="styleSheet">
                <string notr="true">#wiUpdate {
-   background-color: crimson;
+   background-color: #a40000;
 }
 QLabel {
   color: white;
