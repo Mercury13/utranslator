@@ -10,7 +10,7 @@
 
 namespace tw {
 
-    enum class Fg { NORMAL, ATTENTION, OK, STATS, LIGHT };
+    enum class Fg { NORMAL, UNTRANSLATED_CAT, ATTENTION, OK, STATS, LIGHT };
     constexpr int Fg_N = static_cast<int>(Fg::LIGHT) + 1;
 
     /// Localization strings

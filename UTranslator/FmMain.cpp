@@ -147,13 +147,15 @@ namespace {
         return r;
     }
 
-    constinit const QColor fgColors[tw::Fg_N] = {
+    constinit const QColor fgColors[] = {
         QColor(),               // NORMAL,
+        { 0x77, 0x00, 0x00 },   // UNTRANSLATED_CAT — some dark red
         { 0xDC, 0x14, 0x3C },   // ATTENTION — HTML crimson
         { 0x00, 0x80, 0x00 },   // OK — dumb green
         { 0x69, 0x69, 0x69 },   // STATS — HTML dim gray
         { 0xD3, 0xD3, 0xD3 },   // LIGHT — HTML light gray
     };
+    static_assert(std::size(fgColors) == tw::Fg_N);
 }
 
 QVariant PrjTreeModel::data(const QModelIndex &index, int role) const

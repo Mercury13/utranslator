@@ -15,8 +15,13 @@ std::u8string_view tw::Flyweight::TranslStats::str() const
 tw::Fg tw::Flyweight::TranslStats::fg() const
 {
     /// @todo [patch] Write smth else
-    return (stats.nGood == stats.nTexts)
-               ? Fg::OK : Fg::ATTENTION;
+    if (stats.nTexts == 0)
+        return Fg::LIGHT;
+    if (stats.nGood == 0)
+        return Fg::UNTRANSLATED_CAT;
+    if (stats.nGood == stats.nTexts)
+        return Fg::OK;
+    return Fg::ATTENTION;
 }
 
 
