@@ -67,6 +67,16 @@ namespace tw {
     private:
         L10n l10n;
         DumbString dumb;
+        class TranslStats : public TranslObj {
+        public:
+            tr::Stats stats;
+            mutable char cache[50];
+
+            std::u8string_view str() const override;
+            bool mayContainEols() const override { return false; }
+            Fg fg() const override;
+        };
+        TranslStats trStats;
     };
 
 }   // namespace tw

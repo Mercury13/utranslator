@@ -71,9 +71,9 @@ tr::CanaryObject::~CanaryObject()
 bool tr::Translatable::needsAttention(const tr::PrjInfo& prjInfo) const
 {
     if (prjInfo.isTranslation()) {
-        if (!knownOriginal->empty())
+        if (knownOriginal)
             return true;
-        if (prjInfo.isFullTranslation() && translation->empty())
+        if (prjInfo.isFullTranslation() && !translation)
             return true;
     }
     return forceAttention;

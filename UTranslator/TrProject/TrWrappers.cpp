@@ -3,6 +3,23 @@
 const tw::NoString tw::NoString::INST;
 
 
+std::u8string_view tw::Flyweight::TranslStats::str() const
+{
+    snprintf(cache, std::size(cache), "%llu / %llu",
+             static_cast<unsigned long long>(stats.nGood),
+             static_cast<unsigned long long>(stats.nTexts));
+    return str::toU8sv(cache);
+}
+
+
+tw::Fg tw::Flyweight::TranslStats::fg() const
+{
+    /// @todo [patch] Write smth else
+    return (stats.nGood == stats.nTexts)
+               ? Fg::OK : Fg::ATTENTION;
+}
+
+
 auto tw::Flyweight::getTransl(tr::UiObject& x) -> const TranslObj&
 {
     if (auto tr = x.translatable()) {
@@ -20,6 +37,10 @@ auto tw::Flyweight::getTransl(tr::UiObject& x) -> const TranslObj&
             /// @todo [patch] Write smth like “Untouched”
             return dumb.set(l10n.untranslated, Fg::ATTENTION);
         }
+    } else {
+        auto& stats = x.stats(tr::StatsMode::CACHED, tr::CascadeDropCache::YES);
+        trStats.stats = stats;
+        return trStats;
     }
     return NoString::INST;
 }
