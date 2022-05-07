@@ -29,6 +29,8 @@ public slots:
     void goBack();
     void goNext();
     void close();
+    /// Sets search index w/o changing anything
+    void setIndexQuietly(size_t index0);
 private:
     Ui::WiFind *ui;
     size_t count = 1;

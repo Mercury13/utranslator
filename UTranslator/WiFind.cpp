@@ -19,7 +19,7 @@ WiFind::~WiFind()
 
 void WiFind::goBack()
 {
-    if (!isVisible())
+    if (isHidden())
         return;
     auto index1 = index0();
     ui->spinIndex->stepDown();
@@ -30,7 +30,7 @@ void WiFind::goBack()
 
 void WiFind::goNext()
 {
-    if (!isVisible())
+    if (isHidden())
         return;
     auto index1 = index0();
     ui->spinIndex->stepUp();
@@ -77,6 +77,18 @@ size_t WiFind::index0() const
         i = count - 1;
     return i;
 }
+
+void WiFind::setIndexQuietly(size_t index0)
+{
+    if (isHidden())
+        return;
+    if (index0 < count) {
+        isProgrammatic = true;
+        ui->spinIndex->setValue(index0 + 1);
+        isProgrammatic = false;
+    }
+}
+
 
 void WiFind::spinChanged()
 {
