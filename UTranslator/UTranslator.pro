@@ -27,6 +27,7 @@ SOURCES += \
     TrProject/Modifiable.cpp \
     TrProject/TrDefines.cpp \
     TrProject/TrFile.cpp \
+    TrProject/TrFinder.cpp \
     TrProject/TrProject.cpp \
     TrProject/TrWrappers.cpp \
     WiFind.cpp \
@@ -60,6 +61,7 @@ HEADERS += \
     TrProject/Modifiable.h \
     TrProject/TrDefines.h \
     TrProject/TrFile.h \
+    TrProject/TrFinder.h \
     TrProject/TrProject.h \
     TrProject/TrWrappers.h \
     WiFind.h \
