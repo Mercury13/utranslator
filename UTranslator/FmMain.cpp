@@ -616,6 +616,7 @@ void FmMain::loadObject(tr::UiObject& obj)
     ui->edId->setText(str::toQ(obj.idColumn()));
     // File/Original/translation
     if (auto fi = obj.ownFileInfo()) {
+        // FILE
         ui->stackOriginal->setCurrentWidget(ui->pageFile);
         ui->chkIdless->setChecked(fi->isIdless);
         ui->edFilePath->setPlaceholderText(ui->edId->text());
@@ -623,7 +624,8 @@ void FmMain::loadObject(tr::UiObject& obj)
         bool canAddFiles = project->info.canAddFiles();
         ui->pageFile->setEnabled(canAddFiles);
         ui->wiId->setEnabled(canAddFiles);
-    } else if (auto tr = obj.translatable()) {      // mutually exclusive with fileInfo
+    } else if (auto tr = obj.translatable()) {
+        // ORIGINAL, mutually exclusive with fileInfo
         ui->wiId->setEnabled(project->info.canEditOriginal());
         if (project->info.canEditOriginal()) {
             ui->stackOriginal->setCurrentWidget(ui->pageOriginal);
@@ -634,7 +636,8 @@ void FmMain::loadObject(tr::UiObject& obj)
         }
         setMemo(ui->grpTranslation, ui->memoTranslation, tr->translationSv());
     } else {
-        ui->wiId->setEnabled(false);
+        // GROUP
+        ui->wiId->setEnabled(project->info.canEditOriginal());
         ui->stackOriginal->setCurrentWidget(ui->pageOriginal);
         ui->grpOriginal->setEnabled(false);
         ui->grpTranslation->setEnabled(false);

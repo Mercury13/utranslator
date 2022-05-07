@@ -302,12 +302,15 @@ namespace tr {
     };
 
 //  Project types
-//                       Original   Bilingual  Normal   Freestyle
-//   canAddFiles           YES        YES      no        YES
-//   canEditOriginal       YES        YES      no        no
-//   isTranslation         no         YES      YES       YES
-//   isFullTranslation     no       depends  depends   depends
-//   hasOriginalPath       no         no       YES       no
+//                         Original  Bilingual  Normal   Freestyle
+//   (implemented)           YES        no       YES       no
+//   canAddFiles             YES        YES      no        YES
+//   canEditOriginal         YES        YES      no        no
+//   isTranslation           no         YES      YES       YES
+//   (can edit
+//     translator’s comment  no         no       YES       YES
+//   isFullTranslation       no       depends  depends   depends
+//   hasOriginalPath         no         no       YES       no
 //
 
     struct FileInfo {

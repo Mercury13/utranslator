@@ -307,7 +307,7 @@ QLabel {
                         <item>
                          <widget class="QLabel" name="lbRealPath">
                           <property name="text">
-                           <string>File’s name/path</string>
+                           <string>File’s name if ≠ID</string>
                           </property>
                          </widget>
                         </item>
