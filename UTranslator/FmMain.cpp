@@ -618,6 +618,7 @@ void FmMain::loadObject(tr::UiObject& obj)
     if (auto fi = obj.ownFileInfo()) {
         ui->stackOriginal->setCurrentWidget(ui->pageFile);
         ui->chkIdless->setChecked(fi->isIdless);
+        ui->edFilePath->setPlaceholderText(ui->edId->text());
         ui->edFilePath->setText(str::toQ(fi->origPath.wstring()));
         bool canAddFiles = project->info.canAddFiles();
         ui->pageFile->setEnabled(canAddFiles);
