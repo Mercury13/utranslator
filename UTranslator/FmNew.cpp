@@ -167,7 +167,7 @@ void FmNew::reenableSettingsPage()
     if (project) {
         ui->edOriginal->setCurrentText(QString::fromStdString(project->info.orig.lang));
     }
-    ui->wiOriginal->setEnabled(tr::PrjInfo::isOrigUnlocked(type));
+    ui->wiOriginal->setEnabled(tr::PrjInfo::canAddFiles(type));
     ui->wiTranslation->setVisible(tr::PrjInfo::isTranslation(type));
 }
 

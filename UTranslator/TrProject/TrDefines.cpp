@@ -84,7 +84,7 @@ bool tr::PrjInfo::canEditOriginal() const
 }
 
 
-bool tr::PrjInfo::isOrigUnlocked(PrjType type)
+bool tr::PrjInfo::canAddFiles(PrjType type)
 {
     switch (type) {
     case PrjType::ORIGINAL:
@@ -92,7 +92,7 @@ bool tr::PrjInfo::isOrigUnlocked(PrjType type)
     case PrjType::FULL_TRANSL:
         return false;
     }
-    throw std::logic_error("[isOrigUnlocked] Strange project type");
+    throw std::logic_error("[canAddFiles] Strange project type");
 }
 
 

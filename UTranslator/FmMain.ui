@@ -98,7 +98,7 @@ QLabel {
                 <number>5</number>
                </property>
                <item>
-                <widget class="QLabel" name="lbUpdate">
+                <widget class="ElidedLabel" name="lbUpdate">
                  <property name="text">
                   <string notr="true">[lbUpdate] update update update here!</string>
                  </property>
@@ -301,8 +301,11 @@ QLabel {
                       </property>
                       <item>
                        <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="0,1">
+                        <property name="spacing">
+                         <number>6</number>
+                        </property>
                         <item>
-                         <widget class="QLabel" name="label_2">
+                         <widget class="QLabel" name="lbRealPath">
                           <property name="text">
                            <string>File’s real path</string>
                           </property>
@@ -936,6 +939,11 @@ QLabel {
  </widget>
  <customwidgets>
   <customwidget>
+   <class>ElidedLabel</class>
+   <extends>QLabel</extends>
+   <header>ElidedLabel.h</header>
+  </customwidget>
+  <customwidget>
    <class>WiFind</class>
    <extends>QWidget</extends>
    <header>WiFind.h</header>
@@ -947,12 +955,12 @@ QLabel {
   <tabstop>btStartOpen</tabstop>
   <tabstop>treeStrings</tabstop>
   <tabstop>edId</tabstop>
+  <tabstop>lineEdit</tabstop>
   <tabstop>memoOriginal</tabstop>
   <tabstop>chkIdless</tabstop>
   <tabstop>btFileFormat</tabstop>
   <tabstop>memoTranslation</tabstop>
   <tabstop>memoComment</tabstop>
-  <tabstop>browContext</tabstop>
   <tabstop>edCompatId</tabstop>
   <tabstop>btEditCompatId</tabstop>
   <tabstop>btStartEdit</tabstop>

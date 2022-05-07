@@ -619,9 +619,9 @@ void FmMain::loadObject(tr::UiObject& obj)
         ui->chkIdless->setChecked(fi->isIdless);
         bool canAddFiles = project->info.canAddFiles();
         ui->pageFile->setEnabled(canAddFiles);
-        ui->wiId->show();
         ui->wiId->setEnabled(canAddFiles);
     } else if (auto tr = obj.translatable()) {      // mutually exclusive with fileInfo
+        ui->wiId->setEnabled(project->info.canEditOriginal());
         if (project->info.canEditOriginal()) {
             ui->stackOriginal->setCurrentWidget(ui->pageOriginal);
             setMemo(ui->grpOriginal, ui->memoOriginal, tr->original);
@@ -631,7 +631,7 @@ void FmMain::loadObject(tr::UiObject& obj)
         }
         setMemo(ui->grpTranslation, ui->memoTranslation, tr->translationSv());
     } else {
-        ui->wiId->setVisible(project->info.canEditOriginal());
+        ui->wiId->setEnabled(false);
         ui->stackOriginal->setCurrentWidget(ui->pageOriginal);
         ui->grpOriginal->setEnabled(false);
         ui->grpTranslation->setEnabled(false);

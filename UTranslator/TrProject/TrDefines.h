@@ -273,24 +273,42 @@ namespace tr {
 
         /// @return [+] can edit original, incl. adding files
         bool canEditOriginal() const;
-        /// @return [+] can add/remove files
+
+        /// @return [+] can add/remove files, edit orig. settings
+        /// @warning  canEditOriginal → canAddFiles
+        ///           (the converse is false for freestyle project)
         ///      @todo [freestyle, #12] we’ll have freestyle translation,
-        ///                     ot can edit files, but cannot edit original
-        bool canAddFiles() const { return canEditOriginal(); }
-        /// @return [+] Original’s settings are unlocked
-        static bool isOrigUnlocked(PrjType type);
-        bool isOrigUnlocked() const { return isOrigUnlocked(type); }
+        ///                     it can edit files, but cannot edit original
+        static bool canAddFiles(PrjType type);
+        bool canAddFiles() const { return canAddFiles(type); }
+
         /// @return [+] Everything translation-related is available,
-        ///             incl. column, transl. settings…
+        ///             incl. two new channels (translation, translator’s comment),
+        ///             translation settings…
         static bool isTranslation(PrjType type);
         bool isTranslation() const { return isTranslation(type); }
+
         /// @return [+] is full translation, e.g. empty translation automatically needs attention.
+        /// @warning  isFullTranslation → isTranslation
         /// @todo [patch, #23] what to do?
         bool isFullTranslation() const { return isTranslation(); }
+
         /// @return [+] original path matters
+        /// @warning  hasOriginalPath → isTranslation
+        ///           the converse is false for freestyle translation,
+        ///           bilingual
         static bool hasOriginalPath(PrjType type);
-        bool hasOriginalPath() { return hasOriginalPath(type); }
+        bool hasOriginalPath() const { return hasOriginalPath(type); }
     };
+
+//  Project types
+//                       Original   Bilingual  Normal   Freestyle
+//   canAddFiles           YES        YES      no        YES
+//   canEditOriginal       YES        YES      no        no
+//   isTranslation         no         YES      YES       YES
+//   isFullTranslation     no       depends  depends   depends
+//   hasOriginalPath       no         no       YES       no
+//
 
     struct FileInfo {
         CloningUptr<tf::FileFormat> format;
