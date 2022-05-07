@@ -15,7 +15,7 @@ void ts::Result::clear()
 size_t ts::Result::find(const Sp& x) const
 {
     auto it = ndx.find(x);
-    if (it != ndx.end())
+    if (it == ndx.end())
         return NOT_FOUND;
     return it->second.v;
 }

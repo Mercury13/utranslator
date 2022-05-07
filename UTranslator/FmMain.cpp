@@ -606,6 +606,12 @@ void FmMain::loadContext(tr::UiObject* lastSon)
 
 void FmMain::loadObject(tr::UiObject& obj)
 {
+    if (searchResult) {
+        auto sp = obj.selfUi();
+        if (auto index = searchResult->find(sp); index != NOT_FOUND) {
+            ui->wiFind->setIndexQuietly(index);
+        }
+    }
     ui->edId->setText(str::toQ(obj.idColumn()));
     // File/Original/translation
     if (auto fi = obj.ownFileInfo()) {

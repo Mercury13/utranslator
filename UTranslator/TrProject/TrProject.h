@@ -275,6 +275,7 @@ namespace tr {
         virtual void clearChildren() = 0;
         /// Gets statistics, can use cache
         virtual const Stats& stats(StatsMode mode, CascadeDropCache cascade);
+        virtual std::shared_ptr<UiObject> selfUi() = 0;
 
         void recache();
         void recursiveRecache();
@@ -324,7 +325,7 @@ namespace tr {
         bool canMoveDown(const UiObject* aChild) const;
         bool moveUp(UiObject* aChild);
         bool moveDown(UiObject* aChild);
-        void swapChildren(size_t index1, size_t index2);
+        void swapChildren(size_t index1, size_t index2);        
 
         // Const verions
         const FileInfo* ownFileInfo() const
@@ -404,6 +405,7 @@ namespace tr {
         std::shared_ptr<VirtualGroup> findGroup(std::u8string_view id);
         std::shared_ptr<Text> findText(std::u8string_view id);
         void clearChildren() override { children.clear(); cascadeDropStats(); }
+        std::shared_ptr<UiObject> selfUi() override { return fSelf.lock(); }
     protected:
         friend class Project;
         void doSwapChildren(size_t index1, size_t index2) override;
@@ -444,6 +446,7 @@ namespace tr {
         bool doesNeedAttention() const override;
         void clearChildren() override {}
         const Stats& stats(StatsMode mode, CascadeDropCache cascade) override;
+        std::shared_ptr<UiObject> selfUi() override { return fSelf.lock(); }
     protected:
         std::shared_ptr<Entity> vclone(
                 const std::shared_ptr<VirtualGroup>& parent) const override
@@ -546,7 +549,8 @@ namespace tr {
         void clearChildren() override { files.clear(); cache.stats.reset(); }
         void clear();
         /// @return  maybe alias-constructed s_p, but never null
-        std::shared_ptr<Project> self();
+        std::shared_ptr<Project> self();        
+        std::shared_ptr<UiObject> selfUi() override { return self(); }
 
         ObjType objType() const noexcept override { return ObjType::PROJECT; }
         std::shared_ptr<File> file() override { return {}; }
