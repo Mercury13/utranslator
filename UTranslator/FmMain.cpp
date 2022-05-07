@@ -1189,22 +1189,56 @@ namespace {
         void onText(const std::shared_ptr<tr::Text>&) override;
         void onEnterGroup(const std::shared_ptr<tr::VirtualGroup>&) override;
         std::unique_ptr<ts::Result> give() { return std::move(r); }
+        bool isEmpty() const { return r->isEmpty(); }
     private:
         FindOptions opts;
         std::unique_ptr<ts::Result> r;
+        Qt::CaseSensitivity caseSen;
+        bool matchEntity(const tr::Entity& x);
+        bool matchText(const tr::Text& x);
     };
 
     Finder::Finder(const FindOptions& aOpts)
-        : opts{aOpts}, r{std::make_unique<ts::Result>()} {}
-
-    void Finder::onText(const std::shared_ptr<tr::Text>&)
+        : opts{aOpts}, r{std::make_unique<ts::Result>()}
     {
-
+        caseSen = opts.options.matchCase ? Qt::CaseSensitive : Qt::CaseInsensitive;
     }
 
-    void Finder::onEnterGroup(const std::shared_ptr<tr::VirtualGroup>&)
+    bool Finder::matchEntity(const tr::Entity& x)
     {
+        if (opts.channels.id
+                && str::toQ(x.id).indexOf(opts.text, caseSen) >= 0)
+            return true;
+        if (opts.channels.authorsComment
+                && str::toQ(x.comm.authors).indexOf(opts.text, caseSen) >= 0)
+            return true;
+        if (opts.channels.translatorsComment
+                && str::toQ(x.comm.translators).indexOf(opts.text, caseSen) >= 0)
+            return true;
+        return false;
+    }
 
+    bool Finder::matchText(const tr::Text& x)
+    {
+        if (opts.channels.original
+                && str::toQ(x.tr.original).indexOf(opts.text, caseSen) >= 0)
+            return true;
+        if (opts.channels.translation
+                && str::toQ(x.tr.translationSv()).indexOf(opts.text, caseSen) >= 0)
+            return true;
+        return false;
+    }
+
+    void Finder::onText(const std::shared_ptr<tr::Text>& x)
+    {
+        if (matchEntity(*x) || matchText(*x))
+            r->add(x);
+    }
+
+    void Finder::onEnterGroup(const std::shared_ptr<tr::VirtualGroup>& x)
+    {
+        if (matchEntity(*x))
+            r->add(x);
     }
 
 }   // anon namespace
@@ -1213,7 +1247,20 @@ namespace {
 void FmMain::goFind()
 {
     if (auto opts = fmFind.ensure(this).exec(project->info.type)) {
-        /// @todo [urgent] really find
+        Finder finder(opts);
+        project->traverse(finder, tr::WalkOrder::EXACT, tr::EnterMe::NO);
+        plantSearchResult(finder.give());
+    }
+}
+
+
+void FmMain::plantSearchResult(std::unique_ptr<ts::Result> x)
+{
+    if (!x || x->isEmpty()) {
+        goCloseSearch();
+        QMessageBox::information(this, "Find", "Not found.");
+    } else {
+
     }
 }
 
@@ -1361,6 +1408,7 @@ void FmMain::closeEvent(QCloseEvent *event)
 void FmMain::closeSearchInner()
 {
     ui->wiFind->hide();
+    searchResult.reset();
 }
 
 

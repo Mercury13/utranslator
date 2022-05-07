@@ -31,7 +31,6 @@ public:
     ~FmFind() override;
 
     FindOptions exec(tr::PrjType prjType);
-
 private:
     Ui::FmFind *ui;
 

@@ -26,6 +26,7 @@ namespace ts {  // translation search
         void clear();
         iterator begin() const { return d.begin(); }
         iterator end() const { return d.end(); }
+        bool isEmpty() const { return d.empty(); }
 
         ///  Makes another result from x, only from non-expored w_p’s
         void fixupDestructiveTo(Result& x);

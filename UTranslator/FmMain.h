@@ -28,6 +28,10 @@ class FmFileFormat;
 class FmFind;
 class QPlainTextEdit;
 
+namespace ts {
+    class Result;
+}
+
 template <class T>
 struct Thing {
     std::shared_ptr<T> subj;
@@ -189,6 +193,7 @@ private:
 
     PrjTreeModel treeModel;
     std::shared_ptr<tr::Project> project;
+    std::unique_ptr<ts::Result> searchResult;
 
     Uptr<FmNew> fmNew;
     Uptr<FmDisambigPair> fmDisambigPair;
@@ -234,4 +239,5 @@ private:
     void doBuild();
     bool checkSave(std::string_view caption);
     void closeSearchInner();
+    void plantSearchResult(std::unique_ptr<ts::Result> x);
 };
