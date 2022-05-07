@@ -23,6 +23,7 @@ namespace ts {  // translation search
         size_t size() const { return d.size(); }
         std::shared_ptr<tr::UiObject> operator [](size_t i) const
             { return d.safeGetV(i, Wp{}).lock(); }
+        auto at(size_t i) const { return operator[](i); }
         void clear();
         iterator begin() const { return d.begin(); }
         iterator end() const { return d.end(); }

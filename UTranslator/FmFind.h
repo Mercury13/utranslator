@@ -13,12 +13,16 @@ struct FindOptions {
     struct Channels {
         bool id = false, original = false, authorsComment = false,
              translation = false, translatorsComment = false;
+        static const Channels NONE;
+        // default C++20 op==
+        bool operator == (const Channels&) const = default;
     } channels;
     struct Options {
         bool matchCase = false;
     } options;
 
     explicit operator bool () const { return !text.isEmpty(); }
+    bool areSet() const { return !text.isEmpty() && channels != Channels::NONE; }
 };
 
 class FmFind : public QDialog
@@ -31,8 +35,13 @@ public:
     ~FmFind() override;
 
     FindOptions exec(tr::PrjType prjType);
+private slots:
+    void acceptIf();
 private:
     Ui::FmFind *ui;
+    FindOptions opts;
+    bool isTransl = false;
 
     using Super::exec;
+    void copyTo(FindOptions& r);
 };

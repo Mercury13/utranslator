@@ -417,7 +417,7 @@ FmMain::FmMain(QWidget *parent)
     config::history.setListener(this);
 
 
-    closeSearchInner();
+    ui->wiFind->hide();
     dismissChanges();
 
     // Splitter
@@ -441,6 +441,10 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->memoTranslation, &QPlainTextEdit::textChanged, this, &This::tempModify);
     connect(ui->memoComment, &QPlainTextEdit::textChanged, this, &This::tempModify);
     connect(ui->btFileFormat, &QPushButton::clicked, this, &This::editFileFormat);
+
+    // Signals/slots: search
+    connect(ui->wiFind, &WiFind::closed, this, &This::searchClosed);
+    connect(ui->wiFind, &WiFind::indexChanged, this, &This::searchChanged);
 
     // Signals/slots: menu
     // Starting screen
@@ -472,9 +476,9 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->acGoNext, &QAction::triggered, this, &This::goNext);
     connect(ui->acGoUp, &QAction::triggered, this, &This::goUp);
     connect(ui->acGoFind, &QAction::triggered, this, &This::goFind);
-    connect(ui->acGoFindNext, &QAction::triggered, this, &This::goFindNext);
-    connect(ui->acGoFindPrev, &QAction::triggered, this, &This::goFindPrev);
-    connect(ui->acGoCloseSearch, &QAction::triggered, this, &This::goCloseSearch);
+    connect(ui->acGoFindNext, &QAction::triggered, ui->wiFind, &WiFind::goNext);
+    connect(ui->acGoFindPrev, &QAction::triggered, ui->wiFind, &WiFind::goBack);
+    connect(ui->acGoCloseSearch, &QAction::triggered, ui->wiFind, &WiFind::close);
     // Tools
     connect(ui->acDecoder, &QAction::triggered, this, &This::runDecoder);
 
@@ -1249,18 +1253,23 @@ void FmMain::goFind()
     if (auto opts = fmFind.ensure(this).exec(project->info.type)) {
         Finder finder(opts);
         project->traverse(finder, tr::WalkOrder::EXACT, tr::EnterMe::NO);
-        plantSearchResult(finder.give());
+        QString caption = QString{"Find “%1”"}.arg(opts.text);
+        plantSearchResult(caption, finder.give());
     }
 }
 
 
-void FmMain::plantSearchResult(std::unique_ptr<ts::Result> x)
+void FmMain::plantSearchResult(
+        const QString& caption, std::unique_ptr<ts::Result> x)
 {
     if (!x || x->isEmpty()) {
-        goCloseSearch();
+        ui->wiFind->close();    // automatically reenables
         QMessageBox::information(this, "Find", "Not found.");
     } else {
-
+        searchResult = std::move(x);
+            // will not reenable for now
+        ui->wiFind->startSearch(caption, searchResult->size());
+        reenable();
     }
 }
 
@@ -1405,29 +1414,23 @@ void FmMain::closeEvent(QCloseEvent *event)
 }
 
 
-void FmMain::closeSearchInner()
+void FmMain::searchClosed()
 {
-    ui->wiFind->hide();
     searchResult.reset();
-}
-
-
-void FmMain::goFindNext()
-{
-
-}
-
-
-void FmMain::goFindPrev()
-{
-
-}
-
-
-void FmMain::goCloseSearch()
-{
-    closeSearchInner();
     reenable();
+}
+
+
+void FmMain::searchChanged(size_t index)
+{
+    if (searchResult) {
+        if (auto obj = searchResult->at(index)) {
+            if (auto index = treeModel.toIndex(obj, 0);
+                    index.isValid()) {
+                ui->treeStrings->setCurrentIndex(index);
+            }
+        }
+    }
 }
 
 
