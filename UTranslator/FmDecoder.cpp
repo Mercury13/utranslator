@@ -57,6 +57,7 @@ FmDecoder::FmDecoder(QWidget *parent) :
 
     // Different decode algos
     connect(ui->btDecodeC, &QPushButton::clicked, this, &This::decodeCpp);
+    connect(ui->btDecodeBr, &QPushButton::clicked, this, &This::decodeBr);
 
     ui->memo->setWhatsThis(
               u8"Type or paste text here.<br>"
@@ -124,3 +125,6 @@ void FmDecoder::decodeMemo(const Body& body)
 
 void FmDecoder::decodeCpp()
     { decodeMemo<std::u32string>(&decode::cpp); }
+
+void FmDecoder::decodeBr()
+    { decodeMemo<std::wstring>(&decode::htmlBrP); }
