@@ -16,6 +16,9 @@
 #include "u_Qstrings.h"
 #include "i_OpenSave.h"
 
+// Translation
+#include "TrFinder.h"
+
 // Project-local
 #include "d_Config.h"
 #include "d_Strings.h"
@@ -1175,6 +1178,36 @@ void FmMain::editFileFormat()
         }
     }
 }
+
+
+namespace {
+
+    class Finder : public tr::TraverseListener
+    {
+    public:
+        Finder(const FindOptions& aOpts);
+        void onText(const std::shared_ptr<tr::Text>&) override;
+        void onEnterGroup(const std::shared_ptr<tr::VirtualGroup>&) override;
+        std::unique_ptr<ts::Result> give() { return std::move(r); }
+    private:
+        FindOptions opts;
+        std::unique_ptr<ts::Result> r;
+    };
+
+    Finder::Finder(const FindOptions& aOpts)
+        : opts{aOpts}, r{std::make_unique<ts::Result>()} {}
+
+    void Finder::onText(const std::shared_ptr<tr::Text>&)
+    {
+
+    }
+
+    void Finder::onEnterGroup(const std::shared_ptr<tr::VirtualGroup>&)
+    {
+
+    }
+
+}   // anon namespace
 
 
 void FmMain::goFind()

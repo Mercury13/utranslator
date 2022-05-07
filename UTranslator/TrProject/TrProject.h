@@ -193,9 +193,9 @@ namespace tr {
 
     class TraverseListener {    // interface
     public:
-        virtual void onText(Text&) = 0;
-        virtual void onEnterGroup(VirtualGroup&) {}
-        virtual void onLeaveGroup(VirtualGroup&) {}
+        virtual void onText(const std::shared_ptr<Text>&) = 0;
+        virtual void onEnterGroup(const std::shared_ptr<VirtualGroup>&) {}
+        virtual void onLeaveGroup(const std::shared_ptr<VirtualGroup>&) {}
     };
 
     enum class EnterMe { NO, YES };
@@ -412,7 +412,7 @@ namespace tr {
         void readCommentsAndChildren(const pugi::xml_node& node, const PrjInfo& info);
     };
 
-    class Text final : public Entity
+    class Text final : public Entity, protected Self<Text>
     {
     public:
         Translatable tr;
@@ -433,7 +433,7 @@ namespace tr {
         void readFromXml(const pugi::xml_node& node, const PrjInfo& info) override;
         bool isCloneable() const noexcept { return true; }
         void traverse(TraverseListener& x, tr::WalkOrder, EnterMe) override
-            { x.onText(*this); }
+            { x.onText(fSelf.lock()); }
         std::shared_ptr<VirtualGroup> nearestGroup() override { return fParentGroup.lock(); }
         std::shared_ptr<Text> clone(
                 const std::shared_ptr<VirtualGroup>& parent,
@@ -451,6 +451,7 @@ namespace tr {
         void doSwapChildren(size_t, size_t) override {}
     private:
         std::weak_ptr<VirtualGroup> fParentGroup;
+        friend class VirtualGroup;
     };
 
     class Group final : public VirtualGroup

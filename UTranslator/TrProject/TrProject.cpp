@@ -617,6 +617,7 @@ std::shared_ptr<tr::Text> tr::VirtualGroup::addText(
 {
     auto index = nChildren();
     auto r = std::make_shared<Text>(fSelf, index, PassKey{});
+    r->fSelf = r;
     r->id = std::move(id);
     r->tr.original = std::move(original);
     if (wantModify != Modify::NO) {
@@ -698,8 +699,12 @@ void tr::VirtualGroup::readCommentsAndChildren(
 void tr::VirtualGroup::traverse(
         TraverseListener& x, tr::WalkOrder order, EnterMe enterMe)
 {
+    auto lk = fSelf.lock();
+    if (!lk)
+        throw std::logic_error("[VG.traverse] Did not lock ptr to this");
+
     if (enterMe != EnterMe::NO)
-        x.onEnterGroup(*this);
+        x.onEnterGroup(lk);
 
     switch (order) {
     case tr::WalkOrder::EXACT:
@@ -722,7 +727,7 @@ void tr::VirtualGroup::traverse(
     }
 
     if (enterMe != EnterMe::NO)
-        x.onLeaveGroup(*this);
+        x.onLeaveGroup(lk);
 }
 
 
@@ -1050,7 +1055,7 @@ namespace {
     private:
         struct DepthInfo {
             int commonDepth = 0, newDepth = 0;
-            const tr::Text* text = nullptr;
+            std::shared_ptr<const tr::Text> text = nullptr;
         };
 
         tr::WalkChannel channel;
@@ -1060,28 +1065,28 @@ namespace {
         tf::TextInfo textInfo;
         std::u8string pseudoLoced;
 
-        void onEnterGroup(tr::VirtualGroup& x) override;
-        void onLeaveGroup(tr::VirtualGroup& x) override;
-        void onText(tr::Text& x) override;
+        void onEnterGroup(const std::shared_ptr<tr::VirtualGroup>& x) override;
+        void onLeaveGroup(const std::shared_ptr<tr::VirtualGroup>& x) override;
+        void onText(const std::shared_ptr<tr::Text>& x) override;
         std::u8string_view pseudoLoc(std::u8string_view s);
     };
 
-    void FileWalker::onEnterGroup(tr::VirtualGroup&)
+    void FileWalker::onEnterGroup(const std::shared_ptr<tr::VirtualGroup>&)
     {
         ++depthInfo.newDepth;
     }
 
-    void FileWalker::onLeaveGroup(tr::VirtualGroup&)
+    void FileWalker::onLeaveGroup(const std::shared_ptr<tr::VirtualGroup>&)
     {
         if ((--depthInfo.newDepth) < depthInfo.commonDepth) {
             depthInfo.commonDepth = depthInfo.newDepth;
         }
     }
 
-    void FileWalker::onText(tr::Text& x)
+    void FileWalker::onText(const std::shared_ptr<tr::Text>& x)
     {
         auto& v = texts.emplace_back(depthInfo);
-        v.text = &x;
+        v.text = x;
         depthInfo.commonDepth = depthInfo.newDepth;
     }
 
