@@ -14,7 +14,7 @@ std::u8string_view tw::Flyweight::TranslStats::str() const
 
 tw::Fg tw::Flyweight::TranslStats::fg() const
 {
-    /// @todo [patch] Write smth else
+    /// @todo [patch, #23] Write smth else
     if (stats.nTexts == 0)
         return Fg::LIGHT;
     if (stats.nGood == 0)
@@ -39,7 +39,7 @@ auto tw::Flyweight::getTransl(tr::UiObject& x) -> const TranslObj&
             }
         } else {
             // Untranslated
-            /// @todo [patch] Write smth like “Untouched”
+            /// @todo [patch, #23] Write smth like “Untouched”
             return dumb.set(l10n.untranslated, Fg::ATTENTION);
         }
     } else {

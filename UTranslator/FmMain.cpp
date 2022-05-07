@@ -901,7 +901,7 @@ void FmMain::addText()
 
 void FmMain::doDelete()
 {
-    /// @todo [freestyle] #12 Freestyle translation can add/remove files only, not groups
+    /// @todo [freestyle, #12] Freestyle translation can add/remove files only, not groups
     auto index = treeIndex();
     if (!index.isValid())
         return;
@@ -928,6 +928,8 @@ void FmMain::doDelete()
     auto answer = QMessageBox::question(this, "Delete", message);
     if (answer != QMessageBox::Yes)
         return;
+    /// @todo [find, #20] limit search??
+    ui->wiFind->close();
     treeModel.extract(obj);
 }
 

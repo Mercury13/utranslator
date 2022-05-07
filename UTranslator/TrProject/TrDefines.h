@@ -274,7 +274,7 @@ namespace tr {
         /// @return [+] can edit original, incl. adding files
         bool canEditOriginal() const;
         /// @return [+] can add/remove files
-        ///      @todo [future] we’ll have freestyle translation,
+        ///      @todo [freestyle, #12] we’ll have freestyle translation,
         ///                     ot can edit files, but cannot edit original
         bool canAddFiles() const { return canEditOriginal(); }
         /// @return [+] Original’s settings are unlocked
@@ -285,7 +285,7 @@ namespace tr {
         static bool isTranslation(PrjType type);
         bool isTranslation() const { return isTranslation(type); }
         /// @return [+] is full translation, e.g. empty translation automatically needs attention.
-        /// @todo [patch] what to do?
+        /// @todo [patch, #23] what to do?
         bool isFullTranslation() const { return isTranslation(); }
         /// @return [+] original path matters
         static bool hasOriginalPath(PrjType type);
