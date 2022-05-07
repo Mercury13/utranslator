@@ -1318,6 +1318,8 @@ void FmMain::clearGroup()
 
     QString text = QString(u8"Clear group “%1”?").arg(str::toQ(selectedGroup->idColumn()));
     if (QMessageBox::question(this, "Clear group", text) == QMessageBox::Yes) {
+        /// @todo [find, #20] limit search??
+        ui->wiFind->close();
         auto newIndex = treeModel.clearGroup(selectedGroup.get());
         if (newIndex.isValid())
             ui->treeStrings->setCurrentIndex(newIndex);
