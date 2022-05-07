@@ -294,6 +294,7 @@ namespace tr {
 
     struct FileInfo {
         CloningUptr<tf::FileFormat> format;
+        std::filesystem::path origPath, translPath;
         bool isIdless = false;
     };
 
