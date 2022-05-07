@@ -52,6 +52,9 @@
         <property name="text">
          <string notr="true">TextLabel</string>
         </property>
+        <property name="textFormat">
+         <enum>Qt::PlainText</enum>
+        </property>
        </widget>
       </item>
       <item>
@@ -100,7 +103,10 @@
       <item>
        <widget class="QLabel" name="lbSpace">
         <property name="text">
-         <string notr="true"> </string>
+         <string notr="true">&amp;nbsp;</string>
+        </property>
+        <property name="textFormat">
+         <enum>Qt::RichText</enum>
         </property>
        </widget>
       </item>
