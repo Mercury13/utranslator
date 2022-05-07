@@ -1215,6 +1215,7 @@ namespace {
         Qt::CaseSensitivity caseSen;
         bool matchEntity(const tr::Entity& x);
         bool matchText(const tr::Text& x);
+        bool matchChan(bool isEnabled, std::u8string_view channel) const;
     };
 
     Finder::Finder(const FindOptions& aOpts)
@@ -1223,29 +1224,24 @@ namespace {
         caseSen = opts.options.matchCase ? Qt::CaseSensitive : Qt::CaseInsensitive;
     }
 
+    bool Finder::matchChan(bool isEnabled, std::u8string_view channel) const
+    {
+        static constexpr auto FROM_START = 0;
+        return isEnabled
+                && (str::toQ(channel).indexOf(opts.text, FROM_START, caseSen) >= 0);
+    }
+
     bool Finder::matchEntity(const tr::Entity& x)
     {
-        if (opts.channels.id
-                && str::toQ(x.id).indexOf(opts.text, caseSen) >= 0)
-            return true;
-        if (opts.channels.authorsComment
-                && str::toQ(x.comm.authors).indexOf(opts.text, caseSen) >= 0)
-            return true;
-        if (opts.channels.translatorsComment
-                && str::toQ(x.comm.translators).indexOf(opts.text, caseSen) >= 0)
-            return true;
-        return false;
+        return matchChan(opts.channels.id,                 x.id)
+            || matchChan(opts.channels.authorsComment,     x.comm.authors)
+            || matchChan(opts.channels.translatorsComment, x.comm.translators);
     }
 
     bool Finder::matchText(const tr::Text& x)
     {
-        if (opts.channels.original
-                && str::toQ(x.tr.original).indexOf(opts.text, caseSen) >= 0)
-            return true;
-        if (opts.channels.translation
-                && str::toQ(x.tr.translationSv()).indexOf(opts.text, caseSen) >= 0)
-            return true;
-        return false;
+        return matchChan(opts.channels.original,    x.tr.original)
+            || matchChan(opts.channels.translation, x.tr.translationSv());
     }
 
     void Finder::onText(const std::shared_ptr<tr::Text>& x)

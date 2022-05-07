@@ -67,7 +67,6 @@ FindOptions FmFind::exec(tr::PrjType prjType)
     ui->chkChanTranslatorsComment->setEnabled(isTransl);
     ui->edFind->setFocus();
 
-    FindOptions r;
     if (Super::exec()) {
         return opts;
     } else {
