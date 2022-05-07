@@ -436,6 +436,7 @@ FmMain::FmMain(QWidget *parent)
 
     // Signals/slots: editing
     connect(ui->edId, &QLineEdit::textEdited, this, &This::tempModify);
+    connect(ui->edFilePath, &QLineEdit::textEdited, this, &This::tempModify);
     connect(ui->memoOriginal, &QPlainTextEdit::textChanged, this, &This::tempModify);
     connect(ui->chkIdless, &QCheckBox::clicked, this, &This::tempModify);
     connect(ui->memoTranslation, &QPlainTextEdit::textChanged, this, &This::tempModify);
@@ -617,6 +618,7 @@ void FmMain::loadObject(tr::UiObject& obj)
     if (auto fi = obj.ownFileInfo()) {
         ui->stackOriginal->setCurrentWidget(ui->pageFile);
         ui->chkIdless->setChecked(fi->isIdless);
+        ui->edFilePath->setText(str::toQ(fi->origPath.wstring()));
         bool canAddFiles = project->info.canAddFiles();
         ui->pageFile->setEnabled(canAddFiles);
         ui->wiId->setEnabled(canAddFiles);
@@ -704,8 +706,9 @@ void FmMain::acceptObject(tr::UiObject& obj)
     auto idx9 = treeModel.toIndex(obj, treeModel.columnCount() - 1);
     treeModel.dataChanged(idx0, idx9);
     std::string cache;
-    if (project->info.canEditOriginal()) {
+    if (project->info.canAddFiles()) {
         obj.setId(toU8sv(ui->edId, cache), tr::Modify::YES);
+        obj.setOrigPath(ui->edFilePath->text().toStdWString(), tr::Modify::YES);
         obj.setIdless(ui->chkIdless->isChecked(), tr::Modify::YES);
         obj.setOriginal(toTextSv(ui->memoOriginal, cache), tr::Modify::YES);
         // Bilingual (currently unimplemented):

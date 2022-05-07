@@ -166,6 +166,20 @@ bool tr::UiObject::setIdless(bool x, tr::Modify wantModify)
 }
 
 
+bool tr::UiObject::setOrigPath(const std::filesystem::path& x, tr::Modify wantModify)
+{
+    if (auto fi = ownFileInfo()) {
+        if (fi->origPath != x) {
+            fi->origPath = x;
+            if (wantModify != Modify::NO) {
+                doModify(Mch::ORIG);
+            }
+        }
+    }
+    return false;
+}
+
+
 bool tr::UiObject::setTranslation(
         std::optional<std::u8string_view> x, tr::Modify wantModify)
 {
@@ -993,6 +1007,10 @@ void tr::File::writeToXml(pugi::xml_node& root, WrCache& c) const
     auto node = root.append_child("file");
         node.append_attribute("name") = str::toC(id);
         node.append_attribute("idless") = info.isIdless;
+        if (!info.origPath.empty())
+            node.append_attribute("orig-path") = str::toC(info.origPath.u8string());
+        if (!info.translPath.empty())
+            node.append_attribute("transl-path") = str::toC(info.translPath.u8string());
         if (info.format) {
             auto nodeFormat = node.append_child("format");
             nodeFormat.append_attribute("name") = info.format->proto().techName().data();  // Tech names are const, so OK
@@ -1006,6 +1024,8 @@ void tr::File::readFromXml(const pugi::xml_node& node, const PrjInfo& pinfo)
 {
     id = str::toU8sv(node.attribute("name").as_string());
     info.isIdless = node.attribute("idless").as_bool(false);
+    info.origPath = str::toU8sv(node.attribute("orig-path").as_string());
+    info.translPath = str::toU8sv(node.attribute("transl-path").as_string());
     if (auto nodeFormat = node.child("format")) {
         std::string_view sName = nodeFormat.attribute("name").as_string();
         if (!sName.empty()) {

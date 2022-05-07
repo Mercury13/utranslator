@@ -312,7 +312,7 @@ QLabel {
                          </widget>
                         </item>
                         <item>
-                         <widget class="QLineEdit" name="lineEdit"/>
+                         <widget class="QLineEdit" name="edFilePath"/>
                         </item>
                        </layout>
                       </item>
@@ -955,7 +955,7 @@ QLabel {
   <tabstop>btStartOpen</tabstop>
   <tabstop>treeStrings</tabstop>
   <tabstop>edId</tabstop>
-  <tabstop>lineEdit</tabstop>
+  <tabstop>edFilePath</tabstop>
   <tabstop>memoOriginal</tabstop>
   <tabstop>chkIdless</tabstop>
   <tabstop>btFileFormat</tabstop>

@@ -292,6 +292,8 @@ namespace tr {
         bool setTranslatorsComment(std::u8string_view x, tr::Modify wantModify);
         /// @return [+] was actually changed
         bool setIdless(bool x, tr::Modify wantModify);
+        /// @return [+] was actually changed
+        bool setOrigPath(const std::filesystem::path& x, tr::Modify wantModify);
         /// @return some ID
         std::u8string makeId(
                 std::u8string_view prefix,
