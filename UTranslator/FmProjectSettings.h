@@ -24,6 +24,7 @@ private:
     Ui::FmProjectSettings *ui;
     void copyFrom(const tr::PrjInfo& x);
     void copyTo(tr::PrjInfo& r);
+    using Super::exec;
 };
 
 #endif // FMPROJECTSETTINGS_H
