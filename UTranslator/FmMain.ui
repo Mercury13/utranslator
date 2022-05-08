@@ -695,6 +695,8 @@ QLabel {
     <addaction name="acSave"/>
     <addaction name="acSaveAs"/>
     <addaction name="separator"/>
+    <addaction name="acProjectProps"/>
+    <addaction name="separator"/>
     <addaction name="acStartingScreen"/>
    </widget>
    <widget class="QMenu" name="menuOriginal">
@@ -934,6 +936,11 @@ QLabel {
    </property>
    <property name="shortcut">
     <string>Ctrl+F3</string>
+   </property>
+  </action>
+  <action name="acProjectProps">
+   <property name="text">
+    <string>Project properties</string>
    </property>
   </action>
  </widget>
