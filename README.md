@@ -1,8 +1,10 @@
 # UTranslator: translation tool for Unicodia
 
-A simple program for: a) making original text; b) translating it.
+A simple offline tool for: a) making original text; b) translating it.
 
 As it is designed for open-source projects, no patch translations here.
+
+UTranslator is designed for continuous translation when programmer modifies original, and translator translates what he did, keeping track of what was already translated.
 
 **Lifecycle phase: 3** (alpha). Actually used by people close to developer though not ready for general public. Architecture is obvious.
 
@@ -16,7 +18,19 @@ Set in “UTranslator.xml” file “portable=1”
 
 ## Simplified working processes
 
+#### Original: you just edit original strings
 ![Mode:original](docs/pix/original.png)
+
+## Supported format
+
+Right now only one format of text resource is supported. It is…
+
+1. Simple INI
+
+```
+[Group1.Group2]
+Key="string"
+```
 
 ## Interesting data
 
