@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="data">
+      <xsd:complexType>
+        <xsd:sequence>
+          <xsd:element name="value" type="xsd:string" minOccurs="0"                     msdata:Ordinal="2" />
+        </xsd:sequence>
+        <xsd:attribute name="name" type="xsd:string" />
+        <xsd:attribute name="type" type="xsd:string" />
+        <xsd:attribute name="mimetype" type="xsd:string" />
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+	<data name="app.name" xml:space="preserve">
+		<value>TODO List</value>
+		<comment>Please don&apos;t change the name of the application</comment>
+	</data>
+	<data name="app.login.text" xml:space="preserve">
+		<value>Enter your credentials below to login</value>
+		<comment>Fuzzy</comment>
+	</data>
+	<data name="app.login.message.success" xml:space="preserve">
+		<value>Login successful !
+	Welcome back %s !</value>
+	</data>
+	<data name="app.login.message.error" xml:space="preserve">
+		<value>Make sure you&apos;ve entered the correct username and password</value>
+	</data>
+	<data name="app.login.password.forget" xml:space="preserve">
+		<value>I forgot my password</value>
+	</data>
+	<data name="app.login.password.reset" xml:space="preserve">
+		<value>Enter your address in the field below. A new password will be sent to your inbox.</value>
+	</data>
+	<data name="app.register.text" xml:space="preserve">
+		<value>Sign up for free! No credit card required!</value>
+	</data>
+	<data name="app.register.message.success" xml:space="preserve">
+		<value>Thank you for signing up !
+	Please check your email address to activate your account.</value>
+	</data>
+	<data name="app.register.message.error" xml:space="preserve">
+		<value>We were unable to sign you up.
+	Please correct the marked fields.</value>
+	</data>
+	<data name="app.menu.terms" xml:space="preserve">
+		<value>Terms and conditions</value>
+	</data>
+	<data name="app.login.text" xml:space="preserve">
+		<value>Username</value>
+		<comment>form_label</comment>
+	</data>
+	<data name="app.users.active" xml:space="preserve">
+		<value>Just one user online</value>
+	</data>
+	<data name="app.login.pass" xml:space="preserve">
+		<value>Password</value>
+		<comment>form_label</comment>
+	</data>
+
+</root>
