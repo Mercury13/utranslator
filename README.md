@@ -14,6 +14,10 @@ Most of Unicodia’s texts are wiki. So it is hard to edit them in marked-up for
 
 Set in “UTranslator.xml” file “portable=1”
 
+## Simplified working processes
+
+![Mode:original](docs/pix/original.png)
+
 ## Interesting data
 
 https://poeditor.com/localization/files/qt-ts :: A few L10n samples
