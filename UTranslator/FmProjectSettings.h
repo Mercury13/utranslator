@@ -1,5 +1,4 @@
-#ifndef FMPROJECTSETTINGS_H
-#define FMPROJECTSETTINGS_H
+#pragma once
 
 #include <QDialog>
 
@@ -26,5 +25,3 @@ private:
     void copyTo(tr::PrjInfo& r);
     using Super::exec;
 };
-
-#endif // FMPROJECTSETTINGS_H
