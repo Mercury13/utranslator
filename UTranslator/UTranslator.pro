@@ -22,6 +22,7 @@ SOURCES += \
     FmDisambigPair.cpp \
     FmFileFormat.cpp \
     FmFind.cpp \
+    FmProjectSettings.cpp \
     History.cpp \
     QtIconLib.cpp \
     TrProject/Modifiable.cpp \
@@ -56,6 +57,7 @@ HEADERS += \
     FmDisambigPair.h \
     FmFileFormat.h \
     FmFind.h \
+    FmProjectSettings.h \
     History.h \
     QtIconLib.h \
     TrProject/Modifiable.h \
@@ -87,6 +89,7 @@ FORMS += \
     FmFind.ui \
     FmMain.ui \
     FmNew.ui \
+    FmProjectSettings.ui \
     WiFind.ui
 
 win32 {         # and W64 too

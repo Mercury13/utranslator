@@ -29,6 +29,7 @@
 #include "FmDecoder.h"
 #include "FmFileFormat.h"
 #include "FmFind.h"
+#include "FmProjectSettings.h"
 
 
 ///// PrjTreeModel /////////////////////////////////////////////////////////////
@@ -458,6 +459,7 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->acOpen, &QAction::triggered, this, &This::doOpen);
     connect(ui->acSave, &QAction::triggered, this, &This::doSave);
     connect(ui->acSaveAs, &QAction::triggered, this, &This::doSaveAs);
+    connect(ui->acProjectProps, &QAction::triggered, this, &This::doProjectProps);
     connect(ui->acStartingScreen, &QAction::triggered, this, &This::goToggleStart);
     // Original
     connect(ui->acAddHostedFile, &QAction::triggered, this, &This::addHostedFile);
@@ -1450,4 +1452,12 @@ void FmMain::searchChanged(size_t index)
 void FmMain::dismissChanges()
 {
     ui->wiUpdate->hide();
+}
+
+
+void FmMain::doProjectProps()
+{
+    if (!project)
+        return;
+    fmProjectSettings.ensure(this).exec(project->info);
 }

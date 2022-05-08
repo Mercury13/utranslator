@@ -26,6 +26,7 @@ class FmDisambigPair;
 class FmDecoder;
 class FmFileFormat;
 class FmFind;
+class FmProjectSettings;
 class QPlainTextEdit;
 
 namespace ts {
@@ -167,6 +168,7 @@ private slots:
     void goStart();
     void doMoveUp();
     void doMoveDown();
+    void doProjectProps();
     // Menu: Edit
     tr::UiObject* acceptCurrObject();
     void revertCurrObject();
@@ -199,6 +201,7 @@ private:
     Uptr<FmDecoder> fmDecoder;
     Uptr<FmFileFormat> fmFileFormat;
     Uptr<FmFind> fmFind;
+    Uptr<FmProjectSettings> fmProjectSettings;
 
     struct loadSetsCache {
         void* fileKey = nullptr;
