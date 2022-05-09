@@ -754,7 +754,6 @@ void FmMain::revertCurrObject()
     loadObject(*obj);
     if (project)
         project->tempRevert();
-    selectSmth();
 }
 
 
