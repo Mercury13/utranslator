@@ -981,15 +981,15 @@ bool FmMain::doSaveAs()
     const wchar_t* extension = nullptr;
     switch (project->info.type) {
     case tr::PrjType::ORIGINAL:
-        filters.emplace_back(L"Originals", L"*.uorig");
-        extension = L".uorig";
+        filters.emplace_back(PAIR_ORIGINAL);
+        extension = W(EXT_ORIGINAL);
         break;
     case tr::PrjType::FULL_TRANSL:
-        filters.emplace_back(L"Translations", L"*.utran");
-        extension = L".utran";
+        filters.emplace_back(PAIR_TRANSLATION);
+        extension = W(EXT_TRANSLATION);
         break;
     }
-    filters.emplace_back(L"All files", L"*");
+    filters.emplace_back(filedlg::ALL_FILES);
 
     acceptCurrObject();
     auto fname = filedlg::save(
@@ -1028,7 +1028,7 @@ void FmMain::doOpen()
     if (!checkSave("Open"))
         return;
     filedlg::Filters filters
-      { { L"UTranslator files", L"*.uorig *.utran" }, filedlg::ALL_FILES };
+      { FILTER_UTRANSL, filedlg::ALL_FILES };
     auto fname = filedlg::open(
                 this, nullptr, filters, {},
                 filedlg::AddToRecent::YES);

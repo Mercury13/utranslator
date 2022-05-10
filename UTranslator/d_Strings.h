@@ -8,6 +8,25 @@
 #define STR_UNTRANSLATED   "(Not yet translated)"
 #define STR_EMPTY_STRING   "(Empty string)"
 
+#define EXT_ORIGINAL ".uorig"
+#define EXT_TRANSLATION ".utran"
+#define WMASK(ext)  L"*" ext
+#define W(s) (L"" s)
+
+#define PAIR_ORIGINAL  L"Originals", WMASK(EXT_ORIGINAL)
+#define FILTER_ORIGINAL { PAIR_ORIGINAL }
+
+/// @todo [future] translate translation?
+#define FILTER_TRANSLATABLE FILTER_ORIGINAL
+#define WEXT_TRANSLATABLE L""
+
+#define PAIR_TRANSLATION L"Translations", WMASK(EXT_TRANSLATION)
+#define FILTER_TRANSLATION { PAIR_TRANSLATION }
+
+#define PAIR_UTRANSL L"UTranslator files", \
+    WMASK(EXT_ORIGINAL) L" " WMASK(EXT_TRANSLATION)
+#define FILTER_UTRANSL { PAIR_UTRANSL }
+
 constexpr const std::string_view langList[] = {
     "be", "cz", "cn", "de", "en", "es", "fr", "he", // Hebrew
     "hi",   // Hindi

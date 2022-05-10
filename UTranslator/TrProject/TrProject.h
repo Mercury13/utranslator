@@ -563,7 +563,9 @@ namespace tr {
         std::shared_ptr<Project> project() override { return self(); }
         Pair<VirtualGroup> additionParents() override { return {}; }
         std::shared_ptr<Entity> extractChild(size_t i, Modify wantModify) override;
-        void writeToXml(pugi::xml_node&) const;
+        void writeToXml(
+                pugi::xml_node&,
+                const std::filesystem::path& basePath) const;
         bool unmodify(Forced forced) override;
         void traverse(TraverseListener& x, tr::WalkOrder order, EnterMe enterMe) override;
         std::shared_ptr<VirtualGroup> nearestGroup() override { return {}; }
@@ -571,8 +573,12 @@ namespace tr {
         void save();
         void save(const std::filesystem::path& aFname);
         void saveCopy(const std::filesystem::path& aFname) const;
-        void readFromXml(const pugi::xml_node& node);
-        void load(const pugi::xml_document& doc);
+        void readFromXml(
+                const pugi::xml_node& node,
+                const std::filesystem::path& basePath);
+        void load(
+                const pugi::xml_document& doc,
+                const std::filesystem::path& basePath);
         void load(const std::filesystem::path& aFname);
         void doBuild(const std::filesystem::path& destDir);
         WalkChannel walkChannel() const;

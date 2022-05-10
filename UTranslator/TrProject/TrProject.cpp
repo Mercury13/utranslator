@@ -1289,7 +1289,9 @@ void tr::Project::save(const std::filesystem::path& aFname)
 }
 
 
-void tr::Project::writeToXml(pugi::xml_node& doc) const
+void tr::Project::writeToXml(
+        pugi::xml_node& doc,
+        const std::filesystem::path& basePath) const
 {
     auto root = doc.append_child("ut");
     root.append_attribute("type") = prjTypeNames[static_cast<int>(info.type)];
@@ -1297,7 +1299,13 @@ void tr::Project::writeToXml(pugi::xml_node& doc) const
     auto nodeInfo = root.append_child("info");
         auto nodeOrig = nodeInfo.append_child("orig");
             nodeOrig.append_attribute("lang") = info.orig.lang.c_str();
-    if (info.type != PrjType::ORIGINAL) {
+            if (info.hasOriginalPath()) {
+                if (!info.orig.absPath.empty()) {
+                    auto relPath = std::filesystem::proximate(info.orig.absPath, basePath);
+                    nodeOrig.append_attribute("fname") = str::toC(relPath.u8string());
+                }
+            }
+    if (info.isTranslation()) {
         auto nodeTransl = nodeInfo.append_child("transl");
             nodeTransl.append_attribute("lang") = info.transl.lang.c_str();
     }
@@ -1307,14 +1315,23 @@ void tr::Project::writeToXml(pugi::xml_node& doc) const
 }
 
 
-void tr::Project::readFromXml(const pugi::xml_node& node)
+void tr::Project::readFromXml(
+        const pugi::xml_node& node,
+        const std::filesystem::path& basePath)
 {
     auto attrType = rqAttr(node, "type");
     info.type = parseEnumRq<PrjType>(attrType.value(), tr::prjTypeNames);
     auto nodeInfo = rqChild(node, "info");
         auto nodeOrig = rqChild(nodeInfo, "orig");
             info.orig.lang = nodeOrig.attribute("lang").as_string("en");
-    if (info.type != PrjType::ORIGINAL) {
+            if (info.hasOriginalPath()) {
+                std::filesystem::path relPath = str::toU8sv(nodeOrig.attribute("fname").as_string());
+                if (!relPath.empty()) {
+                    auto thatPath = basePath / relPath;
+                    info.orig.absPath = std::filesystem::weakly_canonical(thatPath);
+                }
+            }
+    if (info.isTranslation()) {
         auto nodeTransl = rqChild(nodeInfo, "transl");
             info.transl.lang = rqAttr(nodeTransl, "lang").value();
     }
@@ -1331,16 +1348,18 @@ void tr::Project::saveCopy(const std::filesystem::path& aFname) const
     auto declaration = doc.append_child(pugi::node_declaration);
         declaration.append_attribute("version") = "1.0";
         declaration.append_attribute("encoding") = "utf-8";
-    writeToXml(doc);
+    writeToXml(doc, aFname.parent_path());
     doc.save_file(aFname.c_str(), " ", pugi::format_indent | pugi::format_write_bom);
 }
 
 
-void tr::Project::load(const pugi::xml_document& doc)
+void tr::Project::load(
+        const pugi::xml_document& doc,
+        const std::filesystem::path& basePath)
 {
     clear();
     auto root = rqChild(doc, "ut");
-    readFromXml(root);
+    readFromXml(root, basePath);
 }
 
 
@@ -1354,7 +1373,7 @@ void tr::Project::load(const std::filesystem::path& aFname)
                 + ", offset=" + std::to_string(result.offset));
         throw std::logic_error(result.description());
     }
-    load(doc);
+    load(doc, aFname.parent_path());
     fname = aFname;
 }
 

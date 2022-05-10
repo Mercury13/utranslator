@@ -129,12 +129,10 @@ FmNew::~FmNew()
 
 bool FmNew::chooseOriginal()
 {
-    /// @todo [L10n,repeat] Strings like UTranslator originals, *.uorig
     filedlg::Filters filters {
-        { L"UTranslator originals", L"*.uorig" },
-        { L"All files", L"*" },
+        FILTER_TRANSLATABLE, filedlg::ALL_FILES,
     };
-    auto fname = filedlg::open(this, L"Choose original", filters, L".uorig",
+    auto fname = filedlg::open(this, L"Choose original", filters, WEXT_TRANSLATABLE,
                                 filedlg::AddToRecent::NO);
     if (fname.empty())
         return false;
@@ -142,7 +140,7 @@ bool FmNew::chooseOriginal()
         project = tr::Project::make();
         project->load(fname);
         project->info.type = tr::PrjType::FULL_TRANSL;
-        project->info.orig.absPath = std::filesystem::absolute(fname);
+        project->info.orig.absPath = std::filesystem::weakly_canonical(fname);
         return true;
     } catch (std::exception& e) {
         QMessageBox::critical(this, "Original", e.what());

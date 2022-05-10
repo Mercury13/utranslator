@@ -18,7 +18,8 @@ public:
     ~FmProjectSettings() override;
 
     bool exec(tr::PrjInfo& info);
-
+private slots:
+    void chooseOriginal();
 private:
     Ui::FmProjectSettings *ui;
     void copyFrom(const tr::PrjInfo& x);

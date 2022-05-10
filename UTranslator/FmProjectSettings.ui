@@ -63,7 +63,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="edOriginalFile"/>
+          <widget class="QLineEdit" name="edOrigFile"/>
          </item>
          <item>
           <widget class="QToolButton" name="btBrowseFile">

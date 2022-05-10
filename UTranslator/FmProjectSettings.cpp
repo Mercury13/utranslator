@@ -3,6 +3,7 @@
 
 // Qt ex
 #include "QtConsts.h"
+#include "i_OpenSave.h"
 
 // Libs
 #include "u_Qstrings.h"
@@ -34,6 +35,7 @@ FmProjectSettings::FmProjectSettings(QWidget *parent) :
 
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &This::accept);
     connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &This::reject);
+    connect(ui->btBrowseFile, &QAbstractButton::clicked, this, &This::chooseOriginal);
 }
 
 FmProjectSettings::~FmProjectSettings()
@@ -49,7 +51,7 @@ void FmProjectSettings::copyFrom(const tr::PrjInfo& x)
     ui->edOrigLanguage->setCurrentText(str::toQ(x.orig.lang));
     // ORIG: File
     ui->wiOrigFile->setEnabled(x.hasOriginalPath());
-    ui->edOriginalFile->setText(str::toQ(x.orig.absPath.wstring()));
+    ui->edOrigFile->setText(str::toQ(x.orig.absPath.wstring()));
 
     // TRANSL: Language
     ui->grpTranslation->setEnabled(x.isTranslation());
@@ -64,12 +66,26 @@ void FmProjectSettings::copyTo(tr::PrjInfo& r)
     }
     // ORIG: file
     if (r.hasOriginalPath()) {
-        r.orig.absPath = ui->edOriginalFile->text().toStdWString();
+        r.orig.absPath = ui->edOrigFile->text().toStdWString();
     }
 
     // TRANSL: language
     if (r.isTranslation()) {
         r.transl.lang = ui->edTranslLanguage->currentText().toStdString();
+    }
+}
+
+
+void FmProjectSettings::chooseOriginal()
+{
+    filedlg::Filters filters {
+        FILTER_TRANSLATABLE, filedlg::ALL_FILES,
+    };
+    auto fname = filedlg::open(
+                this, L"Choose original", filters, WEXT_TRANSLATABLE,
+                filedlg::AddToRecent::NO);
+    if (!fname.empty()) {
+        ui->edOrigFile->setText(QString::fromStdWString(fname));
     }
 }
 
