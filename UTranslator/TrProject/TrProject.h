@@ -406,6 +406,8 @@ namespace tr {
         virtual std::shared_ptr<Entity> vclone(
                 const std::shared_ptr<VirtualGroup>& parent) const = 0;        
     protected:
+        friend class VirtualGroup;
+        virtual void updateParent(const std::shared_ptr<VirtualGroup>& x) = 0;
         // write comments
         void writeAuthorsComment(pugi::xml_node& node, WrCache& c) const;
         void writeTranslatorsComment(pugi::xml_node& node, WrCache& c) const;
@@ -462,7 +464,8 @@ namespace tr {
         void writeCommentsAndChildren(pugi::xml_node&, WrCache&) const;
         void readCommentsAndChildren(const pugi::xml_node& node, const PrjInfo& info);
         void vgRemoveTranslChannel();
-        UpdateInfo vgStealDataFrom(VirtualGroup& x);
+        tr::UpdateInfo vgStealDataFrom(VirtualGroup& x);
+        void vgUpdateChildrensParents(const std::shared_ptr<VirtualGroup>& that);
     };
 
     class Text final : public Entity, protected Self<Text>
@@ -505,6 +508,7 @@ namespace tr {
         std::shared_ptr<Entity> vclone(
                 const std::shared_ptr<VirtualGroup>& parent) const override
             { return clone(parent, nullptr, Modify::NO); }
+        void updateParent(const std::shared_ptr<VirtualGroup>& x) override;
         void doSwapChildren(size_t, size_t) override {}
     private:
         std::weak_ptr<VirtualGroup> fParentGroup;
@@ -539,6 +543,8 @@ namespace tr {
             { return clone(parent, nullptr, Modify::NO); }
         void removeTranslChannel() override { vgRemoveTranslChannel(); }
         UpdateInfo stealDataFrom(Group& x) { return vgStealDataFrom(x); }
+    protected:
+        void updateParent(const std::shared_ptr<VirtualGroup>& x) override;
     private:
         friend class tr::File;
         std::weak_ptr<File> fFile;
@@ -579,8 +585,11 @@ namespace tr {
         constexpr FileMode mode() const noexcept { return FileMode::HOSTED; }
         tf::FileFormat* exportableFormat() noexcept;        
         UpdateInfo stealDataFrom(File& x);
+        void updateParents(const std::shared_ptr<Project>& x);
     protected:
         std::weak_ptr<Project> fProject;
+        /// actually unused. Maybe a bit poor architecture…
+        virtual void updateParent(const std::shared_ptr<VirtualGroup>&) override {}
     };
 
     enum class WalkChannel { ORIGINAL, TRANSLATION };
@@ -606,9 +615,7 @@ namespace tr {
 
         void clearChildren() override { files.clear(); cache.stats.reset(); }
         void clear();
-        /// @return  maybe alias-constructed s_p, but never null
-        std::shared_ptr<Project> self();        
-        std::shared_ptr<UiObject> selfUi() override { return self(); }
+        std::shared_ptr<UiObject> selfUi() override { return fSelf.lock(); }
 
         ObjType objType() const noexcept override { return ObjType::PROJECT; }
         std::shared_ptr<File> file() override { return {}; }
@@ -616,7 +623,7 @@ namespace tr {
         std::shared_ptr<Entity> child(size_t i) const override;
         std::shared_ptr<UiObject> parent() const override { return {}; }
         std::u8string_view idColumn() const override { return {}; }
-        std::shared_ptr<Project> project() override { return self(); }
+        std::shared_ptr<Project> project() override { return fSelf.lock(); }
         Pair<VirtualGroup> additionParents() override { return {}; }
         std::shared_ptr<Entity> extractChild(size_t i, Modify wantModify) override;
         void writeToXml(
@@ -626,6 +633,7 @@ namespace tr {
         void traverse(TraverseListener& x, tr::WalkOrder order, EnterMe enterMe) override;
         std::shared_ptr<VirtualGroup> nearestGroup() override { return {}; }
         void removeTranslChannel() override;
+        void updateParents();
 
         void save();
         void save(const std::filesystem::path& aFname);
@@ -670,7 +678,6 @@ namespace tr {
         Project() = default;
         Project(const Project&) = default;
         Project(PrjInfo&& aInfo) noexcept : info(std::move(aInfo)) {}
-        void doShare(const std::shared_ptr<Project>& x);
         UpdateInfo updateData_FullTransl();
     };
 
@@ -704,6 +711,6 @@ template<class... T>
     std::shared_ptr<tr::Project> tr::Project::make(T&& ... x)
 {
     auto r = std::make_shared<tr::Project>(PassKey{}, std::forward<T>(x) ...);
-    r->doShare(r);
+    r->fSelf = r;
     return r;
 }

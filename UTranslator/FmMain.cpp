@@ -1490,7 +1490,8 @@ void FmMain::doProjectProps()
 {
     if (!project)
         return;
-    fmProjectSettings.ensure(this).exec(project->info);
+    if (fmProjectSettings.ensure(this).exec(project->info))
+        project->modify();
 }
 
 

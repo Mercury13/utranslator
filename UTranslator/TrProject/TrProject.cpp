@@ -906,7 +906,7 @@ tr::UpdateInfo tr::VirtualGroup::vgStealDataFrom(VirtualGroup& x)
                 if (auto xText = x.findPText(v->id)) {
                     text->state = ObjState::STAYING;   // stays!
                     xText.place->reset();   // Remove that text!!
-                    r.changed += xText.obj->stealDataFrom(*xText.obj);
+                    r.changed += text->stealDataFrom(*xText.obj);
                 }
             } break;
         }
@@ -918,6 +918,14 @@ tr::UpdateInfo tr::VirtualGroup::vgStealDataFrom(VirtualGroup& x)
             r += v->addedInfo(CascadeDropCache::NO);
     }
     return r;
+}
+
+
+void tr::VirtualGroup::vgUpdateChildrensParents(
+        const std::shared_ptr<VirtualGroup>& that)
+{
+    for (auto& v : children)
+        v->updateParent(that);
 }
 
 
@@ -1002,6 +1010,14 @@ tr::CloneObj tr::Group::startCloning(const std::shared_ptr<UiObject>& parent) co
         CloneErr::OK,
         std::unique_ptr<CloneObj::Commitable>{ new CloneThing<tr::Group>(*this, vg) }
     };
+}
+
+
+void tr::Group::updateParent(const std::shared_ptr<VirtualGroup>& x)
+{
+    fParentGroup = x;
+    fFile = x->file();
+    vgUpdateChildrensParents(fSelf.lock());
 }
 
 
@@ -1175,6 +1191,12 @@ tr::UpdateInfo::ByAttent tr::Text::stealDataFrom(tr::Text& x)
 }
 
 
+void tr::Text::updateParent(const std::shared_ptr<VirtualGroup>& x)
+{
+    fParentGroup = x;
+}
+
+
 ///// File /////////////////////////////////////////////////////////////////////
 
 
@@ -1260,6 +1282,13 @@ tr::UpdateInfo tr::File::stealDataFrom(File& x)
 {
     this->info.translPath = std::move(x.info.translPath);
     return vgStealDataFrom(x);
+}
+
+
+void tr::File::updateParents(const std::shared_ptr<Project>& x)
+{
+    fProject = x;
+    vgUpdateChildrensParents(fSelf.lock());
 }
 
 
@@ -1402,20 +1431,11 @@ void tr::Project::clear()
 }
 
 
-std::shared_ptr<tr::Project> tr::Project::self()
-{
-    if (auto lk = fSelf.lock())
-        return lk;
-    // Aliasing ctor
-    return std::shared_ptr<Project>(std::shared_ptr<int>{}, this);
-}
-
-
 std::shared_ptr<tr::File> tr::Project::addFile(
         std::u8string_view name, Modify wantModify)
 {
     auto index = nChildren();
-    auto r = std::make_shared<File>(self(), index, PassKey{});
+    auto r = std::make_shared<File>(fSelf.lock(), index, PassKey{});
     r->fSelf = r;
     r->id = name;
     if (wantModify != Modify::NO) {
@@ -1441,14 +1461,6 @@ void tr::Project::addTestOriginal()
         file->addText(u8"B", u8"Bravo", Modify::NO);
         file->addText(u8"C", u8"Charlie", Modify::NO);
         file->addText(u8"D", u8"Delta", Modify::NO);
-}
-
-
-void tr::Project::doShare(const std::shared_ptr<Project>& x)
-{
-    if (x && x.get() != this)
-        throw std::logic_error("[Project.doShare] x should be null, or point to the project itself!");
-    fSelf = x;
 }
 
 
@@ -1748,6 +1760,16 @@ tr::UpdateInfo tr::Project::updateData_FullTransl()
     this->removeTranslChannel();
     auto r = this->stealDataFrom(*xxx);
     // Stats will always be funked up!
+    updateParents();
     stats(StatsMode::DIRECT, CascadeDropCache::NO);
     return r;
+}
+
+
+void tr::Project::updateParents()
+{
+    auto that = fSelf.lock();
+    for (auto& v : files) {
+        v->updateParents(that);
+    }
 }

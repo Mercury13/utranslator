@@ -266,10 +266,14 @@ namespace tr {
         struct Orig {
             std::string lang;
             std::filesystem::path absPath;
+            bool operator == (const Orig& x) const = default;
         } orig;
         struct Transl {
             std::string lang;
+            bool operator == (const Transl& x) const = default;
         } transl;
+
+        bool operator == (const PrjInfo& x) const = default;
 
         /// @return [+] can edit original, incl. adding files
         bool canEditOriginal() const;

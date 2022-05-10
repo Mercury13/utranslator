@@ -94,7 +94,12 @@ bool FmProjectSettings::exec(tr::PrjInfo& info)
     copyFrom(info);
     bool b = Super::exec();
     if (b) {
-        copyTo(info);
+        auto info1 = info;
+        copyTo(info1);
+        if (info1 != info) {
+            info = std::move(info1);
+            return true;
+        }
     }
-    return b;
+    return false;
 }
