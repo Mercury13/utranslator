@@ -127,9 +127,9 @@ namespace tr {
     };
 
     enum class AttentionMode {
-        BACKGROUND,     ///< patch translation only — background mode
-        CALM,           ///< no attention
-        ATTENTION       ///< attention
+        BACKGROUND,     ///< patch translation only — untouched (grey)
+        CALM,           ///< normal (green)
+        ATTENTION       ///< attention (red)
     };
 
     struct Translatable {

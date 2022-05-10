@@ -85,9 +85,11 @@ tr::AttentionMode tr::Translatable::attentionMode(const tr::PrjInfo& prjInfo) co
                     ? tr::AttentionMode::ATTENTION
                     : tr::AttentionMode::BACKGROUND;
         }
+        return tr::AttentionMode::CALM;
+    } else {
+        // Original: by definition, CALM!
+        return tr::AttentionMode::CALM;
     }
-
-    return tr::AttentionMode::CALM;
 }
 
 ///// UpdateInfo ///////////////////////////////////////////////////////////////
