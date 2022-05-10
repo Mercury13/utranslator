@@ -200,7 +200,8 @@ std::shared_ptr<tr::Project> FmNew::exec(std::u8string_view defaultFile)
             return x;
         }
     case tr::PrjType::FULL_TRANSL:
-        project->info = info;
+        info.orig.absPath = std::move(project->info.orig.absPath);
+        project->info = std::move(info);
         project->fname.clear();
         return std::move(project);
     }
