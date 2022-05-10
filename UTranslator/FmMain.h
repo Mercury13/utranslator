@@ -104,11 +104,10 @@ public:
 
     struct LockAll {
         LockAll(const LockAll&) = delete;
-        LockAll(LockAll&& x) noexcept
-            { owner = x.owner; x.owner = nullptr; }
+        /// Move is better, but C++17 RVO works here, so OK
+        LockAll(LockAll&& x) noexcept = delete;
         LockAll& operator = (const LockAll&) = delete;
-        LockAll& operator = (LockAll&& x) noexcept
-            { owner = x.owner; x.owner = nullptr; return *this; }
+        LockAll& operator = (LockAll&& x) noexcept = delete;
 
         ~LockAll() {
             if (owner) {
@@ -169,6 +168,7 @@ private slots:
     void doMoveUp();
     void doMoveDown();
     void doProjectProps();
+    void doUpdateData();
     // Menu: Edit
     tr::UiObject* acceptCurrObject();
     void revertCurrObject();

@@ -695,6 +695,7 @@ QLabel {
     <addaction name="acSave"/>
     <addaction name="acSaveAs"/>
     <addaction name="separator"/>
+    <addaction name="acUpdateData"/>
     <addaction name="acProjectProps"/>
     <addaction name="separator"/>
     <addaction name="acStartingScreen"/>
@@ -940,7 +941,15 @@ QLabel {
   </action>
   <action name="acProjectProps">
    <property name="text">
-    <string>Project properties</string>
+    <string>&amp;Project properties</string>
+   </property>
+  </action>
+  <action name="acUpdateData">
+   <property name="text">
+    <string>&amp;Update data</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F5</string>
    </property>
   </action>
  </widget>

@@ -353,7 +353,8 @@ const tr::Stats& tr::UiObject::stats(StatsMode mode, CascadeDropCache cascade)
     r.isGroup = true;
     for (size_t i = 0; i < nChildren(); ++i) {
         auto ch = child(i);
-        r += ch->stats(mode, CascadeDropCache::NO);
+        if (ch)
+            r += ch->stats(mode, CascadeDropCache::NO);
     }
 
     return resetCacheIf(r, cascade);
@@ -538,6 +539,13 @@ void tr::Entity::readComments(
     readAuthorsComment(node);
     readTranslatorsComment(node, info);
 }
+
+
+void tr::Entity::entityRemoveTranslChannel()
+{
+    comm.removeTranslChannel();
+}
+
 
 namespace {
 
@@ -786,6 +794,15 @@ void tr::VirtualGroup::loadText(
 }
 
 
+void tr::VirtualGroup::vgRemoveTranslChannel()
+{
+    entityRemoveTranslChannel();
+    for (auto& v : children) {
+        v->removeTranslChannel();
+    }
+}
+
+
 ///// Group ////////////////////////////////////////////////////////////////////
 
 
@@ -986,6 +1003,15 @@ const tr::Stats& tr::Text::stats(StatsMode, CascadeDropCache cascade)
 }
 
 
+void tr::Text::removeTranslChannel()
+{
+    entityRemoveTranslChannel();
+    tr.forceAttention = false;
+    tr.knownOriginal.reset();
+    tr.translation.reset();
+}
+
+
 ///// File /////////////////////////////////////////////////////////////////////
 
 
@@ -1057,6 +1083,13 @@ tr::HIcon tr::File::icon() const
     return info.format
             ? static_cast<HIcon>(&info.format->proto())
             : static_cast<HIcon>(&tf::DummyProto::INST);
+}
+
+
+void tr::File::removeTranslChannel()
+{
+    vgRemoveTranslChannel();
+    info.translPath.clear();
 }
 
 
@@ -1479,4 +1512,56 @@ std::u8string tr::Project::shownFname(std::u8string_view fallback)
     } else {
         return r;
     }
+}
+
+
+std::shared_ptr<tr::File> tr::Project::findFile(std::u8string_view aId)
+{
+    for (auto& v : files) {
+        if (v && v->id == aId)
+            return v;
+    }
+    return nullptr;
+}
+
+
+tr::UpdateInfo tr::Project::updateData()
+{
+    switch (info.type) {
+    case tr::PrjType::ORIGINAL:
+        return {};
+    case tr::PrjType::FULL_TRANSL:
+        return updateData_FullTransl();
+    }
+    throw std::logic_error("[updateData] Strange project type");
+}
+
+
+void tr::Project::removeTranslChannel()
+{
+    for (auto& v : files)
+        v->removeTranslChannel();
+}
+
+
+tr::UpdateInfo tr::Project::stealDataFrom(tr::Project& x)
+{
+    tr::UpdateInfo r;
+    for (auto& v : files) {
+        if (auto xFile = x.findFile(v->id)) {
+            /// @todo [urgent] stealDataFrom
+        }
+    }
+    return r;
+}
+
+
+tr::UpdateInfo tr::Project::updateData_FullTransl()
+{
+    auto xxx = tr::Project::make();
+    xxx->load(this->info.orig.absPath);
+    // Info and fname are left intact
+    std::swap(this->files, xxx->files);
+    this->removeTranslChannel();
+    return this->stealDataFrom(*xxx);
 }

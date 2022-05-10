@@ -122,6 +122,8 @@ namespace tr {
 
     struct Comments {
         std::u8string authors, translators;
+
+        void removeTranslChannel() { translators.clear(); }
     };
 
     struct Translatable {
@@ -269,13 +271,20 @@ namespace tr {
         virtual std::shared_ptr<VirtualGroup> nearestGroup() = 0;
         virtual HIcon icon() const { return nullptr; }
         virtual bool doesNeedAttention() const { return false; }
+
         /// Makes nChildren == 0
         /// @warning For project: clear() makes a brand new project
         ///                       clearChildren() just removes all files
         virtual void clearChildren() = 0;
+
         /// Gets statistics, can use cache
+        /// @warning Should work with nulls instead of some objects!
         virtual const Stats& stats(StatsMode mode, CascadeDropCache cascade);
+
+        /// @return self as shared_ptr
         virtual std::shared_ptr<UiObject> selfUi() = 0;
+        /// Removes all channels related to translation
+        virtual void removeTranslChannel() = 0;
 
         void recache();
         void recursiveRecache();
@@ -366,7 +375,7 @@ namespace tr {
         /// @param [in] info   project info for speed
         virtual void readFromXml(const pugi::xml_node& node, const PrjInfo& info) = 0;
         virtual std::shared_ptr<Entity> vclone(
-                const std::shared_ptr<VirtualGroup>& parent) const = 0;
+                const std::shared_ptr<VirtualGroup>& parent) const = 0;        
     protected:
         // write comments
         void writeAuthorsComment(pugi::xml_node& node, WrCache& c) const;
@@ -376,6 +385,7 @@ namespace tr {
         void readAuthorsComment(const pugi::xml_node& node);
         void readTranslatorsComment(const pugi::xml_node& node, const PrjInfo& info);
         void readComments(const pugi::xml_node& node, const PrjInfo& info);
+        void entityRemoveTranslChannel();
     };
 
     class VirtualGroup : public Entity, protected Self<VirtualGroup>
@@ -414,6 +424,7 @@ namespace tr {
 
         void writeCommentsAndChildren(pugi::xml_node&, WrCache&) const;
         void readCommentsAndChildren(const pugi::xml_node& node, const PrjInfo& info);
+        void vgRemoveTranslChannel();
     };
 
     class Text final : public Entity, protected Self<Text>
@@ -449,6 +460,7 @@ namespace tr {
         void clearChildren() override {}
         const Stats& stats(StatsMode mode, CascadeDropCache cascade) override;
         std::shared_ptr<UiObject> selfUi() override { return fSelf.lock(); }
+        void removeTranslChannel() override;
     protected:
         std::shared_ptr<Entity> vclone(
                 const std::shared_ptr<VirtualGroup>& parent) const override
@@ -485,6 +497,7 @@ namespace tr {
         std::shared_ptr<Entity> vclone(
                 const std::shared_ptr<VirtualGroup>& parent) const override
             { return clone(parent, nullptr, Modify::NO); }
+        void removeTranslChannel() override { vgRemoveTranslChannel(); }
     private:
         friend class tr::File;
         std::weak_ptr<File> fFile;
@@ -520,6 +533,7 @@ namespace tr {
         const tf::ProtoFilter* allowedFormats() const override
             { return &tf::ProtoFilter::ALL_EXPORTING_AND_NULL; }
         HIcon icon() const override;
+        void removeTranslChannel() override;
 
         constexpr FileMode mode() const noexcept { return FileMode::HOSTED; }
         tf::FileFormat* exportableFormat() noexcept;        
@@ -528,6 +542,14 @@ namespace tr {
     };
 
     enum class WalkChannel { ORIGINAL, TRANSLATION };
+
+    struct UpdateInfo {
+        size_t nAdded = 0;
+        struct TU {
+            size_t nTranslated = 0;
+            size_t nUntranslated = 0;
+        } deleted, changed;
+    };
 
     class Project final :
             public UiObject,
@@ -569,6 +591,7 @@ namespace tr {
         bool unmodify(Forced forced) override;
         void traverse(TraverseListener& x, tr::WalkOrder order, EnterMe enterMe) override;
         std::shared_ptr<VirtualGroup> nearestGroup() override { return {}; }
+        void removeTranslChannel() override;
 
         void save();
         void save(const std::filesystem::path& aFname);
@@ -592,6 +615,10 @@ namespace tr {
 
         std::u8string shownFname(std::u8string_view fallback);
 
+        UpdateInfo updateData();
+        tr::UpdateInfo stealDataFrom(tr::Project& x);
+        std::shared_ptr<tr::File> findFile(std::u8string_view aId);
+
         /// Use instead of ctor
         /// @warning  Refer to private ctors to see which versions are available
         template<class... T>
@@ -610,6 +637,7 @@ namespace tr {
         Project(const Project&) = default;
         Project(PrjInfo&& aInfo) noexcept : info(std::move(aInfo)) {}
         void doShare(const std::shared_ptr<Project>& x);
+        UpdateInfo updateData_FullTransl();
     };
 
 }   // namespace tr

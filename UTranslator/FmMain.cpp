@@ -1460,3 +1460,20 @@ void FmMain::doProjectProps()
         return;
     fmProjectSettings.ensure(this).exec(project->info);
 }
+
+
+void FmMain::doUpdateData()
+{
+    if (!project)
+        return;
+    switch (project->info.type) {
+    case tr::PrjType::ORIGINAL:
+        QMessageBox::information(this, "Update data",
+                "Originals have no updateable data right now.");
+        break;
+    case tr::PrjType::FULL_TRANSL:
+        auto data = project->updateData();
+        /// @todo [urgent] what to do with data?
+        break;
+    }
+}
