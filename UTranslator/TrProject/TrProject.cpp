@@ -1210,7 +1210,6 @@ std::shared_ptr<tr::Project> tr::Project::self()
 
 std::shared_ptr<tr::File> tr::Project::addFile(
         std::u8string_view name, Modify wantModify)
-
 {
     auto index = nChildren();
     auto r = std::make_shared<File>(self(), index, PassKey{});
