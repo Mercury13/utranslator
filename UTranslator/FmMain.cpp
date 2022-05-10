@@ -419,7 +419,7 @@ FmMain::FmMain(QWidget *parent)
 
 
     ui->wiFind->hide();
-    dismissChanges();
+    dismissUpdateInfo();
 
     // Splitter
     auto h = height();
@@ -448,6 +448,9 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->wiFind, &WiFind::closed, this, &This::searchClosed);
     connect(ui->wiFind, &WiFind::indexChanged, this, &This::searchChanged);
 
+    // Signals/slots: update
+    connect(ui->btUpdateDismiss, &QAbstractButton::clicked, this, &This::dismissUpdateInfo);
+
     // Signals/slots: menu
     // Starting screen
     connect(ui->btStartEdit, &QPushButton::clicked, this, &This::goEdit);
@@ -459,7 +462,8 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->acOpen, &QAction::triggered, this, &This::doOpen);
     connect(ui->acSave, &QAction::triggered, this, &This::doSave);
     connect(ui->acSaveAs, &QAction::triggered, this, &This::doSaveAs);
-    connect(ui->acProjectProps, &QAction::triggered, this, &This::doProjectProps);
+    connect(ui->acUpdateData, &QAction::triggered, this, &This::doUpdateData);
+    connect(ui->acProjectProps, &QAction::triggered, this, &This::doProjectProps);    
     connect(ui->acStartingScreen, &QAction::triggered, this, &This::goToggleStart);
     // Original
     connect(ui->acAddHostedFile, &QAction::triggered, this, &This::addHostedFile);
@@ -775,6 +779,8 @@ void FmMain::reenable()
         // New, Open are always available
     ui->acSave->setEnabled(hasProject);
     ui->acSaveAs->setEnabled(hasProject);
+    ui->acProjectProps->setEnabled(hasProject);
+    ui->acUpdateData->setEnabled(hasProject && isMainVisible);
     ui->acStartingScreen->setEnabled(hasProject);
         ui->acStartingScreen->setChecked(hasProject && isStartVisible);
 
@@ -1012,7 +1018,7 @@ bool FmMain::doSaveAs()
 
 void FmMain::openFile(std::filesystem::path fname)      // by-value + move
 {
-    dismissChanges();
+    dismissUpdateInfo();
     auto prj = tr::Project::make();
     try {
         prj->load(fname);
@@ -1047,7 +1053,7 @@ bool FmMain::doSave()
         return doSaveAs();
     } else {
         acceptCurrObject();
-        dismissChanges();
+        dismissUpdateInfo();
         try {
             project->save();
             config::history.pushFile(project->fname);
@@ -1449,10 +1455,35 @@ void FmMain::searchChanged(size_t index)
 }
 
 
-void FmMain::dismissChanges()
+void FmMain::dismissUpdateInfo()
 {
     ui->wiUpdate->hide();
 }
+
+
+void FmMain::reflectUpdateInfo()
+{
+    if (updateInfo.hasSmth()) {
+        char c[120], cD[2] = { 0, 0 }, cC[2] = { 0, 0 };
+        if (updateInfo.deleted.nBackground)
+            cD[0] = '+';
+        if (updateInfo.changed.nBackground)
+            cC[0] = '+';
+        snprintf(c, std::size(c), "Changes found: add %llu, del %llu/%llu%s, chg %llu/%llu%s",
+                 static_cast<unsigned long long>(updateInfo.nAdded),
+                 static_cast<unsigned long long>(updateInfo.deleted.nCalmToAtention),
+                 static_cast<unsigned long long>(updateInfo.deleted.nAlreadyAttention),
+                 cD,
+                 static_cast<unsigned long long>(updateInfo.changed.nCalmToAtention),
+                 static_cast<unsigned long long>(updateInfo.changed.nAlreadyAttention),
+                 cC );
+        ui->lbUpdate->setText(c);
+        ui->wiUpdate->show();
+    } else {
+        dismissUpdateInfo();
+    }
+}
+
 
 
 void FmMain::doProjectProps()
@@ -1473,8 +1504,15 @@ void FmMain::doUpdateData()
                 "Originals have no updateable data right now.");
         break;
     case tr::PrjType::FULL_TRANSL:
-        auto data = project->updateData();
-        /// @todo [urgent] what to do with data?
+        try {
+            { auto lk = treeModel.lock();
+                updateInfo = project->updateData();
+            }
+            reflectUpdateInfo();
+        } catch (std::exception& e) {
+            QMessageBox::critical(this, "Update data", e.what());
+        }
+
         break;
     }
 }

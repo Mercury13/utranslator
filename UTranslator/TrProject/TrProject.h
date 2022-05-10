@@ -232,13 +232,20 @@ namespace tr {
 
     struct UpdateInfo {
         size_t nAdded = 0;
-        struct TU {
+        struct ByAttent {
             size_t nCalmToAtention = 0;
             size_t nAlreadyAttention = 0;
             size_t nBackground = 0;
-            TU& operator += (const TU& x);
+
+            ByAttent& operator += (const ByAttent& x);
+            bool operator == (const ByAttent& x) const = default;
         } deleted, changed;
+
         UpdateInfo& operator += (const UpdateInfo& x);
+        bool operator == (const UpdateInfo& x) const = default;
+        bool hasSmth() const { return (*this != ZERO); }
+
+        static const UpdateInfo ZERO;
     };
 
     class UiObject : public CanaryObject
@@ -300,6 +307,7 @@ namespace tr {
         /// @warning Should work with nulls instead of some objects!
         virtual const Stats& stats(StatsMode mode, CascadeDropCache cascade);
         UpdateInfo addedInfo(CascadeDropCache cascade);
+        UpdateInfo::ByAttent deletedInfo(CascadeDropCache cascade);
 
         /// @return self as shared_ptr
         virtual std::shared_ptr<UiObject> selfUi() = 0;
@@ -492,7 +500,7 @@ namespace tr {
         std::shared_ptr<UiObject> selfUi() override { return fSelf.lock(); }
         void removeTranslChannel() override;
         ///  @return  CHANGED data
-        UpdateInfo::TU stealDataFrom(Text& x);
+        UpdateInfo::ByAttent stealDataFrom(Text& x);
     protected:
         std::shared_ptr<Entity> vclone(
                 const std::shared_ptr<VirtualGroup>& parent) const override

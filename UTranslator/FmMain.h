@@ -151,7 +151,7 @@ private slots:
             const QModelIndex& current, const QModelIndex& former);
     void tempModify();
     void editFileFormat();
-    void dismissChanges();
+    void dismissUpdateInfo();
     void searchClosed();
     void searchChanged(size_t index);
 
@@ -195,6 +195,7 @@ private:
     PrjTreeModel treeModel;
     std::shared_ptr<tr::Project> project;
     std::unique_ptr<ts::Result> searchResult;
+    tr::UpdateInfo updateInfo;
 
     Uptr<FmNew> fmNew;
     Uptr<FmDisambigPair> fmDisambigPair;
@@ -242,4 +243,5 @@ private:
     bool checkSave(std::string_view caption);
     void plantSearchResult(
             const QString& caption, std::unique_ptr<ts::Result> x);
+    void reflectUpdateInfo();
 };

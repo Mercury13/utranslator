@@ -15,6 +15,9 @@
 #include "TrFile.h"
 
 
+constinit const tr::UpdateInfo tr::UpdateInfo::ZERO;
+
+
 ///// WrCache //////////////////////////////////////////////////////////////////
 
 
@@ -95,7 +98,7 @@ tr::AttentionMode tr::Translatable::attentionMode(const tr::PrjInfo& prjInfo) co
 ///// UpdateInfo ///////////////////////////////////////////////////////////////
 
 
-tr::UpdateInfo::TU& tr::UpdateInfo::TU::operator += (const TU& x)
+tr::UpdateInfo::ByAttent& tr::UpdateInfo::ByAttent::operator += (const ByAttent& x)
 {
     nCalmToAtention += x.nCalmToAtention;
     nAlreadyAttention += x.nAlreadyAttention;
@@ -423,6 +426,17 @@ tr::UpdateInfo tr::UiObject::addedInfo(CascadeDropCache cascade)
     tr::UpdateInfo r;
     auto& st = stats(StatsMode::CACHED, cascade);
     r.nAdded = st.text.nTotal();
+    return r;
+}
+
+
+tr::UpdateInfo::ByAttent tr::UiObject::deletedInfo(CascadeDropCache cascade)
+{
+    tr::UpdateInfo::ByAttent r;
+    auto& st = stats(StatsMode::DIRECT, cascade);
+    r.nAlreadyAttention = st.text.nAttention;
+    r.nBackground = st.text.nBackground;
+    r.nCalmToAtention = st.text.nCalm;
     return r;
 }
 
@@ -1124,9 +1138,9 @@ void tr::Text::removeTranslChannel()
 }
 
 
-tr::UpdateInfo::TU tr::Text::stealDataFrom(tr::Text& x)
+tr::UpdateInfo::ByAttent tr::Text::stealDataFrom(tr::Text& x)
 {
-    UpdateInfo::TU r;
+    UpdateInfo::ByAttent r;
     entityStealDataFrom(x);
     this->tr.translation = std::move(x.tr.translation);
     this->tr.forceAttention = x.tr.forceAttention;
@@ -1718,6 +1732,9 @@ tr::UpdateInfo tr::Project::stealDataFrom(tr::Project& x)
         if (v->state == ObjState::ADDED)
             r += v->addedInfo(CascadeDropCache::NO);
     }
+    // Stats
+    auto delInfo = x.deletedInfo(CascadeDropCache::NO);
+    r.deleted += delInfo;
     return r;
 }
 
@@ -1729,5 +1746,8 @@ tr::UpdateInfo tr::Project::updateData_FullTransl()
     // Info and fname are left intact
     std::swap(this->files, xxx->files);
     this->removeTranslChannel();
-    return this->stealDataFrom(*xxx);
+    auto r = this->stealDataFrom(*xxx);
+    // Stats will always be funked up!
+    stats(StatsMode::DIRECT, CascadeDropCache::NO);
+    return r;
 }
