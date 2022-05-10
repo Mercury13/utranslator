@@ -88,7 +88,7 @@ namespace tr {
 
     enum class ObjType { PROJECT, FILE, GROUP, TEXT };
 
-    enum class ObjState { UNCHANGED, ADDED, DELETED };
+    enum class ObjState { STAYING, ADDED, DELETED };
 
     class Entity;
 
@@ -126,6 +126,12 @@ namespace tr {
         void removeTranslChannel() { translators.clear(); }
     };
 
+    enum class AttentionMode {
+        BACKGROUND,     ///< patch translation only — background mode
+        CALM,           ///< no attention
+        ATTENTION       ///< attention
+    };
+
     struct Translatable {
         std::u8string original;     ///< Current original string
         std::optional<std::u8string>
@@ -134,7 +140,7 @@ namespace tr {
         bool forceAttention = false;
         std::u8string_view translationSv() const
             { return translation ? *translation : std::u8string_view(); }
-        bool needsAttention(const tr::PrjInfo& prjInfo) const;
+        AttentionMode attentionMode(const tr::PrjInfo& prjInfo) const;
     };
 
     enum class Modify { NO, YES };
@@ -212,13 +218,27 @@ namespace tr {
 
     struct Stats {
         size_t nGroups = 0;  ///< # of groups NOT INCLUDING me
-        size_t nTexts = 0;
-        size_t nGood = 0;
+        struct Text {
+            size_t nBackground = 0, nCalm = 0, nAttention = 0;
+            size_t nTotal() const noexcept { return nBackground + nCalm + nAttention; }
+            bool operator == (const Text& x) const = default;
+        } text;
         bool isGroup = false;
 
         void clear() { *this = Stats(); }
         Stats& operator += (const Stats& x);
         bool operator == (const Stats& x) const = default;
+    };
+
+    struct UpdateInfo {
+        size_t nAdded = 0;
+        struct TU {
+            size_t nCalmToAtention = 0;
+            size_t nAlreadyAttention = 0;
+            size_t nBackground = 0;
+            TU& operator += (const TU& x);
+        } deleted, changed;
+        UpdateInfo& operator += (const UpdateInfo& x);
     };
 
     class UiObject : public CanaryObject
@@ -270,7 +290,6 @@ namespace tr {
                 TraverseListener& x, tr::WalkOrder order, EnterMe enterMe) = 0;
         virtual std::shared_ptr<VirtualGroup> nearestGroup() = 0;
         virtual HIcon icon() const { return nullptr; }
-        virtual bool doesNeedAttention() const { return false; }
 
         /// Makes nChildren == 0
         /// @warning For project: clear() makes a brand new project
@@ -280,10 +299,12 @@ namespace tr {
         /// Gets statistics, can use cache
         /// @warning Should work with nulls instead of some objects!
         virtual const Stats& stats(StatsMode mode, CascadeDropCache cascade);
+        UpdateInfo addedInfo(CascadeDropCache cascade);
 
         /// @return self as shared_ptr
         virtual std::shared_ptr<UiObject> selfUi() = 0;
-        /// Removes all channels related to translation
+
+        /// Removes everything related to translation, leaving only original
         virtual void removeTranslChannel() = 0;
 
         void recache();
@@ -360,7 +381,7 @@ namespace tr {
     public:
         std::u8string id;               ///< Identifier of group or string
         Comments comm;
-        ObjState state = ObjState::UNCHANGED;
+        ObjState state = ObjState::STAYING;
 
         std::u8string_view idColumn() const override { return id; }
         Comments* comments() override { return &comm; }
@@ -386,6 +407,13 @@ namespace tr {
         void readTranslatorsComment(const pugi::xml_node& node, const PrjInfo& info);
         void readComments(const pugi::xml_node& node, const PrjInfo& info);
         void entityRemoveTranslChannel();
+        void entityStealDataFrom(Entity& x);
+    };
+
+    struct FindPText {
+        std::shared_ptr<Entity>* place = nullptr;
+        std::shared_ptr<Text> obj {};
+        explicit operator bool () const { return place; }
     };
 
     class VirtualGroup : public Entity, protected Self<VirtualGroup>
@@ -414,8 +442,9 @@ namespace tr {
                 tf::FileFormat& fmt,
                 const std::filesystem::path& fname,
                 tf::Existing existing);
-        std::shared_ptr<VirtualGroup> findGroup(std::u8string_view id);
+        std::shared_ptr<Group> findGroup(std::u8string_view id);
         std::shared_ptr<Text> findText(std::u8string_view id);
+        FindPText findPText(std::u8string_view id);
         void clearChildren() override { children.clear(); cascadeDropStats(); }
         std::shared_ptr<UiObject> selfUi() override { return fSelf.lock(); }
     protected:
@@ -425,6 +454,7 @@ namespace tr {
         void writeCommentsAndChildren(pugi::xml_node&, WrCache&) const;
         void readCommentsAndChildren(const pugi::xml_node& node, const PrjInfo& info);
         void vgRemoveTranslChannel();
+        UpdateInfo vgStealDataFrom(VirtualGroup& x);
     };
 
     class Text final : public Entity, protected Self<Text>
@@ -456,11 +486,13 @@ namespace tr {
                 tr::Modify wantModify) const;
         CloneObj startCloning(
                 const std::shared_ptr<UiObject>& parent) const override;
-        bool doesNeedAttention() const override;
+        AttentionMode attentionMode() const;
         void clearChildren() override {}
         const Stats& stats(StatsMode mode, CascadeDropCache cascade) override;
         std::shared_ptr<UiObject> selfUi() override { return fSelf.lock(); }
         void removeTranslChannel() override;
+        ///  @return  CHANGED data
+        UpdateInfo::TU stealDataFrom(Text& x);
     protected:
         std::shared_ptr<Entity> vclone(
                 const std::shared_ptr<VirtualGroup>& parent) const override
@@ -498,6 +530,7 @@ namespace tr {
                 const std::shared_ptr<VirtualGroup>& parent) const override
             { return clone(parent, nullptr, Modify::NO); }
         void removeTranslChannel() override { vgRemoveTranslChannel(); }
+        UpdateInfo stealDataFrom(Group& x) { return vgStealDataFrom(x); }
     private:
         friend class tr::File;
         std::weak_ptr<File> fFile;
@@ -537,19 +570,12 @@ namespace tr {
 
         constexpr FileMode mode() const noexcept { return FileMode::HOSTED; }
         tf::FileFormat* exportableFormat() noexcept;        
+        UpdateInfo stealDataFrom(File& x);
     protected:
         std::weak_ptr<Project> fProject;
     };
 
     enum class WalkChannel { ORIGINAL, TRANSLATION };
-
-    struct UpdateInfo {
-        size_t nAdded = 0;
-        struct TU {
-            size_t nTranslated = 0;
-            size_t nUntranslated = 0;
-        } deleted, changed;
-    };
 
     class Project final :
             public UiObject,
@@ -568,7 +594,7 @@ namespace tr {
 
         /// Ctors are private, op= is the same
         Project& operator = (const Project&) = default;
-        Project& operator = (Project&&) = default;
+        Project& operator = (Project&&) noexcept = default;
 
         void clearChildren() override { files.clear(); cache.stats.reset(); }
         void clear();

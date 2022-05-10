@@ -6,22 +6,25 @@ const tw::NoString tw::NoString::INST;
 std::u8string_view tw::Flyweight::TranslStats::str() const
 {
     snprintf(cache, std::size(cache), "%llu / %llu",
-             static_cast<unsigned long long>(stats.nGood),
-             static_cast<unsigned long long>(stats.nTexts));
+             static_cast<unsigned long long>(stats.text.nCalm),
+             static_cast<unsigned long long>(stats.text.nTotal()));
     return str::toU8sv(cache);
 }
 
 
 tw::Fg tw::Flyweight::TranslStats::fg() const
 {
-    /// @todo [patch, #23] Write smth else
-    if (stats.nTexts == 0)
-        return Fg::LIGHT;
-    if (stats.nGood == 0)
-        return Fg::UNTRANSLATED_CAT;
-    if (stats.nGood == stats.nTexts)
+    if (stats.text.nAttention > 0) {
+        if (stats.text.nCalm == 0 && stats.text.nBackground == 0) {
+            // ALL need attention
+            return Fg::UNTRANSLATED_CAT;
+        } else {
+            return Fg::ATTENTION;
+        }
+    }
+    if (stats.text.nCalm > 0)
         return Fg::OK;
-    return Fg::ATTENTION;
+    return Fg::LIGHT;
 }
 
 

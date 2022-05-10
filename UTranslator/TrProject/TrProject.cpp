@@ -68,15 +68,46 @@ tr::CanaryObject::~CanaryObject()
 ///// Translatable /////////////////////////////////////////////////////////////
 
 
-bool tr::Translatable::needsAttention(const tr::PrjInfo& prjInfo) const
+tr::AttentionMode tr::Translatable::attentionMode(const tr::PrjInfo& prjInfo) const
 {
+    // Force attention → attention!
+    if (forceAttention)
+        return tr::AttentionMode::ATTENTION;
+
+    // Translation → check for translation
     if (prjInfo.isTranslation()) {
+        // Original changed → attention!
         if (knownOriginal)
-            return true;
-        if (prjInfo.isFullTranslation() && !translation)
-            return true;
+            return tr::AttentionMode::ATTENTION;
+        // No translation: full → attention, patch → just BG
+        if (!translation) {
+            return prjInfo.isFullTranslation()
+                    ? tr::AttentionMode::ATTENTION
+                    : tr::AttentionMode::BACKGROUND;
+        }
     }
-    return forceAttention;
+
+    return tr::AttentionMode::CALM;
+}
+
+///// UpdateInfo ///////////////////////////////////////////////////////////////
+
+
+tr::UpdateInfo::TU& tr::UpdateInfo::TU::operator += (const TU& x)
+{
+    nCalmToAtention += x.nCalmToAtention;
+    nAlreadyAttention += x.nAlreadyAttention;
+    nBackground += x.nBackground;
+    return *this;
+}
+
+
+tr::UpdateInfo& tr::UpdateInfo::operator += (const UpdateInfo& x)
+{
+    nAdded += x.nAdded;
+    deleted += x.deleted;
+    changed += x.changed;
+    return *this;
 }
 
 
@@ -86,8 +117,9 @@ bool tr::Translatable::needsAttention(const tr::PrjInfo& prjInfo) const
 tr::Stats& tr::Stats::operator += (const Stats& x)
 {
     nGroups += (x.nGroups + x.isGroup);
-    nTexts += x.nTexts;
-    nGood += x.nGood;
+    text.nBackground += x.text.nBackground;
+    text.nCalm += x.text.nCalm;
+    text.nAttention += x.text.nAttention;
     return *this;
 }
 
@@ -353,8 +385,10 @@ const tr::Stats& tr::UiObject::stats(StatsMode mode, CascadeDropCache cascade)
     r.isGroup = true;
     for (size_t i = 0; i < nChildren(); ++i) {
         auto ch = child(i);
-        if (ch)
-            r += ch->stats(mode, CascadeDropCache::NO);
+        if (ch) {
+            auto& chst = ch->stats(mode, CascadeDropCache::NO);
+            r += chst;
+        }
     }
 
     return resetCacheIf(r, cascade);
@@ -379,6 +413,15 @@ const tr::Stats& tr::UiObject::resetCacheIf(const Stats& r, CascadeDropCache cas
     }
     cache.stats = r;
     return *cache.stats;
+}
+
+
+tr::UpdateInfo tr::UiObject::addedInfo(CascadeDropCache cascade)
+{
+    tr::UpdateInfo r;
+    auto& st = stats(StatsMode::CACHED, cascade);
+    r.nAdded = st.text.nTotal();
+    return r;
 }
 
 
@@ -545,6 +588,15 @@ void tr::Entity::entityRemoveTranslChannel()
 {
     comm.removeTranslChannel();
 }
+
+
+void tr::Entity::entityStealDataFrom(Entity& x)
+{
+    comm.translators =std::move(x.comm.translators);
+}
+
+
+///// GroupLoader //////////////////////////////////////////////////////////////
 
 
 namespace {
@@ -760,10 +812,10 @@ void tr::VirtualGroup::doSwapChildren(size_t index1, size_t index2)
 }
 
 
-std::shared_ptr<tr::VirtualGroup> tr::VirtualGroup::findGroup(std::u8string_view id)
+std::shared_ptr<tr::Group> tr::VirtualGroup::findGroup(std::u8string_view id)
 {
     for (auto& v : children) {
-        if (auto vg = std::dynamic_pointer_cast<tr::VirtualGroup>(v)) {
+        if (auto vg = std::dynamic_pointer_cast<tr::Group>(v)) {
             if (vg->id == id)
                 return vg;
         }
@@ -774,10 +826,16 @@ std::shared_ptr<tr::VirtualGroup> tr::VirtualGroup::findGroup(std::u8string_view
 
 std::shared_ptr<tr::Text> tr::VirtualGroup::findText(std::u8string_view id)
 {
+    return findPText(id).obj;
+}
+
+
+tr::FindPText tr::VirtualGroup::findPText(std::u8string_view id)
+{
     for (auto& v : children) {
         if (auto vg = std::dynamic_pointer_cast<tr::Text>(v)) {
             if (vg->id == id)
-                return vg;
+                return { &v, vg };
         }
     }
     return {};
@@ -800,6 +858,50 @@ void tr::VirtualGroup::vgRemoveTranslChannel()
     for (auto& v : children) {
         v->removeTranslChannel();
     }
+}
+
+
+tr::UpdateInfo tr::VirtualGroup::vgStealDataFrom(VirtualGroup& x)
+{
+    entityStealDataFrom(x);
+    tr::UpdateInfo r;
+    // Switch state to added
+    for (auto& v : children)
+        v->state = ObjState::ADDED;
+    // Try to steal
+    for (auto& v : children) {
+        switch (v->objType()) {
+        case tr::ObjType::PROJECT:
+        case tr::ObjType::FILE:  // They never happen inside VirtualGroup
+            break;
+        case tr::ObjType::GROUP: {
+                auto group = std::dynamic_pointer_cast<Group>(v);
+                if (!v)
+                    throw std::logic_error("[vgStealDataFrom] Somehow the object is not a Group");
+                if (auto xGroup = x.findGroup(v->id)) {
+                    group->state = ObjState::STAYING;   // stays!
+                    r += group->stealDataFrom(*xGroup);
+                }
+            } break;
+        case tr::ObjType::TEXT: {
+                auto text = std::dynamic_pointer_cast<Text>(v);
+                if (!v)
+                    throw std::logic_error("[vgStealDataFrom] Somehow the object is not a Text");
+                if (auto xText = x.findPText(v->id)) {
+                    text->state = ObjState::STAYING;   // stays!
+                    xText.place->reset();   // Remove that text!!
+                    r.changed += xText.obj->stealDataFrom(*xText.obj);
+                }
+            } break;
+        }
+    }
+
+    // Add?
+    for (auto& v : children) {
+        if (v->state == ObjState::ADDED)
+            r += v->addedInfo(CascadeDropCache::NO);
+    }
+    return r;
 }
 
 
@@ -983,21 +1085,29 @@ tr::CloneObj tr::Text::startCloning(const std::shared_ptr<UiObject>& parent) con
 }
 
 
-bool tr::Text::doesNeedAttention() const
+tr::AttentionMode tr::Text::attentionMode() const
 {
     auto prj = project();
     if (!prj)       // if so → big troubles
-        return false;
-    return tr.needsAttention(prj->info);
+        return tr::AttentionMode::CALM;
+    return tr.attentionMode(prj->info);
 }
 
 
 const tr::Stats& tr::Text::stats(StatsMode, CascadeDropCache cascade)
 {
     Stats r;
-    r.nTexts = 1;
-    if (!doesNeedAttention())
-        r.nGood = 1;
+    switch (attentionMode()) {
+    case AttentionMode::BACKGROUND:
+        r.text.nBackground = 1;
+        break;
+    case AttentionMode::CALM:
+        r.text.nCalm = 1;
+        break;
+    case AttentionMode::ATTENTION:
+        r.text.nAttention = 1;
+        break;
+    }
 
     return resetCacheIf(r, cascade);
 }
@@ -1009,6 +1119,43 @@ void tr::Text::removeTranslChannel()
     tr.forceAttention = false;
     tr.knownOriginal.reset();
     tr.translation.reset();
+}
+
+
+tr::UpdateInfo::TU tr::Text::stealDataFrom(tr::Text& x)
+{
+    UpdateInfo::TU r;
+    entityStealDataFrom(x);
+    this->tr.translation = std::move(x.tr.translation);
+    this->tr.forceAttention = x.tr.forceAttention;
+    const bool isOrigChanged = (this->tr.original != x.tr.original);
+
+    // First copy known original if present
+    // So have known original → always ATTENTION
+    if (x.tr.knownOriginal) {
+        this->tr.knownOriginal = std::move(x.tr.knownOriginal);
+    }
+
+    if (isOrigChanged) {
+        // Then build stats
+        auto am = attentionMode();
+        switch (am) {
+        case AttentionMode::BACKGROUND:
+            r.nBackground = 1;
+            break;
+        case AttentionMode::CALM:
+            r.nCalmToAtention = 1;
+            break;
+        case AttentionMode::ATTENTION:
+            r.nAlreadyAttention = 1;
+        }
+
+        // And then make knownOriginal unless background
+        if (!this->tr.knownOriginal && am != AttentionMode::BACKGROUND)
+            this->tr.knownOriginal = std::move(x.tr.original);
+    }
+
+    return r;
 }
 
 
@@ -1090,6 +1237,13 @@ void tr::File::removeTranslChannel()
 {
     vgRemoveTranslChannel();
     info.translPath.clear();
+}
+
+
+tr::UpdateInfo tr::File::stealDataFrom(File& x)
+{
+    this->info.translPath = std::move(x.info.translPath);
+    return vgStealDataFrom(x);
 }
 
 
@@ -1547,10 +1701,20 @@ void tr::Project::removeTranslChannel()
 tr::UpdateInfo tr::Project::stealDataFrom(tr::Project& x)
 {
     tr::UpdateInfo r;
+    // Switch state to added
+    for (auto& v : files)
+        v->state = ObjState::ADDED;
+    // Try to steal
     for (auto& v : files) {
         if (auto xFile = x.findFile(v->id)) {
-            /// @todo [urgent] stealDataFrom
+            v->state = ObjState::STAYING;   // stays!
+            r += v->stealDataFrom(*xFile);
         }
+    }
+    // Add?
+    for (auto& v : files) {
+        if (v->state == ObjState::ADDED)
+            r += v->addedInfo(CascadeDropCache::NO);
     }
     return r;
 }

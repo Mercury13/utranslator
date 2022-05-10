@@ -927,7 +927,8 @@ void FmMain::doDelete()
         message = "Delete text?";
     } else {
         auto& stats = obj->stats(tr::StatsMode::CACHED, tr::CascadeDropCache::YES);
-        switch (stats.nTexts) {
+        auto nTexts = stats.text.nTotal();
+        switch (nTexts) {
         case 0:
             if (stats.nGroups == 0)
                 message = "Delete empty group?";
@@ -935,7 +936,7 @@ void FmMain::doDelete()
             break;
         /// @todo [future] what to do with plural rules?
         case 1: message = "Delete 1 text?"; break;
-        default: message = QString("Delete %1 texts?").arg(stats.nTexts);
+        default: message = QString("Delete %1 texts?").arg(nTexts);
         }
 
     }
