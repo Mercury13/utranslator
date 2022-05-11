@@ -7,11 +7,13 @@
 
 const tf::DummyProto tf::DummyProto::INST;
 const tf::IniProto tf::IniProto::INST;
+const tf::UiProto tf::UiProto::INST;
 tf::Dummy tf::Dummy::INST;
 
 constinit const tf::FormatProto* const tf::allProtos[I_N] {
     &tf::DummyProto::INST,
-    &tf::IniProto::INST
+    &tf::IniProto::INST,
+    &tf::UiProto::INST
 };
 
 const tf::FormatProto* const (&tf::allWorkingProtos)[I_N - 1]
@@ -212,3 +214,29 @@ void tf::Ini::load(const pugi::xml_node& node)
 
 filedlg::Filter tf::Ini::fileFilter() const
     { return { L"INI files", L"*.ini" }; }
+
+
+///// UiProto //////////////////////////////////////////////////////////////////
+
+
+std::unique_ptr<tf::FileFormat> tf::UiProto::make() const
+    { return std::make_unique<Ui>(); }
+
+
+std::u8string_view tf::UiProto::locDescription() const
+{
+    return u8"Visually-edited Qt form";
+}
+
+
+///// Ui ///////////////////////////////////////////////////////////////////////
+
+
+filedlg::Filter tf::Ui::fileFilter() const
+    { return { L"Qt UI files", L"*.ui" }; }
+
+
+void tf::Ui::doImport(Loader& loader, const std::filesystem::path& fname)
+{
+    /// @todo [urgent] Ui::doImport
+}

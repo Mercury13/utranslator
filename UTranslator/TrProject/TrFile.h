@@ -165,9 +165,47 @@ namespace tf {
         filedlg::Filter fileFilter() const override;
     };
 
+    class UiProto : public FormatProto
+    {
+    public:
+        Flags<Fcap> caps() const noexcept override { return Fcap::IMPORT; }
+        Flags<Usfg> workingSets() const noexcept override { return {}; }
+        std::unique_ptr<FileFormat> make() const override;
+        std::u8string_view locName() const override { return u8"Qt UI"; }
+        constexpr std::string_view techName() const noexcept override { return "ui"; }
+        std::u8string_view locDescription() const override;
+        std::u8string_view locSoftware() const override { return u8"Various"; }
+        std::u8string_view locIdType() const override { return u8"objectId:property"; }
+        const char* iconName() const override { return "ui"; }
+
+        static const UiProto INST;
+    };
+
+    class Ui final : public FileFormat
+    {
+    public:
+        void doImport(Loader& loader,
+                      const std::filesystem::path& fname) override;
+
+        std::unique_ptr<FileFormat> clone() override
+            { return std::make_unique<Ui>(*this); }
+
+        const UiProto& proto() const override { return UiProto::INST; }
+        UnifiedSets unifiedSets() const override { return {}; }
+        void setUnifiedSets(const UnifiedSets&) override {}
+
+        std::string bannedIdChars() const override { return {}; }
+        std::u8string bannedTextSubstring() const override { return {}; }
+        tr::WalkOrder walkOrder() const override { return tr::WalkOrder::ECONOMY; }
+        void save(pugi::xml_node&) const override {}
+        void load(const pugi::xml_node&) override {}
+        filedlg::Filter fileFilter() const override;
+    };
+
     enum {
         I_NONE,
         I_INI,
+        I_UI,
         I_N
     };
     extern const FormatProto* const allProtos[I_N];
