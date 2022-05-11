@@ -168,13 +168,14 @@ namespace tf {
     class UiProto : public FormatProto
     {
     public:
-        Flags<Fcap> caps() const noexcept override { return Fcap::IMPORT; }
+        Flags<Fcap> caps() const noexcept override
+            { return Fcap::IMPORT | Fcap::XML; }
         Flags<Usfg> workingSets() const noexcept override { return {}; }
         std::unique_ptr<FileFormat> make() const override;
         std::u8string_view locName() const override { return u8"Qt UI"; }
         constexpr std::string_view techName() const noexcept override { return "ui"; }
         std::u8string_view locDescription() const override;
-        std::u8string_view locSoftware() const override { return u8"Various"; }
+        std::u8string_view locSoftware() const override { return u8"Qt Creator, Qt UI compiler (uic)"; }
         std::u8string_view locIdType() const override { return u8"objectId:property"; }
         const char* iconName() const override { return "ui"; }
 

@@ -46,12 +46,13 @@ namespace tf {
         // FEATURES
         IMPORT = 1,
         EXPORT = 2,
+        XML = 4,
         // EXPORT CONSTRAINTS, all need EXPORT flag
         /// [+] needs file and cannot export if it’s absent (e.g. Qt *.ui)
         /// [−] creates file from scratch (e.g. simple text/binary file, Transifex XLIFF)
-        NEEDS_FILE = 4,
-        NEEDS_ID = 8,           ///< [+] needs non-empty ID
-        HAS_ORDER = 16,         ///< [+] Lines are put in specified order
+        NEEDS_FILE = 8,
+        NEEDS_ID = 16,          ///< [+] needs non-empty ID
+        HAS_ORDER = 32,         ///< [+] Lines are put in specified order
     };
     DEFINE_ENUM_OPS(Fcap)
 

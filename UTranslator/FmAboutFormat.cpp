@@ -23,8 +23,11 @@ void FmAboutFormat::exec(const tf::FormatProto* proto)
 {
     ui->lbNameValue->setText(str::toQ(proto->locName()));
     auto ws = proto->workingSets();
+    auto caps = proto->caps();
     if (proto->isDummy()) {
         ui->lbTypeValue->setText(u8"—");
+    } else if (caps.have(tf::Fcap::XML)) {
+        ui->lbTypeValue->setText("XML");
     } else if (ws.have(tf::Usfg::TEXT_FORMAT)) {
         ui->lbTypeValue->setText("Text");
     } else {
@@ -32,7 +35,6 @@ void FmAboutFormat::exec(const tf::FormatProto* proto)
     }
     ui->lbSoftwareValue->setText(str::toQ(proto->locSoftware()));
     ui->lbIdTypeValue->setText(str::toQ(proto->locIdType()));
-    auto caps = proto->caps();
     QString text;
     if (caps.haveAll(tf::Fcap::IMPORT | tf::Fcap::EXPORT)) {
         if (caps.have(tf::Fcap::NEEDS_FILE)) {
