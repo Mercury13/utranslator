@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/Discrep">
+        <file alias="empty.png">Discrep/empty.png</file>
+        <file alias="review.png">Discrep/review.png</file>
+        <file alias="ok.png">Discrep/ok.png</file>
+    </qresource>
+</RCC>

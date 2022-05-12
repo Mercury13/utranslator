@@ -101,3 +101,6 @@ win32 {         # and W64 too
     QMAKE_TARGET_DESCRIPTION = UTranslator: translation tool for Unicodia
     QMAKE_TARGET_COPYRIGHT =  Mikhail Merkuryev
 }
+
+RESOURCES += \
+    Resources/req.qrc
