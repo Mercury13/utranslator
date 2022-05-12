@@ -16,7 +16,8 @@ void setGeometry(QMainWindow& win, const QRect& rect)
     static constexpr int BUFFER_ZONE = 64;  // We should see ? px of window
     static constexpr int HEADER_ZONE = 24;  // We should see ? px of header
 
-    QRect desktopRect = QApplication::screens()[0]->availableVirtualGeometry();
+    auto screens = QApplication::screens();
+    QRect desktopRect = screens[0]->availableVirtualGeometry();
 
     // Reduce width-height
     auto w = std::min(rect.width(), desktopRect.width());
