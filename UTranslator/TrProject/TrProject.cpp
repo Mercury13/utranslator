@@ -1581,12 +1581,7 @@ void tr::Project::load(const std::filesystem::path& aFname)
 {
     pugi::xml_document doc;
     auto result = doc.load_file(aFname.c_str());
-    if (!result) {
-        if (result.offset)
-            throw std::logic_error(std::string{result.description()}
-                + ", offset=" + std::to_string(result.offset));
-        throw std::logic_error(result.description());
-    }
+    xmlThrowIf(result);
     load(doc, aFname.parent_path());
     fname = aFname;
 }

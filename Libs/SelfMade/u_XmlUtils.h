@@ -35,6 +35,8 @@ int parseEnumIntTechDef(const char* text, int n, const Struc names[], int def)
 }
 
 
+void xmlThrowIf(const pugi::xml_parse_result& result);
+
 inline std::string toStr(const char* text)
     { return text ? std::string{text} : std::string{}; }
 

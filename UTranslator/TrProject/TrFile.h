@@ -49,6 +49,7 @@ namespace tf {
         /// Equiv.to goToRoot, then several goToGroupRel.
         void goToGroupAbs(std::span<const std::u8string_view> groupIds);
         void goToGroupAbs(std::span<const std::u8string> groupIds);
+        void goToGroupAbs(std::u8string_view groupId);
     };
 
     struct TextInfo {

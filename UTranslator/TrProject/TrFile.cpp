@@ -1,8 +1,15 @@
 // My header
 #include "TrFile.h"
 
+// PugiXML
+#include "pugixml.hpp"
+#include "u_XmlUtils.h"
+
 // Libs
 #include "u_Strings.h"
+
+
+using namespace std::string_view_literals;
 
 
 const tf::DummyProto tf::DummyProto::INST;
@@ -38,6 +45,13 @@ void tf::Loader::goToGroupAbs(std::span<const std::u8string> groupIds)
         goToGroupRel(v);
 }
 
+
+void tf::Loader::goToGroupAbs(std::u8string_view groupId)
+{
+    goToRoot();
+    if (!groupId.empty())
+        goToGroupRel(groupId);
+}
 
 ///// TextInfo /////////////////////////////////////////////////////////////////
 
@@ -232,6 +246,166 @@ std::u8string_view tf::UiProto::locDescription() const
 ///// Ui ///////////////////////////////////////////////////////////////////////
 
 
+namespace {
+
+    /// No "objectId:text", but just "objectId"
+    constinit const std::string_view UI_DEF_PROPS[] { "text", "title" };
+
+    //const char* const WIDGET_ELEMS[] = { "widget", "action", nullptr };
+    //const char* const ACTION_ELEMS[] = { "action" };
+
+    /// Elements identified as layouts
+    constinit const std::string_view UI_LAYOUT_ELEMS[] { "layout", "item" };
+
+    /// Props that are never translated
+    constinit const std::string_view UI_UNTRANS_PROPS[] { "styleSheet", "shortcut" };
+
+    struct WidgetPair {
+        std::string_view name;
+        std::string_view desc;
+    };
+
+    template <size_t N>
+    inline bool isIn(std::string_view needle, const std::string_view (&strings)[N])
+    {
+        return std::find(std::begin(strings), std::end(strings), needle)
+                != std::end(strings);
+    }
+
+    std::string whatIs(std::string_view widgetType)
+    {
+        constinit static const WidgetPair pairs[] = {
+            { "QLabel", "is a static text" },
+            { "QWidget", "is a tab" },
+            { "QDialog", "Dialog caption" },
+            { "QPlainTextEdit", "is a text editor" },
+            { "QPushButton", "is a button" }
+        };
+
+        if (widgetType.empty())
+            return std::string();
+
+        for (auto& v : pairs) {
+            if (widgetType == v.name)
+                return std::string{ v.desc };
+        }
+
+        // Remove Q
+        widgetType = str::remainderSv(widgetType, "Q");
+
+        // Split by capital;
+        std::string r;
+        r.reserve(widgetType.length());
+        for (auto c : widgetType) {
+            if (c >= 'A' && c <= 'Z') {
+                if (!r.empty())
+                    r += ' ';
+                r += static_cast<char>(c + 32);
+            } else {
+                r += c;
+            }
+        }
+        switch (r[0]) {
+        case 'a':
+        case 'e':
+        case 'i':
+        case 'o':
+        case 'u':
+            r = "is an " + r;
+            break;
+        default:
+            r = "is a " + r;
+        }
+        return r;
+    }
+
+    void workOnProperty(
+            std::string_view newName,
+            pugi::xml_node hProp,
+            std::string_view suffix,
+            const std::string& comment,
+            tf::Loader& loader)
+    {
+        std::string_view propName = hProp.attribute("name").as_string();
+        if (propName.empty())
+            return;
+
+        // Is property a string?
+        auto hString = hProp.child("string");
+        if (!hString)
+            return;
+
+        // Get name
+        std::string strName { newName };
+        strName += suffix;
+        if (!isIn(propName, UI_DEF_PROPS)) {
+            if (propName == "windowTitle") {
+                strName = ":windowTitle";
+            } else {
+                if (!suffix.empty())
+                    return;
+                strName += ':';
+                strName += propName;
+            }
+        }
+        // Is property inherently untranslatable?
+        if (isIn(propName, UI_UNTRANS_PROPS)) {
+            return;
+        }
+
+        // Is property marked as untranslatable?
+        bool notr = hString.attribute("notr").as_bool(false);
+        if (notr) {
+            return;
+        }
+
+        //std::wcout << L"Found " << str::u2w(strName) << L"." << std::endl;
+        // Find that string
+        auto text = hString.text().as_string();
+        loader.addText(str::toU8sv(strName), str::toU8sv(text), str::toU8sv(comment));
+    }
+
+    void traverseXmlNormal(pugi::xml_node hSrc, tf::Loader& loader);
+
+    void traverseXmlWidget(pugi::xml_node hSrc, tf::Loader& loader)
+    {
+        auto newName = hSrc.attribute("name").as_string();
+
+        const char* widgetType = hSrc.attribute("class").as_string();
+        std::string whatIsWidget = whatIs(widgetType);
+
+        // Properties?
+        for (auto& hProp : hSrc.children("property")) {
+            workOnProperty(newName, hProp, "", whatIsWidget, loader);
+        }
+
+        for (auto& hProp : hSrc.children("attribute")) {
+            workOnProperty(newName, hProp, ":at", whatIsWidget, loader);
+        }
+
+        traverseXmlNormal(hSrc, loader);
+    }
+
+    void traverseXmlNormal(pugi::xml_node hSrc, tf::Loader& loader)
+    {
+        for (auto child : hSrc.children()) {
+            std::string_view name = child.name();
+            if (name == "widget"sv) {
+                // Widget — work in root
+                loader.goToRoot();
+                traverseXmlWidget(child, loader);
+            } else if (name == "action"sv) {
+                // Action — work in subgroup
+                loader.goToGroupAbs(u8"actions");
+                traverseXmlWidget(child, loader);
+            } else if (isIn(name, UI_LAYOUT_ELEMS)) {
+                traverseXmlNormal(child, loader);
+            }
+        }
+    }
+
+}   // anon namespace
+
 filedlg::Filter tf::Ui::fileFilter() const
     { return { L"Qt UI files", L"*.ui" }; }
 
@@ -239,4 +413,13 @@ filedlg::Filter tf::Ui::fileFilter() const
 void tf::Ui::doImport(Loader& loader, const std::filesystem::path& fname)
 {
     /// @todo [urgent] Ui::doImport
+    pugi::xml_document doc;
+    auto result = doc.load_file(fname.c_str());
+    xmlThrowIf(result);
+
+    auto hUi = doc.child("ui");
+    if (!hUi)
+        throw std::logic_error("No <ui> element in source XML");
+
+    traverseXmlNormal(hUi, loader);
 }

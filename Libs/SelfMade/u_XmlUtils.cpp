@@ -41,3 +41,14 @@ int parseEnumIntRq(const char* text, int n, const char* const names[])
         throw std::logic_error("Unknown name <" + toStr(text) + ">");
     return val;
 }
+
+
+void xmlThrowIf(const pugi::xml_parse_result& result)
+{
+    if (!result) {
+        if (result.offset)
+            throw std::logic_error(std::string{result.description()}
+                + ", offset=" + std::to_string(result.offset));
+        throw std::logic_error(result.description());
+    }
+}
