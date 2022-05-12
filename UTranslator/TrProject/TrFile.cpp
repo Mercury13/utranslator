@@ -348,6 +348,7 @@ namespace {
                 strName += propName;
             }
         }
+
         // Is property inherently untranslatable?
         if (isIn(propName, UI_UNTRANS_PROPS)) {
             return;
