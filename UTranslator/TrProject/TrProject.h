@@ -75,6 +75,8 @@ namespace tr {
         ALL_SERIOUS = TR_EMPTY | TR_REVIEW | COM_WARNING,
     };
 
+    DEFINE_ENUM_OPS(Bug)
+
     class Mod {
     public:
         void clear() { v = 0; }

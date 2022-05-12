@@ -597,7 +597,7 @@ QLabel {
                </widget>
               </item>
               <item>
-               <widget class="QGroupBox" name="grpDiscrep">
+               <widget class="QGroupBox" name="grpBugs">
                 <property name="toolTip">
                  <string>&lt;b&gt;Empty translation&lt;/b&gt;
 &lt;p&gt;Nothing is entered as “Translation” text.
@@ -620,10 +620,10 @@ QLabel {
                   <number>0</number>
                  </property>
                  <property name="bottomMargin">
-                  <number>0</number>
+                  <number>2</number>
                  </property>
                  <item>
-                  <widget class="QLabel" name="imgOk">
+                  <widget class="QLabel" name="imgBugOk">
                    <property name="toolTip">
                     <string>&lt;b&gt;No discrepancies&lt;/b&gt;
 &lt;p&gt;UTranslator found no problems. &lt;b&gt;Do not&lt;/b&gt; chase this sign, sometimes extra spaces and line breaks are your intention.</string>
@@ -640,7 +640,7 @@ QLabel {
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLabel" name="imgReview">
+                  <widget class="QLabel" name="imgBugReview">
                    <property name="toolTip">
                     <string>&lt;b&gt;Review needed&lt;/b&gt;
 &lt;p&gt;Original text was changed. Please check whether existing translation still works, or retranslate if needed.
@@ -658,7 +658,7 @@ QLabel {
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLabel" name="imgEmptyText">
+                  <widget class="QLabel" name="imgBugEmptyText">
                    <property name="toolTip">
                     <string>&lt;b&gt;Empty translation&lt;/b&gt;
 &lt;p&gt;Is empty string is your actual translation, press “Accept changes” (Ctrl+Enter) or double-click this icon.</string>

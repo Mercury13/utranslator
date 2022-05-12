@@ -421,6 +421,9 @@ FmMain::FmMain(QWidget *parent)
     ui->wiFind->hide();
     dismissUpdateInfo();
 
+    // Bugs
+    showBugs({});
+
     // Splitter
     auto h = height();
     ui->splitMain->setSizes({ h, 1 });
@@ -1516,4 +1519,41 @@ void FmMain::doUpdateData()
 
         break;
     }
+}
+
+
+namespace {
+
+    class ShowNone
+    {
+    public:
+        ShowNone(Flags<tr::Bug> x) : bugs(x) {}
+        void showIf(QWidget* what, bool condition);
+        void showIfBug(QWidget* what, tr::Bug bug);
+        bool isNoneShown() const { return !wasSmthShown; }
+    private:
+        Flags<tr::Bug> bugs;
+        bool wasSmthShown = false;
+    };
+
+    void ShowNone::showIf(QWidget* what, bool condition)
+    {
+        what->setVisible(condition);
+        wasSmthShown |= condition;
+    }
+
+    void ShowNone::showIfBug(QWidget* what, tr::Bug bug)
+    {
+        showIf(what, bugs.have(bug));
+    }
+
+}   // anon namespace
+
+
+void FmMain::showBugs(Flags<tr::Bug> x)
+{
+    ShowNone sh(x);
+    sh.showIfBug(ui->imgBugEmptyText, tr::Bug::TR_EMPTY );
+    sh.showIfBug(ui->imgBugReview   , tr::Bug::TR_REVIEW);
+    ui->imgBugOk->setVisible(sh.isNoneShown());
 }

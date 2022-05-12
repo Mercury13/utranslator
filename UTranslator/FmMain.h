@@ -244,4 +244,5 @@ private:
     void plantSearchResult(
             const QString& caption, std::unique_ptr<ts::Result> x);
     void reflectUpdateInfo();
+    void showBugs(Flags<tr::Bug> x);
 };
