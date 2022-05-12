@@ -413,7 +413,6 @@ filedlg::Filter tf::Ui::fileFilter() const
 
 void tf::Ui::doImport(Loader& loader, const std::filesystem::path& fname)
 {
-    /// @todo [urgent] Ui::doImport
     pugi::xml_document doc;
     auto result = doc.load_file(fname.c_str());
     xmlThrowIf(result);
