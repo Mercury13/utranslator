@@ -28,6 +28,7 @@ public:
     static constexpr detail::TriBool NO = detail::TriBool::NO;
     static constexpr detail::TriBool UNK = detail::TriBool::UNK;
     static constexpr detail::TriBool YES = detail::TriBool::YES;
+    static constexpr int N = 3;
     friend constexpr bool operator == (TriBool, detail::TriBool) noexcept;
     friend constexpr bool operator == (detail::TriBool, TriBool) noexcept;
     constexpr TriBool() noexcept = default;
@@ -69,6 +70,7 @@ namespace tr {
         TR_SPACE_HEAD_DEL = 1<<8,   ///< translation: removed heading space
         TR_SPACE_TAIL_ADD = 1<<9,   ///< translation: added trailing space
         TR_SPACE_TAIL_DEL = 1<<10,  ///< translation: removed trailing space
+        COM_WHITESPACE  = 1<<11,    ///< common: whitespace only
 
         ALL_SERIOUS = TR_EMPTY | TR_REVIEW | COM_WARNING,
     };
