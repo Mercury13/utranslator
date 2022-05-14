@@ -203,6 +203,13 @@ namespace tf {
         Existing existing;
     };
 
+    enum class TextOwner { EDITOR, ME };
+    constexpr int TetxOwner_N = static_cast<int>(TextOwner::ME) + 1;
+
+    struct SyncInfo {
+        TextOwner textOwner = TextOwner::ME;
+    };
+
 }   // namespace tf
 
 template <class T>
