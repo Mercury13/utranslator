@@ -646,7 +646,10 @@ void FmMain::loadObject(tr::UiObject& obj)
             setMemo(ui->grpOriginal, ui->memoOriginal, {}, tr->original);
         } else {
             ui->stackOriginal->setCurrentWidget(ui->pageUneditableOriginal);
-            ui->richedOriginal->setPlainText(str::toQ(tr->original));
+            auto doc = ui->richedOriginal->document();
+            doc->clear();
+            QTextCursor cursor(doc);
+            cursor.insertText(str::toQ(tr->original));
         }
         setMemo(ui->grpTranslation, ui->memoTranslation, {}, tr->translationSv());
     } else {
