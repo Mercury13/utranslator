@@ -551,44 +551,38 @@ namespace {
 }   // anon namespace
 
 
-void tr::Entity::writeAuthorsComment(
+void tr::Entity::writeImportersAuthorsComment(
         pugi::xml_node& node, WrCache& c) const
 {
+    writeTextInTagIf(node, "im-cmt", comm.importers, c);
     writeTextInTagIf(node, "au-cmt", comm.authors, c);
 }
 
 void tr::Entity::readAuthorsComment(const pugi::xml_node& node)
 {
+    comm.importers = readTextInTag(node, "im-cmt");
     comm.authors = readTextInTag(node, "au-cmt");
 }
 
 void tr::Entity::writeTranslatorsComment(
         pugi::xml_node& node, WrCache& c) const
 {
-    switch (c.info.type) {
-    case PrjType::ORIGINAL:
-        break;
-    case PrjType::FULL_TRANSL:
+    if (c.info.isTranslation()) {
         writeTextInTagIf(node, "tr-cmt", comm.translators, c);
-        break;
     }
 }
 
 void tr::Entity::readTranslatorsComment(const pugi::xml_node& node, const PrjInfo& info)
 {
-    switch (info.type) {
-    case PrjType::ORIGINAL:
-        break;
-    case PrjType::FULL_TRANSL:
+    if (info.isTranslation()) {
         comm.translators = readTextInTag(node, "tr-cmt");
-        break;
     }
 }
 
 void tr::Entity::writeComments(
         pugi::xml_node& node, WrCache& c) const
 {
-    writeAuthorsComment(node, c);
+    writeImportersAuthorsComment(node, c);
     writeTranslatorsComment(node, c);
 }
 
@@ -673,8 +667,7 @@ namespace {
                 break;  // do nothing
             case tf::Existing::OVERWRITE: {
                     text->setOriginal(original, tr::Modify::YES);
-                    if (!comment.empty())
-                        text->setAuthorsComment(comment, tr::Modify::YES);
+                    text->comm.importers = comment;
                 }
                 break;
             }
@@ -682,8 +675,7 @@ namespace {
             // Does not exist
             auto text = curr->addText(
                         std::u8string{textId}, std::u8string{original}, tr::Modify::YES);
-            if (!comment.empty())
-                text->setAuthorsComment(comment, tr::Modify::NO);
+            text->comm.importers = comment;
         }
     }
 
@@ -1055,7 +1047,7 @@ void tr::Text::writeToXml(pugi::xml_node& root, WrCache& c) const
             node.append_attribute("force-attention") = true;
         }
     writeTextInTag(node, "orig", tr.original, c);
-    writeAuthorsComment(node, c);
+    writeImportersAuthorsComment(node, c);
     if (c.info.isTranslation()) {
         writeTextInTagOpt(node, "known-orig", tr.knownOriginal, c);
         writeTextInTagOpt(node, "transl", tr.translation, c);
@@ -1655,6 +1647,7 @@ void tr::Project::doBuild(const std::filesystem::path& destDir)
                             ? saveDir / fnAsked                 // 2) filename+path
                             : defaultExportDir / fnAsked);      // 1) bare filename
             std::filesystem::path fnExported, dirExported;
+            /// @todo [urgent, #22] file ID / file name
             if (destDir.empty()) {
                 if (format->proto().caps().have(tf::Fcap::NEEDS_FILE)) {
                     // Needs file → do not touch it, create at defaultExportDir

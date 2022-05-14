@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>305</width>
-    <height>193</height>
+    <width>380</width>
+    <height>197</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -66,9 +66,9 @@
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="chkChanAuthorsComment">
+         <widget class="QCheckBox" name="chkChanImportersAuthorsComment">
           <property name="text">
-           <string>Author’s comment</string>
+           <string>Importer’s / author’s comment</string>
           </property>
          </widget>
         </item>

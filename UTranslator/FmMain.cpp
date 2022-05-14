@@ -573,10 +573,13 @@ void FmMain::treeCurrentChanged(
 }
 
 
-void FmMain::setMemo(QWidget* wi, QPlainTextEdit* memo, std::u8string_view y)
+void FmMain::setMemo(QWidget* wi, QPlainTextEdit* memo,
+                     std::u8string_view placeholder,
+                     std::u8string_view y)
 {
     wi->setEnabled(true);
     isChangingProgrammatically = true;
+    memo->setPlaceholderText(str::toQ(placeholder));
     memo->setPlainText(str::toQ(y));
     isChangingProgrammatically = false;
 }
@@ -585,6 +588,7 @@ void FmMain::banMemo(QWidget* wi, QPlainTextEdit* memo)
 {
     wi->setEnabled(false);
     isChangingProgrammatically = true;
+    memo->setPlaceholderText({});
     memo->clear();
     isChangingProgrammatically = false;
 }
@@ -599,9 +603,10 @@ void FmMain::loadContext(tr::UiObject* lastSon)
             p = p->parent().get()) {
         auto itsText = u8"<dt>•&nbsp;" + str::toQ(p->idColumn()).toHtmlEscaped() + "</dt>";
         if (auto cmt = p->comments()) {
-            if (!cmt->authors.empty()) {
-                itsText += "<dd>";
-                auto text = str::toQ(cmt->authors).toHtmlEscaped();
+            auto shownCmt = cmt->importersOrAuthors();
+            if (!shownCmt.empty()) {
+                itsText += "<dd>";                
+                auto text = str::toQ(shownCmt).toHtmlEscaped();
                 text.replace("\n", "<br>");
                 itsText += text;
                 itsText += "</dd>";
@@ -638,12 +643,12 @@ void FmMain::loadObject(tr::UiObject& obj)
         ui->wiId->setEnabled(project->info.canEditOriginal());
         if (project->info.canEditOriginal()) {
             ui->stackOriginal->setCurrentWidget(ui->pageOriginal);
-            setMemo(ui->grpOriginal, ui->memoOriginal, tr->original);
+            setMemo(ui->grpOriginal, ui->memoOriginal, {}, tr->original);
         } else {
             ui->stackOriginal->setCurrentWidget(ui->pageUneditableOriginal);
             ui->richedOriginal->setPlainText(str::toQ(tr->original));
         }
-        setMemo(ui->grpTranslation, ui->memoTranslation, tr->translationSv());
+        setMemo(ui->grpTranslation, ui->memoTranslation, {}, tr->translationSv());
     } else {
         // GROUP
         ui->wiId->setEnabled(project->info.canEditOriginal());
@@ -658,9 +663,9 @@ void FmMain::loadObject(tr::UiObject& obj)
         if (project->info.canEditOriginal()) {
             // Bilingual (currently unimplemented):
             // can edit original → author’s comment; cannot → translator’s
-            setMemo(ui->grpComment, ui->memoComment, comm->authors);
+            setMemo(ui->grpComment, ui->memoComment, comm->importers, comm->authors);
         } else {
-            setMemo(ui->grpComment, ui->memoComment, comm->translators);
+            setMemo(ui->grpComment, ui->memoComment, {}, comm->translators);
         }
     } else {
         banMemo(ui->grpComment, ui->memoComment);
@@ -1244,9 +1249,9 @@ namespace {
 
     bool Finder::matchEntity(const tr::Entity& x)
     {
-        return matchChan(opts.channels.id,                 x.id)
-            || matchChan(opts.channels.authorsComment,     x.comm.authors)
-            || matchChan(opts.channels.translatorsComment, x.comm.translators);
+        return matchChan(opts.channels.id,                      x.id)
+            || matchChan(opts.channels.importersAuthorsComment, x.comm.importersOrAuthors())
+            || matchChan(opts.channels.translatorsComment,      x.comm.translators);
     }
 
     bool Finder::matchText(const tr::Text& x)

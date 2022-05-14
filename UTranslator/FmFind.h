@@ -11,7 +11,7 @@ class FmFind;
 struct FindOptions {
     QString text;
     struct Channels {
-        bool id = false, original = false, authorsComment = false,
+        bool id = false, original = false, importersAuthorsComment = false,
              translation = false, translatorsComment = false;
         static const Channels NONE;
         // default C++20 op==

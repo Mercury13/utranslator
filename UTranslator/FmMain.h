@@ -235,7 +235,9 @@ private:
     /// Enables-disables node editors en masse
     void setEditorsEnabled(bool x);
     /// Sets memo programmatically, w/o triggering modify
-    void setMemo(QWidget* wi, QPlainTextEdit* memo, std::u8string_view y);
+    void setMemo(QWidget* wi, QPlainTextEdit* memo,
+                 std::u8string_view placeholder,
+                 std::u8string_view y);
     /// Same but for disabling components
     void banMemo(QWidget* wi, QPlainTextEdit* memo);
     void openFile(std::filesystem::path fname);
