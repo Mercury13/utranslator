@@ -1572,7 +1572,8 @@ void tr::Project::load(
 void tr::Project::load(const std::filesystem::path& aFname)
 {
     pugi::xml_document doc;
-    auto result = doc.load_file(aFname.c_str());
+    auto result = doc.load_file(aFname.c_str(),
+                pugi::parse_default | pugi::parse_ws_pcdata);
     xmlThrowIf(result);
     load(doc, aFname.parent_path());
     fname = aFname;

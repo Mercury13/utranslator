@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ut type="original">
+ <info>
+  <orig lang="en" />
+ </info>
+ <file name="spaces" idless="false">
+  <text id="Empty">
+   <orig></orig>
+  </text>
+  <text id="A few spaces">
+   <orig>    </orig>
+  </text>
+  <text id="Padded non-empty">
+   <orig>  alpha   </orig>
+  </text>
+  <text id="Padded multiline">
+   <orig>  alpha  <br />  bravo  </orig>
+  </text>
+  <text id="Spaces-Enter-spaces">
+   <orig>    <br />   </orig>
+  </text>
+ </file>
+</ut>
