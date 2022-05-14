@@ -649,7 +649,15 @@ void FmMain::loadObject(tr::UiObject& obj)
             auto doc = ui->richedOriginal->document();
             doc->clear();
             QTextCursor cursor(doc);
-            cursor.insertText(str::toQ(tr->original));
+            if (tr->knownOriginal) {
+                /// @todo [urgent, #31] text diff
+                cursor.insertText(str::toQ(tr->original));
+                cursor.insertText("\n");
+                cursor.insertHtml("<font size='-1'>== Used to be ==</font><br>");
+                cursor.insertText(str::toQ(*tr->knownOriginal));
+            } else {
+                cursor.insertText(str::toQ(tr->original));
+            }
         }
         setMemo(ui->grpTranslation, ui->memoTranslation, {}, tr->translationSv());
     } else {
