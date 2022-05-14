@@ -241,8 +241,9 @@ namespace tr {
     struct Stats {
         size_t nGroups = 0;  ///< # of groups NOT INCLUDING me
         struct Text {
-            size_t nBackground = 0, nCalm = 0, nAttention = 0;
-            size_t nTotal() const noexcept { return nBackground + nCalm + nAttention; }
+            size_t nBackground = 0, nCalm = 0, nAttention = 0,
+                   nTranslated = 0, nUntranslated = 0;
+            size_t nTotal() const noexcept { return nTranslated + nUntranslated; }
             bool operator == (const Text& x) const = default;
         } text;
         bool isGroup = false;
@@ -254,13 +255,12 @@ namespace tr {
 
     struct UpdateInfo {
         size_t nAdded = 0;
-        struct ByAttent {
-            size_t nCalmToAtention = 0;
-            size_t nAlreadyAttention = 0;
-            size_t nBackground = 0;
+        struct ByState {
+            size_t nTranslated = 0;
+            size_t nUntranslated = 0;
 
-            ByAttent& operator += (const ByAttent& x);
-            bool operator == (const ByAttent& x) const = default;
+            ByState& operator += (const ByState& x);
+            bool operator == (const ByState& x) const = default;
         } deleted, changed;
 
         UpdateInfo& operator += (const UpdateInfo& x);
@@ -329,7 +329,7 @@ namespace tr {
         /// @warning Should work with nulls instead of some objects!
         virtual const Stats& stats(StatsMode mode, CascadeDropCache cascade);
         UpdateInfo addedInfo(CascadeDropCache cascade);
-        UpdateInfo::ByAttent deletedInfo(CascadeDropCache cascade);
+        UpdateInfo::ByState deletedInfo(CascadeDropCache cascade);
 
         /// @return self as shared_ptr
         virtual std::shared_ptr<UiObject> selfUi() = 0;
@@ -525,7 +525,7 @@ namespace tr {
         std::shared_ptr<UiObject> selfUi() override { return fSelf.lock(); }
         void removeTranslChannel() override;
         ///  @return  CHANGED data
-        UpdateInfo::ByAttent stealDataFrom(Text& x);
+        UpdateInfo::ByState stealDataFrom(Text& x);
     protected:
         std::shared_ptr<Entity> vclone(
                 const std::shared_ptr<VirtualGroup>& parent) const override

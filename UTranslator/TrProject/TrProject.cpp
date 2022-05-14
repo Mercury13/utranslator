@@ -98,11 +98,10 @@ tr::AttentionMode tr::Translatable::attentionMode(const tr::PrjInfo& prjInfo) co
 ///// UpdateInfo ///////////////////////////////////////////////////////////////
 
 
-tr::UpdateInfo::ByAttent& tr::UpdateInfo::ByAttent::operator += (const ByAttent& x)
+tr::UpdateInfo::ByState& tr::UpdateInfo::ByState::operator += (const ByState& x)
 {
-    nCalmToAtention += x.nCalmToAtention;
-    nAlreadyAttention += x.nAlreadyAttention;
-    nBackground += x.nBackground;
+    nTranslated += x.nTranslated;
+    nUntranslated += x.nUntranslated;
     return *this;
 }
 
@@ -430,13 +429,12 @@ tr::UpdateInfo tr::UiObject::addedInfo(CascadeDropCache cascade)
 }
 
 
-tr::UpdateInfo::ByAttent tr::UiObject::deletedInfo(CascadeDropCache cascade)
+tr::UpdateInfo::ByState tr::UiObject::deletedInfo(CascadeDropCache cascade)
 {
-    tr::UpdateInfo::ByAttent r;
+    tr::UpdateInfo::ByState r;
     auto& st = stats(StatsMode::DIRECT, cascade);
-    r.nAlreadyAttention = st.text.nAttention;
-    r.nBackground = st.text.nBackground;
-    r.nCalmToAtention = st.text.nCalm;
+    r.nTranslated = st.text.nTranslated;
+    r.nUntranslated = st.text.nUntranslated;
     return r;
 }
 
@@ -1146,9 +1144,9 @@ void tr::Text::removeTranslChannel()
 }
 
 
-tr::UpdateInfo::ByAttent tr::Text::stealDataFrom(tr::Text& x)
+tr::UpdateInfo::ByState tr::Text::stealDataFrom(tr::Text& x)
 {
-    UpdateInfo::ByAttent r;
+    UpdateInfo::ByState r;
     entityStealDataFrom(x);
     this->tr.translation = std::move(x.tr.translation);
     this->tr.forceAttention = x.tr.forceAttention;
@@ -1162,21 +1160,22 @@ tr::UpdateInfo::ByAttent tr::Text::stealDataFrom(tr::Text& x)
 
     if (isOrigChanged) {
         // Then build stats
-        auto am = attentionMode();
-        switch (am) {
-        case AttentionMode::BACKGROUND:
-            r.nBackground = 1;
-            break;
-        case AttentionMode::CALM:
-            r.nCalmToAtention = 1;
-            break;
-        case AttentionMode::ATTENTION:
-            r.nAlreadyAttention = 1;
+        if (this->tr.translation) {
+            r.nTranslated = 1;
+        } else {
+            r.nUntranslated = 1;
         }
 
         // And then make knownOriginal unless background
-        if (!this->tr.knownOriginal && am != AttentionMode::BACKGROUND)
-            this->tr.knownOriginal = std::move(x.tr.original);
+        if (this->tr.knownOriginal) {    // HAVE known original — maybe remove?
+            if (*this->tr.knownOriginal == this->tr.original) {
+                this->tr.knownOriginal.reset();
+            }
+        } else {                         // HAVE NO known original — maybe add
+            if (this->tr.translation) {
+                this->tr.knownOriginal = std::move(x.tr.original);
+            }
+        }
     }
 
     return r;

@@ -1483,19 +1483,13 @@ void FmMain::dismissUpdateInfo()
 void FmMain::reflectUpdateInfo()
 {
     if (updateInfo.hasSmth()) {
-        char c[120], cD[2] = { 0, 0 }, cC[2] = { 0, 0 };
-        if (updateInfo.deleted.nBackground)
-            cD[0] = '+';
-        if (updateInfo.changed.nBackground)
-            cC[0] = '+';
-        snprintf(c, std::size(c), "Changes found: add %llu, del %llu/%llu%s, chg %llu/%llu%s",
+        char c[120];
+        snprintf(c, std::size(c), "Changes found: add %llu, del %llu/%llu, chg %llu/%llu",
                  static_cast<unsigned long long>(updateInfo.nAdded),
-                 static_cast<unsigned long long>(updateInfo.deleted.nCalmToAtention),
-                 static_cast<unsigned long long>(updateInfo.deleted.nAlreadyAttention),
-                 cD,
-                 static_cast<unsigned long long>(updateInfo.changed.nCalmToAtention),
-                 static_cast<unsigned long long>(updateInfo.changed.nAlreadyAttention),
-                 cC );
+                 static_cast<unsigned long long>(updateInfo.deleted.nTranslated),
+                 static_cast<unsigned long long>(updateInfo.deleted.nUntranslated),
+                 static_cast<unsigned long long>(updateInfo.changed.nTranslated),
+                 static_cast<unsigned long long>(updateInfo.changed.nUntranslated));
         ui->lbUpdate->setText(c);
         ui->wiUpdate->show();
     } else {
