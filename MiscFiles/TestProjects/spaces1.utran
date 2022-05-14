@@ -25,5 +25,9 @@
    <orig>     </orig>
    <known-orig>   </known-orig>
   </text>
+  <text id="HTML">
+   <orig>&lt;b&gt;bold bold&lt;/b&gt;</orig>
+   <known-orig>&lt;b&gt;bold&lt;/b&gt;</known-orig>
+  </text>
  </file>
 </ut>

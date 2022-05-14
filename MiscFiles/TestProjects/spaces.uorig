@@ -22,5 +22,8 @@
   <text id="3→5 spaces">
    <orig>     </orig>
   </text>
+  <text id="HTML">
+   <orig>&lt;b&gt;bold bold&lt;/b&gt;</orig>
+  </text>
  </file>
 </ut>

@@ -653,7 +653,7 @@ void FmMain::loadObject(tr::UiObject& obj)
                 /// @todo [urgent, #31] text diff
                 cursor.insertText(str::toQ(tr->original));
                 cursor.insertText("\n");
-                cursor.insertHtml("<font size='-1'>== Used to be ==</font><br>");
+                cursor.insertHtml("<font size='-1' style='color:gray'>== Used to be ==</font><br>");
                 cursor.insertText(str::toQ(*tr->knownOriginal));
             } else {
                 cursor.insertText(str::toQ(tr->original));
