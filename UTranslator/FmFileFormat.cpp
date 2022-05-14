@@ -31,6 +31,7 @@ FmFileFormat::FmFileFormat(QWidget *parent) :
     ui->setupUi(this);
 
     ui->grpIncomplete->hide();
+    ui->grpSync->hide();
 
     radioExisting.setRadio(tf::Existing::KEEP, ui->radioExistingKeep);
     radioExisting.setRadio(tf::Existing::OVERWRITE, ui->radioExistingOverwrite);
