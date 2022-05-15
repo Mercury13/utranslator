@@ -291,7 +291,9 @@ namespace {
         }
 
         // Remove Q
-        widgetType = str::remainderSv(widgetType, "Q");
+        auto rem = str::remainderSv(widgetType, "Q");
+        if (!rem.empty())
+            widgetType = rem;
 
         // Split by capital;
         std::string r;
