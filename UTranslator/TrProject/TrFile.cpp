@@ -278,6 +278,12 @@ namespace {
     ///  Key = new component → value = old component
     using MPromotions = std::map<std::string, std::string, std::less<>>;
 
+    struct UiContext {
+        tf::Loader& loader;
+        std::string myClass;
+        MPromotions promotions;
+    };
+
     std::string whatIsQt(std::string_view widgetType)
     {
         if (widgetType.empty())
@@ -285,8 +291,9 @@ namespace {
 
         constinit static const WidgetPair pairs[] = {
             { "QLabel", "is a static text" },
-            { "QWidget", "is a tab" },
+            { "QWidget", "is a general widget (usually a tab)" },
             { "QDialog", "Dialog caption" },
+            { "QLineEdit", "is a single-line editor" },
             { "QPlainTextEdit", "is a text editor" },
             { "QPushButton", "is a button" }
         };
@@ -352,11 +359,11 @@ namespace {
     }
 
     void workOnProperty(
-            std::string_view newName,
+            std::string_view className,
             pugi::xml_node hProp,
             std::string_view suffix,
             const std::string& comment,
-            tf::Loader& loader)
+            const UiContext& ctx)
     {
         std::string_view propName = hProp.attribute("name").as_string();
         if (propName.empty())
@@ -367,19 +374,16 @@ namespace {
         if (!hString)
             return;
 
+        if (className == ctx.myClass)
+            className = {};
+
         // Get name
-        std::string strName { newName };
-        strName += suffix;
-        if (!isIn(propName, UI_DEF_PROPS)) {
-            if (propName == "windowTitle") {
-                strName = ":windowTitle";
-            } else {
-                if (!suffix.empty())
-                    return;
-                strName += ':';
-                strName += propName;
-            }
+        std::string strName { className };
+        if (!isIn(propName, UI_DEF_PROPS) || strName.empty()) {
+            strName += ':';
+            strName += propName;
         }
+        strName += suffix;
 
         // Is property inherently untranslatable?
         if (isIn(propName, UI_UNTRANS_PROPS)) {
@@ -395,49 +399,44 @@ namespace {
         //std::wcout << L"Found " << str::u2w(strName) << L"." << std::endl;
         // Find that string
         auto text = hString.text().as_string();
-        loader.addText(str::toU8sv(strName), str::toU8sv(text), str::toU8sv(comment));
+        ctx.loader.addText(str::toU8sv(strName), str::toU8sv(text), str::toU8sv(comment));
     }
 
-    void traverseXmlNormal(
-            pugi::xml_node hSrc, const MPromotions& promotions, tf::Loader& loader);
+    void traverseXmlNormal(pugi::xml_node hSrc, const UiContext& ctx);
 
-    void traverseXmlWidget(
-            pugi::xml_node hSrc, const MPromotions& promotions, tf::Loader& loader)
+    void traverseXmlWidget(pugi::xml_node hSrc, const UiContext& ctx)
     {
-        auto newName = hSrc.attribute("name").as_string();
+        auto className = hSrc.attribute("name").as_string();
 
         const char* widgetType = hSrc.attribute("class").as_string();
-        std::string whatIsWidget = whatIs(widgetType, promotions);
+        std::string whatIsWidget = whatIs(widgetType, ctx.promotions);
 
         // Properties?
         for (auto& hProp : hSrc.children("property")) {
-            workOnProperty(newName, hProp, "", whatIsWidget, loader);
+            workOnProperty(className, hProp, "", whatIsWidget, ctx);
         }
 
         for (auto& hProp : hSrc.children("attribute")) {
-            workOnProperty(newName, hProp, ":at", whatIsWidget, loader);
+            workOnProperty(className, hProp, ":at", whatIsWidget, ctx);
         }
 
-        traverseXmlNormal(hSrc, promotions, loader);
+        traverseXmlNormal(hSrc, ctx);
     }
 
-    void traverseXmlNormal(
-            pugi::xml_node hSrc,
-            const MPromotions& promotions,
-            tf::Loader& loader)
+    void traverseXmlNormal(pugi::xml_node hSrc, const UiContext& ctx)
     {
         for (auto child : hSrc.children()) {
             std::string_view name = child.name();
             if (name == "widget"sv) {
                 // Widget — work in root
-                loader.goToRoot();
-                traverseXmlWidget(child, promotions, loader);
+                ctx.loader.goToRoot();
+                traverseXmlWidget(child, ctx);
             } else if (name == "action"sv) {
                 // Action — work in subgroup
-                loader.goToGroupAbs(u8"actions");
-                traverseXmlWidget(child, promotions, loader);
+                ctx.loader.goToGroupAbs(u8"actions");
+                traverseXmlWidget(child, ctx);
             } else if (isIn(name, UI_LAYOUT_ELEMS)) {
-                traverseXmlNormal(child, promotions, loader);
+                traverseXmlNormal(child, ctx);
             }
         }
     }
@@ -472,6 +471,11 @@ void tf::Ui::doImport(Loader& loader, const std::filesystem::path& fname)
     if (!hUi)
         throw std::logic_error("No <ui> element in source XML");
 
-    auto promotions = extractPromotions(hUi);
-    traverseXmlNormal(hUi, promotions, loader);
+    UiContext ctx {
+        .loader = loader,
+        .myClass = hUi.child("class").text().as_string(),
+        .promotions = extractPromotions(hUi),
+    };
+
+    traverseXmlNormal(hUi, ctx);
 }
