@@ -542,7 +542,12 @@ namespace tr {
     private:
         using Super = VirtualGroup;
     public:
-        std::unique_ptr<tf::FileFormat> linkedFile;
+        struct Sync {
+            std::unique_ptr<tf::FileFormat> format;
+            std::filesystem::path absPath;
+            tf::SyncInfo info;
+            explicit operator bool() const { return static_cast<bool>(format); }
+        } sync;
 
         Group(const std::shared_ptr<VirtualGroup>& aParent,
               size_t aIndex, const PassKey&);

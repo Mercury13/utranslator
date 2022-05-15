@@ -227,40 +227,26 @@ public:
     using Super::reset;
     using Super::operator =;    
 
-    CloningUptr(const CloningUptr<T>& x)
-        : Super(x.upClone()) {}
     CloningUptr(CloningUptr<T>&& x) noexcept
         : Super(std::move(x)) {}
-    CloningUptr<T>& operator = (const CloningUptr<T>& x);
+    CloningUptr(std::unique_ptr<T>&& x) noexcept
+        : Super(std::move(x)) {}
     CloningUptr<T>& operator = (CloningUptr<T>&& x) noexcept
-        { reset(x.release()); return *this; }
-    std::unique_ptr<T> upClone();
-    CloningUptr<T> clone() { return upClone(); }
+        { Super::operator = (std::move(x)); return *this; }
+    std::unique_ptr<T> upClone() const;
+    CloningUptr<T> clone() const { return upClone(); }
 };
 
 
 template <UpCloneable T>
-std::unique_ptr<T> CloningUptr<T>::upClone()
+std::unique_ptr<T> CloningUptr<T>::upClone() const
 {
     if (*this) {
-        return this->clone();
+        return (*this)->clone();
     } else {
         return {};
     }
 }
-
-
-template <UpCloneable T>
-CloningUptr<T>& CloningUptr<T>::operator = (const CloningUptr<T>& x)
-{
-    if (x) {
-        *this = x->clone();
-    } else {
-        reset();
-    }
-    return *this;
-}
-
 
 
 namespace tr {

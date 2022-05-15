@@ -260,7 +260,7 @@ Thing<tr::File> PrjTreeModel::addHostedFile()
 }
 
 
-Thing<tr::Group> PrjTreeModel::addHostedGroup(
+Thing<tr::Group> PrjTreeModel::addGroup(
         const std::shared_ptr<tr::VirtualGroup>& parent)
 {
     if (!parent)
@@ -471,6 +471,7 @@ FmMain::FmMain(QWidget *parent)
     // Original
     connect(ui->acAddHostedFile, &QAction::triggered, this, &This::addHostedFile);
     connect(ui->acAddHostedGroup, &QAction::triggered, this, &This::addHostedGroup);
+    connect(ui->acAddSyncGroup, &QAction::triggered, this, &This::addSyncGroup);
     connect(ui->acAddText, &QAction::triggered, this, &This::addText);
     connect(ui->acDelete, &QAction::triggered, this, &This::doDelete);
     connect(ui->acClone, &QAction::triggered, this, &This::doClone);
@@ -911,7 +912,7 @@ std::optional<std::shared_ptr<tr::VirtualGroup>> FmMain::disambigGroup(std::u8st
 void FmMain::addHostedGroup()
 {
     if (auto dis = disambigGroup(u8"Add group")) {
-        auto group = treeModel.addHostedGroup(*dis);
+        auto group = treeModel.addGroup(*dis);
         if (group) {    // Have group
             startEditingOrig(group.index, EditMode::GROUP);
         } else {        // No group
@@ -919,6 +920,46 @@ void FmMain::addHostedGroup()
                         "Add group",
                         "Select some file or group");
         }
+    }
+}
+
+
+void FmMain::addSyncGroup()
+{
+    if (auto dis = disambigGroup(u8"Add synchronized group")) {
+        if (!*dis) {
+            QMessageBox::warning(this,
+                        "Add synchronized group",
+                        "Select some file or group");
+            return;
+        }
+        auto fileFormat = loadSetsCache.format.clone();
+        auto isOk = fmFileFormat.ensure(this).exec(
+                    fileFormat,
+                    static_cast<tf::LoadTextsSettings*>(nullptr),
+                    &loadSetsCache.syncInfo,
+                    tf::ProtoFilter::ALL_IMPORTING);
+        if (isOk) {
+            loadSetsCache.format = std::move(fileFormat);
+            auto filter = loadSetsCache.format->fileFilter();
+            filedlg::Filters filters { filter, filedlg::ALL_FILES };
+            std::filesystem::path fileName = filedlg::open(
+                    this, {}, filters, filter.extension(),
+                    filedlg::AddToRecent::NO);
+
+            if (!fileName.empty()) {
+                auto group = treeModel.addGroup(*dis);
+                if (group) {    // Have group
+                    group.subj->sync = {
+                        .format = loadSetsCache.format.clone(),
+                        .absPath = std::filesystem::weakly_canonical(fileName),
+                        .info = loadSetsCache.syncInfo,
+                    };
+                    /// @todo [urgent] load group?
+                    startEditingOrig(group.index, EditMode::GROUP);
+                } // if group
+            } // if filename
+        } // if isOk
     }
 }
 
@@ -1213,6 +1254,7 @@ void FmMain::editFileFormat()
         bool isOk = fmFileFormat.ensure(this).exec(
                     *format,
                     static_cast<tf::LoadTextsSettings*>(nullptr),
+                    static_cast<tf::SyncInfo*>(nullptr),
                     *obj->allowedFormats());
         if (isOk) {
             obj->doModify(tr::Mch::META);
@@ -1388,6 +1430,7 @@ void FmMain::doLoadText()
 
     if (fmFileFormat.ensure(this).exec(
                 fileFormat, &loadSetsCache.text,
+                static_cast<tf::SyncInfo*>(nullptr),
                 tf::ProtoFilter::ALL_IMPORTING)) {
         // Save as soon as we chose smth, even if we press Cancel afterwards
         loadSetsCache.format = std::move(fileFormat);

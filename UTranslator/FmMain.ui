@@ -807,6 +807,7 @@ QLabel {
     <addaction name="acMoveDown"/>
     <addaction name="separator"/>
     <addaction name="acLoadTexts"/>
+    <addaction name="acAddSyncGroup"/>
    </widget>
    <widget class="QMenu" name="menuGo">
     <property name="title">
@@ -871,12 +872,7 @@ QLabel {
   </action>
   <action name="acAddHostedFile">
    <property name="text">
-    <string>Add &amp;hosted file</string>
-   </property>
-  </action>
-  <action name="acAddExternalFile">
-   <property name="text">
-    <string>Add &amp;external file…</string>
+    <string>Add &amp;file</string>
    </property>
   </action>
   <action name="acMoveUp">

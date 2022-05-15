@@ -31,13 +31,15 @@ FmFileFormat::FmFileFormat(QWidget *parent) :
     ui->setupUi(this);
 
     ui->grpIncomplete->hide();
-    ui->grpSync->hide();
 
     radioExisting.setRadio(tf::Existing::KEEP, ui->radioExistingKeep);
     radioExisting.setRadio(tf::Existing::OVERWRITE, ui->radioExistingOverwrite);
 
     radioLoadTo.setRadio(tf::LoadTo::ROOT, ui->radioPlaceRoot);
     radioLoadTo.setRadio(tf::LoadTo::SELECTED, ui->radioPlaceSelected);
+
+    radioTextOwner.setRadio(tf::TextOwner::EDITOR, ui->radioSyncExternal);
+    radioTextOwner.setRadio(tf::TextOwner::ME, ui->radioSyncMine);
 
     fillComboWithLocName(ui->comboLineBreaksInFile, tf::textLineBreakStyleInfo);
     fillComboWithLocName(ui->comboSpaceEscape, tf::spaceEscapeModeInfo);
@@ -198,15 +200,33 @@ void FmFileFormat::copyTo(tf::LoadTextsSettings* r)
 }
 
 
+void FmFileFormat::copyFrom(const tf::SyncInfo* x)
+{
+    ui->grpSync->setVisible(x);
+    if (x) {
+        radioTextOwner.set(x->textOwner);
+    }
+}
+
+void FmFileFormat::copyTo(tf::SyncInfo* r)
+{
+    if (r) {
+        r->textOwner = radioTextOwner.get();
+    }
+}
+
+
 bool FmFileFormat::exec(
         std::unique_ptr<tf::FileFormat>& x,
         tf::LoadTextsSettings* loadSets,
+        tf::SyncInfo* syncInfo,
         const tf::ProtoFilter& filter)
 {
     auto& obj = x ? *x : tf::Dummy::INST;
     collectFormats(&obj.proto(), filter);
     copyFrom(obj);
     copyFrom(loadSets);
+    copyFrom(syncInfo);
     comboChanged(ui->comboFormat->currentIndex());
     reenable();
     ui->btAbout->setFocus();     // sensitive form → focus About button
@@ -214,6 +234,7 @@ bool FmFileFormat::exec(
     if (r) {
         copyTo(x);
         copyTo(loadSets);
+        copyTo(syncInfo);
     }
     return r;
 }

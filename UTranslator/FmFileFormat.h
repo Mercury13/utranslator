@@ -30,6 +30,7 @@ public:
     bool exec(
             std::unique_ptr<tf::FileFormat>& x,
             tf::LoadTextsSettings* loadSets,
+            tf::SyncInfo* syncInfo,
             const tf::ProtoFilter& filter);
 private slots:
     void comboChanged(int index);
@@ -40,6 +41,7 @@ private:
     EnlargingVector<const tf::FormatProto*> filteredProtos;
     Uptr<FmAboutFormat> fmAboutFormat;
     EcRadio<tf::LoadTo> radioLoadTo;
+    EcRadio<tf::TextOwner> radioTextOwner;
     EcRadio<tf::Existing> radioExisting;
 
     using Super::exec;
@@ -48,8 +50,10 @@ private:
             const tf::ProtoFilter& filter);
     void copyFrom(const tf::FileFormat& fmt);
     void copyFrom(const tf::LoadTextsSettings* x);
+    void copyFrom(const tf::SyncInfo* x);
     void copyTo(std::unique_ptr<tf::FileFormat>& r);
     void copyTo(tf::LoadTextsSettings* r);
+    void copyTo(tf::SyncInfo* r);
     void reenableToFormat(const tf::FormatProto& proto);
     const tf::FormatProto* currentProto() const;
     escape::LineBreakMode escapeMode() const;

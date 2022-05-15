@@ -81,7 +81,7 @@ public:
     /// @return  s_p to new file
     Thing<tr::File> addHostedFile();
     /// @return  s_p to new group
-    Thing<tr::Group> addHostedGroup(const std::shared_ptr<tr::VirtualGroup>& parent);
+    Thing<tr::Group> addGroup(const std::shared_ptr<tr::VirtualGroup>& parent);
     /// @return  s_p to new text
     Thing<tr::Text> addText(const std::shared_ptr<tr::VirtualGroup>& parent);
     /// @return  [+] s_p to extracted object  [0] nothing happened
@@ -180,6 +180,7 @@ private slots:
     // Menu: Original
     void addHostedFile();
     void addHostedGroup();
+    void addSyncGroup();
     void addText();
     void doDelete();
     void doClone();
@@ -208,6 +209,7 @@ private:
         void* fileKey = nullptr;
         CloningUptr<tf::FileFormat> format;
         tf::LoadTextsSettings text;
+        tf::SyncInfo syncInfo;
     } loadSetsCache;
     std::atomic<bool> isChangingProgrammatically = false;
 
