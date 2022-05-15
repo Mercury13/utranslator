@@ -1,6 +1,9 @@
 // My header
 #include "TrFile.h"
 
+// Qt
+#include <map>
+
 // PugiXML
 #include "pugixml.hpp"
 #include "u_XmlUtils.h"
@@ -272,8 +275,14 @@ namespace {
                 != std::end(strings);
     }
 
-    std::string whatIs(std::string_view widgetType)
+    ///  Key = new component → value = old component
+    using MPromotions = std::map<std::string, std::string, std::less<>>;
+
+    std::string whatIsQt(std::string_view widgetType)
     {
+        if (widgetType.empty())
+            return std::string();
+
         constinit static const WidgetPair pairs[] = {
             { "QLabel", "is a static text" },
             { "QWidget", "is a tab" },
@@ -281,9 +290,6 @@ namespace {
             { "QPlainTextEdit", "is a text editor" },
             { "QPushButton", "is a button" }
         };
-
-        if (widgetType.empty())
-            return std::string();
 
         for (auto& v : pairs) {
             if (widgetType == v.name)
@@ -317,6 +323,30 @@ namespace {
             break;
         default:
             r = "is a " + r;
+        }
+        return r;
+    }
+
+    std::string whatIs(std::string_view widgetType, const MPromotions& promotions)
+    {
+        if (widgetType.empty())
+            return std::string();
+
+        std::string_view qtType = widgetType;
+        std::string_view promoType{};
+
+        if (auto it = promotions.find(qtType);
+                    it != promotions.end()) {
+            promoType = qtType;
+            qtType = it->second;
+        }
+
+        auto r = whatIsQt(qtType);
+        if (!promoType.empty()) {
+            if (!r.empty())
+                r += ", ";
+            r += "promoted to ";
+            r += promoType;
         }
         return r;
     }
@@ -368,14 +398,16 @@ namespace {
         loader.addText(str::toU8sv(strName), str::toU8sv(text), str::toU8sv(comment));
     }
 
-    void traverseXmlNormal(pugi::xml_node hSrc, tf::Loader& loader);
+    void traverseXmlNormal(
+            pugi::xml_node hSrc, const MPromotions& promotions, tf::Loader& loader);
 
-    void traverseXmlWidget(pugi::xml_node hSrc, tf::Loader& loader)
+    void traverseXmlWidget(
+            pugi::xml_node hSrc, const MPromotions& promotions, tf::Loader& loader)
     {
         auto newName = hSrc.attribute("name").as_string();
 
         const char* widgetType = hSrc.attribute("class").as_string();
-        std::string whatIsWidget = whatIs(widgetType);
+        std::string whatIsWidget = whatIs(widgetType, promotions);
 
         // Properties?
         for (auto& hProp : hSrc.children("property")) {
@@ -386,25 +418,42 @@ namespace {
             workOnProperty(newName, hProp, ":at", whatIsWidget, loader);
         }
 
-        traverseXmlNormal(hSrc, loader);
+        traverseXmlNormal(hSrc, promotions, loader);
     }
 
-    void traverseXmlNormal(pugi::xml_node hSrc, tf::Loader& loader)
+    void traverseXmlNormal(
+            pugi::xml_node hSrc,
+            const MPromotions& promotions,
+            tf::Loader& loader)
     {
         for (auto child : hSrc.children()) {
             std::string_view name = child.name();
             if (name == "widget"sv) {
                 // Widget — work in root
                 loader.goToRoot();
-                traverseXmlWidget(child, loader);
+                traverseXmlWidget(child, promotions, loader);
             } else if (name == "action"sv) {
                 // Action — work in subgroup
                 loader.goToGroupAbs(u8"actions");
-                traverseXmlWidget(child, loader);
+                traverseXmlWidget(child, promotions, loader);
             } else if (isIn(name, UI_LAYOUT_ELEMS)) {
-                traverseXmlNormal(child, loader);
+                traverseXmlNormal(child, promotions, loader);
             }
         }
+    }
+
+    MPromotions extractPromotions(pugi::xml_node hUi)
+    {
+        MPromotions r;
+        auto hCustomWidgets = hUi.child("customwidgets");
+        for (auto& v : hCustomWidgets.children("customwidget")) {
+            std::string_view sNew = v.child("class").text().as_string();
+            std::string_view sOld = v.child("extends").text().as_string();
+            if (!sNew.empty() && !sOld.empty()) {
+                r[std::string{sNew}] = sOld;
+            }
+        }
+        return r;
     }
 
 }   // anon namespace
@@ -423,5 +472,6 @@ void tf::Ui::doImport(Loader& loader, const std::filesystem::path& fname)
     if (!hUi)
         throw std::logic_error("No <ui> element in source XML");
 
-    traverseXmlNormal(hUi, loader);
+    auto promotions = extractPromotions(hUi);
+    traverseXmlNormal(hUi, promotions, loader);
 }
