@@ -34,7 +34,7 @@ Key="string"
 
 Qt XML form. Supported by software:
 * Qt Creator — visual editor
-* Qt UI compiler (uic.exe) — converts form to C++ code
+* Qt UI compiler (uic.exe) — converts XML form to C++ code
 
 ## Interesting data
 
