@@ -275,7 +275,12 @@ namespace tr {
         static const UpdateInfo ZERO;
     };
 
-    enum class ExpandState { ALL_COLLAPSED, COLLAPSED, UNKNOWN, EXPANDED };
+    enum class ExpandState {
+        ALL_COLLAPSED,   ///< it + children of all levels are collapsed
+        COLLAPSED,       ///< just it is collapsed
+        UNKNOWN,         ///< who knows
+        EXPANDED         ///< expanded
+    };
 
     class UiObject : public CanaryObject
     {
