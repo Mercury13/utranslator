@@ -35,9 +35,132 @@
 ///// LockAll //////////////////////////////////////////////////////////////////
 
 
-PrjTreeModel::LockAll::LockAll(PrjTreeModel& x, RememberCurrent aRem)
-    : owner(&x), rem(aRem)
+namespace {
+
+    void saveViewStateRec(
+            PrjTreeModel& model,
+            QTreeView* view,
+            tr::UiObject* obj)
+    {
+        if (!obj)
+            throw std::logic_error("[recurseViewState] obj=null!");
+        auto index = model.toIndex(obj, 0);
+
+        bool areAllCollapsed = true;
+        size_t nc = obj->nChildren();
+        for (size_t i = 0; i < nc; ++i) {
+            auto child = obj->child(i);
+            saveViewStateRec(model, view, child.get());
+            switch (child->cache.treeUi.expandState) {
+            case tr::ExpandState::COLLAPSED:
+            case tr::ExpandState::ALL_COLLAPSED:
+            case tr::ExpandState::UNKNOWN:
+                break;
+            case tr::ExpandState::EXPANDED:
+                areAllCollapsed = false;
+            }
+        }
+
+        if (index.isValid()) {
+            if (nc == 0) {
+                obj->cache.treeUi.expandState = tr::ExpandState::UNKNOWN;
+            } if (view->isExpanded(index)) {
+                obj->cache.treeUi.expandState = tr::ExpandState::EXPANDED;
+            } else {
+                obj->cache.treeUi.expandState = (areAllCollapsed)
+                        ? tr::ExpandState::ALL_COLLAPSED
+                        : tr::ExpandState::COLLAPSED;
+            }
+        } else {
+            obj->cache.treeUi.expandState = tr::ExpandState::COLLAPSED;  // will do nothing when restoring
+        }
+    }
+
+    void saveViewState(
+            PrjTreeModel& model,
+            QTreeView* view,
+            RememberCurrent rem)
+    {
+        if (auto prj = model.project()) {
+            saveViewStateRec(model, view, prj.get());
+            if (rem != RememberCurrent::NO) {
+                auto index = view->currentIndex();
+                if (index.isValid()) {
+                    auto obj = model.toObj(index)->selfUi();
+                    obj->cache.treeUi.currObject.reset();
+                    while (true) {
+                        auto parent = obj->parent();
+                        if (!parent)
+                            break;
+                        parent->cache.treeUi.currObject = obj;
+                        obj = parent;
+                    }
+                } else {
+                    prj->cache.treeUi.currObject.reset();
+                }
+            }
+        }
+    }
+
+    void restoreViewStateRec(
+            PrjTreeModel& model,
+            QTreeView* view,
+            tr::UiObject* obj)
+    {
+        if (!obj)
+            throw std::logic_error("[recurseViewState] obj=null!");
+        auto index = model.toIndex(obj, 0);
+
+        switch (obj->cache.treeUi.expandState) {
+        case tr::ExpandState::UNKNOWN:
+        case tr::ExpandState::ALL_COLLAPSED:
+            return;
+        case tr::ExpandState::EXPANDED:
+            view->expand(index);
+            break;
+        case tr::ExpandState::COLLAPSED:
+            break;
+        }
+
+        size_t nc = obj->nChildren();
+        for (size_t i = 0; i < nc; ++i) {
+            auto child = obj->child(i);
+            restoreViewStateRec(model, view, child.get());
+        }
+    }
+
+    void restoreViewState(
+            PrjTreeModel& model,
+            QTreeView* view,
+            RememberCurrent rem)
+    {
+        if (auto prj = model.project()) {
+            restoreViewStateRec(model, view, prj.get());
+            if (rem != RememberCurrent::NO) {
+                std::shared_ptr<tr::UiObject> curr = prj;
+                while (true) {
+                    auto child = curr->cache.treeUi.currObject.lock();
+                    if (!child || child->parent() != curr)
+                        break;
+                    curr = child;
+                }
+                if (curr == prj) {
+                    qmod::selectFirstAmbiguous(view);
+                } else {
+                    view->setCurrentIndex(model.toIndex(curr, 0));
+                }
+            }
+        }
+    }
+
+}   // anon namespace
+
+
+PrjTreeModel::LockAll::LockAll(
+        PrjTreeModel& x, QTreeView* aView, RememberCurrent aRem)
+    : owner(&x), view(aView), rem(aRem)
 {
+    saveViewState(x, view, rem);
     owner->beginResetModel();
 }
 
@@ -45,6 +168,7 @@ PrjTreeModel::LockAll::~LockAll()
 {
     if (owner) {
         owner->endResetModel();
+        restoreViewState(*owner, view, rem);
     }
 }
 
@@ -76,7 +200,7 @@ PrjTreeModel::PrjTreeModel()
 void PrjTreeModel::setProject(std::shared_ptr<tr::Project> aProject)
 {
     beginResetModel();
-    project = aProject;
+    prj = aProject;
     endResetModel();
 }
 
@@ -95,7 +219,7 @@ tr::UiObject* PrjTreeModel::toObjOr(
 
 tr::UiObject* PrjTreeModel::toObj(const QModelIndex& index) const
 {
-    auto r = toObjOr(index, project.get());
+    auto r = toObjOr(index, prj.get());
     if (!r)
         throw std::logic_error("[toObj] Somehow got nullptr");
     return r;
@@ -138,9 +262,9 @@ int PrjTreeModel::rowCount(const QModelIndex &parent) const
 
 int PrjTreeModel::columnCount(const QModelIndex &) const
 {
-    if (!project)
+    if (!prj)
         return N_ORIG;
-    switch (project->info.type) {
+    switch (prj->info.type) {
     case tr::PrjType::ORIGINAL:
         return N_ORIG;
     case tr::PrjType::FULL_TRANSL:
@@ -181,7 +305,7 @@ namespace {
 
 QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
 {
-    if (!project)
+    if (!prj)
         return {};
     switch (role) {
     case Qt::DisplayRole: {
@@ -268,10 +392,10 @@ namespace {
 
 Thing<tr::File> PrjTreeModel::addHostedFile()
 {
-    auto newId = project->makeId<tr::ObjType::FILE>(myIds);
-    auto newIndex = project->nChildren();
+    auto newId = prj->makeId<tr::ObjType::FILE>(myIds);
+    auto newIndex = prj->nChildren();
     beginInsertRows(QModelIndex(), newIndex, newIndex);
-    auto file = project->addFile(newId, tr::Modify::YES);
+    auto file = prj->addFile(newId, tr::Modify::YES);
     endInsertRows();
     return { file, toIndex(file, 0) };
 }
@@ -973,9 +1097,12 @@ void FmMain::addSyncGroup()
                         .info = loadSetsCache.syncInfo,
                     };
                     try {
-                        auto thing = treeModel.lock(RememberCurrent::NO);
-                        group.subj->loadText(*loadSetsCache.format, fileName,
+                        { auto thing = treeModel.lock(ui->treeStrings, RememberCurrent::NO);
+                            group.subj->loadText(*loadSetsCache.format, fileName,
                                             tf::Existing::OVERWRITE);
+                            // This group will be expanded
+                            group.subj->cache.treeUi.expandState = tr::ExpandState::EXPANDED;
+                        }
                         startEditingOrig(group.index, EditMode::GROUP);
                     } catch (std::exception& e) {
                         QMessageBox::critical(this, "Load texts", QString::fromStdString(e.what()));
@@ -1476,9 +1603,11 @@ void FmMain::doLoadText()
             }
 
             try {
-                auto thing = treeModel.lock(RememberCurrent::YES);
+                auto thing = treeModel.lock(ui->treeStrings, RememberCurrent::YES);
                 destGroup->loadText(*loadSetsCache.format, fileName,
                                     loadSetsCache.text.existing);
+                // This group will be expanded
+                destGroup->cache.treeUi.expandState = tr::ExpandState::EXPANDED;
             } catch (std::exception& e) {
                 QMessageBox::critical(this, "Load texts", QString::fromStdString(e.what()));
             }
@@ -1585,7 +1714,7 @@ void FmMain::doUpdateData()
         break;
     case tr::PrjType::FULL_TRANSL:
         try {
-            { auto lk = treeModel.lock(RememberCurrent::YES);
+            { auto lk = treeModel.lock(ui->treeStrings, RememberCurrent::YES);
                 updateInfo = project->updateData();
             }
             reflectUpdateInfo();

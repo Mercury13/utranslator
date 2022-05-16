@@ -288,9 +288,11 @@ namespace tr {
         struct Cache {
             int index = -1;             ///< index in tree
             Mod mod;
-            ExpandState expandState = ExpandState::UNKNOWN;
-            std::weak_ptr<UiObject> currObject {};
             std::optional<Stats> stats;
+            struct TreeUi {
+                ExpandState expandState = ExpandState::UNKNOWN;
+                std::weak_ptr<UiObject> currObject {};
+            } treeUi;
         } cache;
         // Just here we use virtual dtor!
         virtual ~UiObject() = default;

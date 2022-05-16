@@ -28,6 +28,7 @@ class FmFileFormat;
 class FmFind;
 class FmProjectSettings;
 class QPlainTextEdit;
+class QTreeView;
 
 namespace ts {
     class Result;
@@ -103,6 +104,7 @@ public:
     MoveResult moveUp(const QModelIndex& index);
     MoveResult moveDown(const QModelIndex& index);
     QModelIndex clearGroup(tr::UiObject* obj);
+    const std::shared_ptr<tr::Project>& project() const { return prj; }
 
     class LockAll
     {
@@ -116,16 +118,18 @@ public:
         ~LockAll();
     private:
         friend class PrjTreeModel;
-        LockAll(PrjTreeModel& x, RememberCurrent aRem);
-        PrjTreeModel* owner = nullptr;
+        LockAll(PrjTreeModel& x, QTreeView* aView, RememberCurrent aRem);
+        PrjTreeModel* owner = nullptr;  ///< why ptr? Maybe we’ll implement move-assignment
+        QTreeView* view = nullptr;
         RememberCurrent rem;
     };
 
-    LockAll lock(RememberCurrent rem) { return LockAll(*this, rem); }
+    LockAll lock(QTreeView* view, RememberCurrent rem)
+        { return LockAll(*this, view, rem); }
 
 private:
     static constexpr int DUMMY_COL = 0;
-    std::shared_ptr<tr::Project> project;   // will hold old project
+    std::shared_ptr<tr::Project> prj;   // will hold old project
     mutable tw::Flyweight fly;
 };
 
