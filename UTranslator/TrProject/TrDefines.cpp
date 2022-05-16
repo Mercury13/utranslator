@@ -45,6 +45,9 @@ const tf::TechLoc tf::spaceEscapeModeInfo[escape::SpaceMode_N] {
     { "slashs",  u8"\\s (C-like only!)" },
 };
 
+constinit const char* const tf::textOwnerNames[TextOwner_N] {
+    "editor", "me" };
+
 
 ///// TextFormat ///////////////////////////////////////////////////////////////
 

@@ -170,9 +170,11 @@ namespace tr {
     /// Simple cache to speed up writing
     struct WrCache {
         const PrjInfo& info;
+        std::filesystem::path baseDir;
         std::u8string u8;
 
-        WrCache(const PrjInfo& aInfo) : info(aInfo) {}
+        WrCache(const PrjInfo& aInfo, std::filesystem::path aBaseDir)
+            : info(aInfo), baseDir(std::move(aBaseDir)) {}
 
         /// Ensures UTF-8 string length + 8 additional bytes
         void ensureU8(size_t length);
@@ -180,6 +182,9 @@ namespace tr {
         const char8_t* nts(const char8_t* beg, const char8_t* end);
         const char* ntsC(const char8_t* beg, const char8_t* end)
             { return reinterpret_cast<const char*>(nts(beg, end)); }
+
+        std::filesystem::path toRelPath(const std::filesystem::path& path)
+            { return std::filesystem::proximate(path, baseDir); }
     };
 
     struct IdLib {
@@ -406,6 +411,17 @@ namespace tr {
         void cascadeDropStats();
     };
 
+    struct ReadContext {
+        const PrjInfo& info;
+        std::filesystem::path baseDir;
+
+        std::filesystem::path toAbsPath(const std::filesystem::path& x) const;
+        std::filesystem::path toAbsPath(std::string_view x) const
+            { return toAbsPath(str::toU8sv(x)); }
+        std::filesystem::path toAbsPath(const char* x) const
+            { return toAbsPath(str::toU8sv(x)); }
+    };
+
     class Entity : public UiObject
     {
     public:
@@ -424,7 +440,7 @@ namespace tr {
         /// Reads object from XML
         /// @param [in] node   tag of THIS OBJECT
         /// @param [in] info   project info for speed
-        virtual void readFromXml(const pugi::xml_node& node, const PrjInfo& info) = 0;
+        virtual void readFromXml(const pugi::xml_node& node, const ReadContext& ctx) = 0;
         virtual std::shared_ptr<Entity> vclone(
                 const std::shared_ptr<VirtualGroup>& parent) const = 0;        
     protected:
@@ -484,7 +500,7 @@ namespace tr {
         void doSwapChildren(size_t index1, size_t index2) override;
 
         void writeCommentsAndChildren(pugi::xml_node&, WrCache&) const;
-        void readCommentsAndChildren(const pugi::xml_node& node, const PrjInfo& info);
+        void readCommentsAndChildren(const pugi::xml_node& node, const ReadContext& ctx);
         void vgRemoveTranslChannel();
         tr::UpdateInfo vgStealDataFrom(VirtualGroup& x);
         void vgUpdateChildrensParents(const std::shared_ptr<VirtualGroup>& that);
@@ -508,7 +524,7 @@ namespace tr {
         std::shared_ptr<Project> project() override;
             using Entity::project;
         void writeToXml(pugi::xml_node&, WrCache&) const override;
-        void readFromXml(const pugi::xml_node& node, const PrjInfo& info) override;
+        void readFromXml(const pugi::xml_node& node, const ReadContext& ctx) override;
         bool isCloneable() const noexcept { return true; }
         void traverse(TraverseListener& x, tr::WalkOrder, EnterMe) override
             { x.onText(fSelf.lock()); }
@@ -558,7 +574,7 @@ namespace tr {
         Pair<VirtualGroup> additionParents() override
                 { return { fParentGroup.lock(), fSelf.lock() }; }
         void writeToXml(pugi::xml_node&, WrCache&) const override;
-        void readFromXml(const pugi::xml_node& node, const PrjInfo& info) override;
+        void readFromXml(const pugi::xml_node& node, const ReadContext& ctx) override;
         std::shared_ptr<Group> clone(
                 const std::shared_ptr<VirtualGroup>& parent,
                 const IdLib* idlib,
@@ -597,7 +613,7 @@ namespace tr {
 
         File(std::weak_ptr<Project> aProject, size_t aIndex, const PassKey&);
         void writeToXml(pugi::xml_node&, WrCache&) const override;
-        void readFromXml(const pugi::xml_node& node, const PrjInfo& info) override;
+        void readFromXml(const pugi::xml_node& node, const ReadContext& ctx) override;
         using Super::ownFileInfo;
         virtual FileInfo* ownFileInfo() override { return &info; }
         std::shared_ptr<Entity> vclone(

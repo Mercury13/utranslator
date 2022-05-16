@@ -44,6 +44,8 @@ struct Thing {
     explicit operator bool() const { return static_cast<bool>(subj); }
 };
 
+enum class RememberCurrent { NO, YES };
+
 class PrjTreeModel final : public QAbstractItemModel, public QStyledItemDelegate
 {
 public:
@@ -102,26 +104,24 @@ public:
     MoveResult moveDown(const QModelIndex& index);
     QModelIndex clearGroup(tr::UiObject* obj);
 
-    struct LockAll {
+    class LockAll
+    {
+    public:
         LockAll(const LockAll&) = delete;
         /// Move is better, but C++17 RVO works here, so OK
         LockAll(LockAll&& x) noexcept = delete;
         LockAll& operator = (const LockAll&) = delete;
         LockAll& operator = (LockAll&& x) noexcept = delete;
 
-        ~LockAll() {
-            if (owner) {
-                owner->endResetModel();
-            }
-        }
+        ~LockAll();
     private:
         friend class PrjTreeModel;
-        LockAll(PrjTreeModel& x) : owner(&x)
-            { owner->beginResetModel();  }
+        LockAll(PrjTreeModel& x, RememberCurrent aRem);
         PrjTreeModel* owner = nullptr;
+        RememberCurrent rem;
     };
 
-    LockAll lock() { return LockAll(*this); }
+    LockAll lock(RememberCurrent rem) { return LockAll(*this, rem); }
 
 private:
     static constexpr int DUMMY_COL = 0;

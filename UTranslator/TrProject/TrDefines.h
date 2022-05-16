@@ -204,7 +204,8 @@ namespace tf {
     };
 
     enum class TextOwner { EDITOR, ME };
-    constexpr int TetxOwner_N = static_cast<int>(TextOwner::ME) + 1;
+    constexpr int TextOwner_N = static_cast<int>(TextOwner::ME) + 1;
+    extern const char* const textOwnerNames[TextOwner_N];
 
     struct SyncInfo {
         TextOwner textOwner = TextOwner::ME;

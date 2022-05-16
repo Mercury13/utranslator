@@ -32,6 +32,23 @@
 #include "FmProjectSettings.h"
 
 
+///// LockAll //////////////////////////////////////////////////////////////////
+
+
+PrjTreeModel::LockAll::LockAll(PrjTreeModel& x, RememberCurrent aRem)
+    : owner(&x), rem(aRem)
+{
+    owner->beginResetModel();
+}
+
+PrjTreeModel::LockAll::~LockAll()
+{
+    if (owner) {
+        owner->endResetModel();
+    }
+}
+
+
 ///// PrjTreeModel /////////////////////////////////////////////////////////////
 
 namespace {
@@ -955,8 +972,14 @@ void FmMain::addSyncGroup()
                         .absPath = std::filesystem::weakly_canonical(fileName),
                         .info = loadSetsCache.syncInfo,
                     };
-                    /// @todo [urgent] load group?
-                    startEditingOrig(group.index, EditMode::GROUP);
+                    try {
+                        auto thing = treeModel.lock(RememberCurrent::NO);
+                        group.subj->loadText(*loadSetsCache.format, fileName,
+                                            tf::Existing::OVERWRITE);
+                        startEditingOrig(group.index, EditMode::GROUP);
+                    } catch (std::exception& e) {
+                        QMessageBox::critical(this, "Load texts", QString::fromStdString(e.what()));
+                    }
                 } // if group
             } // if filename
         } // if isOk
@@ -1453,7 +1476,7 @@ void FmMain::doLoadText()
             }
 
             try {
-                auto thing = treeModel.lock();
+                auto thing = treeModel.lock(RememberCurrent::YES);
                 destGroup->loadText(*loadSetsCache.format, fileName,
                                     loadSetsCache.text.existing);
             } catch (std::exception& e) {
@@ -1562,7 +1585,7 @@ void FmMain::doUpdateData()
         break;
     case tr::PrjType::FULL_TRANSL:
         try {
-            { auto lk = treeModel.lock();
+            { auto lk = treeModel.lock(RememberCurrent::YES);
                 updateInfo = project->updateData();
             }
             reflectUpdateInfo();

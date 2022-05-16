@@ -41,6 +41,18 @@ const char8_t* tr::WrCache::nts(const char8_t* beg, const char8_t* end)
 }
 
 
+///// ReadContext //////////////////////////////////////////////////////////////
+
+
+std::filesystem::path tr::ReadContext::toAbsPath(const std::filesystem::path& x) const
+{
+    if (x.empty())
+        return {};
+    auto thatPath = baseDir / x;
+    return std::filesystem::weakly_canonical(thatPath);
+}
+
+
 ///// CanaryObject /////////////////////////////////////////////////////////////
 
 tr::CanaryObject::CanaryObject() : canary(goodCanary()) {}
@@ -759,17 +771,17 @@ void tr::VirtualGroup::writeCommentsAndChildren(
 
 
 void tr::VirtualGroup::readCommentsAndChildren(
-        const pugi::xml_node& node, const PrjInfo& info)
+        const pugi::xml_node& node, const ReadContext& ctx)
 {
-    readComments(node, info);
+    readComments(node, ctx.info);
     for (auto v : node.children()) {
         if (v.type() == pugi::node_element) {
             if (strcmp(v.name(), "text") == 0) {
                 auto text = addText({}, {}, Modify::NO);
-                text->readFromXml(v, info);
+                text->readFromXml(v, ctx);
             } if (strcmp(v.name(), "group") == 0) {
                 auto group = addGroup({}, Modify::NO);
-                group->readFromXml(v, info);
+                group->readFromXml(v, ctx);
             }
         }
     }
@@ -934,18 +946,62 @@ tr::Group::Group(
 }
 
 
+namespace {
+
+    void writeFormat(pugi::xml_node parent, tf::FileFormat* format)
+    {
+        if (format) {
+            auto hFormat = parent.append_child("format");
+            hFormat.append_attribute("name") = format->proto().techName().data();  // Tech names are const, so OK
+            format->save(hFormat);
+        }
+    }
+
+    std::unique_ptr<tf::FileFormat> readFormat(pugi::xml_node parent)
+    {
+        if (auto nodeFormat = parent.child("format")) {
+            std::string_view sName = nodeFormat.attribute("name").as_string();
+            if (!sName.empty()) {
+                for (auto v : tf::allWorkingProtos) {
+                    if (v->techName() == sName) {
+                        auto format = v->make();
+                        format->load(nodeFormat);
+                        return format;
+                    }
+                }
+            }
+        }
+        return {};
+    }
+}
+
 void tr::Group::writeToXml(pugi::xml_node& root, WrCache& c) const
 {
     auto node = root.append_child("group");
         node.append_attribute("id") = str::toC(id);
+    if (sync) {
+        auto hSync = node.append_child("sync");
+        hSync.append_attribute("text-owner") =
+                tf::textOwnerNames[static_cast<int>(sync.info.textOwner)];
+        hSync.append_attribute("fname") =
+                str::toC(c.toRelPath(sync.absPath).u8string());
+        writeFormat(hSync, sync.format.get());
+    }
     writeCommentsAndChildren(node, c);
 }
 
 
-void tr::Group::readFromXml(const pugi::xml_node& node, const PrjInfo& info)
+void tr::Group::readFromXml(const pugi::xml_node& node, const ReadContext& ctx)
 {
     id = str::toU8sv(rqAttr(node, "id").value());
-    readCommentsAndChildren(node, info);
+    if (auto hSync = node.child("sync")) {
+        sync.info.textOwner = parseEnumDef(
+                    hSync.attribute("text-owner").as_string(),
+                    tf::textOwnerNames, tf::TextOwner::ME);
+        sync.absPath = ctx.toAbsPath(hSync.attribute("fname").as_string());
+        sync.format = readFormat(hSync);
+    }
+    readCommentsAndChildren(node, ctx);
 }
 
 
@@ -1054,15 +1110,15 @@ void tr::Text::writeToXml(pugi::xml_node& root, WrCache& c) const
 }
 
 
-void tr::Text::readFromXml(const pugi::xml_node& node, const PrjInfo& info)
+void tr::Text::readFromXml(const pugi::xml_node& node, const ReadContext& ctx)
 {
     id = str::toU8sv(rqAttr(node, "id").value());
     // Our XML is DOM-like, so we can read not in order
     //   Write: orig, au-cmt, known-orig, transl, tr-cmt
     //   Read:  au-cmt, tr-cmt, orig, known-orig, transl
-    readComments(node, info);
+    readComments(node, ctx.info);
     tr.original = readTextInTag(node, "orig");
-    switch (info.type) {
+    switch (ctx.info.type) {
     case PrjType::ORIGINAL:
         break;
     case PrjType::FULL_TRANSL:
@@ -1213,34 +1269,19 @@ void tr::File::writeToXml(pugi::xml_node& root, WrCache& c) const
             node.append_attribute("orig-path") = str::toC(info.origPath.u8string());
         if (!info.translPath.empty())
             node.append_attribute("transl-path") = str::toC(info.translPath.u8string());
-        if (info.format) {
-            auto nodeFormat = node.append_child("format");
-            nodeFormat.append_attribute("name") = info.format->proto().techName().data();  // Tech names are const, so OK
-            info.format->save(nodeFormat);
-        }
+        writeFormat(node, info.format.get());
     writeCommentsAndChildren(node, c);
 }
 
 
-void tr::File::readFromXml(const pugi::xml_node& node, const PrjInfo& pinfo)
+void tr::File::readFromXml(const pugi::xml_node& node, const ReadContext& ctx)
 {
     id = str::toU8sv(node.attribute("name").as_string());
     info.isIdless = node.attribute("idless").as_bool(false);
     info.origPath = str::toU8sv(node.attribute("orig-path").as_string());
     info.translPath = str::toU8sv(node.attribute("transl-path").as_string());
-    if (auto nodeFormat = node.child("format")) {
-        std::string_view sName = nodeFormat.attribute("name").as_string();
-        if (!sName.empty()) {
-            for (auto v : tf::allWorkingProtos) {
-                if (v->techName() == sName) {
-                    info.format = v->make();
-                    info.format->load(nodeFormat);
-                    break;
-                }
-            }
-        }
-    }
-    readCommentsAndChildren(node, pinfo);
+    info.format = readFormat(node);
+    readCommentsAndChildren(node, ctx);
 }
 
 
@@ -1500,13 +1541,13 @@ void tr::Project::writeToXml(
 {
     auto root = doc.append_child("ut");
     root.append_attribute("type") = prjTypeNames[static_cast<int>(info.type)];
-    WrCache c(info);
+    WrCache c(info, basePath);
     auto nodeInfo = root.append_child("info");
         auto nodeOrig = nodeInfo.append_child("orig");
             nodeOrig.append_attribute("lang") = info.orig.lang.c_str();
             if (info.hasOriginalPath()) {
                 if (!info.orig.absPath.empty()) {
-                    auto relPath = std::filesystem::proximate(info.orig.absPath, basePath);
+                    auto relPath = c.toRelPath(info.orig.absPath);
                     nodeOrig.append_attribute("fname") = str::toC(relPath.u8string());
                 }
             }
@@ -1524,17 +1565,17 @@ void tr::Project::readFromXml(
         const pugi::xml_node& node,
         const std::filesystem::path& basePath)
 {
+    ReadContext ctx {
+        .info = info,
+        .baseDir = basePath,
+    };
     auto attrType = rqAttr(node, "type");
     info.type = parseEnumRq<PrjType>(attrType.value(), tr::prjTypeNames);
     auto nodeInfo = rqChild(node, "info");
         auto nodeOrig = rqChild(nodeInfo, "orig");
             info.orig.lang = nodeOrig.attribute("lang").as_string("en");
             if (info.hasOriginalPath()) {
-                std::filesystem::path relPath = str::toU8sv(nodeOrig.attribute("fname").as_string());
-                if (!relPath.empty()) {
-                    auto thatPath = basePath / relPath;
-                    info.orig.absPath = std::filesystem::weakly_canonical(thatPath);
-                }
+                info.orig.absPath = ctx.toAbsPath(nodeOrig.attribute("fname").as_string());
             }
     if (info.isTranslation()) {
         auto nodeTransl = rqChild(nodeInfo, "transl");
@@ -1542,7 +1583,7 @@ void tr::Project::readFromXml(
     }
     for (auto& v : node.children("file")) {
         auto file = addFile({}, Modify::NO);
-        file->readFromXml(v, info);
+        file->readFromXml(v, ctx);
     }
 }
 
