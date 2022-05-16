@@ -23,14 +23,14 @@ Set in “UTranslator.xml” file “portable=1”
 
 ## Supported formats
 
-#### Simple INI (read/write)
+#### Simple INI (text, read/write)
 
 ```
 [Group1.Group2]
 Key="string"
 ```
 
-#### Qt UI (read-only)
+#### Qt UI (XML, read-only)
 
 Qt XML form. Supported by software:
 * Qt Creator — visual editor
