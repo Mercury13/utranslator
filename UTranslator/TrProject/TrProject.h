@@ -275,13 +275,16 @@ namespace tr {
         static const UpdateInfo ZERO;
     };
 
+    enum class ExpandState { ALL_COLLAPSED, COLLAPSED, UNKNOWN, EXPANDED };
+
     class UiObject : public CanaryObject
     {
     public:
         struct Cache {
             int index = -1;             ///< index in tree
             Mod mod;
-            TriBool isExpanded;
+            ExpandState expandState = ExpandState::UNKNOWN;
+            std::weak_ptr<UiObject> currObject {};
             std::optional<Stats> stats;
         } cache;
         // Just here we use virtual dtor!
