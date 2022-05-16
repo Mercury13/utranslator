@@ -21,9 +21,7 @@ Set in “UTranslator.xml” file “portable=1”
 #### Original: you just edit original strings
 ![Mode:original](docs/pix/original.png)
 
-## Supported format
-
-Right now only one format of text resource is supported. It is…
+## Supported formats
 
 1. Simple INI
 
@@ -31,6 +29,8 @@ Right now only one format of text resource is supported. It is…
 [Group1.Group2]
 Key="string"
 ```
+
+2. Qt UI (read only)
 
 ## Interesting data
 
