@@ -595,6 +595,7 @@ FmMain::FmMain(QWidget *parent)
     // Signals/slots: update
     connect(ui->btUpdateDismiss,  &QAbstractButton::clicked, this, &This::dismissUpdateInfo);
     connect(ui->btUpdateDismiss2, &QAbstractButton::clicked, this, &This::dismissUpdateInfo);
+    connect(ui->btUpdateInfo, &QAbstractButton::clicked, this, &This::showUpdateInfo);
 
     // Signals/slots: menu
     // Starting screen
@@ -1800,4 +1801,33 @@ PrjTreeModel::LockAll FmMain::lockAll(RememberCurrent rem)
 {
     acceptCurrObject();
     return treeModel.lock(ui->treeStrings, rem);
+}
+
+
+namespace {
+
+    void sep(QString& text)
+    {
+        if (!text.isEmpty())
+            text += '\n';
+    }
+
+}   // anon namespace
+
+
+void FmMain::showUpdateInfo()
+{
+    /// @todo [L10n] Printf here, not really well converts to Russian
+    QString text;
+    text += QString("Strings added: %1").arg(updateInfo.nAdded);
+    sep(text);
+    text += QString("Strings removed: %1 translated, %2 untranslated")
+                .arg(updateInfo.deleted.nTranslated)
+                .arg(updateInfo.deleted.nUntranslated);
+    sep(text);
+    text += QString("Strings changed: %1 translated, %2 untranslated")
+                .arg(updateInfo.changed.nTranslated)
+                .arg(updateInfo.changed.nUntranslated);
+
+    QMessageBox::information(this, "Update info", text);
 }

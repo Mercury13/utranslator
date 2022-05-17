@@ -158,6 +158,7 @@ private slots:
     void dismissUpdateInfo();
     void searchClosed();
     void searchChanged(size_t index);
+    void showUpdateInfo();
 
     // Starting screen
     void goEdit();
