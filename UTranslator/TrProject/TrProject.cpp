@@ -1112,6 +1112,49 @@ void tr::Group::updateParent(const std::shared_ptr<VirtualGroup>& x)
 }
 
 
+tr::UpdateInfo tr::Group::updateData()
+{
+    if (!sync)
+        return {};
+    auto prj = project();
+    if (!prj)
+        throw std::logic_error("[updateData] Somehow no project");
+
+    switch (prj->info.type) {
+    case tr::PrjType::ORIGINAL:
+        return updateData_Original();
+    case tr::PrjType::FULL_TRANSL:
+        return {};
+    }
+    throw std::logic_error("[updateData] Strange project type");
+}
+
+
+tr::UpdateInfo tr::Group::updateData_Original()
+{
+    auto savedParent = fParentGroup.lock();
+
+    auto tempPrj = tr::Project::make();
+    auto tempFile = tempPrj->addFile(u8"tempfile", tr::Modify::NO);
+    auto tempGroup = tempFile->addGroup(id, tr::Modify::NO);
+
+    static constexpr auto NOMATTER = tf::Existing::OVERWRITE;
+    tempGroup->loadText(*sync.format, sync.absPath, NOMATTER );
+
+    std::swap(this->children, tempGroup->children);
+    this->removeTranslChannel();
+
+    StealContext ctx {
+        .orig = static_cast<tf::StealOrig>(sync.info.textOwner),
+    };
+    auto r = this->stealDataFrom(*tempGroup, nullptr, ctx);
+    // Stats will always be funked up!
+    updateParent(savedParent);
+    stats(StatsMode::DIRECT, CascadeDropCache::YES);
+    return r;
+}
+
+
 ///// Text /////////////////////////////////////////////////////////////////////
 
 
@@ -1857,15 +1900,15 @@ tr::UpdateInfo tr::Project::stealDataFrom(tr::Project& x, const StealContext& ct
 
 tr::UpdateInfo tr::Project::updateData_FullTransl()
 {
-    auto xxx = tr::Project::make();
-    xxx->load(this->info.orig.absPath);
+    auto tempPrj = tr::Project::make();
+    tempPrj->load(this->info.orig.absPath);
     // Info and fname are left intact
-    std::swap(this->files, xxx->files);
+    std::swap(this->files, tempPrj->files);
     this->removeTranslChannel();
     StealContext ctx {
         .orig = tf::StealOrig::KEEP_WARN,
     };
-    auto r = this->stealDataFrom(*xxx, ctx);
+    auto r = this->stealDataFrom(*tempPrj, ctx);
     // Stats will always be funked up!
     updateParents();
     stats(StatsMode::DIRECT, CascadeDropCache::NO);

@@ -613,12 +613,15 @@ namespace tr {
         void removeTranslChannel() override { vgRemoveTranslChannel(); }
         UpdateInfo stealDataFrom(Group& x, UiObject* myParent, const StealContext& ctx)
             { return vgStealDataFrom(x, myParent, ctx); }
+        UpdateInfo updateData();
     protected:
         void updateParent(const std::shared_ptr<VirtualGroup>& x) override;
     private:
         friend class tr::File;
         std::weak_ptr<File> fFile;
         std::weak_ptr<VirtualGroup> fParentGroup;
+
+        UpdateInfo updateData_Original();
     };
 
     enum class FileMode { HOSTED, EXTERNAL };

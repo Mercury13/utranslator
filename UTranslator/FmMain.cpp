@@ -1716,7 +1716,27 @@ void FmMain::doUpdateData()
                 QMessageBox::information(this, "Update data",
                         "This original has no synchronized groups. Nothing to update.");
             } else {
-                /// @todo [urgent] update sync groups
+                std::shared_ptr<tr::Group> thrownGroup;
+                updateInfo = tr::UpdateInfo::ZERO;
+                try {
+                    auto lk = treeModel.lock(ui->treeStrings, RememberCurrent::YES);
+                    for (auto sg : syncGroups) {
+                        thrownGroup = sg;  // throws exception → know which group
+                        /// @todo [urgent] update sync group
+                        updateInfo += sg->updateData();
+                    }
+                    reflectUpdateInfo();
+                } catch (std::exception& e) {
+                    reflectUpdateInfo();
+                    QString text;
+                    if (thrownGroup) {
+                        text += u8"While updating “";
+                        text += str::toQ(thrownGroup->sync.absPath.filename().u8string());
+                        text += u8"”:\n";
+                    }
+                    text += e.what();
+                    QMessageBox::critical(this, "Update data", text);
+                }
             }
         } break;
     case tr::PrjType::FULL_TRANSL:
