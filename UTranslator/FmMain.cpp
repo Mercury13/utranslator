@@ -874,9 +874,6 @@ namespace {
 
 void FmMain::acceptObject(tr::UiObject& obj)
 {
-    auto idx0 = treeModel.toIndex(obj, 0);
-    auto idx9 = treeModel.toIndex(obj, treeModel.columnCount() - 1);
-    treeModel.dataChanged(idx0, idx9);
     std::string cache;
     if (project->info.canAddFiles()) {
         obj.setId(toU8sv(ui->edId, cache), tr::Modify::YES);
@@ -894,6 +891,7 @@ void FmMain::acceptObject(tr::UiObject& obj)
     }
     if (project)
         project->tempRevert();
+    treeModel.dataChanged({}, {});
 }
 
 
@@ -1090,6 +1088,7 @@ void FmMain::addSyncGroup()
                     filedlg::AddToRecent::NO);
 
             if (!fileName.empty()) {
+                acceptCurrObject();
                 auto group = treeModel.addGroup(*dis);
                 if (group) {    // Have group
                     group.subj->sync = {
@@ -1717,6 +1716,7 @@ void FmMain::doUpdateData()
 {
     if (!project)
         return;
+    acceptCurrObject();
     switch (project->info.type) {
     /// @todo [bilingual, #28] in synced groups bilinguals WILL have knownOriginal’s
     case tr::PrjType::ORIGINAL: {

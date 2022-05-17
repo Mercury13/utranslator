@@ -24,8 +24,10 @@ public:
     /// @return [+] state changed
     /// @warning  May return always true, even if no modifications!
     virtual bool unmodify(Forced forced = Forced::NO) = 0;
+    /// Changes state UNMOD → TEMP
     /// @return [+] state changed
     virtual bool tempModify() { return modify(Forced::NO); }
+    /// Changes state TEMP → UNMOD
     /// @return [+] state changed
     virtual bool tempRevert() { return false; }
 
