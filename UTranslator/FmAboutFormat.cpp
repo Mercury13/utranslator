@@ -38,7 +38,7 @@ void FmAboutFormat::exec(const tf::FormatProto* proto)
     QString text;
     if (caps.haveAll(tf::Fcap::IMPORT | tf::Fcap::EXPORT)) {
         if (caps.have(tf::Fcap::NEEDS_FILE)) {
-            text += "Read/write, needs original file for writing";
+            text += "Read/modify";
         } else {
             text = "Read/write";
         }
@@ -46,7 +46,7 @@ void FmAboutFormat::exec(const tf::FormatProto* proto)
         text = "Read";
     } else if (caps.have(tf::Fcap::EXPORT)) {
         if (caps.have(tf::Fcap::NEEDS_FILE)) {
-            text += "Write, needs original file";
+            text += "Modify";
         } else {
             text = "Write";
         }
