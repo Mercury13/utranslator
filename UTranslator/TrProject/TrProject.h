@@ -145,6 +145,11 @@ namespace tr {
 
         std::u8string_view importersOrAuthors() const noexcept
             { return authors.empty() ? importers : authors; }
+
+        /// @return importer’s comment if it’s visible (no author’s)
+        std::u8string_view importersIfVisible() const noexcept
+            { return authors.empty() ? importers : std::u8string_view{}; }
+
         void removeTranslChannel() { translators.clear(); }
     };
 

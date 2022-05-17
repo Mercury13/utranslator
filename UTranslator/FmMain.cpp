@@ -1452,9 +1452,10 @@ namespace {
 
     bool Finder::matchEntity(const tr::Entity& x)
     {
-        return matchChan(opts.channels.id,                      x.id)
-            || matchChan(opts.channels.importersAuthorsComment, x.comm.importersOrAuthors())
-            || matchChan(opts.channels.translatorsComment,      x.comm.translators);
+        return matchChan(opts.channels.id,                 x.id)
+            || matchChan(opts.channels.importersComment,   x.comm.importersIfVisible())
+            || matchChan(opts.channels.authorsComment,     x.comm.authors)
+            || matchChan(opts.channels.translatorsComment, x.comm.translators);
     }
 
     bool Finder::matchText(const tr::Text& x)
@@ -1588,7 +1589,7 @@ void FmMain::doLoadText()
         auto filter = loadSetsCache.format->fileFilter();
         filedlg::Filters filters { filter, filedlg::ALL_FILES };
         std::filesystem::path fileName = filedlg::open(
-                this, {}, filters, filter.extension(),
+                this, L"Load texts", filters, filter.extension(),
                 filedlg::AddToRecent::NO);
 
         if (!fileName.empty()) {

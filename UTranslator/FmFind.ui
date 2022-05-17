@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>380</width>
-    <height>197</height>
+    <width>391</width>
+    <height>203</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -66,9 +66,16 @@
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="chkChanImportersAuthorsComment">
+         <widget class="QCheckBox" name="chkChanImportersComment">
           <property name="text">
-           <string>Importer’s / author’s comment</string>
+           <string>Importer’s comment (if visible)</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="chkChanAuthorsComment">
+          <property name="text">
+           <string>Author’s comment</string>
           </property>
          </widget>
         </item>
@@ -180,6 +187,18 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>edFind</tabstop>
+  <tabstop>chkChanId</tabstop>
+  <tabstop>chkChanOriginal</tabstop>
+  <tabstop>chkChanImportersComment</tabstop>
+  <tabstop>chkChanAuthorsComment</tabstop>
+  <tabstop>chkChanTranslation</tabstop>
+  <tabstop>chkChanTranslatorsComment</tabstop>
+  <tabstop>chkMatchCase</tabstop>
+  <tabstop>radioPlaceDocument</tabstop>
+  <tabstop>radioButton_2</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

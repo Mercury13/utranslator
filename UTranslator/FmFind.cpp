@@ -42,7 +42,8 @@ void FmFind::copyTo(FindOptions& r)
     r.text = ui->edFind->text();
     r.channels.id = ui->chkChanId->isChecked();
     r.channels.original = ui->chkChanOriginal->isChecked();
-    r.channels.importersAuthorsComment = ui->chkChanImportersAuthorsComment->isChecked();
+    r.channels.importersComment = ui->chkChanImportersComment->isChecked();
+    r.channels.authorsComment = ui->chkChanAuthorsComment->isChecked();
     if (isTransl) {
         r.channels.translation = ui->chkChanTranslation->isChecked();
         r.channels.translatorsComment = ui->chkChanTranslatorsComment->isChecked();
