@@ -242,7 +242,8 @@ std::unique_ptr<tf::FileFormat> tf::UiProto::make() const
 
 std::u8string_view tf::UiProto::locDescription() const
 {
-    return u8"Visually-edited Qt form";
+    return u8"Visually-edited Qt form.<br>"
+             "Properties “text” and “title” are omitted: object:text → object.";
 }
 
 
@@ -253,9 +254,6 @@ namespace {
 
     /// No "objectId:text", but just "objectId"
     constinit const std::string_view UI_DEF_PROPS[] { "text", "title" };
-
-    //const char* const WIDGET_ELEMS[] = { "widget", "action", nullptr };
-    //const char* const ACTION_ELEMS[] = { "action" };
 
     /// Elements identified as layouts
     constinit const std::string_view UI_LAYOUT_ELEMS[] { "layout", "item" };
@@ -315,7 +313,7 @@ namespace {
             if (c >= 'A' && c <= 'Z') {
                 if (!r.empty())
                     r += ' ';
-                r += static_cast<char>(c + 32);
+                r += static_cast<char>(tolower(c));
             } else {
                 r += c;
             }
