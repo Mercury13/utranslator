@@ -143,10 +143,13 @@ namespace tr {
     struct Comments {
         std::u8string importers, authors, translators;
 
+        /// @return author’s comment if it’s present, importer’s otherwise
+        ///         (we prioritize: importer’s < author’s)
         std::u8string_view importersOrAuthors() const noexcept
             { return authors.empty() ? importers : authors; }
 
         /// @return importer’s comment if it’s visible (no author’s)
+        ///         e.g. as a search channel
         std::u8string_view importersIfVisible() const noexcept
             { return authors.empty() ? importers : std::u8string_view{}; }
 
