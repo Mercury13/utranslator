@@ -11,6 +11,7 @@ class FmDisambigPair : public QDialog
 {
     Q_OBJECT
     using Super = QDialog;
+    using This = FmDisambigPair;
 public:
     explicit FmDisambigPair(QWidget *parent = nullptr);
     ~FmDisambigPair() override;

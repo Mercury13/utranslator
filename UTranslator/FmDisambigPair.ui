@@ -22,7 +22,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QRadioButton" name="radio1">
+    <widget class="DblClickRadio" name="radio1">
      <property name="text">
       <string>[radio1]</string>
      </property>
@@ -32,7 +32,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QRadioButton" name="radio2">
+    <widget class="DblClickRadio" name="radio2">
      <property name="text">
       <string>[radio2]</string>
      </property>
@@ -47,6 +47,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>DblClickRadio</class>
+   <extends>QRadioButton</extends>
+   <header>DblClickRadio.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

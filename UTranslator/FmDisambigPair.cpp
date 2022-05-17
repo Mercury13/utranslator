@@ -9,6 +9,8 @@ FmDisambigPair::FmDisambigPair(QWidget *parent) :
     ui(new Ui::FmDisambigPair)
 {
     ui->setupUi(this);
+    connect(ui->radio1, &DblClickRadio::doubleClicked, this, &This::accept);
+    connect(ui->radio2, &DblClickRadio::doubleClicked, this, &This::accept);
 }
 
 FmDisambigPair::~FmDisambigPair()

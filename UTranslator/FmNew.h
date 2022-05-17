@@ -13,17 +13,6 @@
 class QStackedWidget;
 class QComboBox;
 
-class DblClickRadio : public QRadioButton {
-    Q_OBJECT
-    using Super = QRadioButton;
-public:
-    using Super::Super;
-signals:
-    void doubleClicked();
-protected:
-    void mouseDoubleClickEvent(QMouseEvent *event) override;
-};
-
 class WizardManager : public QObject
 {
     Q_OBJECT

@@ -17,7 +17,7 @@
    <item>
     <widget class="QStackedWidget" name="stackWizard">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="pageType">
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -202,7 +202,7 @@
   <customwidget>
    <class>DblClickRadio</class>
    <extends>QRadioButton</extends>
-   <header>FmNew.h</header>
+   <header>DblClickRadio.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
