@@ -857,7 +857,7 @@ namespace {
     std::u8string_view toTextSv(QPlainTextEdit* x, std::string& cache)
         { return toTextSv(x->toPlainText(), cache); }
 
-    /// @todo [transl] There will be button “Translation is empty string”
+    /// @todo [transl, #36] There will be button “Translation is empty string”
     std::optional<std::u8string_view> toOptTextSv(
             QPlainTextEdit* x, std::string& cache)
     {
@@ -1150,7 +1150,7 @@ void FmMain::doDelete()
                 message = "Delete empty group?";
                 else message = "Delete group w/o texts?";
             break;
-        /// @todo [future] what to do with plural rules?
+        /// @todo [future, #50] what to do with plural rules?
         case 1: message = "Delete 1 text?"; break;
         default: message = QString("Delete %1 texts?").arg(nTexts);
         }
@@ -1817,7 +1817,7 @@ namespace {
 
 void FmMain::showUpdateInfo()
 {
-    /// @todo [L10n] Printf here, not really well converts to Russian
+    /// @todo [L10n, #50] Printf here, not really well converts to Russian
     QString text;
     text += QString("Strings added: %1").arg(updateInfo.nAdded);
     sep(text);

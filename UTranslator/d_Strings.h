@@ -16,7 +16,7 @@
 #define PAIR_ORIGINAL  L"Originals", WMASK(EXT_ORIGINAL)
 #define FILTER_ORIGINAL { PAIR_ORIGINAL }
 
-/// @todo [future] translate translation?
+/// @todo [L10n] translate translation?
 #define FILTER_TRANSLATABLE FILTER_ORIGINAL
 #define WEXT_TRANSLATABLE L""
 
