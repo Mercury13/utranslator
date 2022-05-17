@@ -136,6 +136,8 @@ tr::Stats& tr::Stats::operator += (const Stats& x)
     text.nBackground += x.text.nBackground;
     text.nCalm += x.text.nCalm;
     text.nAttention += x.text.nAttention;
+    text.nTranslated += x.text.nTranslated;
+    text.nUntranslated += x.text.nUntranslated;
     return *this;
 }
 
@@ -1148,6 +1150,9 @@ tr::UpdateInfo tr::Group::updateData_Original()
         .orig = static_cast<tf::StealOrig>(sync.info.textOwner),
     };
     auto r = this->stealDataFrom(*tempGroup, nullptr, ctx);
+    auto delInfo = tempGroup->deletedInfo(CascadeDropCache::NO);
+    r.deleted += delInfo;
+
     // Stats will always be funked up!
     updateParent(savedParent);
     stats(StatsMode::DIRECT, CascadeDropCache::YES);
@@ -1275,6 +1280,12 @@ const tr::Stats& tr::Text::stats(StatsMode, CascadeDropCache cascade)
         break;
     }
 
+    if (tr.translation) {
+        r.text.nTranslated = 1;
+    } else {
+        r.text.nUntranslated = 1;
+    }
+
     return resetCacheIf(r, cascade);
 }
 
@@ -1299,24 +1310,30 @@ tr::UpdateInfo::ByState tr::Text::stealDataFrom(
 
     // Build stats
     const bool isOrigChanged = (this->tr.original != x.tr.original);
-    if (isOrigChanged) {
-        if (this->tr.translation) {
-            r.nTranslated = 1;
-        } else {
-            r.nUntranslated = 1;
+
+    auto plus1 = [this, isOrigChanged, &r] {
+        if (isOrigChanged) {
+            if (this->tr.translation) {
+                r.nTranslated = 1;
+            } else {
+                r.nUntranslated = 1;
+            }
         }
-    }
+    };
 
     switch (ctx.orig) {
     case tf::StealOrig::KEEP:
         break;      // do nothing, just build stats
 
     case tf::StealOrig::STEAL:  // just steal :)
+        plus1();
         this->tr.original = std::move(x.tr.original);
         this->tr.knownOriginal = std::move(x.tr.knownOriginal);
         break;
 
     case tf::StealOrig::KEEP_WARN: {
+            plus1();
+
             // As x is HAND-EDITED, and *this is EXTERNAL SOFTWARE,
             // we KEEP original strings
 

@@ -272,8 +272,9 @@ namespace tr {
             size_t nTranslated = 0;
             size_t nUntranslated = 0;
 
+            size_t nTotal() const noexcept { return nTranslated + nUntranslated; }
             ByState& operator += (const ByState& x);
-            bool operator == (const ByState& x) const = default;
+            bool operator == (const ByState& x) const noexcept = default;
         } deleted, changed;
 
         UpdateInfo& operator += (const UpdateInfo& x);
