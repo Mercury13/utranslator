@@ -459,7 +459,8 @@ void tr::UiObject::uiStealDataFrom(UiObject& x, UiObject* myParent)
         // Why so?
         // !myParent → we did not swap caches, just lists
         //   so cache of *this is GOOD, and cache of x is BAD
-        cache.treeUi.expandState = x.cache.treeUi.expandState;
+        cache.treeUi = std::move(x.cache.treeUi);
+        // Father pointed to x? → now points to me
         if (myParent->cache.treeUi.currObject.lock() == x.selfUi()) {
             myParent->cache.treeUi.currObject = this->selfUi();
         }
