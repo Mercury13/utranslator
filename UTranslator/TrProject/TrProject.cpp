@@ -953,6 +953,21 @@ tr::UpdateInfo tr::VirtualGroup::vgStealDataFrom(
 }
 
 
+void tr::VirtualGroup::collectSyncGroups(
+        std::vector<std::shared_ptr<tr::Group>>& r)
+{
+    for (auto& v : children) {
+        if (auto group = std::dynamic_pointer_cast<Group>(v)) {
+            if (group->sync) {
+                r.push_back(group);
+            } else {
+                group->collectSyncGroups(r);
+            }
+        }
+    }
+}
+
+
 void tr::VirtualGroup::vgUpdateChildrensParents(
         const std::shared_ptr<VirtualGroup>& that)
 {
@@ -1864,4 +1879,13 @@ void tr::Project::updateParents()
     for (auto& v : files) {
         v->updateParents(that);
     }
+}
+
+std::vector<std::shared_ptr<tr::Group>> tr::Project::syncGroups()
+{
+    std::vector<std::shared_ptr<tr::Group>> r;
+    for (auto& v : files) {
+        v->collectSyncGroups(r);
+    }
+    return r;
 }

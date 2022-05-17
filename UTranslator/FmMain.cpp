@@ -1709,10 +1709,16 @@ void FmMain::doUpdateData()
     if (!project)
         return;
     switch (project->info.type) {
-    case tr::PrjType::ORIGINAL:
-        QMessageBox::information(this, "Update data",
-                "Originals have no updateable data right now.");
-        break;
+    /// @todo [bilingual, #28] in synced groups bilinguals WILL have knownOriginal’s
+    case tr::PrjType::ORIGINAL: {
+            auto syncGroups = project->syncGroups();
+            if (syncGroups.empty()) {
+                QMessageBox::information(this, "Update data",
+                        "This original has no synchronized groups. Nothing to update.");
+            } else {
+                /// @todo [urgent] update sync groups
+            }
+        } break;
     case tr::PrjType::FULL_TRANSL:
         try {
             { auto lk = treeModel.lock(ui->treeStrings, RememberCurrent::YES);

@@ -518,6 +518,7 @@ namespace tr {
         FindPText findPText(std::u8string_view id);
         void clearChildren() override { children.clear(); cascadeDropStats(); }
         std::shared_ptr<UiObject> selfUi() override { return fSelf.lock(); }
+        void collectSyncGroups(std::vector<std::shared_ptr<tr::Group>>& r);
     protected:
         friend class Project;
         void doSwapChildren(size_t index1, size_t index2) override;
@@ -740,7 +741,9 @@ namespace tr {
         template <class... T>
             Project(const PassKey&, T&&... x)
                 : Project(std::forward<T>(x)...) {}
-    protected:
+
+        std::vector<std::shared_ptr<Group>> syncGroups();
+    protected:        
         void doSwapChildren(size_t index1, size_t index2) override;
     private:
         /// Ctors are private, use make!
