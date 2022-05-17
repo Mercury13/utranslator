@@ -431,6 +431,7 @@ namespace tr {
         virtual void doSwapChildren(size_t index1, size_t index2) = 0;
         const Stats& resetCacheIf(const Stats& r, CascadeDropCache cascade);
         void cascadeDropStats();
+        void uiStealDataFrom(UiObject& x, UiObject* myParent);
     };
 
     struct ReadContext {
@@ -477,7 +478,7 @@ namespace tr {
         void readTranslatorsComment(const pugi::xml_node& node, const PrjInfo& info);
         void readComments(const pugi::xml_node& node, const PrjInfo& info);
         void entityRemoveTranslChannel();
-        void entityStealDataFrom(Entity& x, const StealContext& ctx);
+        void entityStealDataFrom(Entity& x, UiObject* myParent, const StealContext& ctx);
     };
 
     struct FindPText {
@@ -524,7 +525,8 @@ namespace tr {
         void writeCommentsAndChildren(pugi::xml_node&, WrCache&) const;
         void readCommentsAndChildren(const pugi::xml_node& node, const ReadContext& ctx);
         void vgRemoveTranslChannel();
-        tr::UpdateInfo vgStealDataFrom(VirtualGroup& x, const StealContext& ctx);
+        tr::UpdateInfo vgStealDataFrom(
+                VirtualGroup& x, UiObject* myParent, const StealContext& ctx);
         void vgUpdateChildrensParents(const std::shared_ptr<VirtualGroup>& that);
     };
 
@@ -563,7 +565,8 @@ namespace tr {
         std::shared_ptr<UiObject> selfUi() override { return fSelf.lock(); }
         void removeTranslChannel() override;
         ///  @return  CHANGED data
-        UpdateInfo::ByState stealDataFrom(Text& x, const StealContext& ctx);
+        UpdateInfo::ByState stealDataFrom(
+                Text& x, UiObject* myParent, const StealContext& ctx);
     protected:
         std::shared_ptr<Entity> vclone(
                 const std::shared_ptr<VirtualGroup>& parent) const override
@@ -607,8 +610,8 @@ namespace tr {
                 const std::shared_ptr<VirtualGroup>& parent) const override
             { return clone(parent, nullptr, Modify::NO); }
         void removeTranslChannel() override { vgRemoveTranslChannel(); }
-        UpdateInfo stealDataFrom(Group& x, const StealContext& ctx)
-            { return vgStealDataFrom(x, ctx); }
+        UpdateInfo stealDataFrom(Group& x, UiObject* myParent, const StealContext& ctx)
+            { return vgStealDataFrom(x, myParent, ctx); }
     protected:
         void updateParent(const std::shared_ptr<VirtualGroup>& x) override;
     private:
@@ -650,7 +653,7 @@ namespace tr {
 
         constexpr FileMode mode() const noexcept { return FileMode::HOSTED; }
         tf::FileFormat* exportableFormat() noexcept;        
-        UpdateInfo stealDataFrom(File& x, const StealContext& ctx);
+        UpdateInfo stealDataFrom(File& x, UiObject* myParent, const StealContext& ctx);
         void updateParents(const std::shared_ptr<Project>& x);
     protected:
         std::weak_ptr<Project> fProject;

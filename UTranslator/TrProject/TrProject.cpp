@@ -451,6 +451,22 @@ tr::UpdateInfo::ByState tr::UiObject::deletedInfo(CascadeDropCache cascade)
 }
 
 
+void tr::UiObject::uiStealDataFrom(UiObject& x, UiObject* myParent)
+{
+    // Why myParent?
+    // We do lots of trickery with parents and fix this afterwards
+    if (myParent) {
+        // Why so?
+        // !myParent → we did not swap caches, just lists
+        //   so cache of *this is GOOD, and cache of x is BAD
+        cache.treeUi.expandState = x.cache.treeUi.expandState;
+        if (myParent->cache.treeUi.currObject.lock() == x.selfUi()) {
+            myParent->cache.treeUi.currObject = this->selfUi();
+        }
+    }
+}
+
+
 ///// Entity ///////////////////////////////////////////////////////////////////
 
 
@@ -610,8 +626,11 @@ void tr::Entity::entityRemoveTranslChannel()
 }
 
 
-void tr::Entity::entityStealDataFrom(Entity& x, const StealContext& ctx)
+void tr::Entity::entityStealDataFrom(
+        Entity& x, UiObject* myParent, const StealContext& ctx)
 {
+    uiStealDataFrom(x, myParent);
+
     // *this is EXTERNAL SOFTWARE, x is HAND-EDITED →
     // DO NOT copy importer’s comment
     switch (ctx.orig) {
@@ -888,9 +907,10 @@ void tr::VirtualGroup::vgRemoveTranslChannel()
 }
 
 
-tr::UpdateInfo tr::VirtualGroup::vgStealDataFrom(VirtualGroup& x, const StealContext& ctx)
+tr::UpdateInfo tr::VirtualGroup::vgStealDataFrom(
+        VirtualGroup& x, UiObject* myParent, const StealContext& ctx)
 {
-    entityStealDataFrom(x, ctx);
+    entityStealDataFrom(x, myParent, ctx);
     tr::UpdateInfo r;
     // Switch state to added
     for (auto& v : children)
@@ -907,7 +927,7 @@ tr::UpdateInfo tr::VirtualGroup::vgStealDataFrom(VirtualGroup& x, const StealCon
                     throw std::logic_error("[vgStealDataFrom] Somehow the object is not a Group");
                 if (auto xGroup = x.findGroup(v->id)) {
                     group->state = ObjState::STAYING;   // stays!
-                    r += group->stealDataFrom(*xGroup, ctx);
+                    r += group->stealDataFrom(*xGroup, this, ctx);
                 }
             } break;
         case tr::ObjType::TEXT: {
@@ -917,7 +937,7 @@ tr::UpdateInfo tr::VirtualGroup::vgStealDataFrom(VirtualGroup& x, const StealCon
                 if (auto xText = x.findPText(v->id)) {
                     text->state = ObjState::STAYING;   // stays!
                     xText.place->reset();   // Remove that text!!
-                    r.changed += text->stealDataFrom(*xText.obj, ctx);
+                    r.changed += text->stealDataFrom(*xText.obj, this, ctx);
                 }
             } break;
         }
@@ -1210,10 +1230,10 @@ void tr::Text::removeTranslChannel()
 
 
 tr::UpdateInfo::ByState tr::Text::stealDataFrom(
-        tr::Text& x, const StealContext& ctx)
+        tr::Text& x, UiObject* myParent, const StealContext& ctx)
 {
     UpdateInfo::ByState r;
-    entityStealDataFrom(x, ctx);
+    entityStealDataFrom(x, myParent, ctx);
     // Translations are always kept by UT → so steal
     this->tr.translation = std::move(x.tr.translation);
     this->tr.forceAttention = x.tr.forceAttention;
@@ -1340,7 +1360,8 @@ void tr::File::removeTranslChannel()
 }
 
 
-tr::UpdateInfo tr::File::stealDataFrom(File& x, const StealContext& ctx)
+tr::UpdateInfo tr::File::stealDataFrom(
+        File& x, UiObject* myParent, const StealContext& ctx)
 {
     switch (ctx.orig) {
     case tf::StealOrig::STEAL:
@@ -1351,7 +1372,7 @@ tr::UpdateInfo tr::File::stealDataFrom(File& x, const StealContext& ctx)
     case tf::StealOrig::KEEP_WARN:;
     }
     this->info.translPath = std::move(x.info.translPath);
-    return vgStealDataFrom(x, ctx);
+    return vgStealDataFrom(x, myParent, ctx);
 }
 
 
@@ -1803,7 +1824,7 @@ tr::UpdateInfo tr::Project::stealDataFrom(tr::Project& x, const StealContext& ct
     for (auto& v : files) {
         if (auto xFile = x.findFile(v->id)) {
             v->state = ObjState::STAYING;   // stays!
-            r += v->stealDataFrom(*xFile, ctx);
+            r += v->stealDataFrom(*xFile, this, ctx);
         }
     }
     // Add?
