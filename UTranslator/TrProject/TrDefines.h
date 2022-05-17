@@ -204,6 +204,18 @@ namespace tf {
     };
 
     enum class TextOwner { EDITOR, ME };
+
+    /// Mode for stealing original data
+    /// @warning same order as TextOwner
+    ///     *this is from EXTERNAL SOFTWARE, x is HAND-EDITED
+    ///     so EDITOR (external software) = KEEP
+    ///
+    enum class StealOrig {
+        KEEP,           ///< Keep original data
+        STEAL,          ///< Steal original data
+        KEEP_WARN       ///< Same as KEEP + use knownOrig
+    };
+
     constexpr int TextOwner_N = static_cast<int>(TextOwner::ME) + 1;
     extern const char* const textOwnerNames[TextOwner_N];
 

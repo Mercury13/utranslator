@@ -610,9 +610,18 @@ void tr::Entity::entityRemoveTranslChannel()
 }
 
 
-void tr::Entity::entityStealDataFrom(Entity& x)
+void tr::Entity::entityStealDataFrom(Entity& x, const StealContext& ctx)
 {
-    comm.translators =std::move(x.comm.translators);
+    // *this is EXTERNAL SOFTWARE, x is HAND-EDITED →
+    // DO NOT copy importer’s comment
+    switch (ctx.orig) {
+    case tf::StealOrig::STEAL:
+        comm.authors = x.comm.authors;
+        break;
+    case tf::StealOrig::KEEP:
+    case tf::StealOrig::KEEP_WARN:;
+    }
+    comm.translators = std::move(x.comm.translators);
 }
 
 
@@ -879,9 +888,9 @@ void tr::VirtualGroup::vgRemoveTranslChannel()
 }
 
 
-tr::UpdateInfo tr::VirtualGroup::vgStealDataFrom(VirtualGroup& x)
+tr::UpdateInfo tr::VirtualGroup::vgStealDataFrom(VirtualGroup& x, const StealContext& ctx)
 {
-    entityStealDataFrom(x);
+    entityStealDataFrom(x, ctx);
     tr::UpdateInfo r;
     // Switch state to added
     for (auto& v : children)
@@ -898,7 +907,7 @@ tr::UpdateInfo tr::VirtualGroup::vgStealDataFrom(VirtualGroup& x)
                     throw std::logic_error("[vgStealDataFrom] Somehow the object is not a Group");
                 if (auto xGroup = x.findGroup(v->id)) {
                     group->state = ObjState::STAYING;   // stays!
-                    r += group->stealDataFrom(*xGroup);
+                    r += group->stealDataFrom(*xGroup, ctx);
                 }
             } break;
         case tr::ObjType::TEXT: {
@@ -908,7 +917,7 @@ tr::UpdateInfo tr::VirtualGroup::vgStealDataFrom(VirtualGroup& x)
                 if (auto xText = x.findPText(v->id)) {
                     text->state = ObjState::STAYING;   // stays!
                     xText.place->reset();   // Remove that text!!
-                    r.changed += text->stealDataFrom(*xText.obj);
+                    r.changed += text->stealDataFrom(*xText.obj, ctx);
                 }
             } break;
         }
@@ -1200,38 +1209,59 @@ void tr::Text::removeTranslChannel()
 }
 
 
-tr::UpdateInfo::ByState tr::Text::stealDataFrom(tr::Text& x)
+tr::UpdateInfo::ByState tr::Text::stealDataFrom(
+        tr::Text& x, const StealContext& ctx)
 {
     UpdateInfo::ByState r;
-    entityStealDataFrom(x);
+    entityStealDataFrom(x, ctx);
+    // Translations are always kept by UT → so steal
     this->tr.translation = std::move(x.tr.translation);
     this->tr.forceAttention = x.tr.forceAttention;
+
+    // Build stats
     const bool isOrigChanged = (this->tr.original != x.tr.original);
-
-    // First copy known original if present
-    // So have known original → always ATTENTION
-    if (x.tr.knownOriginal) {
-        this->tr.knownOriginal = std::move(x.tr.knownOriginal);
-    }
-
     if (isOrigChanged) {
-        // Then build stats
         if (this->tr.translation) {
             r.nTranslated = 1;
         } else {
             r.nUntranslated = 1;
         }
+    }
 
-        // And then make knownOriginal unless background
-        if (this->tr.knownOriginal) {    // HAVE known original — maybe remove?
-            if (*this->tr.knownOriginal == this->tr.original) {
-                this->tr.knownOriginal.reset();
+    switch (ctx.orig) {
+    case tf::StealOrig::KEEP:
+        break;      // do nothing, just build stats
+
+    case tf::StealOrig::STEAL:  // just steal :)
+        this->tr.original = std::move(x.tr.original);
+        this->tr.knownOriginal = std::move(x.tr.knownOriginal);
+        break;
+
+    case tf::StealOrig::KEEP_WARN: {
+            // As x is HAND-EDITED, and *this is EXTERNAL SOFTWARE,
+            // we KEEP original strings
+
+            // First copy known original if present
+            // External software has no access to knownOriginal,
+            //   as this field is designed to solve contradictions between software
+            //   and hand-translation
+            if (x.tr.knownOriginal) {
+                this->tr.knownOriginal = std::move(x.tr.knownOriginal);
             }
-        } else {                         // HAVE NO known original — maybe add
-            if (this->tr.translation) {
-                this->tr.knownOriginal = std::move(x.tr.original);
+
+            if (isOrigChanged) {
+                // And then make knownOriginal unless background
+                if (this->tr.knownOriginal) {    // HAVE known original — maybe remove?
+                    if (*this->tr.knownOriginal == this->tr.original) {
+                        this->tr.knownOriginal.reset();
+                    }
+                } else {       // HAVE NO known original — maybe add?
+                    if (this->tr.translation) {  // But add only if have translation
+                        this->tr.knownOriginal = std::move(x.tr.original);
+                    }
+                }
             }
-        }
+        } break;
     }
 
     return r;
@@ -1310,10 +1340,18 @@ void tr::File::removeTranslChannel()
 }
 
 
-tr::UpdateInfo tr::File::stealDataFrom(File& x)
+tr::UpdateInfo tr::File::stealDataFrom(File& x, const StealContext& ctx)
 {
+    switch (ctx.orig) {
+    case tf::StealOrig::STEAL:
+        // *this is imported, x is hand-edited, thus such things
+        this->info.origPath = std::move(x.info.origPath);
+        break;
+    case tf::StealOrig::KEEP:
+    case tf::StealOrig::KEEP_WARN:;
+    }
     this->info.translPath = std::move(x.info.translPath);
-    return vgStealDataFrom(x);
+    return vgStealDataFrom(x, ctx);
 }
 
 
@@ -1755,7 +1793,7 @@ void tr::Project::removeTranslChannel()
 }
 
 
-tr::UpdateInfo tr::Project::stealDataFrom(tr::Project& x)
+tr::UpdateInfo tr::Project::stealDataFrom(tr::Project& x, const StealContext& ctx)
 {
     tr::UpdateInfo r;
     // Switch state to added
@@ -1765,7 +1803,7 @@ tr::UpdateInfo tr::Project::stealDataFrom(tr::Project& x)
     for (auto& v : files) {
         if (auto xFile = x.findFile(v->id)) {
             v->state = ObjState::STAYING;   // stays!
-            r += v->stealDataFrom(*xFile);
+            r += v->stealDataFrom(*xFile, ctx);
         }
     }
     // Add?
@@ -1787,7 +1825,10 @@ tr::UpdateInfo tr::Project::updateData_FullTransl()
     // Info and fname are left intact
     std::swap(this->files, xxx->files);
     this->removeTranslChannel();
-    auto r = this->stealDataFrom(*xxx);
+    StealContext ctx {
+        .orig = tf::StealOrig::KEEP_WARN,
+    };
+    auto r = this->stealDataFrom(*xxx, ctx);
     // Stats will always be funked up!
     updateParents();
     stats(StatsMode::DIRECT, CascadeDropCache::NO);

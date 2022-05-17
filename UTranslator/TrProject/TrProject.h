@@ -290,6 +290,10 @@ namespace tr {
         EXPANDED         ///< expanded
     };
 
+    struct StealContext {
+        tf::StealOrig orig;
+    };
+
     class UiObject : public CanaryObject
     {
     public:
@@ -473,7 +477,7 @@ namespace tr {
         void readTranslatorsComment(const pugi::xml_node& node, const PrjInfo& info);
         void readComments(const pugi::xml_node& node, const PrjInfo& info);
         void entityRemoveTranslChannel();
-        void entityStealDataFrom(Entity& x);
+        void entityStealDataFrom(Entity& x, const StealContext& ctx);
     };
 
     struct FindPText {
@@ -520,7 +524,7 @@ namespace tr {
         void writeCommentsAndChildren(pugi::xml_node&, WrCache&) const;
         void readCommentsAndChildren(const pugi::xml_node& node, const ReadContext& ctx);
         void vgRemoveTranslChannel();
-        tr::UpdateInfo vgStealDataFrom(VirtualGroup& x);
+        tr::UpdateInfo vgStealDataFrom(VirtualGroup& x, const StealContext& ctx);
         void vgUpdateChildrensParents(const std::shared_ptr<VirtualGroup>& that);
     };
 
@@ -559,7 +563,7 @@ namespace tr {
         std::shared_ptr<UiObject> selfUi() override { return fSelf.lock(); }
         void removeTranslChannel() override;
         ///  @return  CHANGED data
-        UpdateInfo::ByState stealDataFrom(Text& x);
+        UpdateInfo::ByState stealDataFrom(Text& x, const StealContext& ctx);
     protected:
         std::shared_ptr<Entity> vclone(
                 const std::shared_ptr<VirtualGroup>& parent) const override
@@ -603,7 +607,8 @@ namespace tr {
                 const std::shared_ptr<VirtualGroup>& parent) const override
             { return clone(parent, nullptr, Modify::NO); }
         void removeTranslChannel() override { vgRemoveTranslChannel(); }
-        UpdateInfo stealDataFrom(Group& x) { return vgStealDataFrom(x); }
+        UpdateInfo stealDataFrom(Group& x, const StealContext& ctx)
+            { return vgStealDataFrom(x, ctx); }
     protected:
         void updateParent(const std::shared_ptr<VirtualGroup>& x) override;
     private:
@@ -645,7 +650,7 @@ namespace tr {
 
         constexpr FileMode mode() const noexcept { return FileMode::HOSTED; }
         tf::FileFormat* exportableFormat() noexcept;        
-        UpdateInfo stealDataFrom(File& x);
+        UpdateInfo stealDataFrom(File& x, const StealContext& ctx);
         void updateParents(const std::shared_ptr<Project>& x);
     protected:
         std::weak_ptr<Project> fProject;
@@ -719,7 +724,7 @@ namespace tr {
         std::u8string shownFname(std::u8string_view fallback);
 
         UpdateInfo updateData();
-        tr::UpdateInfo stealDataFrom(tr::Project& x);
+        tr::UpdateInfo stealDataFrom(tr::Project& x, const StealContext& ctx);
         std::shared_ptr<tr::File> findFile(std::u8string_view aId);
 
         /// Use instead of ctor
