@@ -1322,11 +1322,11 @@ tr::UpdateInfo::ByState tr::Text::stealDataFrom(
     };
 
     switch (ctx.orig) {
-    case tf::StealOrig::KEEP:
+    case tf::StealOrig::KEEP:   // KEEP == EDITOR → change data, thus build stats
+        plus1();
         break;      // do nothing, just build stats
 
-    case tf::StealOrig::STEAL:  // just steal :)
-        plus1();
+    case tf::StealOrig::STEAL:  // STEAL == ME → originals stay in place, no stats
         this->tr.original = std::move(x.tr.original);
         this->tr.knownOriginal = std::move(x.tr.knownOriginal);
         break;
