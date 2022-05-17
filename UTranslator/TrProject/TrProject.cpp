@@ -1843,7 +1843,7 @@ void tr::Project::doBuild(const std::filesystem::path& destDir)
                 FileWalker walker(*file, walkChannel(), format->walkOrder());
                 format->doExport(walker, fnExisting, fnExported);
             } catch (...) {
-                /// @todo [urgent] which errors?
+                /// @todo [bug, #45] We hide errors here
             }
         }
     }
