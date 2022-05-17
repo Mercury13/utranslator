@@ -593,7 +593,8 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->wiFind, &WiFind::indexChanged, this, &This::searchChanged);
 
     // Signals/slots: update
-    connect(ui->btUpdateDismiss, &QAbstractButton::clicked, this, &This::dismissUpdateInfo);
+    connect(ui->btUpdateDismiss,  &QAbstractButton::clicked, this, &This::dismissUpdateInfo);
+    connect(ui->btUpdateDismiss2, &QAbstractButton::clicked, this, &This::dismissUpdateInfo);
 
     // Signals/slots: menu
     // Starting screen
@@ -1672,7 +1673,7 @@ void FmMain::searchChanged(size_t index)
 
 void FmMain::dismissUpdateInfo()
 {
-    ui->wiUpdate->hide();
+    ui->stackUpdate->hide();
 }
 
 
@@ -1694,10 +1695,11 @@ void FmMain::reflectUpdateInfo()
                      static_cast<unsigned long long>(updateInfo.changed.nTotal()));
         }
         ui->lbUpdate->setText(c);
-        ui->wiUpdate->show();
+        ui->stackUpdate->setCurrentWidget(ui->pageUpdateChanged);
     } else {
-        dismissUpdateInfo();
+        ui->stackUpdate->setCurrentWidget(ui->pageUpdateUntouched);
     }
+    ui->stackUpdate->show();
 }
 
 

@@ -61,7 +61,7 @@
            <bool>false</bool>
           </property>
           <widget class="QWidget" name="wiTree" native="true">
-           <layout class="QVBoxLayout" name="verticalLayout_2">
+           <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,1">
             <property name="spacing">
              <number>0</number>
             </property>
@@ -81,50 +81,96 @@
              <widget class="WiFind" name="wiFind" native="true"/>
             </item>
             <item>
-             <widget class="QWidget" name="wiUpdate" native="true">
+             <widget class="QStackedWidget" name="stackUpdate">
               <property name="styleSheet">
-               <string notr="true">#wiUpdate {
-   background-color: #a40000;
+               <string notr="true"/>
+              </property>
+              <property name="currentIndex">
+               <number>1</number>
+              </property>
+              <widget class="QWidget" name="pageUpdateChanged">
+               <property name="styleSheet">
+                <string notr="true">#pageUpdateChanged {
+  background-color: #a40000;
 }
 QLabel {
   color: white;
 }</string>
-              </property>
-              <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="1,0,0">
-               <property name="topMargin">
-                <number>5</number>
                </property>
-               <property name="bottomMargin">
-                <number>5</number>
+               <layout class="QHBoxLayout" name="horizontalLayout_9" stretch="1,0,0">
+                <property name="spacing">
+                 <number>6</number>
+                </property>
+                <property name="topMargin">
+                 <number>5</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>5</number>
+                </property>
+                <item>
+                 <widget class="ElidedLabel" name="lbUpdate">
+                  <property name="text">
+                   <string notr="true">[lbUpdate] update update update here!</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="btUpdateInfo">
+                  <property name="focusPolicy">
+                   <enum>Qt::NoFocus</enum>
+                  </property>
+                  <property name="text">
+                   <string>More</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="btUpdateDismiss">
+                  <property name="focusPolicy">
+                   <enum>Qt::NoFocus</enum>
+                  </property>
+                  <property name="text">
+                   <string>Dismiss</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+              <widget class="QWidget" name="pageUpdateUntouched">
+               <property name="styleSheet">
+                <string notr="true">#pageUpdateUntouched {
+  background-color: LemonChiffon;
+}</string>
                </property>
-               <item>
-                <widget class="ElidedLabel" name="lbUpdate">
-                 <property name="text">
-                  <string notr="true">[lbUpdate] update update update here!</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="btUpdateInfo">
-                 <property name="focusPolicy">
-                  <enum>Qt::NoFocus</enum>
-                 </property>
-                 <property name="text">
-                  <string>More</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="btUpdateDismiss">
-                 <property name="focusPolicy">
-                  <enum>Qt::NoFocus</enum>
-                 </property>
-                 <property name="text">
-                  <string>Dismiss</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
+               <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="1,0">
+                <property name="spacing">
+                 <number>6</number>
+                </property>
+                <property name="topMargin">
+                 <number>5</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>5</number>
+                </property>
+                <item>
+                 <widget class="QLabel" name="label_2">
+                  <property name="text">
+                   <string>Nothing was changed.</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="btUpdateDismiss2">
+                  <property name="focusPolicy">
+                   <enum>Qt::NoFocus</enum>
+                  </property>
+                  <property name="text">
+                   <string>Dismiss</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
              </widget>
             </item>
             <item>
