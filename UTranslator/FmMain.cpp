@@ -1088,7 +1088,6 @@ void FmMain::addSyncGroup()
                     filedlg::AddToRecent::NO);
 
             if (!fileName.empty()) {
-                acceptCurrObject();
                 auto group = treeModel.addGroup(*dis);
                 if (group) {    // Have group
                     group.subj->sync = {
@@ -1097,7 +1096,7 @@ void FmMain::addSyncGroup()
                         .info = loadSetsCache.syncInfo,
                     };
                     try {
-                        { auto thing = treeModel.lock(ui->treeStrings, RememberCurrent::NO);
+                        { auto thing = lockAll(RememberCurrent::NO);
                             group.subj->loadText(*loadSetsCache.format, fileName,
                                             tf::Existing::OVERWRITE);
                             // This group will be expanded
@@ -1567,8 +1566,6 @@ void FmMain::doLoadText()
         return;
     }
 
-    acceptCurrObject();
-
     // Get current file
     CloningUptr<tf::FileFormat> fileFormat;
     if (file.get() != loadSetsCache.fileKey) {
@@ -1604,7 +1601,7 @@ void FmMain::doLoadText()
             }
 
             try {
-                auto thing = treeModel.lock(ui->treeStrings, RememberCurrent::YES);
+                auto thing = lockAll(RememberCurrent::YES);
                 destGroup->loadText(*loadSetsCache.format, fileName,
                                     loadSetsCache.text.existing);
                 // This group will be expanded
@@ -1716,7 +1713,6 @@ void FmMain::doUpdateData()
 {
     if (!project)
         return;
-    acceptCurrObject();
     switch (project->info.type) {
     /// @todo [bilingual, #28] in synced groups bilinguals WILL have knownOriginal’s
     case tr::PrjType::ORIGINAL: {
@@ -1728,7 +1724,7 @@ void FmMain::doUpdateData()
                 std::shared_ptr<tr::Group> thrownGroup;
                 updateInfo = tr::UpdateInfo::ZERO;
                 try {
-                    auto lk = treeModel.lock(ui->treeStrings, RememberCurrent::YES);
+                    auto lk = lockAll(RememberCurrent::YES);
                     for (auto sg : syncGroups) {
                         thrownGroup = sg;  // throws exception → know which group
                         /// @todo [urgent] update sync group
@@ -1750,7 +1746,7 @@ void FmMain::doUpdateData()
         } break;
     case tr::PrjType::FULL_TRANSL:
         try {
-            { auto lk = treeModel.lock(ui->treeStrings, RememberCurrent::YES);
+            { auto lk = lockAll(RememberCurrent::YES);
                 updateInfo = project->updateData();
             }
             reflectUpdateInfo();
@@ -1797,4 +1793,11 @@ void FmMain::showBugs(Flags<tr::Bug> x)
     sh.showIfBug(ui->imgBugEmptyText, tr::Bug::TR_EMPTY );
     sh.showIfBug(ui->imgBugReview   , tr::Bug::TR_REVIEW);
     ui->imgBugOk->setVisible(sh.isNoneShown());
+}
+
+
+PrjTreeModel::LockAll FmMain::lockAll(RememberCurrent rem)
+{
+    acceptCurrObject();
+    return treeModel.lock(ui->treeStrings, rem);
 }

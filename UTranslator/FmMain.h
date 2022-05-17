@@ -124,7 +124,7 @@ public:
         RememberCurrent rem;
     };
 
-    LockAll lock(QTreeView* view, RememberCurrent rem)
+    [[nodiscard]] LockAll lock(QTreeView* view, RememberCurrent rem)
         { return LockAll(*this, view, rem); }
 
 private:
@@ -253,4 +253,5 @@ private:
             const QString& caption, std::unique_ptr<ts::Result> x);
     void reflectUpdateInfo();
     void showBugs(Flags<tr::Bug> x);
+    [[nodiscard]] PrjTreeModel::LockAll lockAll(RememberCurrent rem);
 };
