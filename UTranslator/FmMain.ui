@@ -644,14 +644,6 @@ QLabel {
               </item>
               <item>
                <widget class="QGroupBox" name="grpBugs">
-                <property name="toolTip">
-                 <string>&lt;b&gt;Empty translation&lt;/b&gt;
-&lt;p&gt;Nothing is entered as “Translation” text.
-&lt;p&gt;If empty string is your actual translation, press “Accept changes” (Ctrl+Enter) or double-click this icon.</string>
-                </property>
-                <property name="toolTipDuration">
-                 <number>60000</number>
-                </property>
                 <property name="title">
                  <string>Discrepancies</string>
                 </property>
@@ -708,6 +700,9 @@ QLabel {
                    <property name="toolTip">
                     <string>&lt;b&gt;Empty translation&lt;/b&gt;
 &lt;p&gt;Is empty string is your actual translation, press “Accept changes” (Ctrl+Enter) or double-click this icon.</string>
+                   </property>
+                   <property name="toolTipDuration">
+                    <number>60000</number>
                    </property>
                    <property name="text">
                     <string notr="true"/>
