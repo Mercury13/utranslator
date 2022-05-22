@@ -771,6 +771,10 @@ void FmMain::loadObject(tr::UiObject& obj)
             ui->wiFind->setIndexQuietly(index);
         }
     }
+
+    tr::BugCache bugCache;
+    bugCache.copyFrom(obj);
+
     ui->edId->setText(str::toQ(obj.idColumn()));
     // File/Original/translation
     if (auto fi = obj.ownFileInfo()) {

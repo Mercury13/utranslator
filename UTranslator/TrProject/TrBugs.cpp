@@ -20,7 +20,7 @@ void tr::BugCache::copyFrom(tr::UiObject& x)
 {
     obj = x.selfUi();
     // ID
-    id = obj->idColumn();
+    id = x.idColumn();
 
     // Translatable
     if (auto tr = x.translatable()) {

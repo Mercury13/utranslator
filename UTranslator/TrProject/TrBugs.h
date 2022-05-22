@@ -37,7 +37,7 @@ namespace tr {
             std::u8string editable;
         } comm;
 
-        std::shared_ptr<tr::UiObject> obj;
+        std::weak_ptr<tr::UiObject> obj;
 
         void copyFrom(tr::UiObject& x);
     };
