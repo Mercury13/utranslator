@@ -27,6 +27,7 @@ SOURCES += \
     History.cpp \
     QtIconLib.cpp \
     TrProject/Modifiable.cpp \
+    TrProject/TrBugs.cpp \
     TrProject/TrDefines.cpp \
     TrProject/TrFile.cpp \
     TrProject/TrFinder.cpp \
@@ -54,6 +55,7 @@ HEADERS += \
     ../Libs/SelfMade/Strings/u_Decoders.h \
     ../Libs/SelfMade/Strings/u_Qstrings.h \
     ../Libs/SelfMade/Strings/u_Strings.h \
+    ../Libs/Unicode/unicode.h \
     FmAboutFormat.h \
     FmDecoder.h \
     FmDisambigPair.h \
@@ -63,6 +65,7 @@ HEADERS += \
     History.h \
     QtIconLib.h \
     TrProject/Modifiable.h \
+    TrProject/TrBugs.h \
     TrProject/TrDefines.h \
     TrProject/TrFile.h \
     TrProject/TrFinder.h \
@@ -81,6 +84,7 @@ INCLUDEPATH += \
     ../Libs/SelfMade \
     ../Libs/SelfMade/Qt \
     ../Libs/SelfMade/Strings \
+    ../Libs/Unicode \
     TrProject
 
 FORMS += \

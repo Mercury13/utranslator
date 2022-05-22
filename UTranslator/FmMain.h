@@ -13,6 +13,7 @@
 // No one uses FmMain → you can import EVERYTHING
 #include "TrProject.h"
 #include "TrWrappers.h"
+#include "TrBugs.h"
 
 // Project-local
 #include "History.h"
