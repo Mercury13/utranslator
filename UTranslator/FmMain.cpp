@@ -852,13 +852,6 @@ namespace {
         }
     }
 
-    std::u8string_view toTextSv(QString x, std::string& cache)
-    {
-        normalizeEol(x);
-        cache = x.toStdString();
-        return { reinterpret_cast<const char8_t*>(cache.data()), cache.length() };
-    }
-
     inline std::u32string toText(QString x)
     {
         normalizeEol(x);
@@ -868,23 +861,13 @@ namespace {
     std::u32string toText(QPlainTextEdit* x)
         { return toText(x->toPlainText()); }
 
-    /// @todo [transl, #36] There will be button “Translation is empty string”
-    std::optional<std::u8string_view> toOptTextSv(
-            QPlainTextEdit* x, std::string& cache)
-    {
-        auto text = x->toPlainText();
-        if (text.isEmpty())
-            return std::nullopt;
-        return toTextSv(text, cache);
-    }
-
 }   // anon namespace
 
 
 void FmMain::uiToCache(tr::BugCache& r)
 {
     r = bugCache;
-    r.id = ui->edId->text().toStdU32String();
+    r.id = toText(ui->edId->text());
     if (r.canEditOriginal()) {
         r.original = toText(ui->memoOriginal);
     }
@@ -902,35 +885,17 @@ void FmMain::acceptObject(tr::UiObject& obj, Flags<tr::Bug> bugsToRemove)
     tr::BugCache newCache;
     uiToCache(newCache);
 
-    std::string cache;
+    newCache.copyTo(obj, bugCache, bugsToRemove);
     if (project->info.canAddFiles()) {
         // Misc
         obj.setOrigPath(ui->edFilePath->text().toStdWString(), tr::Modify::YES);        
         obj.setIdless(ui->chkIdless->isChecked(), tr::Modify::YES);        
     }
-    /// @todo [urgent] move to BugCache AMAP
-    if (project->info.canEditOriginal()) {
-        // ID
-        if (newCache.id != bugCache.id)
-            obj.setId(mojibake::toM<std::u8string>(newCache.id), tr::Modify::YES);
-        // Original
-        if (newCache.original != bugCache.original)
-            obj.setOriginal(mojibake::toM<std::u8string>(newCache.original), tr::Modify::YES);
-        // Bilingual (currently unimplemented):
-        // can edit original → author’s comment; cannot → translator’s
-        // Author’s comment
-        obj.setAuthorsComment(mojibake::toM<std::u8string>(newCache.comm.editable), tr::Modify::YES);
-    } else {
-        obj.setTranslatorsComment(mojibake::toM<std::u8string>(newCache.comm.editable), tr::Modify::YES);
-    }
-    if (project->info.isTranslation()) {
-        /// @todo [urgent] rules of setting empty string???
-        obj.setTranslation(toOptTextSv(ui->memoTranslation, cache), tr::Modify::YES);
-    }
     if (project)
         project->tempRevert();
     treeModel.dataChanged({}, {});
 
+    // “Bugs to remove” is also the sign that we go on editing
     if (bugsToRemove) {
         bugCache = std::move(newCache);
         showBugs(bugCache.bugs());

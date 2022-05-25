@@ -19,10 +19,8 @@ namespace tr {
         TR_SPACE_TAIL_DEL = 1<<10,  ///< translation: removed trailing space
         COM_WHITESPACE  = 1<<11,    ///< common: whitespace only
         COM_MOJIBAKE    = 1<<12,    ///< common: replacement character found
-        TR_EMPTY_OK     = 1<<13,    ///< empty translation, and that’s OK
 
         ALL_SERIOUS = TR_EMPTY | TR_ORIG_CHANGED | COM_WARNING,
-        ALL_INTERACTIVE = ALL_SERIOUS | TR_EMPTY_OK,
     };
 
     DEFINE_ENUM_OPS(Bug)
@@ -58,10 +56,12 @@ namespace tr {
         bool canEditId() const { return isProjectOriginal; }
         bool canEditOriginal() const { return isProjectOriginal && hasTranslatable; }
         bool canEditTranslation() const { return isProjectTranslation && hasTranslatable; }
+        bool hasId() const { return hasComments; }
 
         void copyFrom(tr::UiObject& x);
+        /// @param [in] oldCache  condition when we copied FROM
         /// @warning  updates isTranslationEmpty flag
-        void copyTo(tr::UiObject& x);
+        void copyTo(tr::UiObject& x, const BugCache& oldCache, Flags<tr::Bug> bugsToRemove);
         void updateTransientFlags();
 
         /// Only for ID and comment

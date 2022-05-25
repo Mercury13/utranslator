@@ -43,6 +43,46 @@ void tr::BugCache::copyFrom(tr::UiObject& x)
 }
 
 
+void tr::BugCache::copyTo(
+        tr::UiObject& x, const BugCache& oldCache, Flags<tr::Bug> bugsToRemove)
+{
+    // ID
+    if (hasId() && id != oldCache.id)
+        x.setId(mojibake::toM<std::u8string>(id), tr::Modify::YES);
+
+    // Original
+    if (canEditOriginal() && original != oldCache.original)
+        x.setOriginal(mojibake::toM<std::u8string>(original), tr::Modify::YES);
+
+    // Translation
+    bool removeEmpty = translation.empty() || bugsToRemove.have(Bug::TR_EMPTY);
+    if (canEditTranslation()
+            && ((translation != oldCache.translation) || removeEmpty)) {
+        std::optional<std::u8string> tmp;
+        if (translation.empty()) {
+            if (isTranslationEmpty || removeEmpty)   // was empty, or
+                tmp.emplace();
+        } else {
+            tmp = mojibake::toM<std::u8string>(translation);
+        }
+        x.setTranslation(tmp, tr::Modify::YES);
+
+        // Update that flag!!
+        isTranslationEmpty = tmp && tmp->empty();
+    }
+
+    // Comment
+    if (hasComments && comm.editable != oldCache.comm.editable) {
+        auto tmp = mojibake::toM<std::u8string>(comm.editable);
+        if (isProjectOriginal) {
+            x.setAuthorsComment(tmp, tr::Modify::YES);
+        } else {
+            x.setTranslatorsComment(tmp, tr::Modify::YES);
+        }
+    }
+}
+
+
 Flags<tr::Bug> tr::BugCache::smallBugsOf(
         std::u32string_view x,
         Mjf mojiFlag) const
