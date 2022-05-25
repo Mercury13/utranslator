@@ -559,7 +559,7 @@ FmMain::FmMain(QWidget *parent)
     config::history.setListener(this);
 
 
-    ui->wiFind->hide();
+    ui->wiFind->close();
     dismissUpdateInfo();
 
     // Bugs
@@ -1240,6 +1240,7 @@ void FmMain::openFile(std::filesystem::path fname)      // by-value + move
     auto prj = tr::Project::make();
     try {
         prj->load(fname);
+        ui->wiFind->close();
         plantNewProject(std::move(prj));
         config::history.pushFile(std::move(fname));
     } catch (const std::exception& e) {
