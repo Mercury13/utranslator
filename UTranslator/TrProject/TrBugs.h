@@ -19,7 +19,6 @@ namespace tr {
         TR_SPACE_TAIL_DEL = 1<<10,  ///< translation: removed trailing space
         COM_WHITESPACE  = 1<<11,    ///< common: whitespace only
         COM_MOJIBAKE    = 1<<12,    ///< common: replacement character found
-        TR_RETURN_EMPTY = 1<<13,    ///< common: translation is empty, click = raise
 
         ALL_SERIOUS = TR_EMPTY | TR_ORIG_CHANGED | COM_WARNING,
     };
