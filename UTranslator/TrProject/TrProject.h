@@ -358,6 +358,8 @@ namespace tr {
         /// @return [+] was actually changed
         bool setTranslation(std::optional<std::u8string_view> x, tr::Modify wantModify);
         /// @return [+] was actually changed
+        bool removeKnownOriginal(tr::Modify wantModify);
+        /// @return [+] was actually changed
         bool setTranslatorsComment(std::u8string_view x, tr::Modify wantModify);
         /// @return [+] was actually changed
         bool setIdless(bool x, tr::Modify wantModify);

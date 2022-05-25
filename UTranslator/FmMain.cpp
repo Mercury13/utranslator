@@ -907,7 +907,7 @@ tr::UiObject* FmMain::acceptCurrObject()
 {
     auto index = treeIndex();
     auto obj = treeModel.toObj(index);
-    acceptObject(*obj, tr::Bug::TR_ORIG_CHANGED | tr::Bug::COM_WARNING);
+    acceptObject(*obj, tr::Bug::ALL_SERIOUS);
     return obj;
 }
 

@@ -55,7 +55,7 @@ void tr::BugCache::copyTo(
         x.setOriginal(mojibake::toM<std::u8string>(original), tr::Modify::YES);
 
     // Translation
-    bool removeEmpty = translation.empty() || bugsToRemove.have(Bug::TR_EMPTY);
+    bool removeEmpty = translation.empty() && bugsToRemove.have(Bug::TR_EMPTY);
     if (canEditTranslation()
             && ((translation != oldCache.translation) || removeEmpty)) {
         std::optional<std::u8string> tmp;
@@ -69,6 +69,10 @@ void tr::BugCache::copyTo(
 
         // Update that flag!!
         isTranslationEmpty = tmp && tmp->empty();
+    }
+
+    if (bugsToRemove.have(tr::Bug::TR_ORIG_CHANGED)) {
+        x.removeKnownOriginal(tr::Modify::YES);
     }
 
     // Comment

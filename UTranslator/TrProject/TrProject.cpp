@@ -247,6 +247,20 @@ bool tr::UiObject::setTranslation(
 }
 
 
+bool tr::UiObject::removeKnownOriginal(tr::Modify wantModify)
+{
+    if (auto t = translatable()) {
+        if (t->knownOriginal) {
+            t->knownOriginal.reset();
+            if (wantModify != Modify::NO) {
+                doModify(Mch::TRANSL);
+            }
+        }
+    }
+    return false;
+}
+
+
 bool tr::UiObject::setAuthorsComment(std::u8string_view x, tr::Modify wantModify)
 {
     if (auto c = comments()) {
@@ -1206,6 +1220,7 @@ void tr::Text::writeToXml(pugi::xml_node& root, WrCache& c) const
 void tr::Text::readFromXml(const pugi::xml_node& node, const ReadContext& ctx)
 {
     id = str::toU8sv(rqAttr(node, "id").value());
+    tr.forceAttention = node.attribute("force-attention").as_bool(false);
     // Our XML is DOM-like, so we can read not in order
     //   Write: orig, au-cmt, known-orig, transl, tr-cmt
     //   Read:  au-cmt, tr-cmt, orig, known-orig, transl
