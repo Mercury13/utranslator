@@ -176,7 +176,8 @@ private slots:
     void doProjectProps();
     void doUpdateData();
     // Menu: Edit
-    tr::UiObject* acceptCurrObject();
+    tr::UiObject* acceptCurrObjectNone();
+    tr::UiObject* acceptCurrObjectAll();
     void revertCurrObject();
     // Menu: Go
     void goBack();
@@ -259,4 +260,5 @@ private:
     void reflectUpdateInfo();
     void showBugs(Flags<tr::Bug> x);
     [[nodiscard]] PrjTreeModel::LockAll lockAll(RememberCurrent rem);
+    tr::UiObject* acceptCurrObject(Flags<tr::Bug> bugsToRemove);
 };

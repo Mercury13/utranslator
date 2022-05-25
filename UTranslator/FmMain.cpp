@@ -623,7 +623,7 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->acClearGroup, &QAction::triggered, this, &This::clearGroup);
     connect(ui->acLoadTexts, &QAction::triggered, this, &This::doLoadText);
     // Edit
-    connect(ui->acAcceptChanges, &QAction::triggered, this, &This::acceptCurrObject);
+    connect(ui->acAcceptChanges, &QAction::triggered, this, &This::acceptCurrObjectAll);
     connect(ui->acRevertChanges, &QAction::triggered, this, &This::revertCurrObject);
     // Go
     connect(ui->acGoBack, &QAction::triggered, this, &This::goBack);
@@ -904,12 +904,24 @@ void FmMain::acceptObject(tr::UiObject& obj, Flags<tr::Bug> bugsToRemove)
 }
 
 
-tr::UiObject* FmMain::acceptCurrObject()
+tr::UiObject* FmMain::acceptCurrObject(Flags<tr::Bug> bugsToRemove)
 {
     auto index = treeIndex();
     auto obj = treeModel.toObj(index);
-    acceptObject(*obj, tr::Bug::ALL_SERIOUS);
+    acceptObject(*obj, bugsToRemove);
     return obj;
+}
+
+
+tr::UiObject* FmMain::acceptCurrObjectNone()
+{
+    return acceptCurrObject({});
+}
+
+
+tr::UiObject* FmMain::acceptCurrObjectAll()
+{
+    return acceptCurrObject(tr::Bug::ALL_SERIOUS);
 }
 
 
@@ -1048,7 +1060,7 @@ QModelIndex FmMain::treeIndex()
 
 std::optional<std::shared_ptr<tr::VirtualGroup>> FmMain::disambigGroup(std::u8string_view title)
 {
-    auto obj = acceptCurrObject();
+    auto obj = acceptCurrObjectNone();
     auto pair = obj->additionParents();
     if (pair.is2()) {        
         return fmDisambigPair.ensure(this).exec(title, pair);
@@ -1216,7 +1228,7 @@ bool FmMain::doSaveAs()
     }
     filters.emplace_back(filedlg::ALL_FILES);
 
-    acceptCurrObject();
+    acceptCurrObjectNone();
     auto fname = filedlg::save(
                 this, nullptr, filters, extension, {},
                 filedlg::AddToRecent::YES);
@@ -1271,7 +1283,7 @@ bool FmMain::doSave()
     if (project->fname.empty()) {
         return doSaveAs();
     } else {
-        acceptCurrObject();
+        acceptCurrObjectNone();
         dismissUpdateInfo();
         try {
             project->save();
@@ -1809,7 +1821,7 @@ void FmMain::showBugs(Flags<tr::Bug> x)
 
 PrjTreeModel::LockAll FmMain::lockAll(RememberCurrent rem)
 {
-    acceptCurrObject();
+    acceptCurrObjectNone();
     return treeModel.lock(ui->treeStrings, rem);
 }
 
