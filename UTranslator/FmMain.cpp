@@ -719,7 +719,7 @@ void FmMain::treeCurrentChanged(
 
 void FmMain::setMemo(QWidget* wi, QPlainTextEdit* memo,
                      std::u8string_view placeholder,
-                     std::u8string_view y)
+                     std::u32string_view y)
 {
     wi->setEnabled(true);
     isChangingProgrammatically = true;
@@ -786,28 +786,28 @@ void FmMain::loadObject(tr::UiObject& obj)
         bool canAddFiles = project->info.canAddFiles();
         ui->pageFile->setEnabled(canAddFiles);
         ui->wiId->setEnabled(canAddFiles);
-    } else if (auto tr = obj.translatable()) {
+    } else if (bugCache.hasTranslatable) {
         // ORIGINAL, mutually exclusive with fileInfo
         ui->wiId->setEnabled(project->info.canEditOriginal());
-        if (project->info.canEditOriginal()) {
+        if (bugCache.canEditOriginal) {
             ui->stackOriginal->setCurrentWidget(ui->pageOriginal);
-            setMemo(ui->grpOriginal, ui->memoOriginal, {}, tr->original);
+            setMemo(ui->grpOriginal, ui->memoOriginal, {}, bugCache.original);
         } else {
             ui->stackOriginal->setCurrentWidget(ui->pageUneditableOriginal);
             auto doc = ui->richedOriginal->document();
             doc->clear();
             QTextCursor cursor(doc);
-            if (tr->knownOriginal) {
+            if (bugCache.knownOriginal) {
                 /// @todo [urgent, #31] text diff
-                cursor.insertText(str::toQ(tr->original));
+                cursor.insertText(str::toQ(bugCache.original));
                 cursor.insertText("\n");
                 cursor.insertHtml("<font size='-1' style='color:gray'>== Used to be ==</font><br>");
-                cursor.insertText(str::toQ(*tr->knownOriginal));
+                cursor.insertText(str::toQ(*bugCache.knownOriginal));
             } else {
-                cursor.insertText(str::toQ(tr->original));
+                cursor.insertText(str::toQ(bugCache.original));
             }
         }
-        setMemo(ui->grpTranslation, ui->memoTranslation, {}, tr->translationSv());
+        setMemo(ui->grpTranslation, ui->memoTranslation, {}, bugCache.translationSv());
     } else {
         // GROUP
         ui->wiId->setEnabled(project->info.canEditOriginal());
@@ -818,19 +818,19 @@ void FmMain::loadObject(tr::UiObject& obj)
         banMemo(ui->grpTranslation, ui->memoTranslation);
     }
     // Comment
-    if (auto comm = obj.comments()) {
-        if (project->info.canEditOriginal()) {
+    if (bugCache.hasComments) {
+        if (bugCache.canEditOriginal) {
             // Bilingual (currently unimplemented):
             // can edit original → author’s comment; cannot → translator’s
-            setMemo(ui->grpComment, ui->memoComment, comm->importers, comm->authors);
+            setMemo(ui->grpComment, ui->memoComment, bugCache.comm.importers, bugCache.comm.editable);
         } else {
-            setMemo(ui->grpComment, ui->memoComment, {}, comm->translators);
+            setMemo(ui->grpComment, ui->memoComment, {}, bugCache.comm.editable);
         }
     } else {
         banMemo(ui->grpComment, ui->memoComment);
     }
     // Context
-    if (project->info.canEditOriginal()) {
+    if (bugCache.canEditOriginal) {
         // If we edit original → load parent
         loadContext(obj.parent().get());
     } else {

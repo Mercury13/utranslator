@@ -45,6 +45,7 @@ HEADERS += \
     ../Libs/QModels/QModels.h \
     ../Libs/Qt/DblClickRadio.h \
     ../Libs/Qt/ElidedLabel.h \
+    ../Libs/SelfMade/Mojibake/mojibake.h \
     ../Libs/SelfMade/Qt/QtConsts.h \
     ../Libs/SelfMade/Qt/QtMultiRadio.h \
     ../Libs/SelfMade/i_OpenSave.h \
@@ -55,7 +56,6 @@ HEADERS += \
     ../Libs/SelfMade/Strings/u_Decoders.h \
     ../Libs/SelfMade/Strings/u_Qstrings.h \
     ../Libs/SelfMade/Strings/u_Strings.h \
-    ../Libs/Unicode/unicode.h \
     FmAboutFormat.h \
     FmDecoder.h \
     FmDisambigPair.h \
@@ -82,9 +82,9 @@ INCLUDEPATH += \
     ../Libs/Qt \
     ../Libs/QModels \
     ../Libs/SelfMade \
+    ../Libs/SelfMade/Mojibake \
     ../Libs/SelfMade/Qt \
     ../Libs/SelfMade/Strings \
-    ../Libs/Unicode \
     TrProject
 
 FORMS += \

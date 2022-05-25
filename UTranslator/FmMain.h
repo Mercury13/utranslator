@@ -242,10 +242,10 @@ private:
     void plantNewProject(std::shared_ptr<tr::Project>&& x);
     /// Enables-disables node editors en masse
     void setEditorsEnabled(bool x);
-    /// Sets memo programmatically, w/o triggering modify
+    /// Sets memo programmatically, w/o triggering modify    
     void setMemo(QWidget* wi, QPlainTextEdit* memo,
                  std::u8string_view placeholder,
-                 std::u8string_view y);
+                 std::u32string_view y);
     /// Same but for disabling components
     void banMemo(QWidget* wi, QPlainTextEdit* memo);
     void openFile(std::filesystem::path fname);

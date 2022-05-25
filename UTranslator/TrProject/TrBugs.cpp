@@ -18,36 +18,40 @@ Flags<tr::Bug> tr::bugsOf(std::u32string_view x)
 
 void tr::BugCache::copyFrom(tr::UiObject& x)
 {
+    *this = BugCache{};
     obj = x.selfUi();
+
     // ID
-    id = x.idColumn();
+    auto idc = x.idColumn();
+
+    if (!mojibake::isValid(idc))
+        moji |= Mjf::ID;
+    id = mojibake::toM<std::u32string>(idc);
+
+    auto prj = x.project();
+    canEditOriginal = !prj || prj->info.canEditOriginal();
 
     // Translatable
     if (auto tr = x.translatable()) {
-        original = unicode::convert<std::u8string, std::u32string>(tr->original);
+        hasTranslatable = true;
+        if (canEditOriginal && !mojibake::isValid(tr->original))
+            moji |= Mjf::ORIGINAL;
+        original = mojibake::toM<std::u32string>(tr->original);
         knownOriginal = tr->knownOriginal;  // optional permits this trick!
         if (tr->translation) {
-            translation = unicode::convert<std::u8string, std::u32string>(*tr->translation);
-        } else {
-            translation.reset();
+            if (!mojibake::isValid(*tr->translation))
+                moji |= Mjf::TRANSLATION;
+            translation = mojibake::toM<std::u32string>(*tr->translation);
         }
-    } else {
-        original.clear();
-        knownOriginal.reset();
-        translation.reset();
     }
 
-    auto prj = x.project();
     if (auto com = x.comments()) {
-        if (!prj || prj->info.canEditOriginal()) {
-            comm.editable = com->authors;
-        } else {
-            comm.editable = com->importers;
-        }
+        hasComments = true;
+        auto& editComm = canEditOriginal ? com->authors : com->translators;
+        if (!mojibake::isValid(editComm))
+            moji |= Mjf::COMMENT;
+        comm.editable = mojibake::toM<std::u32string>(editComm);
         comm.importers = com->importers;
-    } else {
-        comm.importers = std::u8string_view{};
-        comm.editable.clear();
     }
 
     /// @todo [bugs] what to do?

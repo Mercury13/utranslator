@@ -1,7 +1,7 @@
 #pragma once
 
 #include "TrProject.h"
-#include "unicode.h"
+#include "mojibake.h"
 
 namespace tr {
 
@@ -27,19 +27,36 @@ namespace tr {
 
     Flags<Bug> bugsOf(std::u32string_view x);
 
+    enum class Mjf {
+        ID = 1,
+        ORIGINAL = 2,
+        TRANSLATION = 4,
+        COMMENT = 8
+    };
+
     struct BugCache {
-        std::u8string id;
-        std::u32string original;
-        std::optional<std::u8string_view> knownOriginal;
-        std::optional<std::u32string> translation;
+        std::u32string id {}, original {};
+          ///< R/O, and as QString works quietly and with some mojibake → OK
+        std::optional<std::u8string_view> knownOriginal {};
+        std::optional<std::u32string> translation {};
         struct Comments {
-            std::u8string_view importers;
-            std::u8string editable;
+            ///< R/O, and as QString works quietly and with some mojibake → OK
+            std::u8string_view importers {};
+            std::u32string editable {};
         } comm;
 
-        std::weak_ptr<tr::UiObject> obj;
+        std::weak_ptr<tr::UiObject> obj {};
+
+        bool canEditOriginal = false;
+        bool hasTranslatable = false;
+        bool hasComments = false;
+        bool hasTranslation = false;
+        /// Which editable fields have mojibake
+        Flags<Mjf> moji {};
 
         void copyFrom(tr::UiObject& x);
+        std::u32string_view translationSv() const
+            { return translation ? *translation : std::u32string_view{}; }
     };
 
 }
