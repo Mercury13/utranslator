@@ -14,13 +14,13 @@ void tr::BugCache::copyFrom(tr::UiObject& x)
     id = mojibake::toM<std::u32string>(idc);
 
     auto prj = x.project();
-    canEditOriginal = !prj || prj->info.canEditOriginal();
+    isProjectOriginal = !prj || prj->info.canEditOriginal();
 
     // Translatable
     if (auto tr = x.translatable()) {
         hasTranslatable = true;
-        hasTranslation = prj && prj->info.isTranslation();
-        if (canEditOriginal && !mojibake::isValid(tr->original))
+        isProjectTranslation = prj && prj->info.isTranslation();
+        if (isProjectOriginal && !mojibake::isValid(tr->original))
             moji |= Mjf::ORIGINAL;
         original = mojibake::toM<std::u32string>(tr->original);
         knownOriginal = tr->knownOriginal;  // optional permits this trick!
@@ -28,12 +28,13 @@ void tr::BugCache::copyFrom(tr::UiObject& x)
             if (!mojibake::isValid(*tr->translation))
                 moji |= Mjf::TRANSLATION;
             translation = mojibake::toM<std::u32string>(*tr->translation);
+            isTranslationEmpty = tr->translation->empty();
         }
     }
 
     if (auto com = x.comments()) {
         hasComments = true;
-        auto& editComm = canEditOriginal ? com->authors : com->translators;
+        auto& editComm = isProjectOriginal ? com->authors : com->translators;
         if (!mojibake::isValid(editComm))
             moji |= Mjf::COMMENT;
         comm.editable = mojibake::toM<std::u32string>(editComm);
@@ -70,7 +71,7 @@ Flags<tr::Bug> tr::BugCache::bugs() const
     Flags<tr::Bug> r;
 
     // ID / original
-    if (canEditOriginal) {
+    if (isProjectOriginal) {
         r |= smallBugsOf(id, Mjf::ID);
         if (hasTranslatable) {
             r |= bugsOf(original, Mjf::ORIGINAL);
@@ -78,10 +79,9 @@ Flags<tr::Bug> tr::BugCache::bugs() const
     }
 
     // Translation
-    if (hasTranslation) {
-        if (translation) {
-            r |= bugsOf(*translation, Mjf::TRANSLATION);
-        } else {
+    if (isProjectTranslation) {
+        r |= bugsOf(translation, Mjf::TRANSLATION);
+        if (translation.empty() && !isTranslationEmpty) {
             r |= Bug::TR_EMPTY;
         }
         if (knownOriginal)

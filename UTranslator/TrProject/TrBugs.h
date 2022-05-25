@@ -19,8 +19,10 @@ namespace tr {
         TR_SPACE_TAIL_DEL = 1<<10,  ///< translation: removed trailing space
         COM_WHITESPACE  = 1<<11,    ///< common: whitespace only
         COM_MOJIBAKE    = 1<<12,    ///< common: replacement character found
+        TR_EMPTY_OK     = 1<<13,    ///< empty translation, and that’s OK
 
         ALL_SERIOUS = TR_EMPTY | TR_ORIG_CHANGED | COM_WARNING,
+        ALL_INTERACTIVE = ALL_SERIOUS | TR_EMPTY_OK,
     };
 
     DEFINE_ENUM_OPS(Bug)
@@ -36,7 +38,7 @@ namespace tr {
         std::u32string id {}, original {};
           ///< R/O, and as QString works quietly and with some mojibake → OK
         std::optional<std::u8string_view> knownOriginal {};
-        std::optional<std::u32string> translation {};
+        std::u32string translation {};
         struct Comments {
             ///< R/O, and as QString works quietly and with some mojibake → OK
             std::u8string_view importers {};
@@ -45,16 +47,22 @@ namespace tr {
 
         std::weak_ptr<tr::UiObject> obj {};
 
-        bool canEditOriginal = false;
+        bool isProjectOriginal = false;
         bool hasTranslatable = false;
         bool hasComments = false;
-        bool hasTranslation = false;
+        bool isProjectTranslation = false;
+        bool isTranslationEmpty = false;
         /// Which editable fields have mojibake
         Flags<Mjf> moji {};
 
+        bool canEditId() const { return isProjectOriginal; }
+        bool canEditOriginal() const { return isProjectOriginal && hasTranslatable; }
+        bool canEditTranslation() const { return isProjectTranslation && hasTranslatable; }
+
         void copyFrom(tr::UiObject& x);
-        std::u32string_view translationSv() const
-            { return translation ? *translation : std::u32string_view{}; }
+        /// @warning  updates isTranslationEmpty flag
+        void copyTo(tr::UiObject& x);
+        void updateTransientFlags();
 
         /// Only for ID and comment
         Flags<Bug> smallBugsOf(

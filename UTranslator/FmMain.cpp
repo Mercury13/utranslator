@@ -706,7 +706,7 @@ void FmMain::treeCurrentChanged(
     if (current.isValid()) {
         if (auto currentPrj = currentObj->project()) {
             if (formerObj->project() == currentPrj)
-                acceptObject(*formerObj);
+                acceptObject(*formerObj, {});
             setEditorsEnabled(true);
             loadObject(*currentObj);
             return;
@@ -788,7 +788,7 @@ void FmMain::loadObject(tr::UiObject& obj)
     } else if (bugCache.hasTranslatable) {
         // ORIGINAL, mutually exclusive with fileInfo
         ui->wiId->setEnabled(project->info.canEditOriginal());
-        if (bugCache.canEditOriginal) {
+        if (bugCache.isProjectOriginal) {
             ui->stackOriginal->setCurrentWidget(ui->pageOriginal);
             setMemo(ui->grpOriginal, ui->memoOriginal, {}, bugCache.original);
         } else {
@@ -806,7 +806,7 @@ void FmMain::loadObject(tr::UiObject& obj)
                 cursor.insertText(str::toQ(bugCache.original));
             }
         }
-        setMemo(ui->grpTranslation, ui->memoTranslation, {}, bugCache.translationSv());
+        setMemo(ui->grpTranslation, ui->memoTranslation, {}, bugCache.translation);
     } else {
         // GROUP
         ui->wiId->setEnabled(project->info.canEditOriginal());
@@ -818,7 +818,7 @@ void FmMain::loadObject(tr::UiObject& obj)
     }
     // Comment
     if (bugCache.hasComments) {
-        if (bugCache.canEditOriginal) {
+        if (bugCache.isProjectOriginal) {
             // Bilingual (currently unimplemented):
             // can edit original → author’s comment; cannot → translator’s
             setMemo(ui->grpComment, ui->memoComment, bugCache.comm.importers, bugCache.comm.editable);
@@ -829,7 +829,7 @@ void FmMain::loadObject(tr::UiObject& obj)
         banMemo(ui->grpComment, ui->memoComment);
     }
     // Context
-    if (bugCache.canEditOriginal) {
+    if (bugCache.isProjectOriginal) {
         // If we edit original → load parent
         loadContext(obj.parent().get());
     } else {
@@ -859,8 +859,14 @@ namespace {
         return { reinterpret_cast<const char8_t*>(cache.data()), cache.length() };
     }
 
-    std::u8string_view toTextSv(QPlainTextEdit* x, std::string& cache)
-        { return toTextSv(x->toPlainText(), cache); }
+    inline std::u32string toText(QString x)
+    {
+        normalizeEol(x);
+        return x.toStdU32String();
+    }
+
+    std::u32string toText(QPlainTextEdit* x)
+        { return toText(x->toPlainText()); }
 
     /// @todo [transl, #36] There will be button “Translation is empty string”
     std::optional<std::u8string_view> toOptTextSv(
@@ -872,32 +878,63 @@ namespace {
         return toTextSv(text, cache);
     }
 
-    std::u8string_view toU8sv(QLineEdit* x, std::string& cache)
-        { return str::toU8sv(x->text(), cache); }
-
 }   // anon namespace
 
 
-void FmMain::acceptObject(tr::UiObject& obj)
+void FmMain::uiToCache(tr::BugCache& r)
 {
+    r = bugCache;
+    r.id = ui->edId->text().toStdU32String();
+    if (r.canEditOriginal()) {
+        r.original = toText(ui->memoOriginal);
+    }
+    if (r.canEditTranslation()) {
+        r.translation = toText(ui->memoTranslation);
+    }
+    if (r.hasComments) {
+        r.comm.editable = toText(ui->memoComment);
+    }
+}
+
+
+void FmMain::acceptObject(tr::UiObject& obj, Flags<tr::Bug> bugsToRemove)
+{
+    tr::BugCache newCache;
+    uiToCache(newCache);
+
     std::string cache;
     if (project->info.canAddFiles()) {
-        obj.setId(toU8sv(ui->edId, cache), tr::Modify::YES);
-        obj.setOrigPath(ui->edFilePath->text().toStdWString(), tr::Modify::YES);
-        obj.setIdless(ui->chkIdless->isChecked(), tr::Modify::YES);
-        obj.setOriginal(toTextSv(ui->memoOriginal, cache), tr::Modify::YES);
+        // Misc
+        obj.setOrigPath(ui->edFilePath->text().toStdWString(), tr::Modify::YES);        
+        obj.setIdless(ui->chkIdless->isChecked(), tr::Modify::YES);        
+    }
+    /// @todo [urgent] move to BugCache AMAP
+    if (project->info.canEditOriginal()) {
+        // ID
+        if (newCache.id != bugCache.id)
+            obj.setId(mojibake::toM<std::u8string>(newCache.id), tr::Modify::YES);
+        // Original
+        if (newCache.original != bugCache.original)
+            obj.setOriginal(mojibake::toM<std::u8string>(newCache.original), tr::Modify::YES);
         // Bilingual (currently unimplemented):
         // can edit original → author’s comment; cannot → translator’s
-        obj.setAuthorsComment(toTextSv(ui->memoComment, cache), tr::Modify::YES);
+        // Author’s comment
+        obj.setAuthorsComment(mojibake::toM<std::u8string>(newCache.comm.editable), tr::Modify::YES);
     } else {
-        obj.setTranslatorsComment(toTextSv(ui->memoComment, cache), tr::Modify::YES);
+        obj.setTranslatorsComment(mojibake::toM<std::u8string>(newCache.comm.editable), tr::Modify::YES);
     }
     if (project->info.isTranslation()) {
+        /// @todo [urgent] rules of setting empty string???
         obj.setTranslation(toOptTextSv(ui->memoTranslation, cache), tr::Modify::YES);
     }
     if (project)
         project->tempRevert();
     treeModel.dataChanged({}, {});
+
+    if (bugsToRemove) {
+        bugCache = std::move(newCache);
+        showBugs(bugCache.bugs());
+    }
 }
 
 
@@ -905,7 +942,7 @@ tr::UiObject* FmMain::acceptCurrObject()
 {
     auto index = treeIndex();
     auto obj = treeModel.toObj(index);
-    acceptObject(*obj);
+    acceptObject(*obj, tr::Bug::ALL_SERIOUS);
     return obj;
 }
 

@@ -227,8 +227,10 @@ private:
     /// Loads an UI object
     void loadObject(tr::UiObject& obj);
     void loadContext(tr::UiObject* lastSon);
+    /// Writes UI to BugCache
+    void uiToCache(tr::BugCache& r);
     /// Saves an UI object to project
-    void acceptObject(tr::UiObject& obj);
+    void acceptObject(tr::UiObject& obj, Flags<tr::Bug> bugsToRemove);
     /// Enables-disables UI actions according to current things edited
     void reenable();
     void updateCaption();
