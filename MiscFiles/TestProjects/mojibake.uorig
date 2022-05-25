@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ut type="original">
+ <info>
+  <orig lang="en" />
+ </info>
+ <file name="file0.txt" idless="false">
+  <group id="Mojibake">
+   <text id="ID айa�и">
+    <orig>This should be ID</orig>
+   </text>
+   <text id="Original">
+    <orig>ори�aинал</orig>
+   </text>
+   <text id="Comment">
+    <orig>This should be comment</orig>
+    <au-cmt>комa�ентарий</au-cmt>
+   </text>
+  </group>
+ </file>
+</ut>
