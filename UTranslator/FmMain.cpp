@@ -772,7 +772,6 @@ void FmMain::loadObject(tr::UiObject& obj)
         }
     }
 
-    tr::BugCache bugCache;
     bugCache.copyFrom(obj);
 
     ui->edId->setText(str::toQ(obj.idColumn()));

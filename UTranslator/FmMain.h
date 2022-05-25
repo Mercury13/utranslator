@@ -202,7 +202,7 @@ private:
     PrjTreeModel treeModel;
     std::shared_ptr<tr::Project> project;
     std::unique_ptr<ts::Result> searchResult;
-    tr::UpdateInfo updateInfo;
+    tr::UpdateInfo updateInfo;    
 
     Uptr<FmNew> fmNew;
     Uptr<FmDisambigPair> fmDisambigPair;
@@ -217,6 +217,7 @@ private:
         tf::LoadTextsSettings text;
         tf::SyncInfo syncInfo;
     } loadSetsCache;
+    tr::BugCache bugCache;
     std::atomic<bool> isChangingProgrammatically = false;
 
     /// Adapts window’s layout to project type:
