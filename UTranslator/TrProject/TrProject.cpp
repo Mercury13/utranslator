@@ -253,8 +253,9 @@ bool tr::UiObject::removeKnownOriginal(tr::Modify wantModify)
         if (t->knownOriginal) {
             t->knownOriginal.reset();
             if (wantModify != Modify::NO) {
-                doModify(Mch::TRANSL);
+                doModify(Mch::ORIG);
             }
+            return true;
         }
     }
     return false;

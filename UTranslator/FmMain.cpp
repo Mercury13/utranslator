@@ -893,6 +893,7 @@ void FmMain::acceptObject(tr::UiObject& obj, Flags<tr::Bug> bugsToRemove)
     }
     if (project)
         project->tempRevert();
+    obj.stats(tr::StatsMode::SEMICACHED, tr::CascadeDropCache::YES);
     treeModel.dataChanged({}, {});
 
     // “Bugs to remove” is also the sign that we go on editing

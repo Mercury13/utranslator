@@ -72,7 +72,8 @@ void tr::BugCache::copyTo(
     }
 
     if (bugsToRemove.have(tr::Bug::TR_ORIG_CHANGED)) {
-        x.removeKnownOriginal(tr::Modify::YES);
+        if (x.removeKnownOriginal(tr::Modify::YES))
+            knownOriginal.reset();
     }
 
     // Comment
