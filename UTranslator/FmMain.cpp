@@ -836,6 +836,8 @@ void FmMain::loadObject(tr::UiObject& obj)
         // Otherwise load self!
         loadContext(&obj);
     }
+
+    showBugs(bugCache.bugs());
 }
 
 
@@ -1795,7 +1797,7 @@ void FmMain::showBugs(Flags<tr::Bug> x)
 {
     ShowNone sh(x);
     sh.showIfBug(ui->imgBugEmptyText, tr::Bug::TR_EMPTY );
-    sh.showIfBug(ui->imgBugReview   , tr::Bug::TR_REVIEW);
+    sh.showIfBug(ui->imgBugReview   , tr::Bug::TR_ORIG_CHANGED);
     sh.showIfBug(ui->imgBugMojibake , tr::Bug::COM_MOJIBAKE);
     ui->imgBugOk->setVisible(sh.isNoneShown());
 }

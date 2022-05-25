@@ -7,7 +7,7 @@ namespace tr {
 
     enum class Bug {
         TR_EMPTY        = 1<<0,     ///< empty translation
-        TR_REVIEW       = 1<<1,     ///< translation needs review
+        TR_ORIG_CHANGED = 1<<1,     ///< translation needs review
         COM_WARNING     = 1<<2,     ///< manual warning
         OR_SPACE_HEAD   = 1<<3,     ///< original: space in the beginning
         OR_SPACE_TAIL   = 1<<4,     ///< original: space in the end
@@ -20,12 +20,10 @@ namespace tr {
         COM_WHITESPACE  = 1<<11,    ///< common: whitespace only
         COM_MOJIBAKE    = 1<<12,    ///< common: replacement character found
 
-        ALL_SERIOUS = TR_EMPTY | TR_REVIEW | COM_WARNING,
+        ALL_SERIOUS = TR_EMPTY | TR_ORIG_CHANGED | COM_WARNING,
     };
 
     DEFINE_ENUM_OPS(Bug)
-
-    Flags<Bug> bugsOf(std::u32string_view x);
 
     enum class Mjf {
         ID = 1,
@@ -57,6 +55,15 @@ namespace tr {
         void copyFrom(tr::UiObject& x);
         std::u32string_view translationSv() const
             { return translation ? *translation : std::u32string_view{}; }
+
+        /// Only for ID and comment
+        Flags<Bug> smallBugsOf(
+                std::u32string_view x,
+                Mjf mojiFlag) const;
+        Flags<Bug> bugsOf(
+                std::u32string_view x,
+                Mjf mojiFlag) const;
+        Flags<Bug> bugs() const;
     };
 
 }
