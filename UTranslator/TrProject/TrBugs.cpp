@@ -102,11 +102,86 @@ Flags<tr::Bug> tr::BugCache::smallBugsOf(
 }
 
 
-Flags<tr::Bug> tr::BugCache::bugsOf(
-        std::u32string_view x,
-        Mjf mojiFlag) const
+namespace {
+
+    bool isControl(char32_t c)
+    {
+        return (c <= 31
+                || (c >= 0x7F && c <= 0x9F));
+    }
+
+    bool isWhitespace(char32_t c)
+    {
+        switch (c) {
+        case 0x0020:    // space
+        case 0x00A0:    // nbsp
+            // ogham space mark is NOT whitespace here
+        case 0x2000:    // En Quad
+        case 0x2001:    // Em Quad
+        case 0x2002:    // En Space
+        case 0x2003:    // Em Space
+        case 0x2004:    // Three-Per-Em Space
+        case 0x2005:    // Four-Per-Em Space
+        case 0x2006:    // Six-Per-Em Space
+        case 0x2007:    // Figure Space
+        case 0x2008:    // Punctuation Space
+        case 0x2009:    // Thin Space
+        case 0x200A:    // Hair Space
+        case 0x202F:    // Narrow No-Break Space (NNBSP)
+        case 0x205F:    // Medium Mathematical Space (MMSP)
+        case 0x3000:    // Ideographic Space
+            return true;
+        default:
+            return false;
+        }
+    }
+
+    bool isInvisible(char32_t c) {
+        return isControl(c) || isWhitespace(c);
+    }
+
+    bool isStrInvisible(std::u32string_view x)
+    {
+        if (x.empty())
+            return false;
+        for (auto c : x) {
+            if (!isInvisible(c)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool isMultiline(std::u32string_view x)
+        { return (x.find('\n') != std::u32string_view::npos); }
+
+}   // anon namespace
+
+
+Flags<tr::Bug> tr::BugCache::bugsOf(std::u32string_view x, Mjf mojiFlag) const
 {
     Flags<tr::Bug> r = smallBugsOf(x, mojiFlag);
+    if (isStrInvisible(x))
+        r |= Bug::COM_INVISIBLE;
+    return r;
+}
+
+
+Flags<tr::Bug> tr::BugCache::origBugsOf(std::u32string_view x) const
+{
+    auto r = bugsOf(x, Mjf::ORIGINAL);
+    if (x.empty())
+        r |= Bug::OR_EMPTY;
+    return r;
+}
+
+
+Flags<tr::Bug> tr::BugCache::doubleBugsOf(
+        std::u32string_view ori, std::u32string_view tra) const
+{
+    auto r = bugsOf(tra, Mjf::TRANSLATION);
+    if (!isMultiline(ori) && isMultiline(tra))
+        r |= Bug::TR_MULTILINE;
     return r;
 }
 
@@ -119,13 +194,14 @@ Flags<tr::Bug> tr::BugCache::bugs() const
     if (isProjectOriginal) {
         r |= smallBugsOf(id, Mjf::ID);
         if (hasTranslatable) {
-            r |= bugsOf(original, Mjf::ORIGINAL);
+            r |= origBugsOf(original);
         }
     }
 
     // Translation
     if (isProjectTranslation) {
         r |= bugsOf(translation, Mjf::TRANSLATION);
+        r |= doubleBugsOf(original, translation);
         if (translation.empty() && !isTranslationEmpty) {
             r |= Bug::TR_EMPTY;
         }
@@ -135,7 +211,7 @@ Flags<tr::Bug> tr::BugCache::bugs() const
 
     // Comment
     if (hasComments) {
-        r |= bugsOf(comm.editable, Mjf::COMMENT);
+        r |= smallBugsOf(comm.editable, Mjf::COMMENT);
     }
 
     return r;

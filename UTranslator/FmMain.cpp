@@ -8,6 +8,7 @@
 // Qt
 #include <QItemSelectionModel>
 #include <QMessageBox>
+#include <QTimer>
 
 // Qt misc
 #include "QModels.h"
@@ -563,6 +564,10 @@ FmMain::FmMain(QWidget *parent)
     dismissUpdateInfo();
 
     // Bugs
+    timerBug = std::make_unique<QTimer>();
+      timerBug->setInterval(600);
+      timerBug->setSingleShot(true);
+    connect(timerBug.get(), &QTimer::timeout, this, &This::bugTicked);
     showBugs({});
 
     // Splitter
@@ -927,8 +932,10 @@ tr::UiObject* FmMain::acceptCurrObjectAll()
 
 void FmMain::tempModify()
 {
-    if (project && !isChangingProgrammatically)
+    if (project && !isChangingProgrammatically) {
         project->tempModify();
+        windBugTimer();
+    }
 }
 
 
@@ -1811,10 +1818,13 @@ namespace {
 
 void FmMain::showBugs(Flags<tr::Bug> x)
 {
+    stopBugTimer();
     ShowNone sh(x);
     sh.showIfBug(ui->imgBugEmptyText, tr::Bug::TR_EMPTY );
     sh.showIfBug(ui->imgBugReview   , tr::Bug::TR_ORIG_CHANGED);
     sh.showIfBug(ui->imgBugMojibake , tr::Bug::COM_MOJIBAKE);
+    sh.showIfBug(ui->imgBugEmptyOrig, tr::Bug::OR_EMPTY);
+    sh.showIfBug(ui->imgBugInvisible, tr::Bug::COM_INVISIBLE);
     ui->imgBugOk->setVisible(sh.isNoneShown());
 }
 
@@ -1852,4 +1862,30 @@ void FmMain::showUpdateInfo()
                 .arg(updateInfo.changed.nUntranslated);
 
     QMessageBox::information(this, "Update info", text);
+}
+
+
+void FmMain::windBugTimer()
+{
+    timerBug->stop();
+    timerBug->start();
+}
+
+
+void FmMain::stopBugTimer()
+{
+    timerBug->stop();
+}
+
+
+void FmMain::bugTicked()
+{
+    QModelIndex index = ui->treeStrings->currentIndex();
+    auto obj = treeModel.toObj(index);
+    auto lkBug = bugCache.obj.lock();
+    if (obj == lkBug.get()) {
+        tr::BugCache tmp;
+        uiToCache(tmp);
+        showBugs(tmp.bugs());
+    }
 }

@@ -730,6 +730,40 @@ QLabel {
                   </widget>
                  </item>
                  <item>
+                  <widget class="QLabel" name="imgBugEmptyOrig">
+                   <property name="toolTip">
+                    <string>&lt;b&gt;Empty original&lt;/b&gt;
+&lt;p&gt;Original string is completely empty. Beware, concatenating strings is usually bad, substitution marks are better.</string>
+                   </property>
+                   <property name="toolTipDuration">
+                    <number>60000</number>
+                   </property>
+                   <property name="text">
+                    <string notr="true"/>
+                   </property>
+                   <property name="pixmap">
+                    <pixmap resource="Resources/req.qrc">:/Discrep/empty_b.png</pixmap>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="imgBugInvisible">
+                   <property name="toolTip">
+                    <string>&lt;b&gt;Whitespace only&lt;/b&gt;
+&lt;p&gt;The string consists of invisible characters, such as line breaks and spaces.</string>
+                   </property>
+                   <property name="toolTipDuration">
+                    <number>60000</number>
+                   </property>
+                   <property name="text">
+                    <string notr="true"/>
+                   </property>
+                   <property name="pixmap">
+                    <pixmap resource="Resources/req.qrc">:/Discrep/invisible.png</pixmap>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
                   <spacer name="horizontalSpacer_3">
                    <property name="orientation">
                     <enum>Qt::Horizontal</enum>

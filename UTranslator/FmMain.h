@@ -161,6 +161,11 @@ private slots:
     void searchChanged(size_t index);
     void showUpdateInfo();
 
+    // Bugs
+    void stopBugTimer();
+    void windBugTimer();
+    void bugTicked();
+
     // Starting screen
     void goEdit();
     void startLinkClicked(QUrl url);
@@ -204,6 +209,7 @@ private:
     std::shared_ptr<tr::Project> project;
     std::unique_ptr<ts::Result> searchResult;
     tr::UpdateInfo updateInfo;    
+    std::unique_ptr<QTimer> timerBug;
 
     Uptr<FmNew> fmNew;
     Uptr<FmDisambigPair> fmDisambigPair;
