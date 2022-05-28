@@ -1825,6 +1825,7 @@ void FmMain::showBugs(Flags<tr::Bug> x)
     sh.showIfBug(ui->imgBugMojibake , tr::Bug::COM_MOJIBAKE);
     sh.showIfBug(ui->imgBugEmptyOrig, tr::Bug::OR_EMPTY);
     sh.showIfBug(ui->imgBugInvisible, tr::Bug::COM_INVISIBLE);
+    sh.showIfBug(ui->imgBugMultiline, tr::Bug::TR_MULTILINE);
     ui->imgBugOk->setVisible(sh.isNoneShown());
 }
 

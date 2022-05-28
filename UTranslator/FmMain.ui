@@ -764,6 +764,23 @@ QLabel {
                   </widget>
                  </item>
                  <item>
+                  <widget class="QLabel" name="imgBugMultiline">
+                   <property name="toolTip">
+                    <string>&lt;b&gt;Multiline translation&lt;/b&gt;
+&lt;p&gt;Translation is multiline, original isn’t. Check for yourself whether it’s OK.</string>
+                   </property>
+                   <property name="toolTipDuration">
+                    <number>60000</number>
+                   </property>
+                   <property name="text">
+                    <string notr="true"/>
+                   </property>
+                   <property name="pixmap">
+                    <pixmap resource="Resources/req.qrc">:/Discrep/multiline.png</pixmap>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
                   <spacer name="horizontalSpacer_3">
                    <property name="orientation">
                     <enum>Qt::Horizontal</enum>

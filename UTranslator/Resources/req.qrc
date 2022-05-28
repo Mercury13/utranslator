@@ -4,6 +4,7 @@
         <file>Discrep/empty_b.png</file>
         <file>Discrep/invisible.png</file>
         <file>Discrep/mojibake.png</file>
+        <file>Discrep/multiline.png</file>
         <file>Discrep/ok.png</file>
         <file>Discrep/review.png</file>
     </qresource>
