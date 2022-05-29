@@ -7,5 +7,9 @@
         <file>Discrep/multiline.png</file>
         <file>Discrep/ok.png</file>
         <file>Discrep/review.png</file>
+        <file>Discrep/space_add_beg.png</file>
+        <file>Discrep/space_add_end.png</file>
+        <file>Discrep/space_del_beg.png</file>
+        <file>Discrep/space_del_end.png</file>
     </qresource>
 </RCC>

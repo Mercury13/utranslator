@@ -8,10 +8,10 @@ namespace tr {
     enum class Bug {
         TR_EMPTY        = 1<<0,     ///< empty translation
         TR_ORIG_CHANGED = 1<<1,     ///< translation needs review
-        COM_WARNING     = 1<<2,     ///< manual warning
-        OR_SPACE_HEAD   = 1<<3,     ///< original: space in the beginning
-        OR_SPACE_TAIL   = 1<<4,     ///< original: space in the end
-        OR_LF_TAIL      = 1<<5,     ///< original: line break in the end
+        COM_WARNING     = 1<<2,     ///< TODO manual warning
+        OR_SPACE_HEAD   = 1<<3,     ///< TODO original: space in the beginning
+        OR_SPACE_TAIL   = 1<<4,     ///< TODO original: space in the end
+        OR_LF_TAIL      = 1<<5,     ///< TODO original: line break in the end
         TR_MULTILINE    = 1<<6,     ///< translation is multiline while original is not
         TR_SPACE_HEAD_ADD = 1<<7,   ///< translation: added heading space
         TR_SPACE_HEAD_DEL = 1<<8,   ///< translation: removed heading space

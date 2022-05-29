@@ -140,6 +140,20 @@ namespace {
         return isControl(c) || isWhitespace(c);
     }
 
+    bool startsWithInvisible(std::u32string_view s)
+    {
+        /// @todo [future] With ignorable:
+        ///      skip all those ignorable, the 1st should be control/space
+        return !s.empty() && isInvisible(s[0]);
+    }
+
+    bool endsWithInvisible(std::u32string_view s)
+    {
+        /// @todo [future] With ignorable:
+        ///      skip all those ignorable, the 1st should be control/space
+        return !s.empty() && isInvisible(s.back());
+    }
+
     bool isStrInvisible(std::u32string_view x)
     {
         if (x.empty())
@@ -182,6 +196,19 @@ Flags<tr::Bug> tr::BugCache::doubleBugsOf(
     auto r = bugsOf(tra, Mjf::TRANSLATION);
     if (!isMultiline(ori) && isMultiline(tra))
         r |= Bug::TR_MULTILINE;
+    if (!ori.empty() && !tra.empty()
+            && !isStrInvisible(ori) && !isStrInvisible(tra)) {
+        bool oriBeg = startsWithInvisible(ori);
+        bool traBeg = startsWithInvisible(tra);
+        if (oriBeg != traBeg) {
+            r |= (traBeg ? Bug::TR_SPACE_HEAD_ADD : Bug::TR_SPACE_HEAD_DEL);
+        }
+        bool oriEnd = endsWithInvisible(ori);
+        bool traEnd = endsWithInvisible(tra);
+        if (oriEnd != traEnd) {
+            r |= (traEnd ? Bug::TR_SPACE_TAIL_ADD : Bug::TR_SPACE_TAIL_DEL);
+        }
+    }
     return r;
 }
 

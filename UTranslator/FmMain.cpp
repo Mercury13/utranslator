@@ -1820,12 +1820,16 @@ void FmMain::showBugs(Flags<tr::Bug> x)
 {
     stopBugTimer();
     ShowNone sh(x);
-    sh.showIfBug(ui->imgBugEmptyText, tr::Bug::TR_EMPTY );
-    sh.showIfBug(ui->imgBugReview   , tr::Bug::TR_ORIG_CHANGED);
-    sh.showIfBug(ui->imgBugMojibake , tr::Bug::COM_MOJIBAKE);
-    sh.showIfBug(ui->imgBugEmptyOrig, tr::Bug::OR_EMPTY);
-    sh.showIfBug(ui->imgBugInvisible, tr::Bug::COM_INVISIBLE);
-    sh.showIfBug(ui->imgBugMultiline, tr::Bug::TR_MULTILINE);
+    sh.showIfBug(ui->imgBugEmptyText  , tr::Bug::TR_EMPTY );
+    sh.showIfBug(ui->imgBugReview     , tr::Bug::TR_ORIG_CHANGED);
+    sh.showIfBug(ui->imgBugMojibake   , tr::Bug::COM_MOJIBAKE);
+    sh.showIfBug(ui->imgBugEmptyOrig  , tr::Bug::OR_EMPTY);
+    sh.showIfBug(ui->imgBugInvisible  , tr::Bug::COM_INVISIBLE);
+    sh.showIfBug(ui->imgBugMultiline  , tr::Bug::TR_MULTILINE);
+    sh.showIfBug(ui->imgBugSpaceAddBeg, tr::Bug::TR_SPACE_HEAD_ADD);
+    sh.showIfBug(ui->imgBugSpaceDelBeg, tr::Bug::TR_SPACE_HEAD_DEL);
+    sh.showIfBug(ui->imgBugSpaceAddEnd, tr::Bug::TR_SPACE_TAIL_ADD);
+    sh.showIfBug(ui->imgBugSpaceDelEnd, tr::Bug::TR_SPACE_TAIL_DEL);
     ui->imgBugOk->setVisible(sh.isNoneShown());
 }
 
