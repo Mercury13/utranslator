@@ -3,7 +3,7 @@
 
 void tr::BugCache::copyFrom(tr::UiObject& x)
 {
-    *this = BugCache{};
+    *this = This{};
     obj = x.selfUi();
 
     // ID
@@ -23,7 +23,9 @@ void tr::BugCache::copyFrom(tr::UiObject& x)
         if (isProjectOriginal && !mojibake::isValid(tr->original))
             moji |= Mjf::ORIGINAL;
         original = mojibake::toM<std::u32string>(tr->original);
-        knownOriginal = tr->knownOriginal;  // optional permits this trick!
+        if (tr->knownOriginal) {
+            knownOriginal = mojibake::toM<std::u32string>(*tr->knownOriginal);
+        }
         if (tr->translation) {
             if (!mojibake::isValid(*tr->translation))
                 moji |= Mjf::TRANSLATION;

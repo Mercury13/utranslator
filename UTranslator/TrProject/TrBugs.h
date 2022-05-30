@@ -33,10 +33,11 @@ namespace tr {
         COMMENT = 8
     };
 
-    struct BugCache {
+    struct BugCache
+    {
         std::u32string id {}, original {};
           ///< R/O, and as QString works quietly and with some mojibake → OK
-        std::optional<std::u8string_view> knownOriginal {};
+        std::optional<std::u32string> knownOriginal {};
         std::u32string translation {};
         struct Comments {
             ///< R/O, and as QString works quietly and with some mojibake → OK
@@ -75,6 +76,8 @@ namespace tr {
         Flags<Bug> origBugsOf(std::u32string_view x) const;
         Flags<Bug> doubleBugsOf(std::u32string_view ori, std::u32string_view tra) const;
         Flags<Bug> bugs() const;
+    private:
+        using This = BugCache;
     };
 
 }
