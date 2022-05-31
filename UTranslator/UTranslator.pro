@@ -25,6 +25,7 @@ SOURCES += \
     FmFind.cpp \
     FmProjectSettings.cpp \
     History.cpp \
+    QtDiff.cpp \
     QtIconLib.cpp \
     TrProject/Modifiable.cpp \
     TrProject/TrBugs.cpp \
@@ -56,14 +57,6 @@ HEADERS += \
     ../Libs/SelfMade/Strings/u_Decoders.h \
     ../Libs/SelfMade/Strings/u_Qstrings.h \
     ../Libs/SelfMade/Strings/u_Strings.h \
-    ../Libs/dtl/Diff.hpp \
-    ../Libs/dtl/Diff3.hpp \
-    ../Libs/dtl/Lcs.hpp \
-    ../Libs/dtl/Sequence.hpp \
-    ../Libs/dtl/Ses.hpp \
-    ../Libs/dtl/dtl.hpp \
-    ../Libs/dtl/functors.hpp \
-    ../Libs/dtl/variables.hpp \
     FmAboutFormat.h \
     FmDecoder.h \
     FmDisambigPair.h \
@@ -71,6 +64,7 @@ HEADERS += \
     FmFind.h \
     FmProjectSettings.h \
     History.h \
+    QtDiff.h \
     QtIconLib.h \
     TrProject/Modifiable.h \
     TrProject/TrBugs.h \

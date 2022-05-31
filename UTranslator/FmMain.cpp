@@ -13,9 +13,6 @@
 // Qt misc
 #include "QModels.h"
 
-// DTL
-#include "dtl/dtl.hpp"
-
 // Libs
 #include "u_Qstrings.h"
 #include "i_OpenSave.h"
@@ -26,6 +23,7 @@
 // Project-local
 #include "d_Config.h"
 #include "d_Strings.h"
+#include "QtDiff.h"
 
 // UI forms
 #include "FmNew.h"
@@ -805,51 +803,12 @@ void FmMain::loadObject(tr::UiObject& obj)
             doc->clear();
             QTextCursor cursor(doc);
             if (bugCache.knownOriginal) {
-                dtl::Diff<char32_t, std::u32string_view>
-                        diff { *bugCache.knownOriginal, bugCache.original };
-                diff.compose();
-                auto ses = diff.getSes();
-                ses.getSequence();
-
-                QTextCharFormat fmtNormal = cursor.charFormat();
-
-                QTextCharFormat fmtAdd = fmtNormal;
-                fmtAdd.setBackground(QColor{0xCC, 0xFF, 0xCC});
-
-                QTextCharFormat fmtDel = fmtNormal;
-                fmtDel.setBackground(QColor{0xFF, 0xCC, 0xCC});
-
-                for (auto &v : ses) {
-                    switch (v.second.type) {
-                    case dtl::SES_COMMON:
-                        cursor.insertText(str::toQ(v.first), fmtNormal);
-                        break;
-                    case dtl::SES_ADD:
-                        cursor.insertText(str::toQ(v.first), fmtAdd);
-                        break;
-                    case dtl::SES_DELETE:
-                        break;
-                    }
-                }
-
-                cursor.insertText("\n");
-                cursor.insertHtml("<font size='-1' style='color:gray;'>== Used to be ==</font><br>");
-
-                for (auto &v : ses) {
-                    switch (v.second.type) {
-                    case dtl::SES_COMMON:
-                        cursor.insertText(str::toQ(v.first), fmtNormal);
-                        break;
-                    case dtl::SES_DELETE:
-                        cursor.insertText(str::toQ(v.first), fmtDel);
-                        break;
-                    case dtl::SES_ADD:
-                        break;
-                    }
-                }
-
+                qdif::write2(cursor,
+                             *bugCache.knownOriginal,
+                             bugCache.original,
+                             "<font size='-1' style='color:gray;'>== Used to be ==</font>");
             } else {
-                cursor.insertText(str::toQ(bugCache.original));
+                qdif::write1(cursor, bugCache.original);
             }
         }
         setMemo(ui->grpTranslation, ui->memoTranslation, {}, bugCache.translation);
