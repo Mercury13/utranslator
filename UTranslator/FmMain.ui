@@ -998,7 +998,7 @@ QLabel {
     <addaction name="separator"/>
     <addaction name="acGoFindNext"/>
     <addaction name="acGoFindPrev"/>
-    <addaction name="acFindAgain"/>
+    <addaction name="acGoSearchAgain"/>
     <addaction name="acGoCloseSearch"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
@@ -1218,9 +1218,12 @@ QLabel {
     <string>Ctrl+F5</string>
    </property>
   </action>
-  <action name="acFindAgain">
+  <action name="acGoSearchAgain">
    <property name="text">
-    <string>Find &amp;again</string>
+    <string>Search &amp;again</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+F4</string>
    </property>
   </action>
  </widget>

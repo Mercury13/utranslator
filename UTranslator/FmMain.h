@@ -189,6 +189,7 @@ private slots:
     void goNext();
     void goUp();
     void goFind();
+    void goSearchAgain();
     // Menu: Original
     void addHostedFile();
     void addHostedGroup();

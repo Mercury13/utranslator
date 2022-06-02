@@ -596,6 +596,7 @@ FmMain::FmMain(QWidget *parent)
 
     // Signals/slots: search
     connect(ui->wiFind, &WiFind::closed, this, &This::searchClosed);
+    connect(ui->wiFind, &WiFind::repeated, this, &This::goSearchAgain);
     connect(ui->wiFind, &WiFind::indexChanged, this, &This::searchChanged);
 
     // Signals/slots: update
@@ -639,6 +640,7 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->acGoFindNext, &QAction::triggered, ui->wiFind, &WiFind::goNext);
     connect(ui->acGoFindPrev, &QAction::triggered, ui->wiFind, &WiFind::goBack);
     connect(ui->acGoCloseSearch, &QAction::triggered, ui->wiFind, &WiFind::close);
+    connect(ui->acGoSearchAgain, &QAction::triggered, this, &This::goSearchAgain);
     // Tools
     connect(ui->acDecoder, &QAction::triggered, this, &This::runDecoder);
 
@@ -995,6 +997,7 @@ void FmMain::reenable()
     ui->acGoFindNext->setEnabled(canSearch);
     ui->acGoFindPrev->setEnabled(canSearch);
     ui->acGoCloseSearch->setEnabled(canSearch);
+    ui->acGoSearchAgain->setEnabled(canSearch);
 }
 
 
@@ -1492,6 +1495,12 @@ void FmMain::goFind()
         auto uopts = std::make_unique<FindOptions>(*opts);
         findBy(std::move(uopts));
     }
+}
+
+
+void FmMain::goSearchAgain()
+{
+    findBy(std::move(search.criterion));
 }
 
 

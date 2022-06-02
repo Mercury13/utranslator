@@ -10,6 +10,7 @@ WiFind::WiFind(QWidget *parent) :
     connect(ui->btNext, &QAbstractButton::clicked, this, &This::goNext);
     connect(ui->btClose, &QAbstractButton::clicked, this, &This::close);
     connect(ui->spinIndex, &QSpinBox::valueChanged, this, &This::spinChanged);
+    connect(ui->btAgain, &QAbstractButton::clicked, this, &This::repeated);
 }
 
 WiFind::~WiFind()
