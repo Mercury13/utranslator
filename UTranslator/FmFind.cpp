@@ -6,8 +6,52 @@
 
 // Qt ex
 #include "QtConsts.h"
+#include "u_Qstrings.h"
+
 
 const FindOptions::Channels FindOptions::Channels::NONE;
+
+
+///// FindOptions //////////////////////////////////////////////////////////////
+
+
+inline bool FindOptions::matchEntity(const tr::Entity& x) const
+{
+    return matchChan(channels.id,                 x.id)
+        || matchChan(channels.importersComment,   x.comm.importersIfVisible())
+        || matchChan(channels.authorsComment,     x.comm.authors)
+        || matchChan(channels.translatorsComment, x.comm.translators);
+}
+
+
+inline bool FindOptions::matchText1(const tr::Text& x) const
+{
+    return matchChan(channels.original,    x.tr.original)
+        || matchChan(channels.translation, x.tr.translationSv());
+}
+
+
+bool FindOptions::matchText(const tr::Text& x) const
+{
+    return matchEntity(x) || matchText1(x);
+}
+
+
+bool FindOptions::matchGroup(const tr::VirtualGroup& x) const
+{
+    return matchEntity(x);
+}
+
+
+bool FindOptions::matchChan(bool isEnabled, std::u8string_view channel) const
+{
+    static constexpr auto FROM_START = 0;
+    return isEnabled
+            && (str::toQ(channel).indexOf(text, FROM_START, qCaseSen()) >= 0);
+}
+
+
+///// FmFind ///////////////////////////////////////////////////////////////////
 
 FmFind::FmFind(QWidget *parent) :
     QDialog(parent, QDlgType::FIXED),

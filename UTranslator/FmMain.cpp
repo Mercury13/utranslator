@@ -1459,48 +1459,20 @@ namespace {
     private:
         FindOptions opts;
         std::unique_ptr<ts::Result> r;
-        Qt::CaseSensitivity caseSen;
-        bool matchEntity(const tr::Entity& x);
-        bool matchText(const tr::Text& x);
-        bool matchChan(bool isEnabled, std::u8string_view channel) const;
     };
 
     Finder::Finder(const FindOptions& aOpts)
-        : opts{aOpts}, r{std::make_unique<ts::Result>()}
-    {
-        caseSen = opts.options.matchCase ? Qt::CaseSensitive : Qt::CaseInsensitive;
-    }
-
-    bool Finder::matchChan(bool isEnabled, std::u8string_view channel) const
-    {
-        static constexpr auto FROM_START = 0;
-        return isEnabled
-                && (str::toQ(channel).indexOf(opts.text, FROM_START, caseSen) >= 0);
-    }
-
-    bool Finder::matchEntity(const tr::Entity& x)
-    {
-        return matchChan(opts.channels.id,                 x.id)
-            || matchChan(opts.channels.importersComment,   x.comm.importersIfVisible())
-            || matchChan(opts.channels.authorsComment,     x.comm.authors)
-            || matchChan(opts.channels.translatorsComment, x.comm.translators);
-    }
-
-    bool Finder::matchText(const tr::Text& x)
-    {
-        return matchChan(opts.channels.original,    x.tr.original)
-            || matchChan(opts.channels.translation, x.tr.translationSv());
-    }
+        : opts(aOpts), r(new ts::Result) {}
 
     void Finder::onText(const std::shared_ptr<tr::Text>& x)
     {
-        if (matchEntity(*x) || matchText(*x))
+        if (opts.matchText(*x))
             r->add(x);
     }
 
     void Finder::onEnterGroup(const std::shared_ptr<tr::VirtualGroup>& x)
     {
-        if (matchEntity(*x))
+        if (opts.matchGroup(*x))
             r->add(x);
     }
 

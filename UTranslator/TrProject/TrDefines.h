@@ -34,7 +34,6 @@ namespace tr {
     };
     ///  Opaque handle for icons
     using HIcon = const IconObject*;
-
 }
 
 namespace tf {

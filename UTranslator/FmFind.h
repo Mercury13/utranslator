@@ -2,13 +2,15 @@
 
 #include <QDialog>
 
-#include "TrDefines.h"
+#include "TrProject.h"
 
 namespace Ui {
 class FmFind;
 }
 
-struct FindOptions {
+struct FindOptions : public tr::FindCriterion
+{
+public:
     QString text;
     struct Channels {
         bool id = false, original = false, importersComment = false,
@@ -23,6 +25,23 @@ struct FindOptions {
 
     explicit operator bool () const { return !text.isEmpty(); }
     bool areSet() const { return !text.isEmpty() && channels != Channels::NONE; }
+
+    Qt::CaseSensitivity qCaseSen() const
+    {
+        // Needed for this to work
+        static_assert(static_cast<int>(Qt::CaseInsensitive) == 0);
+        static_assert(static_cast<int>(Qt::CaseSensitive) == 1);
+        // Go!
+        return static_cast<Qt::CaseSensitivity>(options.matchCase);
+    }
+
+    // FindCriterion
+    bool matchText(const tr::Text&) const override;
+    bool matchGroup(const tr::VirtualGroup&) const override;
+private:
+    inline bool matchEntity(const tr::Entity& x) const;
+    bool matchChan(bool isEnabled, std::u8string_view channel) const;
+    inline bool matchText1(const tr::Text&) const;
 };
 
 class FmFind : public QDialog
