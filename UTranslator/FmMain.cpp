@@ -1483,7 +1483,7 @@ void FmMain::findBy(std::unique_ptr<tr::FindCriterion> crit)
 {
     Finder finder(*crit);
     project->traverse(finder, tr::WalkOrder::EXACT, tr::EnterMe::NO);
-    plantSearchResult(str::toQ(crit->caption()), finder.give());
+    plantSearchResult(std::move(crit), finder.give());
 }
 
 void FmMain::goFind()
@@ -1496,15 +1496,19 @@ void FmMain::goFind()
 
 
 void FmMain::plantSearchResult(
-        const QString& caption, std::unique_ptr<ts::Result> x)
+        std::unique_ptr<tr::FindCriterion> crit,
+        std::unique_ptr<ts::Result> x)
 {
     if (!x || x->isEmpty()) {
-        ui->wiFind->close();    // automatically reenables
+        ui->wiFind->close();    // automatically calls searchClosed and reenables
         QMessageBox::information(this, "Find", "Not found.");
     } else {
+        search.criterion = std::move(crit);
         search.result = std::move(x);
             // will not reenable for now
-        ui->wiFind->startSearch(caption, search.result->size());
+        /// @todo [L10n] Search criterion’s header will remain untranslated
+        ui->wiFind->startSearch(
+                    str::toQ(search.criterion->caption()), search.result->size());
         reenable();
     }
 }

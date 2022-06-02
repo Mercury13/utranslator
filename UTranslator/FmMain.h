@@ -265,7 +265,8 @@ private:
     void doBuild();
     bool checkSave(std::string_view caption);
     void plantSearchResult(
-            const QString& caption, std::unique_ptr<ts::Result> x);
+            std::unique_ptr<tr::FindCriterion> criterion,
+            std::unique_ptr<ts::Result> x);
     void reflectUpdateInfo();
     void showBugs(Flags<tr::Bug> x);
     [[nodiscard]] PrjTreeModel::LockAll lockAll(RememberCurrent rem);

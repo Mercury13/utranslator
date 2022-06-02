@@ -21,6 +21,7 @@ public:
     size_t index0() const;
 
 signals:
+    void repeated();
     void closed();
     void indexChanged(size_t index0);
 private slots:
