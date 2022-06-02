@@ -38,6 +38,7 @@ public:
     // FindCriterion
     bool matchText(const tr::Text&) const override;
     bool matchGroup(const tr::VirtualGroup&) const override;
+    std::u8string caption() const override;
 private:
     inline bool matchEntity(const tr::Entity& x) const;
     bool matchChan(bool isEnabled, std::u8string_view channel) const;
@@ -53,7 +54,7 @@ public:
     explicit FmFind(QWidget *parent = nullptr);
     ~FmFind() override;
 
-    FindOptions exec(tr::PrjType prjType);
+    const FindOptions* exec(tr::PrjType prjType);
 private slots:
     void acceptIf();
 private:

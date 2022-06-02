@@ -207,7 +207,10 @@ private:
 
     PrjTreeModel treeModel;
     std::shared_ptr<tr::Project> project;
-    std::unique_ptr<ts::Result> searchResult;
+    struct Search {
+        std::unique_ptr<tr::FindCriterion> criterion;
+        std::unique_ptr<ts::Result> result;
+    } search;
     tr::UpdateInfo updateInfo;    
     std::unique_ptr<QTimer> timerBug;
 
@@ -267,4 +270,5 @@ private:
     void showBugs(Flags<tr::Bug> x);
     [[nodiscard]] PrjTreeModel::LockAll lockAll(RememberCurrent rem);
     tr::UiObject* acceptCurrObject(Flags<tr::Bug> bugsToRemove);
+    void findBy(std::unique_ptr<tr::FindCriterion> crit);
 };

@@ -51,6 +51,15 @@ bool FindOptions::matchChan(bool isEnabled, std::u8string_view channel) const
 }
 
 
+std::u8string FindOptions::caption() const
+{
+    std::u8string r = u8"Find “{1}”";
+    str::replace(r, u8"{1}", str::toU8sv(text.toStdString()));
+    return r;
+}
+
+
+
 ///// FmFind ///////////////////////////////////////////////////////////////////
 
 FmFind::FmFind(QWidget *parent) :
@@ -98,7 +107,7 @@ void FmFind::copyTo(FindOptions& r)
     r.options.matchCase = ui->chkMatchCase->isChecked();
 }
 
-FindOptions FmFind::exec(tr::PrjType prjType)
+const FindOptions* FmFind::exec(tr::PrjType prjType)
 {
     switch (prjType) {
     case tr::PrjType::ORIGINAL:
@@ -112,9 +121,9 @@ FindOptions FmFind::exec(tr::PrjType prjType)
     ui->chkChanTranslatorsComment->setEnabled(isTransl);
     ui->edFind->setFocus();
 
-    if (Super::exec()) {
-        return opts;
+    if (Super::exec() && opts) {
+        return &opts;
     } else {
-        return {};
+        return nullptr;
     }
 }

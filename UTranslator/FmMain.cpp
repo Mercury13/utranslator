@@ -771,9 +771,9 @@ void FmMain::loadContext(tr::UiObject* lastSon)
 
 void FmMain::loadObject(tr::UiObject& obj)
 {
-    if (searchResult) {
+    if (search.result) {
         auto sp = obj.selfUi();
-        if (auto index = searchResult->find(sp); index != NOT_FOUND) {
+        if (auto index = search.result->find(sp); index != NOT_FOUND) {
             ui->wiFind->setIndexQuietly(index);
         }
     }
@@ -1451,41 +1451,46 @@ namespace {
     class Finder : public tr::TraverseListener
     {
     public:
-        Finder(const FindOptions& aOpts);
+        Finder(const tr::FindCriterion& aCrit);
         void onText(const std::shared_ptr<tr::Text>&) override;
         void onEnterGroup(const std::shared_ptr<tr::VirtualGroup>&) override;
         std::unique_ptr<ts::Result> give() { return std::move(r); }
         bool isEmpty() const { return r->isEmpty(); }
     private:
-        FindOptions opts;
+        const tr::FindCriterion& crit;
         std::unique_ptr<ts::Result> r;
     };
 
-    Finder::Finder(const FindOptions& aOpts)
-        : opts(aOpts), r(new ts::Result) {}
+    Finder::Finder(const tr::FindCriterion& aCrit)
+        : crit(aCrit), r(new ts::Result) {}
 
     void Finder::onText(const std::shared_ptr<tr::Text>& x)
     {
-        if (opts.matchText(*x))
+        if (crit.matchText(*x))
             r->add(x);
     }
 
     void Finder::onEnterGroup(const std::shared_ptr<tr::VirtualGroup>& x)
     {
-        if (opts.matchGroup(*x))
+        if (crit.matchGroup(*x))
             r->add(x);
     }
 
 }   // anon namespace
 
 
+void FmMain::findBy(std::unique_ptr<tr::FindCriterion> crit)
+{
+    Finder finder(*crit);
+    project->traverse(finder, tr::WalkOrder::EXACT, tr::EnterMe::NO);
+    plantSearchResult(str::toQ(crit->caption()), finder.give());
+}
+
 void FmMain::goFind()
 {
     if (auto opts = fmFind.ensure(this).exec(project->info.type)) {
-        Finder finder(opts);
-        project->traverse(finder, tr::WalkOrder::EXACT, tr::EnterMe::NO);
-        QString caption = QString{"Find “%1”"}.arg(opts.text);
-        plantSearchResult(caption, finder.give());
+        auto uopts = std::make_unique<FindOptions>(*opts);
+        findBy(std::move(uopts));
     }
 }
 
@@ -1497,9 +1502,9 @@ void FmMain::plantSearchResult(
         ui->wiFind->close();    // automatically reenables
         QMessageBox::information(this, "Find", "Not found.");
     } else {
-        searchResult = std::move(x);
+        search.result = std::move(x);
             // will not reenable for now
-        ui->wiFind->startSearch(caption, searchResult->size());
+        ui->wiFind->startSearch(caption, search.result->size());
         reenable();
     }
 }
@@ -1650,15 +1655,16 @@ void FmMain::closeEvent(QCloseEvent *event)
 
 void FmMain::searchClosed()
 {
-    searchResult.reset();
+    search.result.reset();
+    search.criterion.reset();
     reenable();
 }
 
 
 void FmMain::searchChanged(size_t index)
 {
-    if (searchResult) {
-        if (auto obj = searchResult->at(index)) {
+    if (search.result) {
+        if (auto obj = search.result->at(index)) {
             if (auto index = treeModel.toIndex(obj, 0);
                     index.isValid()) {
                 ui->treeStrings->setCurrentIndex(index);
