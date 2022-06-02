@@ -632,6 +632,9 @@ FmMain::FmMain(QWidget *parent)
     // Edit
     connect(ui->acAcceptChanges, &QAction::triggered, this, &This::acceptCurrObjectAll);
     connect(ui->acRevertChanges, &QAction::triggered, this, &This::revertCurrObject);
+        // Edit — double clicks
+        connect(ui->imgBugOrigChanged, &DblClickLabel::doubleClicked, this, &This::acceptCurrObjectOrigChanged);
+        connect(ui->imgBugEmptyTransl, &DblClickLabel::doubleClicked, this, &This::acceptCurrObjectEmptyTransl);
     // Go
     connect(ui->acGoBack, &QAction::triggered, this, &This::goBack);
     connect(ui->acGoNext, &QAction::triggered, this, &This::goNext);
@@ -642,7 +645,7 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->acGoCloseSearch, &QAction::triggered, ui->wiFind, &WiFind::close);
     connect(ui->acGoSearchAgain, &QAction::triggered, this, &This::goSearchAgain);
     // Tools
-    connect(ui->acDecoder, &QAction::triggered, this, &This::runDecoder);
+    connect(ui->acDecoder, &QAction::triggered, this, &This::runDecoder);    
 
     // Unused parts
     ui->grpCompatId->hide();
@@ -923,6 +926,18 @@ tr::UiObject* FmMain::acceptCurrObject(Flags<tr::Bug> bugsToRemove)
 tr::UiObject* FmMain::acceptCurrObjectNone()
 {
     return acceptCurrObject({});
+}
+
+
+tr::UiObject* FmMain::acceptCurrObjectOrigChanged()
+{
+    return acceptCurrObject(tr::Bug::TR_ORIG_CHANGED);
+}
+
+
+tr::UiObject* FmMain::acceptCurrObjectEmptyTransl()
+{
+    return acceptCurrObject(tr::Bug::TR_EMPTY);
 }
 
 
@@ -1811,8 +1826,8 @@ void FmMain::showBugs(Flags<tr::Bug> x)
 {
     stopBugTimer();
     ShowNone sh(x);
-    sh.showIfBug(ui->imgBugEmptyText  , tr::Bug::TR_EMPTY );
-    sh.showIfBug(ui->imgBugReview     , tr::Bug::TR_ORIG_CHANGED);
+    sh.showIfBug(ui->imgBugEmptyTransl, tr::Bug::TR_EMPTY );
+    sh.showIfBug(ui->imgBugOrigChanged, tr::Bug::TR_ORIG_CHANGED);
     sh.showIfBug(ui->imgBugMojibake   , tr::Bug::COM_MOJIBAKE);
     sh.showIfBug(ui->imgBugEmptyOrig  , tr::Bug::OR_EMPTY);
     sh.showIfBug(ui->imgBugInvisible  , tr::Bug::COM_INVISIBLE);

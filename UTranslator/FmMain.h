@@ -182,6 +182,8 @@ private slots:
     void doUpdateData();
     // Menu: Edit
     tr::UiObject* acceptCurrObjectNone();
+    tr::UiObject* acceptCurrObjectOrigChanged();
+    tr::UiObject* acceptCurrObjectEmptyTransl();
     tr::UiObject* acceptCurrObjectAll();
     void revertCurrObject();
     // Menu: Go

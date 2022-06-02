@@ -9,6 +9,7 @@ CONFIG(debug, debug|release) {
 SOURCES += \
     ../Libs/PugiXml/pugixml.cpp \
     ../Libs/QModels/QModels.cpp \
+    ../Libs/Qt/DblClickLabel.cpp \
     ../Libs/Qt/DblClickRadio.cpp \
     ../Libs/Qt/ElidedLabel.cpp \
     ../Libs/SelfMade/Qt/QtMultiRadio.cpp \
@@ -44,6 +45,7 @@ HEADERS += \
     ../Libs/PugiXml/pugiconfig.hpp \
     ../Libs/PugiXml/pugixml.hpp \
     ../Libs/QModels/QModels.h \
+    ../Libs/Qt/DblClickLabel.h \
     ../Libs/Qt/DblClickRadio.h \
     ../Libs/Qt/ElidedLabel.h \
     ../Libs/SelfMade/Mojibake/mojibake.h \

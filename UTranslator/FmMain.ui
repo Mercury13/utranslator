@@ -678,7 +678,7 @@ QLabel {
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLabel" name="imgBugReview">
+                  <widget class="DblClickLabel" name="imgBugOrigChanged">
                    <property name="toolTip">
                     <string>&lt;b&gt;Review needed&lt;/b&gt;
 &lt;p&gt;Original text was changed. Please check whether existing translation still works, or retranslate if needed.
@@ -696,7 +696,7 @@ QLabel {
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLabel" name="imgBugEmptyText">
+                  <widget class="DblClickLabel" name="imgBugEmptyTransl">
                    <property name="toolTip">
                     <string>&lt;b&gt;Empty translation&lt;/b&gt;
 &lt;p&gt;Is empty string is your actual translation, press “Accept changes” (Ctrl+Enter) or double-click this icon.</string>
@@ -1238,6 +1238,11 @@ QLabel {
    <extends>QWidget</extends>
    <header>WiFind.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>DblClickLabel</class>
+   <extends>QLabel</extends>
+   <header>DblClickLabel.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
