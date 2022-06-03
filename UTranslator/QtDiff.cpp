@@ -101,7 +101,7 @@ namespace {
                 return;
             }
         } else if (b.empty()) {
-            r.emplace_back( UEMPTY, a );
+            r.emplace_back( a, UEMPTY );
             return;
         }
 
@@ -193,7 +193,7 @@ namespace {
         }
     }
 
-}
+}   // anon namespace
 
 
 qdif::EditScript qdif::editScript(std::u32string_view a, std::u32string_view b)
