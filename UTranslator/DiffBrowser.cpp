@@ -28,6 +28,7 @@ void DiffMimeData::setup() const
     This* that = const_cast<This*>(this);
     // HTML
     that->setData(QLatin1String("text/html"), fragment.toHtml().toUtf8());
+    // Plain text
     that->setText(fragment.toPlainText());
     fragment = QTextDocumentFragment();
 }
