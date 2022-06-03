@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/">
+        <file>Diff/del.png</file>
+        <file>Diff/ins.png</file>
         <file>Discrep/empty.png</file>
         <file>Discrep/empty_b.png</file>
         <file>Discrep/invisible.png</file>

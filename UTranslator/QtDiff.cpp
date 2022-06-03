@@ -251,6 +251,8 @@ void qdif::write2(QTextCursor& cursor,
             writeSpan(cursor, v.del, libNormal);
         } else if (!v.ins.empty()) {
             writeSpan(cursor, v.ins, libAdd);
+        } else {
+            cursor.insertImage(":/Diff/del.png");
         }
     }
 
@@ -263,6 +265,8 @@ void qdif::write2(QTextCursor& cursor,
             writeSpan(cursor, v.del, libNormal);
         } else if (!v.del.empty()) {
             writeSpan(cursor, v.del, libDel);
+        } else {
+            cursor.insertImage(":/Diff/ins.png");
         }
     }
 }
