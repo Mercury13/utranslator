@@ -19,6 +19,7 @@ SOURCES += \
     ../Libs/SelfMade/Strings/u_Decoders.cpp \
     ../Libs/SelfMade/Strings/u_Qstrings.cpp \
     ../Libs/SelfMade/Strings/u_Strings.cpp \
+    DiffBrowser.cpp \
     FmAboutFormat.cpp \
     FmDecoder.cpp \
     FmDisambigPair.cpp \
@@ -59,6 +60,7 @@ HEADERS += \
     ../Libs/SelfMade/Strings/u_Decoders.h \
     ../Libs/SelfMade/Strings/u_Qstrings.h \
     ../Libs/SelfMade/Strings/u_Strings.h \
+    DiffBrowser.h \
     FmAboutFormat.h \
     FmDecoder.h \
     FmDisambigPair.h \
