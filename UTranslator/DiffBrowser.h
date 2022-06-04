@@ -11,7 +11,7 @@ private:
     using Super = QMimeData;
     using This = DiffMimeData;
 public:
-    inline DiffMimeData(const QTextDocumentFragment &aFragment) : fragment(aFragment) {}
+    DiffMimeData(QTextCursor &aCursor);
     QStringList formats() const override;
 protected:
     QVariant retrieveData(const QString &mimeType, QMetaType type) const override;
