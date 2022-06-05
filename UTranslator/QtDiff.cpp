@@ -69,20 +69,7 @@ namespace {
                     appendN(bk1.ins, bk.del.size());
 
                     // Pop, check once again
-                    // Former (probably fixed) bug: медного → бронзового
-                    //    (Russian genitive: made of copper → made of bronze)
-                    //   Final “ого” is common suffix
-                    //   C = changed, U = common, I = inserted
-                    //   CCCU → CCCUIII
-                    // 0 = common prefix
-                    // 1 = three changed
-                    // 2 = one common
-                    // (no number) three inserted? — we see one common, stick with three changed
-                    //     and start writing those inserted at 2
-                    // so BUG: 1 = four changed, 2 = two inserted, 3 = common suffix
-                    //   so we see both deleted text “медн” and insert sign
-                    // RIGHT: stick 1+2, check once again and write at 1!!!!!
-                    //   0 = common prefix, 1 = changed 4→7, 2 = common suffix
+                    // See bug 1 description below
                     r.pop_back();
                         // pop_back guarantees to preserve iterators/pointers
                         // except bk and end, so OK!
@@ -97,6 +84,21 @@ namespace {
         newBk.isCommon = needCommon;
         return newBk;
     }
+
+    // BUG 1: медного → бронзового
+    //    (Russian genitive: made of copper → made of bronze)
+    //   Final “ого” is common suffix
+    //   C = changed, U = common, I = inserted
+    //   CCCU → CCCUIII
+    // 0 = common prefix
+    // 1 = three changed
+    // 2 = one common
+    // (no number) three inserted? — we see one common, stick with three changed
+    //     and start writing those inserted at 2
+    // so BUG: 1 = four changed, 2 = two inserted, 3 = common suffix
+    //   so we see both deleted text “медн” and insert sign
+    // RIGHT: stick 1+2, check once again and write at 1!!!!!
+    //   0 = common prefix, 1 = changed 4→7, 2 = common suffix
 
     void inc1(std::u32string_view& subst, size_t& index)
     {
