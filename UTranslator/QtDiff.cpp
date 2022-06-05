@@ -80,9 +80,9 @@ namespace {
                     // (no number) three inserted? — we see one common, stick with three changed
                     //     and start writing those inserted at 2
                     // so BUG: 1 = four changed, 2 = two inserted, 3 = common suffix
-                    // so we see both deleted text and insert sign
+                    //   so we see both deleted text and insert sign
                     // RIGHT: stick 1+2, check once again and write at 1!!!!!
-                    // 0 = common prefix, 1 = changed 4→7, 2 = common suffix
+                    //   0 = common prefix, 1 = changed 4→7, 2 = common suffix
                     r.pop_back();
                         // pop_back guarantees to preserve iterators/pointers
                         // except bk and end, so OK!
