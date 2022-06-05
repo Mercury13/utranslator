@@ -67,11 +67,27 @@ namespace {
                     auto& bk1 = ((&bk)[-1]);
                     appendN(bk1.del, bk.del.size());
                     appendN(bk1.ins, bk.del.size());
-                    // init bk
-                    bk.del = std::u32string_view { &a, 0 };
-                    bk.ins = std::u32string_view { &b, 0 };
-                    bk.isCommon = needCommon;
-                    return bk;
+
+                    // Pop, check once again
+                    // Former (probably fixed) bug: медного → бронзового
+                    //    (Russian genitive: made of copper → made of bronze)
+                    //   Final “ого” is common suffix
+                    //   C = changed, U = common, I = inserted
+                    //   CCCU → CCCUIII
+                    // 0 = common prefix
+                    // 1 = three changed
+                    // 2 = one common
+                    // (no number) three inserted? — we see one common, stick with three changed
+                    //     and start writing those inserted at 2
+                    // so BUG: 1 = four changed, 2 = two inserted, 3 = common suffix
+                    // so we see both deleted text and insert sign
+                    // RIGHT: stick 1+2, check once again and write at 1!!!!!
+                    // 0 = common prefix, 1 = changed 4→7, 2 = common suffix
+                    r.pop_back();
+                        // pop_back guarantees to preserve iterators/pointers
+                        // except bk and end, so OK!
+                    if (bk1.isCommon == needCommon)
+                        return bk1;
                 }
             }
         }
