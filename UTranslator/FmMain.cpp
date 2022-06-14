@@ -644,6 +644,7 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->acGoFindPrev, &QAction::triggered, ui->wiFind, &WiFind::goBack);
     connect(ui->acGoCloseSearch, &QAction::triggered, ui->wiFind, &WiFind::close);
     connect(ui->acGoSearchAgain, &QAction::triggered, this, &This::goSearchAgain);
+    connect(ui->acFindWarningsAll, &QAction::triggered, this, &This::goAllWarnings);
     // Tools
     connect(ui->acDecoder, &QAction::triggered, this, &This::runDecoder);    
 
@@ -1009,6 +1010,7 @@ void FmMain::reenable()
     ui->acGoNext->setEnabled(isMainVisible);
     ui->acGoUp->setEnabled(isMainVisible);
     ui->acGoFind->setEnabled(isMainVisible);
+    ui->acFindWarningsAll->setEnabled(isMainVisible);
     ui->acGoFindNext->setEnabled(canSearch);
     ui->acGoFindPrev->setEnabled(canSearch);
     ui->acGoCloseSearch->setEnabled(canSearch);
@@ -1494,6 +1496,23 @@ namespace {
             r->add(x);
     }
 
+    class CritWarning : public tr::FindCriterion
+    {
+    public:
+        CritWarning(std::shared_ptr<tr::Project> x) : project(x) {}
+        bool matchText(const tr::Text&) const override;
+        bool matchGroup(const tr::VirtualGroup&) const override { return false; }
+        std::u8string caption() const override { return u8"Find warnings"; }
+    private:
+        std::shared_ptr<tr::Project> project;
+    };
+
+    bool CritWarning::matchText(const tr::Text& x) const
+    {
+        auto atMode = x.tr.attentionMode(project->info);
+        return (atMode == tr::AttentionMode::ATTENTION);
+    }
+
 }   // anon namespace
 
 
@@ -1510,6 +1529,13 @@ void FmMain::goFind()
         auto uopts = std::make_unique<FindOptions>(*opts);
         findBy(std::move(uopts));
     }
+}
+
+
+void FmMain::goAllWarnings()
+{
+    auto cond = std::make_unique<CritWarning>(project);
+    findBy(std::move(cond));
 }
 
 
@@ -1756,6 +1782,7 @@ void FmMain::doUpdateData()
                 QMessageBox::information(this, "Update data",
                         "This original has no synchronized groups. Nothing to update.");
             } else {
+                ui->wiFind->close();
                 std::shared_ptr<tr::Group> thrownGroup;
                 updateInfo = tr::UpdateInfo::ZERO;
                 try {
@@ -1780,6 +1807,7 @@ void FmMain::doUpdateData()
             }
         } break;
     case tr::PrjType::FULL_TRANSL:
+        ui->wiFind->close();
         try {
             { auto lk = lockAll(RememberCurrent::YES);
                 updateInfo = project->updateData();

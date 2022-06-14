@@ -10,6 +10,7 @@
 
 namespace tw {
 
+    // Foreground
     enum class Fg { NORMAL, UNTRANSLATED_CAT, ATTENTION, OK, STATS, LIGHT };
     constexpr int Fg_N = static_cast<int>(Fg::LIGHT) + 1;
 

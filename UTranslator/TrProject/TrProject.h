@@ -142,6 +142,7 @@ namespace tr {
         CALM,           ///< normal (green)
         ATTENTION       ///< attention (red)
     };
+    constexpr auto AttentionMode_N = static_cast<int>(AttentionMode::ATTENTION) + 1;
 
     struct Translatable {
         std::u8string original;     ///< Current original string

@@ -28,22 +28,34 @@ tw::Fg tw::Flyweight::TranslStats::fg() const
 }
 
 
+namespace {
+
+    constinit tw::Fg attentionToFg[tr::AttentionMode_N] = {
+        tw::Fg::LIGHT, tw::Fg::NORMAL, tw::Fg::ATTENTION
+    };
+
+}   // anon namespace
+
 auto tw::Flyweight::getTransl(tr::UiObject& x) -> const TranslObj&
 {
     if (auto tr = x.translatable()) {
+        auto attention = tr->attentionMode(x.project()->info);
+        auto foregnd = attentionToFg[static_cast<int>(attention)];
         if (tr->translation) {
             if (tr->translation->empty()) {
                 // Translated, empty string
-                return dumb.set(l10n.emptyString, Fg::STATS);
+                // turn calm to smth lighter
+                return dumb.set(l10n.emptyString,
+                    (attention == tr::AttentionMode::CALM) ? Fg::STATS : foregnd);
             } else {
                 // Translated, non-empty string
-                return dumb.set(*tr->translation,
-                        tr->knownOriginal ? Fg::ATTENTION : Fg::NORMAL);
+                return dumb.set(*tr->translation, foregnd);
             }
         } else {
             // Untranslated
             /// @todo [patch, #23] Write smth like “Untouched”
-            return dumb.set(l10n.untranslated, Fg::ATTENTION);
+            ///     (use attention mode)
+            return dumb.set(l10n.untranslated, foregnd);
         }
     } else {
         auto& stats = x.stats(tr::StatsMode::CACHED, tr::CascadeDropCache::YES);

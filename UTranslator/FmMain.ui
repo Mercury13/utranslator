@@ -990,11 +990,18 @@ QLabel {
     <property name="title">
      <string>&amp;Go</string>
     </property>
+    <widget class="QMenu" name="menuFindWarnings">
+     <property name="title">
+      <string>Find &amp;warnings</string>
+     </property>
+     <addaction name="acFindWarningsAll"/>
+    </widget>
     <addaction name="acGoBack"/>
     <addaction name="acGoNext"/>
     <addaction name="acGoUp"/>
     <addaction name="separator"/>
     <addaction name="acGoFind"/>
+    <addaction name="menuFindWarnings"/>
     <addaction name="separator"/>
     <addaction name="acGoFindNext"/>
     <addaction name="acGoFindPrev"/>
@@ -1224,6 +1231,14 @@ QLabel {
    </property>
    <property name="shortcut">
     <string>Shift+F4</string>
+   </property>
+  </action>
+  <action name="acFindWarningsAll">
+   <property name="text">
+    <string>&amp;All</string>
+   </property>
+   <property name="shortcut">
+    <string>F6</string>
    </property>
   </action>
  </widget>
