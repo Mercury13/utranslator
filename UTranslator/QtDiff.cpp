@@ -85,7 +85,7 @@ namespace {
         return newBk;
     }
 
-    // BUG 1: медного → бронзового
+    // Bug 1: медного → бронзового
     //    (Russian genitive: made of copper → made of bronze)
     //   Final “ого” is common suffix
     //   C = changed, U = common, I = inserted
@@ -95,7 +95,7 @@ namespace {
     // 2 = one common
     // (no number) three inserted? — we see one common, stick with three changed
     //     and start writing those inserted at 2
-    // so BUG: 1 = four changed, 2 = three inserted, 3 = common suffix
+    // so BAD: 1 = four changed, 2 = three inserted, 3 = common suffix
     //   so we see both deleted text “медн” and insert sign
     // RIGHT: stick 1+2, check once again and write at 1!!!!!
     //   0 = common prefix, 1 = changed 4→7, 2 = common suffix
