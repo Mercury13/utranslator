@@ -587,7 +587,8 @@ FmMain::FmMain(QWidget *parent)
 
     // Signals/slots: editing
     connect(ui->edId, &QLineEdit::textEdited, this, &This::tempModify);
-    connect(ui->edFilePath, &QLineEdit::textEdited, this, &This::tempModify);
+    connect(ui->edOrigFilePath, &QLineEdit::textEdited, this, &This::tempModify);
+    connect(ui->edTranslFilePath, &QLineEdit::textEdited, this, &This::tempModify);
     connect(ui->memoOriginal, &QPlainTextEdit::textChanged, this, &This::tempModify);
     connect(ui->chkIdless, &QCheckBox::clicked, this, &This::tempModify);
     connect(ui->memoTranslation, &QPlainTextEdit::textChanged, this, &This::tempModify);
@@ -786,17 +787,27 @@ void FmMain::loadObject(tr::UiObject& obj)
 
     bugCache.copyFrom(obj);
 
-    ui->edId->setText(str::toQ(obj.idColumn()));
+    auto id = str::toQ(obj.idColumn());
+    ui->edId->setText(id);
     // File/Original/translation
-    if (auto fi = obj.ownFileInfo()) {
+    if (auto file = dynamic_cast<tr::File*>(&obj)) {
         // FILE
         ui->stackOriginal->setCurrentWidget(ui->pageFile);
-        ui->chkIdless->setChecked(fi->isIdless);
-        ui->edFilePath->setPlaceholderText(ui->edId->text());
-        ui->edFilePath->setText(str::toQ(fi->origPath.wstring()));
-        bool canAddFiles = project->info.canAddFiles();
-        ui->pageFile->setEnabled(canAddFiles);
+        ui->chkIdless->setChecked(file->info.isIdless);
+        ui->edOrigFilePath->setPlaceholderText(ui->edId->text());
+        auto origPath = str::toQ(file->info.origPath.wstring());
+        ui->edOrigFilePath->setText(origPath);
+        /// @todo [repeat] the file itself should have this logic
+        ui->edTranslFilePath->setPlaceholderText(
+                    !origPath.isEmpty() ? origPath : id);
+        ui->edTranslFilePath->setText(str::toQ(file->info.translPath.wstring()));
+        const bool canAddFiles = project->info.canAddFiles();
+        const bool canEditOriginal = project->info.canEditOriginal();
+        const bool isTranslation = project->info.isTranslation();
+        ui->wiFileLo->setEnabled(canAddFiles);
         ui->wiId->setEnabled(canAddFiles);
+        ui->wiOrigName->setVisible(canEditOriginal);
+        ui->wiTranslName->setVisible(isTranslation);
     } else if (bugCache.hasTranslatable) {
         // ORIGINAL, mutually exclusive with fileInfo
         ui->wiId->setEnabled(project->info.canEditOriginal());
@@ -897,13 +908,18 @@ void FmMain::acceptObject(tr::UiObject& obj, Flags<tr::Bug> bugsToRemove)
     uiToCache(newCache);
 
     newCache.copyTo(obj, bugCache, bugsToRemove);
-    if (project->info.canAddFiles()) {
-        // Misc
-        obj.setOrigPath(ui->edFilePath->text().toStdWString(), tr::Modify::YES);        
-        obj.setIdless(ui->chkIdless->isChecked(), tr::Modify::YES);        
-    }
-    if (project)
+    if (project) {
+        if (project->info.canAddFiles()) {
+            obj.setIdless(ui->chkIdless->isChecked(), tr::Modify::YES);
+        }
+        if (project->info.canEditOriginal()) {
+            obj.setOrigPath(ui->edOrigFilePath->text().toStdWString(), tr::Modify::YES);
+        }
+        if (project->info.isTranslation()) {
+            obj.setTranslPath(ui->edTranslFilePath->text().toStdWString(), tr::Modify::YES);
+        }
         project->tempRevert();
+    }
     obj.stats(tr::StatsMode::SEMICACHED, tr::CascadeDropCache::YES);
     treeModel.dataChanged({}, {});
 

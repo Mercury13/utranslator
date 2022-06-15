@@ -230,6 +230,20 @@ bool tr::UiObject::setOrigPath(const std::filesystem::path& x, tr::Modify wantMo
 }
 
 
+bool tr::UiObject::setTranslPath(const std::filesystem::path& x, tr::Modify wantModify)
+{
+    if (auto fi = ownFileInfo()) {
+        if (fi->translPath != x) {
+            fi->translPath = x;
+            if (wantModify != Modify::NO) {
+                doModify(Mch::TRANSL);
+            }
+        }
+    }
+    return false;
+}
+
+
 bool tr::UiObject::setTranslation(
         std::optional<std::u8string_view> x, tr::Modify wantModify)
 {
