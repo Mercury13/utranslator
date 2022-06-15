@@ -438,7 +438,7 @@ namespace mojibake {
     template <class To, class From,
               class Enc2 = typename detail::ContUtfTraits<To>::Enc,
               class Enc1 = typename detail::UtfTraits<From>::Enc>       // also a SFINAE
-    To& simpleCaseFold(const From* from)
+    To simpleCaseFold(const From* from)
     {
         std::basic_string_view from1{from};
         return simpleCaseFold<To, decltype(from1), Enc2, Enc1>(from1);
