@@ -23,6 +23,7 @@ SOURCES += \
     FmAboutFormat.cpp \
     FmDecoder.cpp \
     FmDisambigPair.cpp \
+    FmExtractOriginal.cpp \
     FmFileFormat.cpp \
     FmFind.cpp \
     FmProjectSettings.cpp \
@@ -64,6 +65,7 @@ HEADERS += \
     FmAboutFormat.h \
     FmDecoder.h \
     FmDisambigPair.h \
+    FmExtractOriginal.h \
     FmFileFormat.h \
     FmFind.h \
     FmProjectSettings.h \
@@ -98,6 +100,7 @@ FORMS += \
     FmAboutFormat.ui \
     FmDecoder.ui \
     FmDisambigPair.ui \
+    FmExtractOriginal.ui \
     FmFileFormat.ui \
     FmFind.ui \
     FmMain.ui \
