@@ -993,6 +993,7 @@ void FmMain::reenable()
     bool canAddFiles = (isMainVisible && hasProject
                        && project->info.canAddFiles());
     bool canSearch = ui->wiFind->isVisible() && isMainVisible;
+    bool isTranslation = isMainVisible && hasProject && project->info.isTranslation();
 
     // Starting screen
     ui->btStartEdit->setVisible(hasProject);
@@ -1031,6 +1032,9 @@ void FmMain::reenable()
     ui->acGoFindPrev->setEnabled(canSearch);
     ui->acGoCloseSearch->setEnabled(canSearch);
     ui->acGoSearchAgain->setEnabled(canSearch);
+
+    // Menu: Tools
+    ui->acExtractOriginal->setEnabled(isTranslation);
 }
 
 

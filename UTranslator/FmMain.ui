@@ -1079,7 +1079,14 @@ QLabel {
     <property name="title">
      <string>&amp;Tools</string>
     </property>
+    <widget class="QMenu" name="menuConvertProjectType">
+     <property name="title">
+      <string>Convert project type</string>
+     </property>
+     <addaction name="acExtractOriginal"/>
+    </widget>
     <addaction name="acDecoder"/>
+    <addaction name="menuConvertProjectType"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuOriginal"/>
@@ -1299,6 +1306,11 @@ QLabel {
    </property>
    <property name="shortcut">
     <string>F6</string>
+   </property>
+  </action>
+  <action name="acExtractOriginal">
+   <property name="text">
+    <string>Extract original…</string>
    </property>
   </action>
  </widget>
