@@ -10,6 +10,13 @@
 // Qt ex
 #include "QtMultiRadio.h"
 
+// Libs
+#include "u_EcArray.h"
+
+// Project-local
+#include "TrProject.h"
+
+
 namespace Ui {
 class FmExtractOriginal;
 }
@@ -40,5 +47,21 @@ private:
 
     using Super::exec;
 };
+
+
+class ProcessTr {   // interface
+public:
+    virtual void act(tr::Translatable& x) const = 0;
+    virtual ~ProcessTr() = default;
+};
+
+class ProcessCm {   // interface
+public:
+    virtual void act(tr::Comments& x) const = 0;
+    virtual ~ProcessCm() = default;
+};
+
+extern const ec::Array<const ProcessTr*, TextChannel> extractOriginalTr;
+extern const ec::Array<const ProcessCm*, CommentChannel> extractOriginalCm;
 
 #endif // FMEXTRACTORIGINAL_H
