@@ -14,6 +14,7 @@ namespace ec {
 #endif
 
     ///
+    ///  Size of ec::Array
     ///  Reimplement if you want
     ///
     template <class Ec> requires std::is_enum_v<Ec>
