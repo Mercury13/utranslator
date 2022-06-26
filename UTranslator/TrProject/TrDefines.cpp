@@ -20,11 +20,11 @@ constinit const ec::Array<tf::LineBreakStyleInfo, tf::TextLineBreakStyle> tf::te
     tf::LineBreakStyleInfo { "crlf", "CR+LF (Windows)", "\r\n" },
 };
 
-constinit const tf::LineBreakStyleInfo tf::binaryLineBreakStyleInfo[BinaryLineBreakStyle_N] {
-    { "cr",   "CR #13 (Pascal/Windows)", "\r"   },
-    { "lf",   "LF #10 (C/Unix)",         "\n"   },
-    { "crlf", "CR+LF #13#10",            "\r\n" },
-};
+//constinit const ec::Array<tf::LineBreakStyleInfo, tf::BinaryLineBreakStyle> tf::binaryLineBreakStyleInfo {
+//    tf::LineBreakStyleInfo { "cr",   "CR #13 (Pascal/Windows)", "\r"   },
+//    tf::LineBreakStyleInfo { "lf",   "LF #10 (C/Unix)",         "\n"   },
+//    tf::LineBreakStyleInfo { "crlf", "CR+LF #13#10",            "\r\n" },
+//};
 
 constinit const char* const tf::lineBreakEscapeModeNames[escape::LineBreakMode_N] {
     "banned", "c-cr", "c-lf", "specified" };

@@ -65,10 +65,9 @@ namespace tf {
     };
     extern const ec::Array<LineBreakStyleInfo, TextLineBreakStyle> textLineBreakStyleInfo;
 
-    enum class BinaryLineBreakStyle { CR, LF, CRLF };
-    constexpr auto BinaryLineBreakStyle_N = static_cast<int>(BinaryLineBreakStyle::CRLF) + 1;
+    //enum class BinaryLineBreakStyle { CR, LF, CRLF };
 
-    extern const LineBreakStyleInfo binaryLineBreakStyleInfo[BinaryLineBreakStyle_N];
+    //extern const ec::Array<LineBreakStyleInfo, BinaryLineBreakStyle> binaryLineBreakStyleInfo;
 
     struct TextFormat {
         static constexpr auto DEFAULT_STYLE = TextLineBreakStyle::CRLF;
