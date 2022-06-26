@@ -6,12 +6,16 @@
 namespace ec {
 
 #ifdef AT_RANGE_CHECK
-    #define AT_NOEXCEPT
     constexpr bool RANGE_CHECK = true;
 #else
-    #define AT_NOEXCEPT noexcept
     constexpr bool RANGE_CHECK = false;
 #endif
+    constexpr bool AT_NOEXCEPT = !RANGE_CHECK;
+
+    namespace detail {
+        enum class ArrayInit { INST };
+    }
+    constexpr detail::ArrayInit ARRAY_INIT = detail::ArrayInit::INST;
 
     ///
     ///  Size of ec::Array
@@ -36,6 +40,7 @@ namespace ec {
         static constexpr size_t Size = ec::size<Ec>();
         static constexpr size_t InitCount = Size;
         using CArray = V[Size];
+        using CppArray = std::array<V, Size>;
 
         constexpr Array() noexcept = default;
 
@@ -43,6 +48,20 @@ namespace ec {
         constexpr Array(U&&... args) : a{std::forward<U>(args)...}
         {
             static_assert(sizeof...(args) == InitCount, "[ec::Array()] Wrong size");
+        }
+
+        template <class U, size_t N>
+        constexpr Array(detail::ArrayInit, std::array<U, N>&& x)
+        {
+            static_assert(N == InitCount, "[ec::Array(arr&&)] Wrong size!");
+            std::move(x.begin(), x.end(), std::begin(a));
+        }
+
+        template <class U, size_t N>
+        constexpr Array(detail::ArrayInit, const std::array<U, N>& x)
+        {
+            static_assert(N == InitCount, "[ec::Array(arr)] Wrong size!");
+            std::copy(x.begin(), x.end(), std::begin(a));
         }
 
         constexpr size_t size() const noexcept { return Size; }
@@ -61,7 +80,7 @@ namespace ec {
         constexpr       CArray& cArray()       noexcept { return a; }
         constexpr const CArray& cArray() const noexcept { return a; }
 
-        constexpr V& operator [] (Ec i) noexcept(!RANGE_CHECK)
+        constexpr V& operator [] (Ec i) noexcept(AT_NOEXCEPT)
         {
             if constexpr (RANGE_CHECK) {
                 if (static_cast<size_t>(i) >= Size)
@@ -70,7 +89,7 @@ namespace ec {
             return a[static_cast<size_t>(i)];
         }
 
-        constexpr const V& operator [] (Ec i) const noexcept(!RANGE_CHECK)
+        constexpr const V& operator [] (Ec i) const noexcept(AT_NOEXCEPT)
         {
             if constexpr (RANGE_CHECK) {
                 if (static_cast<size_t>(i) >= Size)

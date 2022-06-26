@@ -16,8 +16,11 @@ constinit const char* const tr::prjTypeNames[tr::PrjType_N] {
 };
 
 constinit const ec::Array<tf::LineBreakStyleInfo, tf::TextLineBreakStyle> tf::textLineBreakStyleInfo {
-    tf::LineBreakStyleInfo { "lf",   "LF (Unix)",       "\n"   },
-    tf::LineBreakStyleInfo { "crlf", "CR+LF (Windows)", "\r\n" },
+    ec::ARRAY_INIT,
+    std::to_array<tf::LineBreakStyleInfo>({
+        { "lf",   "LF (Unix)",       "\n"   },
+        { "crlf", "CR+LF (Windows)", "\r\n" },
+    })
 };
 
 //constinit const ec::Array<tf::LineBreakStyleInfo, tf::BinaryLineBreakStyle> tf::binaryLineBreakStyleInfo {
@@ -26,7 +29,7 @@ constinit const ec::Array<tf::LineBreakStyleInfo, tf::TextLineBreakStyle> tf::te
 //    tf::LineBreakStyleInfo { "crlf", "CR+LF #13#10",            "\r\n" },
 //};
 
-constinit const char* const tf::lineBreakEscapeModeNames[escape::LineBreakMode_N] {
+constinit const ec::Array<const char*, escape::LineBreakMode> tf::lineBreakEscapeModeNames {
     "banned", "c-cr", "c-lf", "specified" };
 
 constinit const tf::ProtoFilter tf::ProtoFilter::ALL_EXPORTING_AND_NULL {
@@ -140,7 +143,7 @@ void tf::FileFormat::unifiedSave(pugi::xml_node& node) const
             nodeEscape.append_attribute("line-break-text") = str::toC(sets.textEscape.lineBreakText);
         } else {
             nodeEscape.append_attribute("line-break-mode") =
-                    lineBreakEscapeModeNames[static_cast<int>(sets.textEscape.lineBreak)];
+                    lineBreakEscapeModeNames[sets.textEscape.lineBreak];
         }
         if (sets.textEscape.space == escape::SpaceMode::DELIMITED) {
             nodeEscape.append_attribute("space-delimiter") = str::toC(sets.textEscape.spaceDelimiter);
@@ -177,9 +180,10 @@ void tf::FileFormat::unifiedLoad(const pugi::xml_node& node)
             if (auto attr = nodeEscape.attribute("line-break-text")) {
                 sets.textEscape.setLineBreakText(str::toU8sv(attr.as_string()));
             } else {
+                /// @todo [urgent] what to do?
                 sets.textEscape.lineBreak = parseEnumDef<escape::LineBreakMode>(
                         nodeEscape.attribute("line-break-mode").as_string(),
-                        lineBreakEscapeModeNames,
+                        lineBreakEscapeModeNames.cArray(),
                         escape::LineBreakMode::BANNED);
                 if (sets.textEscape.lineBreak == escape::LineBreakMode::SPECIFIED_TEXT)
                     sets.textEscape.lineBreak = escape::LineBreakMode::BANNED;

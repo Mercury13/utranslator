@@ -85,7 +85,7 @@ namespace tf {
         std::u8string_view locName;
     };
 
-    extern const char* const lineBreakEscapeModeNames[escape::LineBreakMode_N];
+    extern const ec::Array<const char*, escape::LineBreakMode> lineBreakEscapeModeNames;
     extern const TechLoc spaceEscapeModeInfo[escape::SpaceMode_N];
 
     enum class Usfg {
