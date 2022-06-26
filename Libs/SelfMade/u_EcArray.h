@@ -65,12 +65,12 @@ namespace ec {
         }
 
         constexpr size_t size() const noexcept { return Size; }
-        constexpr iterator begin()        noexcept { return std::begin(a); }
-        constexpr iterator end()          noexcept { return std::end(a); }
-        constexpr iterator begin()  const noexcept { return std::begin(a); }
-        constexpr iterator end()    const noexcept { return std::end(a); }
-        constexpr iterator cbegin() const noexcept { return std::begin(a); }
-        constexpr iterator cend()   const noexcept { return std::end(a); }
+        constexpr       iterator begin()        noexcept { return std::begin(a); }
+        constexpr       iterator end()          noexcept { return std::end(a); }
+        constexpr const_iterator begin()  const noexcept { return std::begin(a); }
+        constexpr const_iterator end()    const noexcept { return std::end(a); }
+        constexpr const_iterator cbegin() const noexcept { return std::begin(a); }
+        constexpr const_iterator cend()   const noexcept { return std::end(a); }
         constexpr       V& front()       noexcept { return a[0]; }
         constexpr const V& front() const noexcept { return a[0]; }
         constexpr       V& back()        noexcept { return a[Size - 1]; }

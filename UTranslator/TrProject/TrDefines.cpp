@@ -29,7 +29,7 @@ constinit const ec::Array<tf::LineBreakStyleInfo, tf::TextLineBreakStyle> tf::te
 //    tf::LineBreakStyleInfo { "crlf", "CR+LF #13#10",            "\r\n" },
 //};
 
-constinit const ec::Array<const char*, escape::LineBreakMode> tf::lineBreakEscapeModeNames {
+constinit const ec::Array<std::string_view, escape::LineBreakMode> tf::lineBreakEscapeModeNames {
     "banned", "c-cr", "c-lf", "specified" };
 
 constinit const tf::ProtoFilter tf::ProtoFilter::ALL_EXPORTING_AND_NULL {
@@ -41,11 +41,14 @@ constinit const tf::ProtoFilter tf::ProtoFilter::ALL_IMPORTING {
     .allowEmpty = false
 };
 
-const tf::TechLoc tf::spaceEscapeModeInfo[escape::SpaceMode_N] {
-    { "bare",    u8"␣Bare␣"            },
-    { "delim",   u8"␣Delimiter␣|"      },
-    { "quoted",  u8"\" Quoted \""       },
-    { "slashs",  u8"\\s (C-like only!)" },
+const ec::Array<tf::TechLoc, escape::SpaceMode> tf::spaceEscapeModeInfo {
+    ec::ARRAY_INIT,
+    std::to_array<TechLoc>({
+        { "bare",    u8"␣Bare␣"            },
+        { "delim",   u8"␣Delimiter␣|"      },
+        { "quoted",  u8"\" Quoted \""       },
+        { "slashs",  u8"\\s (C-like only!)" },
+    })
 };
 
 constinit const char* const tf::textOwnerNames[TextOwner_N] {
@@ -142,14 +145,16 @@ void tf::FileFormat::unifiedSave(pugi::xml_node& node) const
         if (sets.textEscape.lineBreak == escape::LineBreakMode::SPECIFIED_TEXT) {
             nodeEscape.append_attribute("line-break-text") = str::toC(sets.textEscape.lineBreakText);
         } else {
+            // OK s_v.data here, constinit
             nodeEscape.append_attribute("line-break-mode") =
-                    lineBreakEscapeModeNames[sets.textEscape.lineBreak];
+                    lineBreakEscapeModeNames[sets.textEscape.lineBreak].data();
         }
         if (sets.textEscape.space == escape::SpaceMode::DELIMITED) {
             nodeEscape.append_attribute("space-delimiter") = str::toC(sets.textEscape.spaceDelimiter);
         } else {
+            // OK s_v.data here, constinit
             nodeEscape.append_attribute("space-escape") =
-                spaceEscapeModeInfo[static_cast<int>(sets.textEscape.space)].techName.data();
+                spaceEscapeModeInfo[sets.textEscape.space].techName.data();
         }
     }
 
@@ -180,10 +185,8 @@ void tf::FileFormat::unifiedLoad(const pugi::xml_node& node)
             if (auto attr = nodeEscape.attribute("line-break-text")) {
                 sets.textEscape.setLineBreakText(str::toU8sv(attr.as_string()));
             } else {
-                /// @todo [urgent] what to do?
-                sets.textEscape.lineBreak = parseEnumDef<escape::LineBreakMode>(
+                sets.textEscape.lineBreak = lineBreakEscapeModeNames.findDef(
                         nodeEscape.attribute("line-break-mode").as_string(),
-                        lineBreakEscapeModeNames.cArray(),
                         escape::LineBreakMode::BANNED);
                 if (sets.textEscape.lineBreak == escape::LineBreakMode::SPECIFIED_TEXT)
                     sets.textEscape.lineBreak = escape::LineBreakMode::BANNED;
@@ -193,7 +196,7 @@ void tf::FileFormat::unifiedLoad(const pugi::xml_node& node)
             } else {
                 sets.textEscape.space = parseEnumTechDef(
                         nodeEscape.attribute("space-escape").as_string(),
-                        tf::spaceEscapeModeInfo,
+                        tf::spaceEscapeModeInfo.cArray(),
                         escape::SpaceMode::BARE);
             }
         }

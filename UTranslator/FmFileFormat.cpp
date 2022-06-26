@@ -14,8 +14,8 @@
 
 namespace {
 
-    template <class Elem, size_t N>
-    void fillComboWithLocName(QComboBox* combo, const Elem (&arr)[N]) {
+    template <class V, class Ec>
+    void fillComboWithLocName(QComboBox* combo, const ec::Array<V, Ec>& arr) {
         for (auto& v : arr) {
             combo->addItem(str::toQ(v.locName));
         }
@@ -41,7 +41,7 @@ FmFileFormat::FmFileFormat(QWidget *parent) :
     radioTextOwner.setRadio(tf::TextOwner::EDITOR, ui->radioSyncExternal);
     radioTextOwner.setRadio(tf::TextOwner::ME, ui->radioSyncMine);
 
-    fillComboWithLocName(ui->comboLineBreaksInFile, tf::textLineBreakStyleInfo.cArray());
+    fillComboWithLocName(ui->comboLineBreaksInFile, tf::textLineBreakStyleInfo);
     fillComboWithLocName(ui->comboSpaceEscape, tf::spaceEscapeModeInfo);
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &This::accept);
     connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &This::reject);
