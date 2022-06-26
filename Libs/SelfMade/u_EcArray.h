@@ -13,11 +13,6 @@ namespace ec {
     constexpr bool RANGE_CHECK = false;
 #endif
 
-    namespace detail {
-        enum class Aggregate { INST };
-    }
-    constexpr detail::Aggregate AGGREGATE = detail::Aggregate::INST;
-
     ///
     ///  Reimplement if you want
     ///
