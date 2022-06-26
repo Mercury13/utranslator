@@ -41,7 +41,7 @@ FmFileFormat::FmFileFormat(QWidget *parent) :
     radioTextOwner.setRadio(tf::TextOwner::EDITOR, ui->radioSyncExternal);
     radioTextOwner.setRadio(tf::TextOwner::ME, ui->radioSyncMine);
 
-    fillComboWithLocName(ui->comboLineBreaksInFile, tf::textLineBreakStyleInfo);
+    fillComboWithLocName(ui->comboLineBreaksInFile, tf::textLineBreakStyleInfo.cArray());
     fillComboWithLocName(ui->comboSpaceEscape, tf::spaceEscapeModeInfo);
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &This::accept);
     connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &This::reject);

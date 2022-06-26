@@ -5,6 +5,7 @@
 #include <filesystem>
 
 #include "u_TypedFlags.h"
+#include "u_EcArray.h"
 #include "u_OpenSaveStrings.h"
 #include "u_Decoders.h"
 
@@ -56,14 +57,13 @@ namespace tf {
     DEFINE_ENUM_OPS(Fcap)
 
     enum class TextLineBreakStyle { LF, CRLF };
-    constexpr auto TextLineBreakStyle_N = static_cast<int>(TextLineBreakStyle::CRLF) + 1;
 
     struct LineBreakStyleInfo {
         std::string_view techName;
         std::string_view locName;
         std::string_view eol;
     };
-    extern const LineBreakStyleInfo textLineBreakStyleInfo[TextLineBreakStyle_N];
+    extern const ec::Array<LineBreakStyleInfo, TextLineBreakStyle> textLineBreakStyleInfo;
 
     enum class BinaryLineBreakStyle { CR, LF, CRLF };
     constexpr auto BinaryLineBreakStyle_N = static_cast<int>(BinaryLineBreakStyle::CRLF) + 1;
@@ -75,9 +75,9 @@ namespace tf {
         bool writeBom = true;
         TextLineBreakStyle lineBreakStyle = DEFAULT_STYLE;
         std::string_view eol() const
-            { return textLineBreakStyleInfo[static_cast<int>(lineBreakStyle)].eol; }
+            { return textLineBreakStyleInfo[lineBreakStyle].eol; }
         std::string_view lineBreakTechName() const
-            { return textLineBreakStyleInfo[static_cast<int>(lineBreakStyle)].techName; }
+            { return textLineBreakStyleInfo[lineBreakStyle].techName; }
         static TextLineBreakStyle parseStyle(std::string_view name);
     };
 

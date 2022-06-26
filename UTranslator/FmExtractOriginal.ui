@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>239</width>
-    <height>257</height>
+    <height>255</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -38,18 +38,11 @@
        </widget>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <property name="leftMargin">
-         <number>20</number>
+       <widget class="QRadioButton" name="radioChanTranslOrig">
+        <property name="text">
+         <string>Translation → original</string>
         </property>
-        <item>
-         <widget class="QCheckBox" name="chkUseOriginal">
-          <property name="text">
-           <string>Use original if untranslated</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       </widget>
       </item>
      </layout>
     </widget>

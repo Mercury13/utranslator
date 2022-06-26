@@ -15,9 +15,9 @@ constinit const char* const tr::prjTypeNames[tr::PrjType_N] {
     "original", "full-transl"
 };
 
-constinit const tf::LineBreakStyleInfo tf::textLineBreakStyleInfo[TextLineBreakStyle_N] {
-    { "lf",   "LF (Unix)",       "\n"   },
-    { "crlf", "CR+LF (Windows)", "\r\n" },
+constinit const ec::Array<tf::LineBreakStyleInfo, tf::TextLineBreakStyle> tf::textLineBreakStyleInfo {
+    tf::LineBreakStyleInfo { "lf",   "LF (Unix)",       "\n"   },
+    tf::LineBreakStyleInfo { "crlf", "CR+LF (Windows)", "\r\n" },
 };
 
 constinit const tf::LineBreakStyleInfo tf::binaryLineBreakStyleInfo[BinaryLineBreakStyle_N] {
@@ -54,11 +54,8 @@ constinit const char* const tf::textOwnerNames[TextOwner_N] {
 
 tf::TextLineBreakStyle tf::TextFormat::parseStyle(std::string_view name)
 {
-    for (int i = 0; i < TextLineBreakStyle_N; ++i) {
-        if (name == textLineBreakStyleInfo[i].techName)
-            return static_cast<TextLineBreakStyle>(i);
-    }
-    return DEFAULT_STYLE;
+    return textLineBreakStyleInfo.findIfDef(DEFAULT_STYLE,
+            [name](auto& x) { return x.techName == name; });
 }
 
 ///// FormatProto //////////////////////////////////////////////////////////////

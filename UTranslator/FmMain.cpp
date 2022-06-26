@@ -32,6 +32,7 @@
 #include "FmFileFormat.h"
 #include "FmFind.h"
 #include "FmProjectSettings.h"
+#include "FmExtractOriginal.h"
 
 
 ///// LockAll //////////////////////////////////////////////////////////////////
@@ -648,6 +649,7 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->acFindWarningsAll, &QAction::triggered, this, &This::goAllWarnings);
     // Tools
     connect(ui->acDecoder, &QAction::triggered, this, &This::runDecoder);    
+    connect(ui->acExtractOriginal, &QAction::triggered, this, &This::extractOriginal);
 
     // Unused parts
     ui->grpCompatId->hide();
@@ -1946,5 +1948,20 @@ void FmMain::bugTicked()
         tr::BugCache tmp;
         uiToCache(tmp);
         showBugs(tmp.bugs());
+    }
+}
+
+
+namespace {
+
+
+
+}
+
+
+void FmMain::extractOriginal()
+{
+    if (fmExtractOriginal.ensure(this).exec(0)) {
+
     }
 }

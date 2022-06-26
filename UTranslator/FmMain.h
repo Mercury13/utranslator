@@ -28,6 +28,7 @@ class FmDecoder;
 class FmFileFormat;
 class FmFind;
 class FmProjectSettings;
+class FmExtractOriginal;
 class QPlainTextEdit;
 class QTreeView;
 
@@ -204,6 +205,7 @@ private slots:
     void clearGroup();
     // Menu: Tools
     void runDecoder();
+    void extractOriginal();
 protected:
     void closeEvent(QCloseEvent *event) override;
 private:
@@ -224,6 +226,7 @@ private:
     Uptr<FmFileFormat> fmFileFormat;
     Uptr<FmFind> fmFind;
     Uptr<FmProjectSettings> fmProjectSettings;
+    Uptr<FmExtractOriginal> fmExtractOriginal;
 
     struct loadSetsCache {
         void* fileKey = nullptr;

@@ -44,6 +44,7 @@ SOURCES += \
     FmMain.cpp
 
 HEADERS += \
+    ../Libs/MagicEnum/magic_enum.hpp \
     ../Libs/PugiXml/pugiconfig.hpp \
     ../Libs/PugiXml/pugixml.hpp \
     ../Libs/QModels/QModels.h \
@@ -54,6 +55,8 @@ HEADERS += \
     ../Libs/SelfMade/Qt/QtConsts.h \
     ../Libs/SelfMade/Qt/QtMultiRadio.h \
     ../Libs/SelfMade/i_OpenSave.h \
+    ../Libs/SelfMade/u_Array.h \
+    ../Libs/SelfMade/u_EcArray.h \
     ../Libs/SelfMade/u_OpenSaveStrings.h \
     ../Libs/SelfMade/u_TypedFlags.h \
     ../Libs/SelfMade/u_Uptr.h \
@@ -87,6 +90,7 @@ HEADERS += \
 
 INCLUDEPATH += \
     ../Libs \
+    ../Libs/MagicEnum \
     ../Libs/PugiXml \
     ../Libs/Qt \
     ../Libs/QModels \
