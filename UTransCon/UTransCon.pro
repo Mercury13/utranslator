@@ -28,6 +28,7 @@ SOURCES += \
 
 
 INCLUDEPATH += \
+    ../Libs/MagicEnum \
     ../Libs/PugiXml \
     ../Libs/SelfMade \
     ../Libs/SelfMade/Strings \
