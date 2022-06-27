@@ -30,12 +30,12 @@ class FmExtractOriginal : public QDialog
 public:
     explicit FmExtractOriginal(QWidget *parent = nullptr);
     ~FmExtractOriginal();
-    std::optional<tu::eo::Sets> exec(int dummy = 0);
+    std::optional<tr::eo::Sets> exec(int dummy = 0);
 
 private:
     Ui::FmExtractOriginal *ui;
-    EcRadio<tu::eo::Text> radioText;
-    EcRadio<tu::eo::Comment> radioComment;
+    EcRadio<tr::eo::Text> radioText;
+    EcRadio<tr::eo::Comment> radioComment;
 
     using Super::exec;
 };
@@ -53,7 +53,7 @@ public:
     virtual ~ProcessCm() = default;
 };
 
-extern const ec::Array<const ProcessTr*, tu::eo::Text> extractOriginalTr;
-extern const ec::Array<const ProcessCm*, tu::eo::Comment> extractOriginalCm;
+extern const ec::Array<const ProcessTr*, tr::eo::Text> extractOriginalTr;
+extern const ec::Array<const ProcessCm*, tr::eo::Comment> extractOriginalCm;
 
 #endif // FMEXTRACTORIGINAL_H

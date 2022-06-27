@@ -1,10 +1,8 @@
 #pragma once
 
 namespace tr {
-    class Project;
-}
 
-namespace tu {
+    class Project;
 
     // Extract original
     namespace eo {
@@ -13,9 +11,11 @@ namespace tu {
         enum class Comment { AUTHOR, AUTHOR_TRANSL, TRANSL, TRANSL_AUTHOR };
 
         struct Sets {
-            Text text;
-            Comment comment;
+            Text text = eo::Text::ORIG;
+            Comment comment = eo::Comment::AUTHOR;
         };
     }
+
+    void extractOriginal(Project& prj, const eo::Sets& sets);
 
 }   // namespace tu
