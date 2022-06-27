@@ -65,11 +65,11 @@ namespace {
 
 }   // anon namespace
 
-constinit const ec::Array<const ProcessTr*, TextChannel> extractOriginalTr {
+constinit const ec::Array<const ProcessTr*, tu::eo::Text> extractOriginalTr {
     &TR_ORIG, &TR_TRANSL, &TR_TRANSL_ORIG
 };
 
-constinit const ec::Array<const ProcessCm*, CommentChannel> extractOriginalCm {
+constinit const ec::Array<const ProcessCm*, tu::eo::Comment> extractOriginalCm {
     &CM_AUTHOR, &CM_AUTHOR_TRANSL, &CM_TRANSL, &CM_TRANSL_AUTHOR
 };
 
@@ -80,16 +80,16 @@ FmExtractOriginal::FmExtractOriginal(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    radioText.setRadio(TextChannel::ORIG,        ui->radioChanOriginal);
-    radioText.setRadio(TextChannel::TRANSL,      ui->radioChanTranslation);
-    radioText.setRadio(TextChannel::TRANSL_ORIG, ui->radioChanTranslOrig);
-    radioText.set(TextChannel::ORIG);
+    radioText.setRadio(tu::eo::Text::ORIG,        ui->radioChanOriginal);
+    radioText.setRadio(tu::eo::Text::TRANSL,      ui->radioChanTranslation);
+    radioText.setRadio(tu::eo::Text::TRANSL_ORIG, ui->radioChanTranslOrig);
+    radioText.set(tu::eo::Text::ORIG);
 
-    radioComment.setRadio(CommentChannel::AUTHOR,        ui->radioCommAu);
-    radioComment.setRadio(CommentChannel::AUTHOR_TRANSL, ui->radioCommAuTr);
-    radioComment.setRadio(CommentChannel::TRANSL,        ui->radioCommTr);
-    radioComment.setRadio(CommentChannel::TRANSL_AUTHOR, ui->radioCommTrAu);
-    radioComment.set(CommentChannel::AUTHOR);
+    radioComment.setRadio(tu::eo::Comment::AUTHOR,        ui->radioCommAu);
+    radioComment.setRadio(tu::eo::Comment::AUTHOR_TRANSL, ui->radioCommAuTr);
+    radioComment.setRadio(tu::eo::Comment::TRANSL,        ui->radioCommTr);
+    radioComment.setRadio(tu::eo::Comment::TRANSL_AUTHOR, ui->radioCommTrAu);
+    radioComment.set(tu::eo::Comment::AUTHOR);
 
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &This::accept);
     connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &This::reject);
@@ -100,10 +100,10 @@ FmExtractOriginal::~FmExtractOriginal()
     delete ui;
 }
 
-std::optional<ExtractOriginalSets> FmExtractOriginal::exec(int)
+std::optional<tu::eo::Sets> FmExtractOriginal::exec(int)
 {
     if (Super::exec()) {
-        return ExtractOriginalSets { radioText.get(), radioComment.get() };
+        return tu::eo::Sets { radioText.get(), radioComment.get() };
     } else {
         return std::nullopt;
     }

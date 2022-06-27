@@ -36,6 +36,7 @@ SOURCES += \
     TrProject/TrFile.cpp \
     TrProject/TrFinder.cpp \
     TrProject/TrProject.cpp \
+    TrProject/TrUtils.cpp \
     TrProject/TrWrappers.cpp \
     WiFind.cpp \
     d_Config.cpp \
@@ -81,6 +82,7 @@ HEADERS += \
     TrProject/TrFile.h \
     TrProject/TrFinder.h \
     TrProject/TrProject.h \
+    TrProject/TrUtils.h \
     TrProject/TrWrappers.h \
     WiFind.h \
     d_Config.h \

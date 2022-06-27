@@ -13,22 +13,14 @@
 // Libs
 #include "u_EcArray.h"
 
-// Project-local
+// Translation
+#include "TrUtils.h"
 #include "TrProject.h"
 
 
 namespace Ui {
 class FmExtractOriginal;
 }
-
-enum class TextChannel { ORIG, TRANSL, TRANSL_ORIG };
-
-enum class CommentChannel { AUTHOR, AUTHOR_TRANSL, TRANSL, TRANSL_AUTHOR };
-
-struct ExtractOriginalSets {
-    TextChannel textChannel;
-    CommentChannel commentChannel;
-};
 
 class FmExtractOriginal : public QDialog
 {
@@ -38,12 +30,12 @@ class FmExtractOriginal : public QDialog
 public:
     explicit FmExtractOriginal(QWidget *parent = nullptr);
     ~FmExtractOriginal();
-    std::optional<ExtractOriginalSets> exec(int dummy = 0);
+    std::optional<tu::eo::Sets> exec(int dummy = 0);
 
 private:
     Ui::FmExtractOriginal *ui;
-    EcRadio<TextChannel> radioText;
-    EcRadio<CommentChannel> radioComment;
+    EcRadio<tu::eo::Text> radioText;
+    EcRadio<tu::eo::Comment> radioComment;
 
     using Super::exec;
 };
@@ -61,7 +53,7 @@ public:
     virtual ~ProcessCm() = default;
 };
 
-extern const ec::Array<const ProcessTr*, TextChannel> extractOriginalTr;
-extern const ec::Array<const ProcessCm*, CommentChannel> extractOriginalCm;
+extern const ec::Array<const ProcessTr*, tu::eo::Text> extractOriginalTr;
+extern const ec::Array<const ProcessCm*, tu::eo::Comment> extractOriginalCm;
 
 #endif // FMEXTRACTORIGINAL_H
