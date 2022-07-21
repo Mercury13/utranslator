@@ -6,6 +6,13 @@ CONFIG(debug, debug|release) {
     DEFINES += AT_RANGE_CHECK
 }
 
+win32-g++ {
+    # To simplify debugging, we statically link these libraries
+    QMAKE_CXXFLAGS_DEBUG += -static-libgcc -static-libstdc++
+    # Qt — system headers
+    QMAKE_CXXFLAGS += -isystem $$[QT_INSTALL_HEADERS]
+}
+
 SOURCES += \
     ../Libs/PugiXml/pugixml.cpp \
     ../Libs/QModels/QModels.cpp \

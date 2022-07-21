@@ -4,7 +4,15 @@
 #include <QMainWindow>
 #include <QAbstractItemModel>
 #include <QStyledItemDelegate>
-#include <QUrl>
+// Strange bug here
+#ifdef __GNUC__
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wattributes"
+#endif
+    #include <QUrl>
+#ifdef __GNUC__
+    #pragma GCC diagnostic pop
+#endif
 
 // Libs
 #include "u_Uptr.h"
