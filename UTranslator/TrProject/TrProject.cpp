@@ -532,21 +532,29 @@ namespace {
         const char8_t* end = data + text.length();
 
         auto node = root.append_child(name);
-        // Initial lines
-        while (true) {
-            // Find CR
-            auto p = std::find(data, end, '\n');
-            if (p == end)
-                break;
-            // Append text and BR
+
+        auto pBreak = std::find(data, end, '\n');
+        if (pBreak == end) {
+            // Simple write
             auto tx = node.append_child(pugi::node_pcdata);
-                tx.set_value(cache.ntsC(data, p));
-            node.append_child("br");
-            data = p + 1;
-        }
-        // Final line
-        auto tx = node.append_child(pugi::node_pcdata);
+                tx.set_value(str::toC(data));
+        } else {
+            // Paragraphs
+            do {
+                auto nextLine = node.append_child("p");
+                if (pBreak != data) {
+                    // Even empty pcdata kills <p /> → only when non-empty
+                    auto tx = nextLine.append_child(pugi::node_pcdata);
+                    tx.set_value(cache.ntsC(data, pBreak));
+                }
+                data = pBreak + 1;
+                pBreak = std::find(data, end, '\n');
+            } while (pBreak != end);
+            // Last line
+            auto lastLine = node.append_child("p");
+            auto tx = lastLine.append_child(pugi::node_pcdata);
             tx.set_value(str::toC(data));
+        }
     }
 
     /// Write text in tag if the text is not empty (for comments)
@@ -571,7 +579,7 @@ namespace {
             writeTextInTag(root, name, *text, cache);
     }
 
-    std::u8string parseTextInTag(pugi::xml_node tag)
+    std::u8string parseTextInTagOld(pugi::xml_node tag)
     {
         std::u8string r;
         for (auto v : tag.children()) {
@@ -588,6 +596,23 @@ namespace {
             }
         }
         return r;
+    }
+
+    std::u8string parseTextInTag(pugi::xml_node tag)
+    {
+        if (auto para = tag.child("p")) {
+            std::u8string r;
+            while (true) {
+                r += parseTextInTagOld(para);
+                para = para.next_sibling("p");
+                if (!para)
+                    break;
+                r += '\n';
+            }
+            return r;
+        } else {
+            return parseTextInTagOld(tag);
+        }
     }
 
     std::u8string readTextInTag(
