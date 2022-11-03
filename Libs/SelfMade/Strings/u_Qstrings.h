@@ -20,8 +20,11 @@ namespace str {
     inline QString toQ(char32_t x)
         { return QString::fromUcs4(&x, 1); }
 
+    inline QString toQ(std::u16string_view x)
+        { return QString::fromUtf16(x.data(), x.size()); }
+
     inline QString toQ(std::u32string_view x)
-        { return QString::fromUcs4(x.data(), x.length()); }
+        { return QString::fromUcs4(x.data(), x.size()); }
 
     std::u8string_view toU8sv(const QString& x, std::string& cache);
     std::u8string toU8(const QString& x);
