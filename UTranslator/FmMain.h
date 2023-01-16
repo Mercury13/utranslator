@@ -190,9 +190,11 @@ private slots:
     void doProjectProps();
     void doUpdateData();
     // Menu: Edit
+    /// accept curr object, no bugs gagged
     tr::UiObject* acceptCurrObjectNone();
     tr::UiObject* acceptCurrObjectOrigChanged();
     tr::UiObject* acceptCurrObjectEmptyTransl();
+    /// accept curr object, all bugs gagged
     tr::UiObject* acceptCurrObjectAll();
     void revertCurrObject();
     // Menu: Go
@@ -202,6 +204,7 @@ private slots:
     void goFind();
     void goSearchAgain();
     void goAllWarnings();
+    void goChangedOriginal();
     // Menu: Original
     void addHostedFile();
     void addHostedGroup();

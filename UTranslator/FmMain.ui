@@ -1055,6 +1055,7 @@ QLabel {
       <string>Find &amp;warnings</string>
      </property>
      <addaction name="acFindWarningsAll"/>
+     <addaction name="acFindWarningsChangedOriginal"/>
     </widget>
     <addaction name="acGoBack"/>
     <addaction name="acGoNext"/>
@@ -1311,6 +1312,14 @@ QLabel {
   <action name="acExtractOriginal">
    <property name="text">
     <string>Extract original…</string>
+   </property>
+  </action>
+  <action name="acFindWarningsChangedOriginal">
+   <property name="text">
+    <string>Changed original</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+F2</string>
    </property>
   </action>
  </widget>

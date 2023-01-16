@@ -17,6 +17,8 @@
 
 constinit const tr::UpdateInfo tr::UpdateInfo::ZERO;
 
+using namespace std::string_view_literals;
+
 
 ///// WrCache //////////////////////////////////////////////////////////////////
 

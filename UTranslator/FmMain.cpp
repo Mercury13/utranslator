@@ -647,6 +647,7 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->acGoCloseSearch, &QAction::triggered, ui->wiFind, &WiFind::close);
     connect(ui->acGoSearchAgain, &QAction::triggered, this, &This::goSearchAgain);
     connect(ui->acFindWarningsAll, &QAction::triggered, this, &This::goAllWarnings);
+    connect(ui->acFindWarningsChangedOriginal, &QAction::triggered, this, &This::goChangedOriginal);
     // Tools
     connect(ui->acDecoder, &QAction::triggered, this, &This::runDecoder);    
     connect(ui->acExtractOriginal, &QAction::triggered, this, &This::extractOriginal);
@@ -1267,11 +1268,11 @@ bool FmMain::doSaveAs()
     const wchar_t* extension = nullptr;
     switch (project->info.type) {
     case tr::PrjType::ORIGINAL:
-        filters.emplace_back(PAIR_ORIGINAL);
+        filters.emplace_back( filedlg::Filter { PAIR_ORIGINAL });
         extension = W(EXT_ORIGINAL);
         break;
     case tr::PrjType::FULL_TRANSL:
-        filters.emplace_back(PAIR_TRANSLATION);
+        filters.emplace_back( filedlg::Filter { PAIR_ORIGINAL });
         extension = W(EXT_TRANSLATION);
         break;
     }
@@ -1535,6 +1536,21 @@ namespace {
         return (atMode == tr::AttentionMode::ATTENTION);
     }
 
+    class CritChangedOriginal : public tr::FindCriterion
+    {
+    public:
+        bool matchText(const tr::Text&) const override;
+        bool matchGroup(const tr::VirtualGroup&) const override { return false; }
+        std::u8string caption() const override { return u8"Changed original"; }
+    private:
+        std::shared_ptr<tr::Project> project;
+    };
+
+    bool CritChangedOriginal::matchText(const tr::Text& x) const
+    {
+        return x.tr.knownOriginal.has_value();
+    }
+
 }   // anon namespace
 
 
@@ -1557,6 +1573,13 @@ void FmMain::goFind()
 void FmMain::goAllWarnings()
 {
     auto cond = std::make_unique<CritWarning>(project);
+    findBy(std::move(cond));
+}
+
+
+void FmMain::goChangedOriginal()
+{
+    auto cond = std::make_unique<CritChangedOriginal>();
     findBy(std::move(cond));
 }
 
