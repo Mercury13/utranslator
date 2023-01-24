@@ -275,7 +275,7 @@ namespace tr {
         } orig;
         struct Transl {
             std::string lang;            
-            bool wantPseudoLoc = true;  ///< [+] pseudo-localize while exporting
+            bool wantPseudoLocIfFull = true;  ///< [+] pseudo-localize while exporting
             bool operator == (const Transl& x) const = default;
         } transl;
 
@@ -309,6 +309,9 @@ namespace tr {
         ///           bilingual
         static bool hasOriginalPath(PrjType type);
         bool hasOriginalPath() const { return hasOriginalPath(type); }
+
+        /// @return [+] want pseudo-L10n
+        bool wantPseudoLoc() const { return isFullTranslation() && transl.wantPseudoLocIfFull; }
     };
 
 //  Project types

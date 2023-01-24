@@ -56,7 +56,7 @@ void FmProjectSettings::copyFrom(const tr::PrjInfo& x)
     // TRANSL: Language
     ui->grpTranslation->setEnabled(x.isTranslation());
     ui->edTranslLanguage->setCurrentText(str::toQ(x.transl.lang));
-    ui->chkPseudoLoc->setChecked(x.transl.wantPseudoLoc);
+    ui->chkPseudoLoc->setChecked(x.transl.wantPseudoLocIfFull);
 }
 
 void FmProjectSettings::copyTo(tr::PrjInfo& r)
@@ -73,7 +73,7 @@ void FmProjectSettings::copyTo(tr::PrjInfo& r)
     // TRANSL: language
     if (r.isTranslation()) {
         r.transl.lang = ui->edTranslLanguage->currentText().toStdString();
-        r.transl.wantPseudoLoc = ui->chkPseudoLoc->isChecked();
+        r.transl.wantPseudoLocIfFull = ui->chkPseudoLoc->isChecked();
     }
 }
 

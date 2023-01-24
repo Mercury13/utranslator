@@ -1526,7 +1526,8 @@ namespace {
     public:
         FileWalker(tr::File& file,
                    tr::WalkChannel aChannel,
-                   tr::WalkOrder order);
+                   tr::WalkOrder order,
+                   bool aWantPseudoLoc);
         const tf::TextInfo& nextText() override;
     private:
         struct DepthInfo {
@@ -1537,6 +1538,7 @@ namespace {
         tr::WalkChannel channel;
         SafeVector<DepthInfo> texts;
         size_t index = 0;
+        bool wantPseudoLoc = true;
         DepthInfo depthInfo;
         tf::TextInfo textInfo;
         std::u8string pseudoLoced;
@@ -1567,8 +1569,9 @@ namespace {
     }
 
     FileWalker::FileWalker(
-            tr::File& file, tr::WalkChannel aChannel, tr::WalkOrder order)
-        : channel(aChannel)
+            tr::File& file, tr::WalkChannel aChannel, tr::WalkOrder order,
+            bool aWantPseudoLoc)
+        : channel(aChannel), wantPseudoLoc(aWantPseudoLoc)
     {
         file.traverse(*this, order, tr::EnterMe::NO);
     }
@@ -1627,7 +1630,9 @@ namespace {
                     textInfo.text = textInfo.translation;
                     textInfo.isFallbackLocale = false;
                 } else {
-                    textInfo.text = pseudoLoc(textInfo.original);
+                    textInfo.text = wantPseudoLoc
+                            ? pseudoLoc(textInfo.original)
+                            : textInfo.original;
                     textInfo.isFallbackLocale = true;
                 }
                 break;
@@ -1747,7 +1752,7 @@ void tr::Project::writeToXml(
         auto nodeTransl = nodeInfo.append_child("transl");
             nodeTransl.append_attribute("lang") = info.transl.lang.c_str();
             if (info.isFullTranslation()) {
-                nodeTransl.append_attribute("pseudoloc") = info.transl.wantPseudoLoc;
+                nodeTransl.append_attribute("pseudoloc") = info.transl.wantPseudoLocIfFull;
             }
     }
     for (auto& file : files) {
@@ -1775,7 +1780,7 @@ void tr::Project::readFromXml(
     if (info.isTranslation()) {
         auto nodeTransl = rqChild(nodeInfo, "transl");
             info.transl.lang = rqAttr(nodeTransl, "lang").value();
-            info.transl.wantPseudoLoc = nodeTransl.attribute("pseudoloc").as_bool(true);
+            info.transl.wantPseudoLocIfFull = nodeTransl.attribute("pseudoloc").as_bool(true);
     }
     for (auto& v : node.children("file")) {
         auto file = addFile({}, Modify::NO);
@@ -1901,7 +1906,8 @@ void tr::Project::doBuild(const std::filesystem::path& destDir)
             }
             try {
                 std::filesystem::create_directories(dirExported);
-                FileWalker walker(*file, walkChannel(), format->walkOrder());
+                FileWalker walker(*file, walkChannel(), format->walkOrder(),
+                                  info.wantPseudoLoc());
                 format->doExport(walker, fnExisting, fnExported);
             } catch (...) {
                 /// @todo [bug, #45] We hide errors here
