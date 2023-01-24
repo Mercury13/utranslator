@@ -274,7 +274,8 @@ namespace tr {
             bool operator == (const Orig& x) const = default;
         } orig;
         struct Transl {
-            std::string lang;
+            std::string lang;            
+            bool wantPseudoLoc = true;  ///< [+] pseudo-localize while exporting
             bool operator == (const Transl& x) const = default;
         } transl;
 

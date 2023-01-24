@@ -88,7 +88,7 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1">
+       <layout class="QVBoxLayout" name="verticalLayout_4">
         <property name="leftMargin">
          <number>9</number>
         </property>
@@ -96,16 +96,27 @@
          <number>9</number>
         </property>
         <item>
-         <widget class="QLabel" name="lbTranslLanguage">
-          <property name="text">
-           <string>Language</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1">
+          <item>
+           <widget class="QLabel" name="lbTranslLanguage">
+            <property name="text">
+             <string>Language</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="edTranslLanguage">
+            <property name="editable">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
-         <widget class="QComboBox" name="edTranslLanguage">
-          <property name="editable">
-           <bool>true</bool>
+         <widget class="QCheckBox" name="chkPseudoLoc">
+          <property name="text">
+           <string>Pseudo-localize untranslated strings while exporting</string>
           </property>
          </widget>
         </item>
