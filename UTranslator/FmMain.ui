@@ -1319,7 +1319,7 @@ QLabel {
     <string>Changed original</string>
    </property>
    <property name="shortcut">
-    <string>Shift+F2</string>
+    <string>Ctrl+F6</string>
    </property>
   </action>
  </widget>
