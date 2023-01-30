@@ -205,6 +205,7 @@ private slots:
     void goSearchAgain();
     void goAllWarnings();
     void goChangedOriginal();
+    void goMismatchNumber();
     // Menu: Original
     void addHostedFile();
     void addHostedGroup();

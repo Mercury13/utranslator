@@ -648,6 +648,7 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->acGoSearchAgain, &QAction::triggered, this, &This::goSearchAgain);
     connect(ui->acFindWarningsAll, &QAction::triggered, this, &This::goAllWarnings);
     connect(ui->acFindWarningsChangedOriginal, &QAction::triggered, this, &This::goChangedOriginal);
+    connect(ui->acFindSpecialMismatchNumber, &QAction::triggered, this, &This::goMismatchNumber);
     // Tools
     connect(ui->acDecoder, &QAction::triggered, this, &This::runDecoder);    
     connect(ui->acExtractOriginal, &QAction::triggered, this, &This::extractOriginal);
@@ -1551,6 +1552,31 @@ namespace {
         return x.tr.knownOriginal.has_value();
     }
 
+    class CritMismatchNumber : public tr::FindCriterion
+    {
+    public:
+        bool matchText(const tr::Text&) const override;
+        bool matchGroup(const tr::VirtualGroup&) const override { return false; }
+        std::u8string caption() const override { return u8"Mismatching # of lines"; }
+    private:
+        std::shared_ptr<tr::Project> project;
+        static size_t nLines(std::u8string_view x);
+    };
+
+    size_t CritMismatchNumber::nLines(std::u8string_view x)
+    {
+        if (x.empty())
+            return 0;
+        return std::count(x.begin(), x.end(), '\n');
+    }
+
+    bool CritMismatchNumber::matchText(const tr::Text& x) const
+    {
+        if (!x.tr.translation)
+            return false;
+        return (nLines(x.tr.original) != nLines(*x.tr.translation));
+    }
+
 }   // anon namespace
 
 
@@ -1591,6 +1617,20 @@ void FmMain::goChangedOriginal()
         findBy(std::move(cond));
     }
 }
+
+
+void FmMain::goMismatchNumber()
+{
+    if (!project->info.isTranslation()) {
+        QMessageBox::information(this, "Mismatching # of lines",
+                    "This criterion works for bilinguals/translations only, "
+                            "and will find nothing in originals.");
+    } else {
+        auto cond = std::make_unique<CritMismatchNumber>();
+        findBy(std::move(cond));
+    }
+}
+
 
 
 void FmMain::goSearchAgain()

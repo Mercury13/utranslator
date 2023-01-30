@@ -1057,12 +1057,19 @@ QLabel {
      <addaction name="acFindWarningsAll"/>
      <addaction name="acFindWarningsChangedOriginal"/>
     </widget>
+    <widget class="QMenu" name="menuFind_special">
+     <property name="title">
+      <string>Find special</string>
+     </property>
+     <addaction name="acFindSpecialMismatchNumber"/>
+    </widget>
     <addaction name="acGoBack"/>
     <addaction name="acGoNext"/>
     <addaction name="acGoUp"/>
     <addaction name="separator"/>
     <addaction name="acGoFind"/>
     <addaction name="menuFindWarnings"/>
+    <addaction name="menuFind_special"/>
     <addaction name="separator"/>
     <addaction name="acGoFindNext"/>
     <addaction name="acGoFindPrev"/>
@@ -1320,6 +1327,11 @@ QLabel {
    </property>
    <property name="shortcut">
     <string>Ctrl+F6</string>
+   </property>
+  </action>
+  <action name="acFindSpecialMismatchNumber">
+   <property name="text">
+    <string>Mismatching # of lines</string>
    </property>
   </action>
  </widget>
