@@ -1583,8 +1583,9 @@ void FmMain::goChangedOriginal()
         QMessageBox::information(this, "Changed original",
                     "This criterion works for translations only.\n"
                         "It will find nothing in originals.\n"
-                        "In bilinguals it’s meaningful if some texts are managed "
-                            "with external software (e.g. UI messages with form editor).");
+                        "In bilinguals it’s meaningful if portions of original are managed "
+                            "with external software (e.g. UI messages with form editor) "
+                            "and work as translation.");
     } else {
         auto cond = std::make_unique<CritChangedOriginal>();
         findBy(std::move(cond));
