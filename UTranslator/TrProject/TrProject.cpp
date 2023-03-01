@@ -1748,6 +1748,12 @@ void tr::Project::writeToXml(
                     nodeOrig.append_attribute("fname") = str::toC(relPath.u8string());
                 }
             }
+    if (info.canHaveReference() && !info.ref.absPath.empty()) {
+        auto nodeRef = nodeInfo.append_child("ref");
+            auto relPath = c.toRelPath(info.ref.absPath);
+            nodeRef.append_attribute("fname") = str::toC(relPath.u8string());
+            nodeRef.append_attribute("isorig") = info.ref.isSecondOriginal;
+    }
     if (info.isTranslation()) {
         auto nodeTransl = nodeInfo.append_child("transl");
             nodeTransl.append_attribute("lang") = info.transl.lang.c_str();
@@ -1777,6 +1783,11 @@ void tr::Project::readFromXml(
             if (info.hasOriginalPath()) {
                 info.orig.absPath = ctx.toAbsPath(nodeOrig.attribute("fname").as_string());
             }
+    if (info.canHaveReference()) {
+        auto nodeRef = nodeInfo.child("ref");
+        info.ref.absPath = ctx.toAbsPath(nodeRef.attribute("fname").as_string());
+        info.ref.isSecondOriginal = nodeRef.attribute("isorig").as_bool();
+    }
     if (info.isTranslation()) {
         auto nodeTransl = rqChild(nodeInfo, "transl");
             info.transl.lang = rqAttr(nodeTransl, "lang").value();

@@ -275,6 +275,12 @@ namespace tr {
             std::filesystem::path absPath;
             bool operator == (const Orig& x) const = default;
         } orig;
+        struct Ref {
+            std::filesystem::path absPath;
+            bool isSecondOriginal = false;    ///< [+] reference language changed → also alert
+            bool operator == (const Ref& x) const = default;
+            void clear() { *this = Ref(); }
+        } ref;
         struct Transl {
             std::string lang;            
             bool wantPseudoLocIfFull = true;  ///< [+] pseudo-localize while exporting
@@ -287,6 +293,11 @@ namespace tr {
         /// @return [+] can edit original, incl. adding files
         bool canEditOriginal() const;
 
+        /// @return [+] can have reference channel
+        ///      We CANNOT have multi-storey translations EN→RU→UK.
+        ///      But Ukrainian is close to Russian, and it’s better to translate
+        ///      to Ukrainian from Russian → we may have reference channel.
+        ///      Original is EN, translation is UK, reference is RU.
         static bool canHaveReference(PrjType type);
         bool canHaveReference() const { return canHaveReference(type); }
 

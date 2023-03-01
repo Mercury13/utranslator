@@ -149,6 +149,7 @@ void tr::PrjInfo::switchToOriginal(WalkChannel channel)
         break;
     }
     orig.absPath.clear();
+    ref.clear();
     transl.clear();
 }
 
