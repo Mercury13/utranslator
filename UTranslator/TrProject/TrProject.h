@@ -652,8 +652,6 @@ namespace tr {
         virtual void updateParent(const std::shared_ptr<VirtualGroup>&) override {}
     };
 
-    enum class WalkChannel { ORIGINAL, TRANSLATION };
-
     class Project final :
             public UiObject,
             public SimpleModifiable,

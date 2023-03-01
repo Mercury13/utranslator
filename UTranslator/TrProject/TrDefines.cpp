@@ -126,6 +126,21 @@ bool tr::PrjInfo::hasOriginalPath(PrjType type)
 }
 
 
+void tr::PrjInfo::switchToOriginal(WalkChannel channel)
+{
+    type = PrjType::ORIGINAL;
+    switch (channel) {
+    case WalkChannel::ORIGINAL:
+        break;
+    case WalkChannel::TRANSLATION:
+        orig.lang = transl.lang;
+        break;
+    }
+    orig.absPath.clear();
+    transl.clear();
+}
+
+
 ///// FileFormat ///////////////////////////////////////////////////////////////
 
 

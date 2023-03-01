@@ -26,6 +26,8 @@ namespace tr {
         ECONOMY     ///< Economy order: never twice the same group, s1 s4 s2 s3
     };
 
+    enum class WalkChannel { ORIGINAL, TRANSLATION };
+
     ///  Opaque handle, but may be used as interface
     class IconObject
     {
@@ -277,6 +279,7 @@ namespace tr {
             std::string lang;            
             bool wantPseudoLocIfFull = true;  ///< [+] pseudo-localize while exporting
             bool operator == (const Transl& x) const = default;
+            void clear() { *this = Transl(); }
         } transl;
 
         bool operator == (const PrjInfo& x) const = default;
@@ -312,6 +315,8 @@ namespace tr {
 
         /// @return [+] want pseudo-L10n
         bool wantPseudoLoc() const { return isFullTranslation() && transl.wantPseudoLocIfFull; }
+
+        void switchToOriginal(WalkChannel channel);
     };
 
 //  Project types

@@ -41,19 +41,4 @@ private:
 };
 
 
-class ProcessTr {   // interface
-public:
-    virtual void act(tr::Translatable& x) const = 0;
-    virtual ~ProcessTr() = default;
-};
-
-class ProcessCm {   // interface
-public:
-    virtual void act(tr::Comments& x) const = 0;
-    virtual ~ProcessCm() = default;
-};
-
-extern const ec::Array<const ProcessTr*, tr::eo::Text> extractOriginalTr;
-extern const ec::Array<const ProcessCm*, tr::eo::Comment> extractOriginalCm;
-
 #endif // FMEXTRACTORIGINAL_H
