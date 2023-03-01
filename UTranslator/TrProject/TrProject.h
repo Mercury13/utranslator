@@ -148,6 +148,7 @@ namespace tr {
         std::u8string original;     ///< Current original string
         std::optional<std::u8string>
                     knownOriginal,  ///< Known original string we translated (never == original!)
+                    reference,      ///< Reference string in other language
                     translation;    ///< Translation for known original (if present) or original
         bool forceAttention = false;
         std::u8string_view translationSv() const

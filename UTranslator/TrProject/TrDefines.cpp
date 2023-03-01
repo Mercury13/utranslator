@@ -126,6 +126,18 @@ bool tr::PrjInfo::hasOriginalPath(PrjType type)
 }
 
 
+bool tr::PrjInfo::canHaveReference(PrjType type)
+{
+    switch (type) {
+    case PrjType::ORIGINAL:
+        return false;
+    case PrjType::FULL_TRANSL:
+        return true;
+    }
+    throw std::logic_error("[canHaveReference] Strange project type");
+}
+
+
 void tr::PrjInfo::switchToOriginal(WalkChannel channel)
 {
     type = PrjType::ORIGINAL;

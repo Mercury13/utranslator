@@ -287,6 +287,9 @@ namespace tr {
         /// @return [+] can edit original, incl. adding files
         bool canEditOriginal() const;
 
+        static bool canHaveReference(PrjType type);
+        bool canHaveReference() const { return canHaveReference(type); }
+
         /// @return [+] can add/remove files, edit orig. settings
         /// @warning  canEditOriginal → canAddFiles
         ///           (the converse is false for freestyle project)
@@ -316,6 +319,7 @@ namespace tr {
         /// @return [+] want pseudo-L10n
         bool wantPseudoLoc() const { return isFullTranslation() && transl.wantPseudoLocIfFull; }
 
+        /// Turns settings to original’s
         void switchToOriginal(WalkChannel channel);
     };
 
@@ -324,6 +328,7 @@ namespace tr {
 //   (implemented)           YES        no       YES       no
 //   canAddFiles             YES        YES      no        YES
 //   canEditOriginal         YES        YES      no        no
+//   canHaveReference        no         no       YES       no
 //   isTranslation           no         YES      YES       YES
 //   (can edit
 //     translator’s comment  no         no       YES       YES
