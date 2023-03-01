@@ -2033,7 +2033,8 @@ namespace {
 
 void FmMain::extractOriginal()
 {
-    if (fmExtractOriginal.ensure(this).exec(0)) {
-
+    if (auto sets = fmExtractOriginal.ensure(this).exec(0)) {
+        auto lk = lockAll(RememberCurrent::YES);
+        tr::extractOriginal(*project, *sets);
     }
 }
