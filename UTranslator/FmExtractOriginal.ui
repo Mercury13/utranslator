@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>239</width>
-    <height>255</height>
+    <height>235</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -27,13 +27,6 @@
        <widget class="QRadioButton" name="radioChanOriginal">
         <property name="text">
          <string>Original</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="radioChanTranslation">
-        <property name="text">
-         <string>Translation</string>
         </property>
        </widget>
       </item>

@@ -6,7 +6,7 @@ namespace tr {
 
     // Extract original
     namespace eo {
-        enum class Text { ORIG, TRANSL, TRANSL_ORIG };
+        enum class Text { ORIG, TRANSL_ORIG };
 
         enum class Comment { AUTHOR, AUTHOR_TRANSL, TRANSL, TRANSL_AUTHOR };
 

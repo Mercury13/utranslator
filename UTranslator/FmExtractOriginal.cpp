@@ -8,13 +8,6 @@ namespace {
         void act(tr::Translatable&) const override {};
     };
 
-    class TrTransl final : public ProcessTr {
-    public:
-        void act(tr::Translatable& x) const override {
-            x.original = x.translationSv();
-        };
-    };
-
     class TrTranslOrig final : public ProcessTr {
     public:
         void act(tr::Translatable& x) const override {
@@ -24,7 +17,6 @@ namespace {
     };
 
     const TrOrig TR_ORIG;
-    const TrTransl TR_TRANSL;
     const TrTranslOrig TR_TRANSL_ORIG;
 
     class CmAuthor final : public ProcessCm {
@@ -58,15 +50,15 @@ namespace {
         };
     };
 
-    const CmAuthor CM_AUTHOR;
-    const CmAuthorTransl CM_AUTHOR_TRANSL;
-    const CmTransl CM_TRANSL;
-    const CmAuthorTransl CM_TRANSL_AUTHOR;
+    constinit const CmAuthor CM_AUTHOR;
+    constinit const CmAuthorTransl CM_AUTHOR_TRANSL;
+    constinit const CmTransl CM_TRANSL;
+    constinit const CmAuthorTransl CM_TRANSL_AUTHOR;
 
 }   // anon namespace
 
 constinit const ec::Array<const ProcessTr*, tr::eo::Text> extractOriginalTr {
-    &TR_ORIG, &TR_TRANSL, &TR_TRANSL_ORIG
+    &TR_ORIG, &TR_TRANSL_ORIG
 };
 
 constinit const ec::Array<const ProcessCm*, tr::eo::Comment> extractOriginalCm {
@@ -81,7 +73,6 @@ FmExtractOriginal::FmExtractOriginal(QWidget *parent) :
     ui->setupUi(this);
 
     radioText.setRadio(tr::eo::Text::ORIG,        ui->radioChanOriginal);
-    radioText.setRadio(tr::eo::Text::TRANSL,      ui->radioChanTranslation);
     radioText.setRadio(tr::eo::Text::TRANSL_ORIG, ui->radioChanTranslOrig);
     radioText.set(tr::eo::Text::ORIG);
 
