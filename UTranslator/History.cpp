@@ -113,6 +113,26 @@ bool hist::History::clear()
 }
 
 
+bool hist::History::silentErase(size_t i)
+{
+    if (i >= sz)
+        return false;
+    d[i].reset();
+    std::move(d.begin() + i + 1, d.begin() + sz, d.begin() + i);
+    --sz;
+    return true;
+}
+
+
+bool hist::History::erase(size_t i)
+{
+    bool b = silentErase(i);
+    if (b)
+        notify();
+    return b;
+}
+
+
 bool hist::History::firstIs(const Place& x)
 {
     return (!isEmpty() &&

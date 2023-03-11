@@ -43,7 +43,7 @@ namespace hist {
         FilePlace(const std::filesystem::path& aPath);
         FilePlace(std::filesystem::path&& aPath);
         bool operator == (const FilePlace& x) const = default;
-        const std::filesystem::path path() const { return fPath; }
+        const std::filesystem::path& path() const { return fPath; }
 
         std::unique_ptr<FilePlace> tryRead(const pugi::xml_node& node);
 
@@ -111,6 +111,9 @@ namespace hist {
         /// @return [+] changed smth
         bool silentClear();
         bool clear();
+
+        bool silentErase(size_t i);
+        bool erase(size_t i);
 
         /// @param [in] root node ABOVE
         void save(pugi::xml_node& root, const char* name) const;

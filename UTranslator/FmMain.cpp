@@ -561,7 +561,6 @@ FmMain::FmMain(QWidget *parent)
     ui->setupUi(this);
     config::history.setListener(this);
 
-
     ui->wiFind->close();
     dismissUpdateInfo();
 
@@ -1297,20 +1296,46 @@ bool FmMain::doSaveAs()
 }
 
 
-void FmMain::openFile(std::filesystem::path fname)      // by-value + move
+void FmMain::openFileThrow(std::filesystem::path fname)
 {
     dismissUpdateInfo();
     auto prj = tr::Project::make();
+    prj->load(fname);
+    ui->wiFind->close();
+    plantNewProject(std::move(prj));
+    config::history.pushFile(std::move(fname));
+}
+
+
+void FmMain::openFile(std::filesystem::path fname)      // by-value + move
+{
     try {
-        prj->load(fname);
-        ui->wiFind->close();
-        plantNewProject(std::move(prj));
-        config::history.pushFile(std::move(fname));
+        openFileThrow(fname);
     } catch (const std::exception& e) {
         QMessageBox::critical(this, "Open", QString::fromStdString(e.what()));
     }
 }
 
+void FmMain::openFileFromHistory(unsigned i)
+{
+    if (auto place = config::history[i]) {
+        if (checkSave("Open")) {
+            if (auto fplace = std::dynamic_pointer_cast<hist::FilePlace>(place)) {
+                try {
+                    openFileThrow(fplace->path());
+                } catch (const std::exception& e) {
+                    auto msg = QString::fromStdString(e.what()) + "\n" "Delete from history?";
+                    auto result = QMessageBox::critical(this, "Open", msg,
+                                QMessageBox::Yes | QMessageBox::No,
+                                QMessageBox::No);
+                    if (result == QMessageBox::Yes) {
+                        config::history.erase(i);
+                    }
+                }
+            }
+        }
+    }
+}
 
 void FmMain::doOpen()
 {
@@ -1455,13 +1480,7 @@ void FmMain::startLinkClicked(QUrl url)
         bool isOk = false;
         auto i = s.toInt(&isOk);
         if (isOk) {
-            if (auto place = config::history[i]) {
-                if (checkSave("Open")) {
-                    if (auto fplace = std::dynamic_pointer_cast<hist::FilePlace>(place)) {
-                        openFile(fplace->path());
-                    }
-                }
-            }
+            openFileFromHistory(i);
         }
     }
 }
