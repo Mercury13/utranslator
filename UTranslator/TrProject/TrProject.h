@@ -140,9 +140,10 @@ namespace tr {
     enum class AttentionMode {
         BACKGROUND,     ///< patch translation only — untouched (grey)
         CALM,           ///< normal (green)
-        ATTENTION       ///< attention (red)
+        USER_ATTENTION, ///< attention (yellow)
+        AUTO_PROBLEM,   ///< untranslated or changed original
     };
-    constexpr auto AttentionMode_N = static_cast<int>(AttentionMode::ATTENTION) + 1;
+    constexpr auto AttentionMode_N = static_cast<int>(AttentionMode::AUTO_PROBLEM) + 1;
 
     struct Translatable {
         std::u8string original;     ///< Current original string
@@ -155,6 +156,7 @@ namespace tr {
         std::u8string_view translationSv() const
             { return translation ? *translation : std::u8string_view(); }
         AttentionMode attentionMode(const tr::PrjInfo& prjInfo) const;
+        AttentionMode baseAttentionMode(const tr::PrjInfo& prjInfo) const;
     };
 
     enum class Modify { NO, YES };
@@ -238,9 +240,10 @@ namespace tr {
     struct Stats {
         size_t nGroups = 0;  ///< # of groups NOT INCLUDING me
         struct Text {
-            size_t nBackground = 0, nCalm = 0, nAttention = 0,
+            size_t nBackground = 0, nCalm = 0, nUserAttention = 0, nAutoProblem = 0,
                    nTranslated = 0, nUntranslated = 0;
             size_t nTotal() const noexcept { return nTranslated + nUntranslated; }
+            size_t nTotalAttention() const { return nUserAttention + nAutoProblem; }
             bool operator == (const Text& x) const = default;
         } text;
         bool isGroup = false;

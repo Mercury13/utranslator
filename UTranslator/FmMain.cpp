@@ -1006,7 +1006,6 @@ void FmMain::reenable()
     bool canAddFiles = (isMainVisible && hasProject
                        && project->info.canAddFiles());
     bool canSearch = ui->wiFind->isVisible() && isMainVisible;
-    bool isTranslation = isMainVisible && hasProject && project->info.isTranslation();
 
     // Starting screen
     ui->btStartEdit->setVisible(hasProject);
@@ -1283,7 +1282,7 @@ bool FmMain::doSaveAs()
         extension = W(EXT_ORIGINAL);
         break;
     case tr::PrjType::FULL_TRANSL:
-        filters.emplace_back( filedlg::Filter { PAIR_ORIGINAL });
+        filters.emplace_back( filedlg::Filter { PAIR_TRANSLATION });
         extension = W(EXT_TRANSLATION);
         break;
     }
@@ -2003,8 +2002,7 @@ void FmMain::switchOriginalAndTranslation()
         QMessageBox::information(this, "Switch original and translation",
                     "This is possible for bilinguals/translations only.");
     } else {
-        if (auto sets = fmSwitchOriginalAndTranslation.ensure(this).exec(
-                    project->info.hasOriginalPath())) {
+        if (auto sets = fmSwitchOriginalAndTranslation.ensure(this).exec(*project)) {
             auto lk = lockAll(RememberCurrent::YES);
             tr::switchOriginalAndTranslation(*project, *sets);
         }

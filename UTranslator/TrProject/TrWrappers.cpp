@@ -14,7 +14,7 @@ std::u8string_view tw::Flyweight::TranslStats::str() const
 
 tw::Fg tw::Flyweight::TranslStats::fg() const
 {
-    if (stats.text.nAttention > 0) {
+    if (stats.text.nTotalAttention() > 0) {
         if (stats.text.nCalm == 0 && stats.text.nBackground == 0) {
             // ALL need attention
             return Fg::UNTRANSLATED_CAT;

@@ -85,21 +85,17 @@ tr::CanaryObject::~CanaryObject()
 ///// Translatable /////////////////////////////////////////////////////////////
 
 
-tr::AttentionMode tr::Translatable::attentionMode(const tr::PrjInfo& prjInfo) const
+tr::AttentionMode tr::Translatable::baseAttentionMode(const tr::PrjInfo& prjInfo) const
 {
-    // Force attention → attention!
-    if (forceAttention)
-        return tr::AttentionMode::ATTENTION;
-
     // Translation → check for translation
     if (prjInfo.isTranslation()) {
         // Original changed → attention!
         if (knownOriginal)
-            return tr::AttentionMode::ATTENTION;
+            return tr::AttentionMode::AUTO_PROBLEM;
         // No translation: full → attention, patch → just BG
         if (!translation) {
             return prjInfo.isFullTranslation()
-                    ? tr::AttentionMode::ATTENTION
+                    ? tr::AttentionMode::AUTO_PROBLEM
                     : tr::AttentionMode::BACKGROUND;
         }
         return tr::AttentionMode::CALM;
@@ -107,6 +103,15 @@ tr::AttentionMode tr::Translatable::attentionMode(const tr::PrjInfo& prjInfo) co
         // Original: by definition, CALM!
         return tr::AttentionMode::CALM;
     }
+}
+
+tr::AttentionMode tr::Translatable::attentionMode(const tr::PrjInfo& prjInfo) const
+{
+    auto r = baseAttentionMode(prjInfo);
+    // Force attention → attention!
+    if (forceAttention)
+        r = std::max(r, tr::AttentionMode::USER_ATTENTION);
+    return r;
 }
 
 ///// UpdateInfo ///////////////////////////////////////////////////////////////
@@ -137,7 +142,8 @@ tr::Stats& tr::Stats::operator += (const Stats& x)
     nGroups += (x.nGroups + x.isGroup);
     text.nBackground += x.text.nBackground;
     text.nCalm += x.text.nCalm;
-    text.nAttention += x.text.nAttention;
+    text.nUserAttention += x.text.nUserAttention;
+    text.nAutoProblem += x.text.nAutoProblem;
     text.nTranslated += x.text.nTranslated;
     text.nUntranslated += x.text.nUntranslated;
     return *this;
@@ -1332,8 +1338,11 @@ const tr::Stats& tr::Text::stats(StatsMode, CascadeDropCache cascade)
     case AttentionMode::CALM:
         r.text.nCalm = 1;
         break;
-    case AttentionMode::ATTENTION:
-        r.text.nAttention = 1;
+    case AttentionMode::USER_ATTENTION:
+        r.text.nUserAttention = 1;
+        break;
+    case AttentionMode::AUTO_PROBLEM:
+        r.text.nAutoProblem = 1;
         break;
     }
 

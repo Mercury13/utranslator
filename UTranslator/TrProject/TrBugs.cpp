@@ -1,5 +1,8 @@
+// My header
 #include "TrBugs.h"
 
+// Utils
+#include "mojibake.h"
 
 void tr::BugCache::copyFrom(tr::UiObject& x)
 {

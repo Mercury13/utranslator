@@ -144,7 +144,7 @@ namespace {
         tr.knownOriginal.reset();
         // Give some translation
         if (!tr.translation)
-            tr.translation = std::u8string();
+            tr.translation = tr.original;
         // Swap
         std::swap(tr.original, *tr.translation);
         // Process comments
@@ -163,8 +163,7 @@ void tr::switchOriginalAndTranslation(Project& prj, const eo::Sets2& sets)
 {
     SwitchOriginalAndTranslation listener(sets);
     prj.traverse(listener, WalkOrder::ECONOMY, EnterMe::NO);
-    prj.removeTranslChannel();
-    prj.info.switchOriginalAndTranslation();
+    prj.info.switchOriginalAndTranslation(sets.origPath);
     prj.fname.clear();
     prj.modify();
 }

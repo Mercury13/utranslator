@@ -138,10 +138,10 @@ bool tr::PrjInfo::canHaveReference(PrjType type)
 }
 
 
-void tr::PrjInfo::switchOriginalAndTranslation()
+void tr::PrjInfo::switchOriginalAndTranslation(const std::filesystem::path& path)
 {
     std::swap(orig.lang, transl.lang);
-    orig.absPath.clear();
+    orig.absPath = path;
 }
 
 

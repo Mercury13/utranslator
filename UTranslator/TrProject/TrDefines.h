@@ -341,7 +341,7 @@ namespace tr {
         void switchToOriginal(WalkChannel channel);
 
         /// Switches original and translation
-        void switchOriginalAndTranslation();
+        void switchOriginalAndTranslation(const std::filesystem::path& path);
     };
 
 //  Project types
