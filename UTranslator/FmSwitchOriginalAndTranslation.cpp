@@ -27,7 +27,7 @@ std::optional<tr::eo::Sets2> FmSwitchOriginalAndTranslation::exec(bool doesOrigP
         tr::eo::Sets2 r;
         /// @todo [urgent] copy
         if (doesOrigPathMean) {
-
+            r.origPath = ui->edOrigFile->text().toStdWString();
         }
         return r;
     } else {
