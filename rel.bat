@@ -75,6 +75,8 @@
 @copy %QTDIR%\bin\Qt6Core.dll %DEPLOY%
 @copy %QTDIR%\bin\Qt6Gui.dll %DEPLOY%
 @copy %QTDIR%\bin\Qt6Widgets.dll %DEPLOY%
+@copy %QTDIR%\bin\Qt6Svg.dll %DEPLOY%
+@copy %QTDIR%\bin\Qt6SvgWidgets.dll %DEPLOY%
 @copy MiscFiles\UTranslator.xml %DEPLOY%
 @copy LICENSE %DEPLOY%
 @md %DEPLOY%\platforms
