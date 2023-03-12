@@ -33,7 +33,7 @@
     <item>
      <widget class="QStackedWidget" name="stackMain">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="pageMain">
        <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -733,7 +733,7 @@ QLabel {
                     <string notr="true"/>
                    </property>
                    <property name="pixmap">
-                    <pixmap resource="Resources/req.qrc">:/Discrep/ok.png</pixmap>
+                    <pixmap>:/Discrep/ok.png</pixmap>
                    </property>
                   </widget>
                  </item>
@@ -751,7 +751,7 @@ QLabel {
                     <string notr="true"/>
                    </property>
                    <property name="pixmap">
-                    <pixmap resource="Resources/req.qrc">:/Discrep/review.png</pixmap>
+                    <pixmap>:/Discrep/review.png</pixmap>
                    </property>
                   </widget>
                  </item>
@@ -768,7 +768,7 @@ QLabel {
                     <string notr="true"/>
                    </property>
                    <property name="pixmap">
-                    <pixmap resource="Resources/req.qrc">:/Discrep/empty.png</pixmap>
+                    <pixmap>:/Discrep/empty.png</pixmap>
                    </property>
                   </widget>
                  </item>
@@ -785,7 +785,7 @@ QLabel {
                     <string notr="true"/>
                    </property>
                    <property name="pixmap">
-                    <pixmap resource="Resources/req.qrc">:/Discrep/mojibake.png</pixmap>
+                    <pixmap>:/Discrep/mojibake.png</pixmap>
                    </property>
                   </widget>
                  </item>
@@ -802,7 +802,7 @@ QLabel {
                     <string notr="true"/>
                    </property>
                    <property name="pixmap">
-                    <pixmap resource="Resources/req.qrc">:/Discrep/empty_b.png</pixmap>
+                    <pixmap>:/Discrep/empty_b.png</pixmap>
                    </property>
                   </widget>
                  </item>
@@ -819,7 +819,7 @@ QLabel {
                     <string notr="true"/>
                    </property>
                    <property name="pixmap">
-                    <pixmap resource="Resources/req.qrc">:/Discrep/invisible.png</pixmap>
+                    <pixmap>:/Discrep/invisible.png</pixmap>
                    </property>
                   </widget>
                  </item>
@@ -836,7 +836,7 @@ QLabel {
                     <string notr="true"/>
                    </property>
                    <property name="pixmap">
-                    <pixmap resource="Resources/req.qrc">:/Discrep/multiline.png</pixmap>
+                    <pixmap>:/Discrep/multiline.png</pixmap>
                    </property>
                   </widget>
                  </item>
@@ -853,7 +853,7 @@ QLabel {
                     <string notr="true"/>
                    </property>
                    <property name="pixmap">
-                    <pixmap resource="Resources/req.qrc">:/Discrep/space_add_beg.png</pixmap>
+                    <pixmap>:/Discrep/space_add_beg.png</pixmap>
                    </property>
                   </widget>
                  </item>
@@ -870,7 +870,7 @@ QLabel {
                     <string notr="true"/>
                    </property>
                    <property name="pixmap">
-                    <pixmap resource="Resources/req.qrc">:/Discrep/space_del_beg.png</pixmap>
+                    <pixmap>:/Discrep/space_del_beg.png</pixmap>
                    </property>
                   </widget>
                  </item>
@@ -887,7 +887,7 @@ QLabel {
                     <string notr="true"/>
                    </property>
                    <property name="pixmap">
-                    <pixmap resource="Resources/req.qrc">:/Discrep/space_add_end.png</pixmap>
+                    <pixmap>:/Discrep/space_add_end.png</pixmap>
                    </property>
                   </widget>
                  </item>
@@ -904,7 +904,7 @@ QLabel {
                     <string notr="true"/>
                    </property>
                    <property name="pixmap">
-                    <pixmap resource="Resources/req.qrc">:/Discrep/space_del_end.png</pixmap>
+                    <pixmap>:/Discrep/space_del_end.png</pixmap>
                    </property>
                   </widget>
                  </item>
@@ -974,6 +974,7 @@ QLabel {
             <property name="font">
              <font>
               <pointsize>11</pointsize>
+              <bold>true</bold>
              </font>
             </property>
             <property name="text">
@@ -1408,9 +1409,7 @@ QLabel {
   <tabstop>btStartEdit</tabstop>
   <tabstop>browStart</tabstop>
  </tabstops>
- <resources>
-  <include location="Resources/req.qrc"/>
- </resources>
+ <resources/>
  <connections/>
  <slots>
   <slot>doNew()</slot>
