@@ -1,3 +1,5 @@
+VERSION = 0.3.0
+
 QT       += core gui widgets svgwidgets
 
 CONFIG += c++2a

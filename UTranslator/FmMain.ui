@@ -33,7 +33,7 @@
     <item>
      <widget class="QStackedWidget" name="stackMain">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="pageMain">
        <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -966,6 +966,18 @@ QLabel {
            <widget class="QPushButton" name="btStartOpen">
             <property name="text">
              <string>&amp;Open…</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="lbVersion">
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string notr="true">[version]</string>
             </property>
            </widget>
           </item>

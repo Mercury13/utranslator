@@ -301,4 +301,5 @@ private:
     tr::UiObject* acceptCurrObject(Flags<tr::Bug> bugsToRemove);
     void findBy(std::unique_ptr<tr::FindCriterion> crit);
     void setSearchAction(QAction* action, void (FmMain::* func)());
+    void retrieveVersion();
 };

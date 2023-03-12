@@ -555,11 +555,6 @@ auto PrjTreeModel::moveDown(const QModelIndex& index) -> MoveResult
 
 ///// FmMain ///////////////////////////////////////////////////////////////////
 
-void FmMain::setSearchAction(QAction* action, void (FmMain::* func)())
-{
-    connect(action, &QAction::triggered, this, func);
-    searchActions.push_back(action);
-}
 
 FmMain::FmMain(QWidget *parent)
     : QMainWindow(parent)
@@ -570,6 +565,7 @@ FmMain::FmMain(QWidget *parent)
 
     ui->wiFind->close();
     dismissUpdateInfo();
+    retrieveVersion();
 
     // Bugs
     timerBug = std::make_unique<QTimer>();
@@ -675,6 +671,31 @@ FmMain::FmMain(QWidget *parent)
 FmMain::~FmMain()
 {
     delete ui;
+}
+
+
+void FmMain::setSearchAction(QAction* action, void (FmMain::* func)())
+{
+    connect(action, &QAction::triggered, this, func);
+    searchActions.push_back(action);
+}
+
+
+void FmMain::retrieveVersion()
+{
+    auto version = QApplication::applicationVersion();
+        // Count “.” chars
+    int nDots = 0;
+    for (auto c : version)
+        if (c == '.')
+            ++nDots;
+    // Remove '.0' if there will be dots remaining
+    while (nDots > 1 && version.endsWith(".0")) {
+        version.resize(version.length() - 2);
+        --nDots;
+    }
+    ui->lbVersion->setText("v" + version);
+
 }
 
 
