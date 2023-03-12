@@ -167,3 +167,33 @@ void tr::switchOriginalAndTranslation(Project& prj, const eo::Sets2& sets)
     prj.fname.clear();
     prj.modify();
 }
+
+namespace {
+
+    class ResetKnownOriginals final : public tr::TraverseListener
+    {
+    public:
+        void onText(const std::shared_ptr<tr::Text>& x) override;
+        size_t count() const { return n; }
+    private:
+        size_t n = 0;
+    };
+
+    void ResetKnownOriginals::onText(const std::shared_ptr<tr::Text>& x)
+    {
+        if (x->tr.knownOriginal) {
+            x->tr.knownOriginal.reset();
+            ++n;
+        }
+    }
+}   // anon namespace
+
+void tr::resetKnownOriginal(Project& prj)
+{
+    ResetKnownOriginals listener;
+    prj.traverse(listener, WalkOrder::ECONOMY, EnterMe::NO);
+    if (listener.count() != 0) {
+        prj.stats(StatsMode::DIRECT, CascadeDropCache::NO);
+        prj.modify();
+    }
+}

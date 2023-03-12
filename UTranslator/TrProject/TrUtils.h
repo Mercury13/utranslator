@@ -25,5 +25,6 @@ namespace tr {
 
     void extractOriginal(Project& prj, const eo::Sets& sets);
     void switchOriginalAndTranslation(Project& prj, const eo::Sets2& sets);
+    void resetKnownOriginal(Project& prj);
 
 }   // namespace tu

@@ -2008,7 +2008,10 @@ tr::UpdateInfo tr::Project::updateData_FullTransl()
     tempPrj->load(this->info.orig.absPath);
     // Info and fname are left intact
     std::swap(this->files, tempPrj->files);
-    this->removeTranslChannel();
+    // Copy original language
+    if (!tempPrj->info.orig.lang.empty())
+        this->info.orig.lang = tempPrj->info.orig.lang;
+    this->removeTranslChannel();    // Do not forget, we swapped!
     StealContext ctx {
         .orig = tf::StealOrig::KEEP_WARN,
     };

@@ -222,6 +222,7 @@ private slots:
     void runDecoder();
     void extractOriginal();
     void switchOriginalAndTranslation();
+    void resetKnownOriginals();
 protected:
     void closeEvent(QCloseEvent *event) override;
 private:

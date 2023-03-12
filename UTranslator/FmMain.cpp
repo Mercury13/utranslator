@@ -661,6 +661,7 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->acDecoder, &QAction::triggered, this, &This::runDecoder);    
     connect(ui->acExtractOriginal, &QAction::triggered, this, &This::extractOriginal);
     connect(ui->acSwitchOriginalAndTranslation, &QAction::triggered, this, &This::switchOriginalAndTranslation);
+    connect(ui->acResetKnownOriginals, &QAction::triggered, this, &This::resetKnownOriginals);
 
     // Unused parts
     ui->grpCompatId->hide();
@@ -2006,5 +2007,20 @@ void FmMain::switchOriginalAndTranslation()
             auto lk = lockAll(RememberCurrent::YES);
             tr::switchOriginalAndTranslation(*project, *sets);
         }
+    }
+}
+
+
+void FmMain::resetKnownOriginals()
+{
+    if (QMessageBox::question(this,
+            "Reset known originals",
+            "You will get rid of all warnings about changed original, whether true or erroneous." "\n"
+                "For example, you may do this due to changed original language." "\n"
+                "Do you really want to do this?",
+            QMessageBox::Yes | QMessageBox::No,
+            QMessageBox::No) == QMessageBox::Yes) {
+        auto lk = lockAll(RememberCurrent::YES);
+        tr::resetKnownOriginal(*project);
     }
 }

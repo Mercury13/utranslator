@@ -1095,6 +1095,7 @@ QLabel {
      </property>
      <addaction name="acExtractOriginal"/>
      <addaction name="acSwitchOriginalAndTranslation"/>
+     <addaction name="acResetKnownOriginals"/>
     </widget>
     <addaction name="acDecoder"/>
     <addaction name="menuConvertProjectType"/>
@@ -1350,6 +1351,11 @@ QLabel {
   <action name="acSwitchOriginalAndTranslation">
    <property name="text">
     <string>Switch original and translation…</string>
+   </property>
+  </action>
+  <action name="acResetKnownOriginals">
+   <property name="text">
+    <string>Reset known originals</string>
    </property>
   </action>
  </widget>
