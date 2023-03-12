@@ -743,11 +743,12 @@ namespace tr {
         UpdateInfo updateData_FullTransl();
     };
 
+    ///  To prevent TrFinder from including everywhere
     class FindCriterion     // interface
     {
     public:
         virtual bool matchText(const tr::Text&) const = 0;
-        virtual bool matchGroup(const tr::VirtualGroup&) const = 0;
+        virtual bool matchGroup(const tr::VirtualGroup&) const { return false; }
         virtual std::u8string caption() const = 0;
         virtual ~FindCriterion() = default;
     };

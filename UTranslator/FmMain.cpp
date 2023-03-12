@@ -554,6 +554,12 @@ auto PrjTreeModel::moveDown(const QModelIndex& index) -> MoveResult
 
 ///// FmMain ///////////////////////////////////////////////////////////////////
 
+void FmMain::setSearchAction(QAction* action, void (FmMain::* func)())
+{
+    connect(action, &QAction::triggered, this, func);
+    searchActions.push_back(action);
+}
+
 FmMain::FmMain(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::FmMain)
@@ -640,14 +646,16 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->acGoBack, &QAction::triggered, this, &This::goBack);
     connect(ui->acGoNext, &QAction::triggered, this, &This::goNext);
     connect(ui->acGoUp, &QAction::triggered, this, &This::goUp);
-    connect(ui->acGoFind, &QAction::triggered, this, &This::goFind);
     connect(ui->acGoFindNext, &QAction::triggered, ui->wiFind, &WiFind::goNext);
     connect(ui->acGoFindPrev, &QAction::triggered, ui->wiFind, &WiFind::goBack);
     connect(ui->acGoCloseSearch, &QAction::triggered, ui->wiFind, &WiFind::close);
     connect(ui->acGoSearchAgain, &QAction::triggered, this, &This::goSearchAgain);
-    connect(ui->acFindWarningsAll, &QAction::triggered, this, &This::goAllWarnings);
-    connect(ui->acFindWarningsChangedOriginal, &QAction::triggered, this, &This::goChangedOriginal);
-    connect(ui->acFindSpecialMismatchNumber, &QAction::triggered, this, &This::goMismatchNumber);
+    setSearchAction(ui->acGoFind, &This::goFind);
+    setSearchAction(ui->acFindWarningsAll, &This::goAllWarnings);
+    setSearchAction(ui->acFindWarningsChangedOriginal, &This::goChangedOriginal);
+    setSearchAction(ui->acFindSpecialMismatchNumber, &This::goMismatchNumber);
+    setSearchAction(ui->acFindSpecialCommentedByAuthor, &This::goCommentedByAuthor);
+    setSearchAction(ui->acFindSpecialCommentedByTranslator, &This::goCommentedByTranslator);
     // Tools
     connect(ui->acDecoder, &QAction::triggered, this, &This::runDecoder);    
     connect(ui->acExtractOriginal, &QAction::triggered, this, &This::extractOriginal);
@@ -1029,8 +1037,8 @@ void FmMain::reenable()
     ui->acGoBack->setEnabled(isMainVisible);
     ui->acGoNext->setEnabled(isMainVisible);
     ui->acGoUp->setEnabled(isMainVisible);
-    ui->acGoFind->setEnabled(isMainVisible);
-    ui->acFindWarningsAll->setEnabled(isMainVisible);
+    for (auto v : searchActions)
+        v->setEnabled(isMainVisible);
     ui->acGoFindNext->setEnabled(canSearch);
     ui->acGoFindPrev->setEnabled(canSearch);
     ui->acGoCloseSearch->setEnabled(canSearch);
@@ -1509,99 +1517,9 @@ void FmMain::editFileFormat()
 }
 
 
-namespace {
-
-    class Finder : public tr::TraverseListener
-    {
-    public:
-        Finder(const tr::FindCriterion& aCrit);
-        void onText(const std::shared_ptr<tr::Text>&) override;
-        void onEnterGroup(const std::shared_ptr<tr::VirtualGroup>&) override;
-        std::unique_ptr<ts::Result> give() { return std::move(r); }
-        bool isEmpty() const { return r->isEmpty(); }
-    private:
-        const tr::FindCriterion& crit;
-        std::unique_ptr<ts::Result> r;
-    };
-
-    Finder::Finder(const tr::FindCriterion& aCrit)
-        : crit(aCrit), r(new ts::Result) {}
-
-    void Finder::onText(const std::shared_ptr<tr::Text>& x)
-    {
-        if (crit.matchText(*x))
-            r->add(x);
-    }
-
-    void Finder::onEnterGroup(const std::shared_ptr<tr::VirtualGroup>& x)
-    {
-        if (crit.matchGroup(*x))
-            r->add(x);
-    }
-
-    class CritWarning : public tr::FindCriterion
-    {
-    public:
-        CritWarning(std::shared_ptr<tr::Project> x) : project(x) {}
-        bool matchText(const tr::Text&) const override;
-        bool matchGroup(const tr::VirtualGroup&) const override { return false; }
-        std::u8string caption() const override { return u8"Find warnings"; }
-    private:
-        std::shared_ptr<tr::Project> project;
-    };
-
-    bool CritWarning::matchText(const tr::Text& x) const
-    {
-        auto atMode = x.tr.attentionMode(project->info);
-        return (atMode == tr::AttentionMode::ATTENTION);
-    }
-
-    class CritChangedOriginal : public tr::FindCriterion
-    {
-    public:
-        bool matchText(const tr::Text&) const override;
-        bool matchGroup(const tr::VirtualGroup&) const override { return false; }
-        std::u8string caption() const override { return u8"Changed original"; }
-    private:
-        std::shared_ptr<tr::Project> project;
-    };
-
-    bool CritChangedOriginal::matchText(const tr::Text& x) const
-    {
-        return x.tr.knownOriginal.has_value();
-    }
-
-    class CritMismatchNumber : public tr::FindCriterion
-    {
-    public:
-        bool matchText(const tr::Text&) const override;
-        bool matchGroup(const tr::VirtualGroup&) const override { return false; }
-        std::u8string caption() const override { return u8"Mismatching # of lines"; }
-    private:
-        std::shared_ptr<tr::Project> project;
-        static size_t nLines(std::u8string_view x);
-    };
-
-    size_t CritMismatchNumber::nLines(std::u8string_view x)
-    {
-        if (x.empty())
-            return 0;
-        return std::count(x.begin(), x.end(), '\n');
-    }
-
-    bool CritMismatchNumber::matchText(const tr::Text& x) const
-    {
-        if (!x.tr.translation)
-            return false;
-        return (nLines(x.tr.original) != nLines(*x.tr.translation));
-    }
-
-}   // anon namespace
-
-
 void FmMain::findBy(std::unique_ptr<tr::FindCriterion> crit)
 {
-    Finder finder(*crit);
+    ts::Finder finder(*crit);
     project->traverse(finder, tr::WalkOrder::EXACT, tr::EnterMe::NO);
     plantSearchResult(std::move(crit), finder.give());
 }
@@ -1617,7 +1535,7 @@ void FmMain::goFind()
 
 void FmMain::goAllWarnings()
 {
-    auto cond = std::make_unique<CritWarning>(project);
+    auto cond = std::make_unique<ts::CritWarning>(project);
     findBy(std::move(cond));
 }
 
@@ -1632,7 +1550,7 @@ void FmMain::goChangedOriginal()
                             "with external software (e.g. UI messages with form editor) "
                             "and work as translation.");
     } else {
-        auto cond = std::make_unique<CritChangedOriginal>();
+        auto cond = std::make_unique<ts::CritChangedOriginal>();
         findBy(std::move(cond));
     }
 }
@@ -1645,11 +1563,30 @@ void FmMain::goMismatchNumber()
                     "This criterion works for bilinguals/translations only, "
                             "and will find nothing in originals.");
     } else {
-        auto cond = std::make_unique<CritMismatchNumber>();
+        auto cond = std::make_unique<ts::CritMismatchNumber>();
         findBy(std::move(cond));
     }
 }
 
+
+void FmMain::goCommentedByAuthor()
+{
+    auto cond = std::make_unique<ts::CritCommentedByAuthor>();
+    findBy(std::move(cond));
+}
+
+
+void FmMain::goCommentedByTranslator()
+{
+    if (!project->info.isTranslationCommentable()) {
+        QMessageBox::information(this, "Commented by translator",
+                    "This criterion works for translations only, "
+                            "and will find nothing in originals/bilinguals.");
+    } else {
+        auto cond = std::make_unique<ts::CritCommentedByTranslator>();
+        findBy(std::move(cond));
+    }
+}
 
 
 void FmMain::goSearchAgain()

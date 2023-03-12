@@ -1062,6 +1062,8 @@ QLabel {
       <string>Find special</string>
      </property>
      <addaction name="acFindSpecialMismatchNumber"/>
+     <addaction name="acFindSpecialCommentedByAuthor"/>
+     <addaction name="acFindSpecialCommentedByTranslator"/>
     </widget>
     <addaction name="acGoBack"/>
     <addaction name="acGoNext"/>
@@ -1332,6 +1334,16 @@ QLabel {
   <action name="acFindSpecialMismatchNumber">
    <property name="text">
     <string>Mismatching # of lines</string>
+   </property>
+  </action>
+  <action name="acFindSpecialCommentedByAuthor">
+   <property name="text">
+    <string>Commented by author</string>
+   </property>
+  </action>
+  <action name="acFindSpecialCommentedByTranslator">
+   <property name="text">
+    <string>Commented by translator</string>
    </property>
   </action>
  </widget>

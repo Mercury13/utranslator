@@ -291,7 +291,8 @@ namespace tr {
         bool operator == (const PrjInfo& x) const = default;
 
         /// @return [+] can edit original, incl. adding files
-        bool canEditOriginal() const;
+        static bool canEditOriginal(PrjType type);
+        bool canEditOriginal() const { return canEditOriginal(type); }
 
         /// @return [+] can have reference channel
         ///      We CANNOT have multi-storey translations EN→RU→UK.
@@ -315,6 +316,12 @@ namespace tr {
         static bool isTranslation(PrjType type);
         bool isTranslation() const { return isTranslation(type); }
 
+        /// @return [+] Everything translation-related is available,
+        ///             incl. two new channels (translation, translator’s comment),
+        ///             translation settings…
+        static bool isTranslationCommentable(PrjType type) { return !canEditOriginal(type); }
+        bool isTranslationCommentable() const { return isTranslationCommentable(type); }
+
         /// @return [+] is full translation, e.g. empty translation automatically needs attention.
         /// @warning  isFullTranslation → isTranslation
         /// @todo [patch, #23] what to do?
@@ -335,16 +342,15 @@ namespace tr {
     };
 
 //  Project types
-//                         Original  Bilingual  Normal   Freestyle
-//   (implemented)           YES        no       YES       no
-//   canAddFiles             YES        YES      no        YES
-//   canEditOriginal         YES        YES      no        no
-//   canHaveReference        no         no       YES       no
-//   isTranslation           no         YES      YES       YES
-//   (can edit
-//     translator’s comment  no         no       YES       YES
-//   isFullTranslation       no       depends  depends   depends
-//   hasOriginalPath         no         no       YES       no
+//                           Original  Bilingual  Normal   Freestyle
+//   (implemented)             YES        no       YES       no
+//   canAddFiles               YES        YES      no        YES
+//   canEditOriginal           YES        YES      no        no
+//   canHaveReference          no         no       YES       no
+//   isTranslation             no         YES      YES       YES
+//   isTranslationCommentable  no         no       YES       YES    == !canEditOriginal
+//   isFullTranslation         no       depends  depends   depends
+//   hasOriginalPath           no         no       YES       no
 //
 
     struct FileInfo {

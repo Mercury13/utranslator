@@ -78,7 +78,7 @@ bool tf::FormatProto::isWithin(const ProtoFilter& filter) const
 ///// PrjInfo //////////////////////////////////////////////////////////////////
 
 
-bool tr::PrjInfo::canEditOriginal() const
+bool tr::PrjInfo::canEditOriginal(PrjType type)
 {
     switch (type) {
     case PrjType::ORIGINAL:

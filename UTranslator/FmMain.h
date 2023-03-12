@@ -206,6 +206,8 @@ private slots:
     void goAllWarnings();
     void goChangedOriginal();
     void goMismatchNumber();
+    void goCommentedByAuthor();
+    void goCommentedByTranslator();
     // Menu: Original
     void addHostedFile();
     void addHostedGroup();
@@ -231,6 +233,7 @@ private:
     } search;
     tr::UpdateInfo updateInfo;    
     std::unique_ptr<QTimer> timerBug;
+    std::vector<QAction*> searchActions;
 
     Uptr<FmNew> fmNew;
     Uptr<FmDisambigPair> fmDisambigPair;
@@ -293,4 +296,5 @@ private:
     [[nodiscard]] PrjTreeModel::LockAll lockAll(RememberCurrent rem);
     tr::UiObject* acceptCurrObject(Flags<tr::Bug> bugsToRemove);
     void findBy(std::unique_ptr<tr::FindCriterion> crit);
+    void setSearchAction(QAction* action, void (FmMain::* func)());
 };
