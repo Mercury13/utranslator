@@ -77,7 +77,6 @@ std::optional<tr::eo::Sets2> FmSwitchOriginalAndTranslation::exec(tr::Project& p
     }
 }
 
-
 void FmSwitchOriginalAndTranslation::chooseOriginal()
 {
     filedlg::Filters filters {
