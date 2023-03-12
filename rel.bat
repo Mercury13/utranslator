@@ -83,8 +83,6 @@
 @copy %QTDIR%\plugins\platforms\qwindows.dll %DEPLOY%\platforms
 @md %DEPLOY%\styles
 @copy %QTDIR%\plugins\styles\qwindowsvistastyle.dll %DEPLOY%\styles
-@md %DEPLOY%\Fonts
-@copy Fonts\* %DEPLOY%\Fonts >nul
 @if [%WORKAROUND%] == [] goto no_workaround
 @%SEVENZIP% x MiscFiles\%WORKAROUND% -o%DEPLOY%
 :no_workaround
