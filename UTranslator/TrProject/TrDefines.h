@@ -339,6 +339,9 @@ namespace tr {
 
         /// Turns settings to original’s
         void switchToOriginal(WalkChannel channel);
+
+        /// Switches original and translation
+        void switchOriginalAndTranslation();
     };
 
 //  Project types

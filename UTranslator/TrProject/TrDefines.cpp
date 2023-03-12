@@ -138,6 +138,13 @@ bool tr::PrjInfo::canHaveReference(PrjType type)
 }
 
 
+void tr::PrjInfo::switchOriginalAndTranslation()
+{
+    std::swap(orig.lang, transl.lang);
+    orig.absPath.clear();
+}
+
+
 void tr::PrjInfo::switchToOriginal(WalkChannel channel)
 {
     type = PrjType::ORIGINAL;

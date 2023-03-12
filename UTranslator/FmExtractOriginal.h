@@ -10,12 +10,8 @@
 // Qt ex
 #include "QtMultiRadio.h"
 
-// Libs
-#include "u_EcArray.h"
-
 // Translation
 #include "TrUtils.h"
-#include "TrProject.h"
 
 
 namespace Ui {

@@ -37,6 +37,7 @@ class FmFileFormat;
 class FmFind;
 class FmProjectSettings;
 class FmExtractOriginal;
+class FmSwitchOriginalAndTranslation;
 class QPlainTextEdit;
 class QTreeView;
 
@@ -220,6 +221,7 @@ private slots:
     // Menu: Tools
     void runDecoder();
     void extractOriginal();
+    void switchOriginalAndTranslation();
 protected:
     void closeEvent(QCloseEvent *event) override;
 private:
@@ -242,6 +244,7 @@ private:
     Uptr<FmFind> fmFind;
     Uptr<FmProjectSettings> fmProjectSettings;
     Uptr<FmExtractOriginal> fmExtractOriginal;
+    Uptr<FmSwitchOriginalAndTranslation> fmSwitchOriginalAndTranslation;
 
     struct loadSetsCache {
         void* fileKey = nullptr;

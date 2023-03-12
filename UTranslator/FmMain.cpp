@@ -33,6 +33,7 @@
 #include "FmFind.h"
 #include "FmProjectSettings.h"
 #include "FmExtractOriginal.h"
+#include "FmSwitchOriginalAndTranslation.h"
 
 
 ///// LockAll //////////////////////////////////////////////////////////////////
@@ -659,6 +660,7 @@ FmMain::FmMain(QWidget *parent)
     // Tools
     connect(ui->acDecoder, &QAction::triggered, this, &This::runDecoder);    
     connect(ui->acExtractOriginal, &QAction::triggered, this, &This::extractOriginal);
+    connect(ui->acSwitchOriginalAndTranslation, &QAction::triggered, this, &This::switchOriginalAndTranslation);
 
     // Unused parts
     ui->grpCompatId->hide();
@@ -1045,7 +1047,8 @@ void FmMain::reenable()
     ui->acGoSearchAgain->setEnabled(canSearch);
 
     // Menu: Tools
-    ui->acExtractOriginal->setEnabled(isTranslation);
+    ui->acExtractOriginal->setEnabled(isMainVisible);
+    ui->acSwitchOriginalAndTranslation->setEnabled(isMainVisible);
 }
 
 
@@ -1980,17 +1983,30 @@ void FmMain::bugTicked()
 }
 
 
-namespace {
-
-
-
+void FmMain::extractOriginal()
+{
+    if (!project->info.isTranslation()) {
+        QMessageBox::information(this, "Extract original",
+                    "This is possible for bilinguals/translations only.");
+    } else {
+        if (auto sets = fmExtractOriginal.ensure(this).exec(0)) {
+            auto lk = lockAll(RememberCurrent::YES);
+            tr::extractOriginal(*project, *sets);
+        }
+    }
 }
 
 
-void FmMain::extractOriginal()
+void FmMain::switchOriginalAndTranslation()
 {
-    if (auto sets = fmExtractOriginal.ensure(this).exec(0)) {
-        auto lk = lockAll(RememberCurrent::YES);
-        tr::extractOriginal(*project, *sets);
+    if (!project->info.isTranslation()) {
+        QMessageBox::information(this, "Switch original and translation",
+                    "This is possible for bilinguals/translations only.");
+    } else {
+        if (auto sets = fmSwitchOriginalAndTranslation.ensure(this).exec(
+                    project->info.hasOriginalPath())) {
+            auto lk = lockAll(RememberCurrent::YES);
+            tr::switchOriginalAndTranslation(*project, *sets);
+        }
     }
 }

@@ -1094,6 +1094,7 @@ QLabel {
       <string>Convert project type</string>
      </property>
      <addaction name="acExtractOriginal"/>
+     <addaction name="acSwitchOriginalAndTranslation"/>
     </widget>
     <addaction name="acDecoder"/>
     <addaction name="menuConvertProjectType"/>
@@ -1344,6 +1345,11 @@ QLabel {
   <action name="acFindSpecialCommentedByTranslator">
    <property name="text">
     <string>Commented by translator</string>
+   </property>
+  </action>
+  <action name="acSwitchOriginalAndTranslation">
+   <property name="text">
+    <string>Switch original and translation…</string>
    </property>
   </action>
  </widget>

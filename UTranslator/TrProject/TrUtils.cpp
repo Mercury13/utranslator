@@ -45,7 +45,7 @@ namespace {
         void act(tr::Comments& x) const override
         {
             if (x.authors.empty())
-                x.authors = x.translators;
+                x.authors = std::move(x.translators);
         };
     };
 
@@ -53,7 +53,7 @@ namespace {
     public:
         void act(tr::Comments& x) const override
         {
-            x.authors = x.translators;
+            std::swap(x.authors, x.translators);
         };
     };
 
@@ -62,7 +62,7 @@ namespace {
         void act(tr::Comments& x) const override
         {
             if (!x.translators.empty())
-                x.authors = x.translators;
+                std::swap(x.authors, x.translators);
         };
     };
 
@@ -118,6 +118,53 @@ void tr::extractOriginal(Project& prj, const eo::Sets& sets)
     prj.traverse(listener, WalkOrder::ECONOMY, EnterMe::NO);
     prj.removeTranslChannel();
     prj.info.switchToOriginal(extractOriginalChannel[sets.text]);
+    prj.fname.clear();
+    prj.modify();
+}
+
+
+namespace {
+
+    class SwitchOriginalAndTranslation final : public tr::TraverseListener
+    {
+    public:
+        SwitchOriginalAndTranslation(const tr::eo::Sets2& aSets);
+        void onText(const std::shared_ptr<tr::Text>&) override;
+        void onEnterGroup(const std::shared_ptr<tr::VirtualGroup>&) override;
+    private:
+        const ProcessCm& processCm;
+    };
+
+    SwitchOriginalAndTranslation::SwitchOriginalAndTranslation(const tr::eo::Sets2& aSets)
+        : processCm(*extractOriginalCm[aSets.comment]) {}
+
+    void SwitchOriginalAndTranslation::onText(const std::shared_ptr<tr::Text>& text)
+    {
+        auto& tr = text->tr;
+        tr.knownOriginal.reset();
+        // Give some translation
+        if (!tr.translation)
+            tr.translation = std::u8string();
+        // Swap
+        std::swap(tr.original, *tr.translation);
+        // Process comments
+        processCm.act(text->comm);
+    }
+
+    void SwitchOriginalAndTranslation::onEnterGroup(const std::shared_ptr<tr::VirtualGroup>& group)
+    {
+        processCm.act(group->comm);
+    }
+
+}   // anon namespace
+
+
+void tr::switchOriginalAndTranslation(Project& prj, const eo::Sets2& sets)
+{
+    SwitchOriginalAndTranslation listener(sets);
+    prj.traverse(listener, WalkOrder::ECONOMY, EnterMe::NO);
+    prj.removeTranslChannel();
+    prj.info.switchOriginalAndTranslation();
     prj.fname.clear();
     prj.modify();
 }

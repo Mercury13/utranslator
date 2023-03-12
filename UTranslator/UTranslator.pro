@@ -34,6 +34,7 @@ SOURCES += \
     FmFileFormat.cpp \
     FmFind.cpp \
     FmProjectSettings.cpp \
+    FmSwitchOriginalAndTranslation.cpp \
     History.cpp \
     QtDiff.cpp \
     QtIconLib.cpp \
@@ -80,6 +81,7 @@ HEADERS += \
     FmFileFormat.h \
     FmFind.h \
     FmProjectSettings.h \
+    FmSwitchOriginalAndTranslation.h \
     History.h \
     QtDiff.h \
     QtIconLib.h \
@@ -119,6 +121,7 @@ FORMS += \
     FmMain.ui \
     FmNew.ui \
     FmProjectSettings.ui \
+    FmSwitchOriginalAndTranslation.ui \
     WiFind.ui
 
 win32 {         # and W64 too
