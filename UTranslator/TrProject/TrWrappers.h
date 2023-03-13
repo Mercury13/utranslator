@@ -63,7 +63,7 @@ namespace tw {
     class Flyweight
     {
     public:
-        void setL10n(const L10n x) { l10n = x; }
+        void setL10n(const L10n& x) { l10n = x; }
         const TranslObj& getTransl(tr::UiObject& x);
     private:
         L10n l10n;
