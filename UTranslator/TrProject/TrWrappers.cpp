@@ -30,9 +30,10 @@ tw::Fg tw::Flyweight::TranslStats::fg() const
 
 namespace {
 
-    constinit tw::Fg attentionToFg[tr::AttentionMode_N] = {
-        tw::Fg::LIGHT, tw::Fg::NORMAL, tw::Fg::ATTENTION
+    constinit tw::Fg attentionToFg[] = {
+        tw::Fg::LIGHT, tw::Fg::NORMAL, tw::Fg::ATTENTION, tw::Fg::ATTENTION
     };
+    static_assert(std::size(attentionToFg) == tr::AttentionMode_N, "Wrong array size");
 
 }   // anon namespace
 
