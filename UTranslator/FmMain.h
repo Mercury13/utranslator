@@ -58,6 +58,10 @@ struct Thing {
 
 enum class RememberCurrent { NO, YES };
 
+enum class PrjColClass {
+    ID, ORIGINAL, REFERENCE, TRANSLATION
+};
+
 class PrjTreeModel final : public QAbstractItemModel, public QStyledItemDelegate
 {
 public:
@@ -121,7 +125,7 @@ public:
     {
     public:
         LockAll(const LockAll&) = delete;
-        /// Move is better, but C++17 RVO works here, so OK
+        /// Move is better, but C++17 return value optimization works here, so OK
         LockAll(LockAll&& x) noexcept = delete;
         LockAll& operator = (const LockAll&) = delete;
         LockAll& operator = (LockAll&& x) noexcept = delete;
@@ -139,8 +143,9 @@ public:
         { return LockAll(*this, view, rem); }
 
 private:
-    static constexpr int DUMMY_COL = 0;
-    std::shared_ptr<tr::Project> prj;   // will hold old project
+    static constexpr int DUMMY_COL = 0; ///< for QAbstractItemModel.parent
+    std::shared_ptr<tr::Project> prj;   ///< will hold old project
+    std::vector<PrjColClass> colMeanings;
     mutable tw::Flyweight fly;
 };
 
