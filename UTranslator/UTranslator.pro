@@ -28,7 +28,6 @@ SOURCES += \
     ../Libs/SelfMade/Strings/u_Decoders.cpp \
     ../Libs/SelfMade/Strings/u_Qstrings.cpp \
     ../Libs/SelfMade/Strings/u_Strings.cpp \
-    DiffBrowser.cpp \
     FmAboutFormat.cpp \
     FmDecoder.cpp \
     FmDisambigPair.cpp \
@@ -38,8 +37,10 @@ SOURCES += \
     FmProjectSettings.cpp \
     FmSwitchOriginalAndTranslation.cpp \
     History.cpp \
-    QtDiff.cpp \
     QtIconLib.cpp \
+    Main/DiffBrowser.cpp \
+    Main/FmMain.cpp \
+    Main/QtDiff.cpp \
     TrProject/Modifiable.cpp \
     TrProject/TrBugs.cpp \
     TrProject/TrDefines.cpp \
@@ -51,8 +52,7 @@ SOURCES += \
     WiFind.cpp \
     d_Config.cpp \
     FmNew.cpp \
-    main.cpp \
-    FmMain.cpp
+    main.cpp
 
 HEADERS += \
     ../Libs/MagicEnum/magic_enum.hpp \
@@ -75,7 +75,6 @@ HEADERS += \
     ../Libs/SelfMade/Strings/u_Decoders.h \
     ../Libs/SelfMade/Strings/u_Qstrings.h \
     ../Libs/SelfMade/Strings/u_Strings.h \
-    DiffBrowser.h \
     FmAboutFormat.h \
     FmDecoder.h \
     FmDisambigPair.h \
@@ -85,8 +84,10 @@ HEADERS += \
     FmProjectSettings.h \
     FmSwitchOriginalAndTranslation.h \
     History.h \
-    QtDiff.h \
     QtIconLib.h \
+    Main/DiffBrowser.h \
+    Main/FmMain.h \
+    Main/QtDiff.h \
     TrProject/Modifiable.h \
     TrProject/TrBugs.h \
     TrProject/TrDefines.h \
@@ -97,7 +98,6 @@ HEADERS += \
     TrProject/TrWrappers.h \
     WiFind.h \
     d_Config.h \
-    FmMain.h \
     FmNew.h \
     d_Strings.h
 
@@ -111,16 +111,17 @@ INCLUDEPATH += \
     ../Libs/SelfMade/Mojibake \
     ../Libs/SelfMade/Qt \
     ../Libs/SelfMade/Strings \
+    Main \
     TrProject
 
 FORMS += \
+    Main/FmMain.ui \
     FmAboutFormat.ui \
     FmDecoder.ui \
     FmDisambigPair.ui \
     FmExtractOriginal.ui \
     FmFileFormat.ui \
     FmFind.ui \
-    FmMain.ui \
     FmNew.ui \
     FmProjectSettings.ui \
     FmSwitchOriginalAndTranslation.ui \
