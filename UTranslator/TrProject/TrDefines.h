@@ -279,7 +279,6 @@ namespace tr {
         } orig;
         struct Ref {
             std::filesystem::path absPath;
-            bool isSecondOriginal = false;    ///< [+] reference language changed → also alert
             bool operator == (const Ref& x) const = default;
             void clear() { *this = Ref(); }
         } ref;

@@ -1761,7 +1761,6 @@ void tr::Project::writeToXml(
         auto nodeRef = nodeInfo.append_child("ref");
             auto relPath = c.toRelPath(info.ref.absPath);
             nodeRef.append_attribute("fname") = str::toC(relPath.u8string());
-            nodeRef.append_attribute("isorig") = info.ref.isSecondOriginal;
     }
     if (info.isTranslation()) {
         auto nodeTransl = nodeInfo.append_child("transl");
@@ -1795,7 +1794,6 @@ void tr::Project::readFromXml(
     if (info.canHaveReference()) {
         auto nodeRef = nodeInfo.child("ref");
         info.ref.absPath = ctx.toAbsPath(nodeRef.attribute("fname").as_string());
-        info.ref.isSecondOriginal = nodeRef.attribute("isorig").as_bool();
     }
     if (info.isTranslation()) {
         auto nodeTransl = rqChild(nodeInfo, "transl");
