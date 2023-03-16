@@ -144,6 +144,7 @@ PrjTreeModel::LockAll::LockAll(
 PrjTreeModel::LockAll::~LockAll()
 {
     if (owner) {
+        owner->buildColMeanings();
         owner->endResetModel();
         restoreViewState(*owner, view, rem);
     }
