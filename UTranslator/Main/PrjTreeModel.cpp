@@ -141,12 +141,16 @@ PrjTreeModel::LockAll::LockAll(
     owner->beginResetModel();
 }
 
-PrjTreeModel::LockAll::~LockAll() noexcept(false)
+PrjTreeModel::LockAll::~LockAll()
 {
-    if (owner) {
-        owner->buildColMeanings();
-        owner->endResetModel();
-        restoreViewState(*owner, view, rem);
+    try {
+        if (owner) {
+            owner->buildColMeanings();
+            owner->endResetModel();
+            restoreViewState(*owner, view, rem);
+        }
+    } catch (...) {
+        std::terminate();   // -warn
     }
 }
 
