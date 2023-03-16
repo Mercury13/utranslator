@@ -283,14 +283,14 @@ namespace {
 
 QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
 {
-    if (!prj)
-        return {};
-    if (index.column() < static_cast<int>(colMeanings.size()))
+    if (!prj)    // No project
         return {};
     switch (role) {
     case Qt::DisplayRole: {
             auto obj = toObj(index);
-            switch (colMeanings[index.column()]) {
+            switch (colMeanings.safeGetV(index.column(), PrjColClass::DUMMY)) {
+            case PrjColClass::DUMMY:
+                return "????????";
             case PrjColClass::ID:
                 return str::toQ(obj->idColumn());
             case PrjColClass::ORIGINAL:
@@ -306,7 +306,7 @@ QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
         }
     case Qt::BackgroundRole: {
             auto obj = toObj(index);
-            switch (colMeanings[index.column()]) {
+            switch (colMeanings.safeGetV(index.column(), PrjColClass::DUMMY)) {
             case PrjColClass::ID:
                 if (obj->cache.mod.has(tr::Mch::META_ID))
                     return BG_MODIFIED;
@@ -320,13 +320,14 @@ QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
                     return BG_MODIFIED;
                 return {};
             case PrjColClass::REFERENCE:  // Reference never modifies
+            case PrjColClass::DUMMY:      // Dummy never has BG
                 return {};
             }
             UNREACHABLE
         }
     case Qt::ForegroundRole: {
             auto obj = toObj(index);
-            switch (colMeanings[index.column()]) {
+            switch (colMeanings.safeGetV(index.column(), PrjColClass::DUMMY)) {
             case PrjColClass::TRANSLATION: {
                     auto& cl = fgColors[fly.getTransl(*obj).iFg()];
                     return cl.isValid() ? cl : QVariant();
@@ -334,6 +335,7 @@ QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
             case PrjColClass::ID:
             case PrjColClass::ORIGINAL:
             case PrjColClass::REFERENCE:
+            case PrjColClass::DUMMY:      // Dummy never has FG
                 return {};
             }
             UNREACHABLE

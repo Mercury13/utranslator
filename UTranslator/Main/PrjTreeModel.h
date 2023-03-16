@@ -22,7 +22,7 @@ struct Thing {
 enum class RememberCurrent { NO, YES };
 
 enum class PrjColClass {
-    ID, ORIGINAL, REFERENCE, TRANSLATION
+    DUMMY, ID, ORIGINAL, REFERENCE, TRANSLATION
 };
 
 class PrjTreeModel final : public QAbstractItemModel, public QStyledItemDelegate
@@ -108,7 +108,7 @@ public:
 private:
     static constexpr int DUMMY_COL = 0; ///< for QAbstractItemModel.parent
     std::shared_ptr<tr::Project> prj;   ///< will hold old project
-    std::vector<PrjColClass> colMeanings;
+    SafeVector<PrjColClass> colMeanings;
     mutable tw::Flyweight fly;
 
     void buildColMeanings();
