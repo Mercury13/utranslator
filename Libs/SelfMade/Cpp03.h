@@ -14,7 +14,7 @@
     #define DEFAULT_BODY  = default;
     #define HASH_NS std
     #define STD_MOVE(x) std::move(x)
-    #define THROWS_EXCEPT noexcept(false)
+    #define THROWS_EXCEPT noexcept(false)    
 #else
     // C++03 here
     // Define C++11 keywords
@@ -64,6 +64,12 @@
 
 #if __cplusplus>199711L || (__BORLANDC__ >= 1500)
     #define CPP_MOVE_SEMANTICS
+#endif
+
+#if defined (__GNUC__) || defined (__clang__)
+    #define UNREACHABLE __builtin_unreachable();
+#else
+    #define UNREACHABLE
 #endif
 
 #endif

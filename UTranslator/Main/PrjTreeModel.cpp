@@ -153,18 +153,12 @@ PrjTreeModel::LockAll::~LockAll()
 ///// PrjTreeModel /////////////////////////////////////////////////////////////
 
 namespace {
-    enum {
-        COL_ID = 0,
-        COL_ORIG = 1,
-        COL_TRANSL = 2,
-        N_ORIG = COL_ORIG + 1,
-        N_TRANSL = COL_TRANSL + 1,
-    };
 
     constinit const tw::L10n treeL10n {
         .untranslated = S8(STR_UNTRANSLATED),
         .emptyString = S8(STR_EMPTY_STRING),
     };
+
 }   // anon namespace
 
 
@@ -254,15 +248,7 @@ int PrjTreeModel::rowCount(const QModelIndex &parent) const
 
 int PrjTreeModel::columnCount(const QModelIndex &) const
 {
-    if (!prj)
-        return N_ORIG;
-    switch (prj->info.type) {
-    case tr::PrjType::ORIGINAL:
-        return N_ORIG;
-    case tr::PrjType::FULL_TRANSL:
-        return N_TRANSL;
-    }
-    return N_TRANSL;
+    return colMeanings.size();
 }
 
 namespace {
@@ -299,48 +285,55 @@ QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
 {
     if (!prj)
         return {};
+    if (index.column() < static_cast<int>(colMeanings.size()))
+        return {};
     switch (role) {
     case Qt::DisplayRole: {
             auto obj = toObj(index);
-            switch (index.column()) {
-            case COL_ID:
+            switch (colMeanings[index.column()]) {
+            case PrjColClass::ID:
                 return str::toQ(obj->idColumn());
-            case COL_ORIG:
+            case PrjColClass::ORIGINAL:
                 /// @todo [urgent] get rid of origColumn
                 return brushLineEnds(obj->origColumn());
-            case COL_TRANSL:
+            case PrjColClass::REFERENCE:
+                /// @todo [reference, #59] Reference column
+                return "[Reference here]";
+            case PrjColClass::TRANSLATION:
                 return brushLineEnds(fly.getTransl(*obj));
-            default:
-                return {};
             }
+            UNREACHABLE
         }
     case Qt::BackgroundRole: {
             auto obj = toObj(index);
-            switch (index.column()) {
-            case COL_ID:
+            switch (colMeanings[index.column()]) {
+            case PrjColClass::ID:
                 if (obj->cache.mod.has(tr::Mch::META_ID))
                     return BG_MODIFIED;
                 return {};
-            case COL_ORIG:
+            case PrjColClass::ORIGINAL:
                 if (obj->cache.mod.has(tr::Mch::ORIG))
                     return BG_MODIFIED;
                 return {};
-            case COL_TRANSL:
+            case PrjColClass::TRANSLATION:
                 if (obj->cache.mod.has(tr::Mch::TRANSL))
                     return BG_MODIFIED;
                 return {};
-            default:
+            case PrjColClass::REFERENCE:  // Reference never modifies
                 return {};
             }
+
         }
     case Qt::ForegroundRole: {
             auto obj = toObj(index);
-            switch (index.column()) {
-            case COL_TRANSL: {
+            switch (colMeanings[index.column()]) {
+            case PrjColClass::TRANSLATION: {
                     auto& cl = fgColors[fly.getTransl(*obj).iFg()];
                     return cl.isValid() ? cl : QVariant();
                 }
-            default:
+            case PrjColClass::ID:
+            case PrjColClass::ORIGINAL:
+            case PrjColClass::REFERENCE:
                 return {};
             }
         }

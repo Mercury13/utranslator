@@ -63,6 +63,7 @@ HEADERS += \
     ../Libs/Qt/DblClickLabel.h \
     ../Libs/Qt/DblClickRadio.h \
     ../Libs/Qt/ElidedLabel.h \
+    ../Libs/SelfMade/Cpp03.h \
     ../Libs/SelfMade/Mojibake/mojibake.h \
     ../Libs/SelfMade/Qt/QtConsts.h \
     ../Libs/SelfMade/Qt/QtMultiRadio.h \
