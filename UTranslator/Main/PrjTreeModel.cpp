@@ -141,7 +141,7 @@ PrjTreeModel::LockAll::LockAll(
     owner->beginResetModel();
 }
 
-PrjTreeModel::LockAll::~LockAll()
+PrjTreeModel::LockAll::~LockAll() noexcept(false)
 {
     if (owner) {
         owner->buildColMeanings();

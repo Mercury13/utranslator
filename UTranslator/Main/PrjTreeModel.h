@@ -93,7 +93,7 @@ public:
         LockAll& operator = (const LockAll&) = delete;
         LockAll& operator = (LockAll&& x) noexcept = delete;
 
-        ~LockAll();
+        ~LockAll() noexcept(false);
     private:
         friend class PrjTreeModel;
         LockAll(PrjTreeModel& x, QTreeView* aView, RememberCurrent aRem);
