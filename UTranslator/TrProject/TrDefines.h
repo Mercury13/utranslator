@@ -273,6 +273,8 @@ namespace tr {
         struct Orig {
             std::string lang;
             std::filesystem::path absPath;
+            /// @todo [bilingual] do smth with it!
+            bool isBilingual = false;
             bool operator == (const Orig& x) const = default;
         } orig;
         struct Ref {
@@ -341,7 +343,17 @@ namespace tr {
         void switchToOriginal(WalkChannel channel);
 
         /// Switches original and translation
-        void switchOriginalAndTranslation(const std::filesystem::path& path);
+        void switchOriginalAndTranslation(
+                const std::filesystem::path& pathToNewOriginal);
+
+        /// @return [+] actually has reference
+        bool hasReference() const
+        {
+            // 1. Can have reference.
+            // 2. Bilingual’s translation is a reference unless user specified another one.
+            return canHaveReference() &&
+                    (orig.isBilingual || !ref.absPath.empty());
+        }
     };
 
 //  Project types

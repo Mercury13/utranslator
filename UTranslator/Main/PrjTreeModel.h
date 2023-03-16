@@ -110,6 +110,8 @@ private:
     std::shared_ptr<tr::Project> prj;   ///< will hold old project
     std::vector<PrjColClass> colMeanings;
     mutable tw::Flyweight fly;
+
+    void buildColMeanings();
 };
 
 

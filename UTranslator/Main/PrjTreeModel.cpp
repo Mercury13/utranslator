@@ -171,6 +171,7 @@ namespace {
 PrjTreeModel::PrjTreeModel()
 {
     fly.setL10n(treeL10n);
+    buildColMeanings();
 }
 
 
@@ -178,7 +179,21 @@ void PrjTreeModel::setProject(std::shared_ptr<tr::Project> aProject)
 {
     beginResetModel();
     prj = aProject;
+    buildColMeanings();
     endResetModel();
+}
+
+void PrjTreeModel::buildColMeanings()
+{
+    colMeanings.clear();
+    colMeanings.push_back(PrjColClass::ID);
+    colMeanings.push_back(PrjColClass::ORIGINAL);
+    if (prj) {
+        if (prj->info.hasReference())
+            colMeanings.push_back(PrjColClass::REFERENCE);
+        if (prj->info.isTranslation())
+            colMeanings.push_back(PrjColClass::TRANSLATION);
+    }
 }
 
 tr::UiObject* PrjTreeModel::toObjOr(
