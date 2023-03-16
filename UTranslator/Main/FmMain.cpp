@@ -744,7 +744,7 @@ void FmMain::doDelete()
     auto answer = QMessageBox::question(this, "Delete", message);
     if (answer != QMessageBox::Yes)
         return;
-    /// @todo [find, #20] limit search??
+    /// @todo [find, #20] limit search instead of complete closing?
     ui->wiFind->close();
     treeModel.extract(obj);
 }
