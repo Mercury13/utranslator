@@ -173,7 +173,7 @@ PrjTreeModel::PrjTreeModel()
 void PrjTreeModel::setProject(std::shared_ptr<tr::Project> aProject)
 {
     beginResetModel();
-    prj = aProject;
+    prj = std::move(aProject);
     buildColMeanings();
     endResetModel();
 }
