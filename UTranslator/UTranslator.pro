@@ -37,10 +37,11 @@ SOURCES += \
     FmProjectSettings.cpp \
     FmSwitchOriginalAndTranslation.cpp \
     History.cpp \
-    QtIconLib.cpp \
     Main/DiffBrowser.cpp \
     Main/FmMain.cpp \
+    Main/PrjTreeModel.cpp \
     Main/QtDiff.cpp \
+    QtIconLib.cpp \
     TrProject/Modifiable.cpp \
     TrProject/TrBugs.cpp \
     TrProject/TrDefines.cpp \
@@ -84,10 +85,11 @@ HEADERS += \
     FmProjectSettings.h \
     FmSwitchOriginalAndTranslation.h \
     History.h \
-    QtIconLib.h \
     Main/DiffBrowser.h \
     Main/FmMain.h \
+    Main/PrjTreeModel.h \
     Main/QtDiff.h \
+    QtIconLib.h \
     TrProject/Modifiable.h \
     TrProject/TrBugs.h \
     TrProject/TrDefines.h \
