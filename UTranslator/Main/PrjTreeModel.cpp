@@ -322,7 +322,7 @@ QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
             case PrjColClass::REFERENCE:  // Reference never modifies
                 return {};
             }
-
+            UNREACHABLE
         }
     case Qt::ForegroundRole: {
             auto obj = toObj(index);
@@ -336,6 +336,7 @@ QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
             case PrjColClass::REFERENCE:
                 return {};
             }
+            UNREACHABLE
         }
     default:
         return {};
