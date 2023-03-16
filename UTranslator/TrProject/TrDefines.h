@@ -273,7 +273,7 @@ namespace tr {
         struct Orig {
             std::string lang;
             std::filesystem::path absPath;
-            /// @todo [bilingual] do smth with it!
+            /// @todo [bilingual] do smth with it, always false right now!
             bool isBilingual = false;
             bool operator == (const Orig& x) const = default;
         } orig;
