@@ -19,7 +19,8 @@ public:
 
     bool exec(tr::PrjInfo& info);
 private slots:
-    void chooseOriginal();
+    void browseOriginal();
+    void browseReference();
 private:
     Ui::FmProjectSettings *ui;
     void copyFrom(const tr::PrjInfo& x);

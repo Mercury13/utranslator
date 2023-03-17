@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>466</width>
-    <height>250</height>
+    <width>470</width>
+    <height>286</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -71,7 +71,7 @@
             <widget class="QLineEdit" name="edOrigFile"/>
            </item>
            <item>
-            <widget class="QToolButton" name="btBrowseFile">
+            <widget class="QToolButton" name="btBrowseOriginal">
              <property name="focusPolicy">
               <enum>Qt::NoFocus</enum>
              </property>
@@ -116,6 +116,9 @@
         <property name="rightMargin">
          <number>9</number>
         </property>
+        <property name="bottomMargin">
+         <number>6</number>
+        </property>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1">
           <item>
@@ -139,6 +142,44 @@
           <property name="text">
            <string>Pseudo-localize untranslated strings while exporting</string>
           </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QWidget" name="wiReference" native="true">
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="lbReference">
+             <property name="text">
+              <string>Reference translation</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="edReference"/>
+           </item>
+           <item>
+            <widget class="QToolButton" name="btBrowseReference">
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
+             </property>
+             <property name="text">
+              <string>...</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </item>
        </layout>
