@@ -25,6 +25,13 @@ enum class PrjColClass {
     DUMMY, ID, ORIGINAL, REFERENCE, TRANSLATION
 };
 
+class TempProps
+{
+private:
+    SafeVector<PrjColClass> colMeanings;
+    friend class PrjTreeModel;
+};
+
 class PrjTreeModel final : public QAbstractItemModel, public QStyledItemDelegate
 {
 public:
@@ -102,6 +109,7 @@ public:
         RememberCurrent rem;
     };
 
+    std::optional<TempProps> checkProps() const;
     [[nodiscard]] LockAll lock(QTreeView* view, RememberCurrent rem)
         { return LockAll(*this, view, rem); }
 
@@ -111,6 +119,7 @@ private:
     SafeVector<PrjColClass> colMeanings;
     mutable tw::Flyweight fly;
 
+    void getColMeanings(SafeVector<PrjColClass>& r) const;
     void buildColMeanings();
 };
 

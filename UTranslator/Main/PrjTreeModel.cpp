@@ -182,17 +182,31 @@ void PrjTreeModel::setProject(std::shared_ptr<tr::Project> aProject)
     endResetModel();
 }
 
-void PrjTreeModel::buildColMeanings()
+void PrjTreeModel::getColMeanings(SafeVector<PrjColClass>& r) const
 {
-    colMeanings.clear();
-    colMeanings.push_back(PrjColClass::ID);
-    colMeanings.push_back(PrjColClass::ORIGINAL);
+    r.clear();
+    r.push_back(PrjColClass::ID);
+    r.push_back(PrjColClass::ORIGINAL);
     if (prj) {
         if (prj->info.hasReference())
-            colMeanings.push_back(PrjColClass::REFERENCE);
+            r.push_back(PrjColClass::REFERENCE);
         if (prj->info.isTranslation())
-            colMeanings.push_back(PrjColClass::TRANSLATION);
+            r.push_back(PrjColClass::TRANSLATION);
     }
+}
+
+void PrjTreeModel::buildColMeanings()
+{
+    getColMeanings(colMeanings);
+}
+
+std::optional<TempProps> PrjTreeModel::checkProps() const
+{
+    TempProps r;
+    getColMeanings(r.colMeanings);
+    if (colMeanings == r.colMeanings)
+        return std::nullopt;
+    return r;
 }
 
 tr::UiObject* PrjTreeModel::toObjOr(

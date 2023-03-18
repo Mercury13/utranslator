@@ -1322,8 +1322,14 @@ void FmMain::doProjectProps()
 {
     if (!project)
         return;
-    if (fmProjectSettings.ensure(this).exec(project->info))
+    if (fmProjectSettings.ensure(this).exec(project->info)) {
         project->modify();
+        if (auto tmp = treeModel.checkProps()) {
+            auto lk = treeModel.lock(ui->treeStrings, RememberCurrent::YES);
+            // do nothing under that lock for now,
+            // and lk will build meanings once again
+        }
+    }
 }
 
 
