@@ -1352,7 +1352,6 @@ void FmMain::doUpdateData()
                     auto lk = lockAll(RememberCurrent::YES);
                     for (const auto& sg : syncGroups) {
                         thrownGroup = sg;  // throws exception → know which group
-                        /// @todo [urgent] update sync group
                         updateInfo += sg->updateData();
                     }
                     reflectUpdateInfo();
