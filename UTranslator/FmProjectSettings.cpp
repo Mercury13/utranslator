@@ -36,6 +36,7 @@ FmProjectSettings::FmProjectSettings(QWidget *parent) :
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &This::accept);
     connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &This::reject);
     connect(ui->btBrowseOriginal, &QAbstractButton::clicked, this, &This::browseOriginal);
+    connect(ui->btBrowseReference, &QAbstractButton::clicked, this, &This::browseReference);
 }
 
 FmProjectSettings::~FmProjectSettings()
@@ -76,34 +77,23 @@ void FmProjectSettings::copyTo(tr::PrjInfo& r)
     if (r.isTranslation()) {
         r.transl.lang = ui->edTranslLanguage->currentText().toStdString();
         r.transl.wantPseudoLocIfFull = ui->chkPseudoLoc->isChecked();
+        if (r.canHaveReference()) {
+            r.ref.absPath = ui->edReference->text().toStdWString();
+        }
     }
 }
 
 
 void FmProjectSettings::browseOriginal()
 {
-    filedlg::Filters filters {
-        FILTER_TRANSLATABLE, filedlg::ALL_FILES,
-    };
-    auto fname = filedlg::open(
-                this, L"Choose original", filters, WEXT_TRANSLATABLE,
-                filedlg::AddToRecent::NO);
-    if (!fname.empty()) {
-        ui->edOrigFile->setText(QString::fromStdWString(fname));
-    }
+    filedlg::browseLineEdit(this,  L"Choose original",
+                FILTER_TRANSLATABLE, WEXT_TRANSLATABLE, ui->edOrigFile);
 }
 
 void FmProjectSettings::browseReference()
 {
-    filedlg::Filters filters {
-        FILTER_TRANSLATION, filedlg::ALL_FILES,
-    };
-    auto fname = filedlg::open(
-                this, L"Choose reference translation", filters, WEXT_TRANSLATABLE,
-                filedlg::AddToRecent::NO);
-    if (!fname.empty()) {
-        ui->edOrigFile->setText(QString::fromStdWString(fname));
-    }
+    filedlg::browseLineEdit(this,  L"Choose reference translation",
+                FILTER_TRANSLATION, WEXT_TRANSLATION, ui->edReference);
 }
 
 bool FmProjectSettings::exec(tr::PrjInfo& info)

@@ -2,6 +2,7 @@
 
 //qt
 #include <QString>
+#include <QLineEdit>
 
 // Uncomment to test Qt version under W32
 //#define TEST_QT
@@ -163,3 +164,26 @@
     }
 
 #endif
+
+
+bool filedlg::browseLineEdit(
+        QWidget* owner,
+        Zsv<wchar_t> caption,
+        const Filter& filter,
+        Zsv<wchar_t> extension,
+        QLineEdit* editor)
+{
+    /// @todo [L10n] string hardcoded here
+    filedlg::Filters filters {
+        filter, filedlg::ALL_FILES,
+    };
+    auto fname = filedlg::open(
+                owner, caption, filters, extension,
+                filedlg::AddToRecent::NO);
+    if (!fname.empty()) {
+        editor->setText(QString::fromStdWString(fname));
+        return true;
+    } else {
+        return false;
+    }
+}

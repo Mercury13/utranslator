@@ -6,6 +6,7 @@
 
 // Libs
 #include "u_Qstrings.h"
+#include "u_EcArray.h"
 
 // Data
 #include "d_Strings.h"
@@ -368,14 +369,13 @@ QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
 QVariant PrjTreeModel::headerData(
         int section, Qt::Orientation orientation, int role) const
 {
-    static constinit const char* colNames[] {
-        "ID", "Original", "Translation" };
+    static constinit const ec::Array<const char*, PrjColClass> colNames {
+        "?????", "ID", "Original", "Reference", "Translation" };
 
     if (orientation == Qt::Horizontal) {
         if (role == Qt::DisplayRole) {
-            if (static_cast<size_t>(section) < std::size(colNames)) {
-                return colNames[section];
-            }
+            auto meaning = colMeanings.safeGetV(section, PrjColClass::DUMMY);
+            return colNames[meaning];
         }
     }
     return {};

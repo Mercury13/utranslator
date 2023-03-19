@@ -18,6 +18,7 @@
 //utils
 #include "u_OpenSaveStrings.h"
 
+class QLineEdit;
 
 ///
 ///  Simple null-terminated string_view
@@ -95,6 +96,13 @@ namespace filedlg {
             Zsv<wchar_t> aExtension,  ///< W32 requires null-termination
             std::wstring_view aDefaultFname,  ///< Some alchemy here, so OK
             AddToRecent aAddToRecent);
+
+    bool browseLineEdit(
+            QWidget* owner,
+            Zsv<wchar_t> caption,
+            const Filter& filter,
+            Zsv<wchar_t> extension,
+            QLineEdit* editor);
 
 } //filedlg ns
 
