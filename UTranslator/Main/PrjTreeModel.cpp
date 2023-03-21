@@ -296,7 +296,7 @@ namespace {
         { 0xDC, 0x14, 0x3C },   // ATTENTION — HTML crimson
         { 0x00, 0x80, 0x00 },   // OK — dumb green
         { 0x69, 0x69, 0x69 },   // STATS — HTML dim gray
-        { 0xD3, 0xD3, 0xD3 },   // LIGHT — HTML light gray
+        { 0xCC, 0xCC, 0xCC },   // LIGHT — HTML light gray
     };
     static_assert(std::size(fgColors) == tw::Fg_N);
 }
@@ -317,8 +317,7 @@ QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
                 /// @todo [urgent] get rid of origColumn
                 return brushLineEnds(obj->origColumn());
             case PrjColClass::REFERENCE:
-                /// @todo [reference, #59] Reference column
-                return "[Reference here]";
+                return brushLineEnds(fly.getRef(*obj));
             case PrjColClass::TRANSLATION:
                 return brushLineEnds(fly.getTransl(*obj));
             }
@@ -352,9 +351,12 @@ QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
                     auto& cl = fgColors[fly.getTransl(*obj).iFg()];
                     return cl.isValid() ? cl : QVariant();
                 }
+            case PrjColClass::REFERENCE: {
+                    auto& cl = fgColors[fly.getRef(*obj).iFg()];
+                    return cl.isValid() ? cl : QVariant();
+                }
             case PrjColClass::ID:
             case PrjColClass::ORIGINAL:
-            case PrjColClass::REFERENCE:
             case PrjColClass::DUMMY:      // Dummy never has FG
                 return {};
             }

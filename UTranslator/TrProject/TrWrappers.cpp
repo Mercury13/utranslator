@@ -63,5 +63,24 @@ auto tw::Flyweight::getTransl(tr::UiObject& x) -> const TranslObj&
         trStats.stats = stats;
         return trStats;
     }
-    return NoString::INST;
+}
+
+auto tw::Flyweight::getRef(tr::UiObject& x) -> const TranslObj&
+{
+    if (auto tr = x.translatable()) {
+        if (tr->reference) {
+            if (tr->reference->empty()) {
+                // Translated, empty string
+                return dumb.set(l10n.emptyString, Fg::LIGHT);
+            } else {
+                // Translated, non-empty string
+                return dumb.set(*tr->reference, Fg::NORMAL);
+            }
+        } else {
+            // Untranslated
+            return dumb.set(l10n.untranslated, Fg::LIGHT);
+        }
+    } else {
+        return NoString::INST;
+    }
 }

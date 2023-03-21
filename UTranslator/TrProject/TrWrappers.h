@@ -65,6 +65,7 @@ namespace tw {
     public:
         void setL10n(const L10n& x) { l10n = x; }
         const TranslObj& getTransl(tr::UiObject& x);
+        const TranslObj& getRef(tr::UiObject& x);
     private:
         L10n l10n;
         DumbString dumb;
