@@ -47,6 +47,8 @@ namespace ts {
     class Result;
 }
 
+enum class OpenPlace { PROJECT, REFERENCE };
+
 class FmMain :
         public QMainWindow,
         public ModListener,
@@ -191,8 +193,9 @@ private:
     /// Same but for disabling components
     void banMemo(QWidget* wi, QPlainTextEdit* memo);
     void openFile(std::filesystem::path fname);
-    void openFileFromHistory(unsigned i);
-    void openFileThrow(std::filesystem::path fname);
+    void openFileFromHistory(unsigned i);    
+    void openFileThrow(std::filesystem::path fname, OpenPlace& rPlace);
+    void handleReferenceError(const char* text);
     void doBuild();
     bool checkSave(std::string_view caption);
     void plantSearchResult(

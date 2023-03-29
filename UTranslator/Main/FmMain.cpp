@@ -833,23 +833,76 @@ bool FmMain::doSaveAs()
 }
 
 
-void FmMain::openFileThrow(std::filesystem::path fname)
+namespace {
+
+    enum class EnableExec { NO, YES };
+
+    ///
+    /// \brief  Executes something afterwards
+    ///    Used in error-handling code, when there are lots of execution paths,
+    ///    and we just need to mark whether we execute it.
+    ///
+    template <class T> class ExecAfter {
+    public:
+        constexpr ExecAfter(EnableExec aIsEnabled, const T& aBody) noexcept
+            : isEnabled(static_cast<bool>(aIsEnabled)), body(aBody) {}
+        ~ExecAfter() noexcept(noexcept(body())) {
+            if (isEnabled)
+                body();
+        }
+        constexpr void enable() { isEnabled = true; }
+        constexpr void disable() { isEnabled = false; }
+    private:
+        bool isEnabled;
+        const T& body;
+    };
+
+}   // anon namespace
+
+
+void FmMain::openFileThrow(std::filesystem::path fname, OpenPlace& rPlace)
 {
+    rPlace = OpenPlace::PROJECT;
     dismissUpdateInfo();
     auto prj = tr::Project::make();
     prj->load(fname);
     ui->wiFind->close();
-    plantNewProject(std::move(prj));
-    config::history.pushFile(std::move(fname));
+    rPlace = OpenPlace::REFERENCE;
+    ExecAfter ea(EnableExec::YES, [&prj, &fname, this]() {
+        plantNewProject(std::move(prj));
+        config::history.pushFile(std::move(fname));
+    });
+    prj->updateReference();
+    // ExecAfter will exec here!
+}
+
+namespace {
+
+    constinit const char* HEAD_PROJECT = "Open";
+    constinit const char* HEAD_REFERENCE = "Load reference";
+
+}
+
+void FmMain::handleReferenceError(const char* text)
+{
+    QMessageBox::warning(this, HEAD_REFERENCE, QString::fromStdString(text));
 }
 
 
 void FmMain::openFile(std::filesystem::path fname)      // by-value + move
 {
+    OpenPlace openPlace = OpenPlace::PROJECT;
     try {
-        openFileThrow(fname);
+        openFileThrow(std::move(fname), openPlace);
     } catch (const std::exception& e) {
-        QMessageBox::critical(this, "Open", QString::fromStdString(e.what()));
+        switch (openPlace) {
+        case OpenPlace::PROJECT:
+            QMessageBox::critical(this, HEAD_PROJECT, QString::fromStdString(e.what()));
+            break;
+        case OpenPlace::REFERENCE:
+            handleReferenceError(e.what());
+            break;
+        }
     }
 }
 
@@ -858,15 +911,23 @@ void FmMain::openFileFromHistory(unsigned i)
     if (auto place = config::history[i]) {
         if (checkSave("Open")) {
             if (auto fplace = std::dynamic_pointer_cast<hist::FilePlace>(place)) {
+                auto openPlace = OpenPlace::PROJECT;
                 try {
-                    openFileThrow(fplace->path());
+                    openFileThrow(fplace->path(), openPlace);
                 } catch (const std::exception& e) {
-                    auto msg = QString::fromStdString(e.what()) + "\n" "Delete from history?";
-                    auto result = QMessageBox::critical(this, "Open", msg,
-                                QMessageBox::Yes | QMessageBox::No,
-                                QMessageBox::No);
-                    if (result == QMessageBox::Yes) {
-                        config::history.erase(i);
+                    switch (openPlace) {
+                    case OpenPlace::PROJECT: {
+                            auto msg = QString::fromStdString(e.what()) + "\n" "Delete from history?";
+                            auto result = QMessageBox::critical(this, "Open", msg,
+                                        QMessageBox::Yes | QMessageBox::No,
+                                        QMessageBox::No);
+                            if (result == QMessageBox::Yes) {
+                                config::history.erase(i);
+                            }
+                        } break;
+                    case OpenPlace::REFERENCE:
+                        handleReferenceError(e.what());
+                        break;
                     }
                 }
             }
@@ -1388,39 +1449,12 @@ void FmMain::updateSyncGroups()
 
 
 namespace {
-
-    enum class EnableExec { NO, YES };
-
-    ///
-    /// \brief  Executes something afterwards
-    ///    Used in error-handling code, when there are lots of execution paths,
-    ///    and we just need to mark whether we execute it.
-    ///
-    template <class T> class ExecAfter {
-    public:
-        constexpr ExecAfter(EnableExec aIsEnabled, const T& aBody) noexcept
-            : isEnabled(static_cast<bool>(aIsEnabled)), body(aBody) {}
-        ~ExecAfter() noexcept(noexcept(body())) {
-            if (isEnabled)
-                body();
-        }
-        constexpr void enable() { isEnabled = true; }
-        constexpr void disable() { isEnabled = false; }
-    private:
-        bool isEnabled;
-        const T& body;
-    };
-
     enum class UpdatePlace { ORIGINAL, REFERENCE };
-
 }   // anon namespace
 
 
 void FmMain::updateOriginal()
 {
-    static constinit ec::Array<const char*, UpdatePlace> titles = {
-        "Update original", "Load reference" };
-
     ui->wiFind->close();
     auto place = UpdatePlace::ORIGINAL;
     try {
@@ -1432,7 +1466,14 @@ void FmMain::updateOriginal()
             project->updateReference();
         }
     } catch (std::exception& e) {
-        QMessageBox::critical(this, titles[place], e.what());
+        switch (place) {
+        case UpdatePlace::ORIGINAL:
+            QMessageBox::critical(this, "Update original", e.what());
+            break;
+        case UpdatePlace::REFERENCE:
+            handleReferenceError(e.what());
+            break;
+        }
     }
 }
 
