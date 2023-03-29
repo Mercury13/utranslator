@@ -1387,22 +1387,52 @@ void FmMain::updateSyncGroups()
 }
 
 
+namespace {
+
+    enum class EnableExec { NO, YES };
+
+    ///
+    /// \brief  Executes something afterwards
+    ///    Used in error-handling code, when there are lots of execution paths,
+    ///    and we just need to mark whether we execute it.
+    ///
+    template <class T> class ExecAfter {
+    public:
+        constexpr ExecAfter(EnableExec aIsEnabled, const T& aBody) noexcept
+            : isEnabled(static_cast<bool>(aIsEnabled)), body(aBody) {}
+        ~ExecAfter() noexcept(noexcept(body())) {
+            if (isEnabled)
+                body();
+        }
+        constexpr void enable() { isEnabled = true; }
+        constexpr void disable() { isEnabled = false; }
+    private:
+        bool isEnabled;
+        const T& body;
+    };
+
+    enum class UpdatePlace { ORIGINAL, REFERENCE };
+
+}   // anon namespace
+
+
 void FmMain::updateOriginal()
 {
+    static constinit ec::Array<const char*, UpdatePlace> titles = {
+        "Update original", "Load reference" };
+
     ui->wiFind->close();
-    bool wantReflect = false;
+    auto place = UpdatePlace::ORIGINAL;
     try {
+        ExecAfter ex(EnableExec::NO, [this]{ reflectUpdateInfo(); });
         { auto lk = lockAll(RememberCurrent::YES);
             updateInfo = project->updateData();
-            wantReflect = true;
+            ex.enable();
+            place = UpdatePlace::REFERENCE;
             project->updateReference();
         }
-        reflectUpdateInfo();
     } catch (std::exception& e) {
-        if (wantReflect) {
-            reflectUpdateInfo();
-        }
-        QMessageBox::critical(this, "Update data", e.what());
+        QMessageBox::critical(this, titles[place], e.what());
     }
 }
 
