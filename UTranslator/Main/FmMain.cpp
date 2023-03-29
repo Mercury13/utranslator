@@ -297,6 +297,13 @@ void FmMain::loadContext(tr::UiObject* lastSon)
 }
 
 
+void FmMain::clearReference()
+{
+    ui->memoReference->setEnabled(false);
+    ui->memoReference->clear();
+}
+
+
 void FmMain::loadObject(tr::UiObject& obj)
 {
     if (search.result) {
@@ -332,7 +339,7 @@ void FmMain::loadObject(tr::UiObject& obj)
         ui->wiId->setEnabled(canAddFiles);
         ui->wiOrigName->setVisible(canEditOriginal);
         ui->wiTranslName->setVisible(isTranslation);
-        ui->grpReference->setEnabled(false);
+        clearReference();
     } else if (bugCache.hasTranslatable) {
         // ORIGINAL, mutually exclusive with fileInfo
         ui->wiId->setEnabled(project->info.canEditOriginal());
@@ -369,6 +376,7 @@ void FmMain::loadObject(tr::UiObject& obj)
         ui->grpTranslation->setEnabled(false);
         banMemo(ui->grpOriginal, ui->memoOriginal);
         banMemo(ui->grpTranslation, ui->memoTranslation);
+        clearReference();
     }
     // Comment
     if (bugCache.hasComments) {

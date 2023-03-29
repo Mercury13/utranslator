@@ -975,7 +975,7 @@ void tr::VirtualGroup::vgRemoveTranslChannel()
 void tr::VirtualGroup::removeReferenceChannel()
 {
     for (auto& v : children) {
-        v->removeTranslChannel();
+        v->removeReferenceChannel();
     }
 }
 

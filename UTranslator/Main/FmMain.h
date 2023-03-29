@@ -208,4 +208,5 @@ private:
     void updateSyncGroups();
     void updateOriginal();
     void updateReference();
+    void clearReference();
 };

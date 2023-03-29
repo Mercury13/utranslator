@@ -557,6 +557,7 @@ QLabel {
                      <font>
                       <family>Segoe UI</family>
                       <pointsize>10</pointsize>
+                      <stylestrategy>PreferAntialias</stylestrategy>
                      </font>
                     </property>
                     <property name="styleSheet">
