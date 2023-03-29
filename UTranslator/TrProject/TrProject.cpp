@@ -1025,6 +1025,34 @@ tr::UpdateInfo tr::VirtualGroup::vgStealDataFrom(
 }
 
 
+void tr::VirtualGroup::vgStealReferenceFrom(VirtualGroup& x)
+{
+    for (auto& v : children) {
+        switch (v->objType()) {
+        case tr::ObjType::PROJECT:
+        case tr::ObjType::FILE:  // They never happen inside VirtualGroup
+            break;
+        case tr::ObjType::GROUP: {
+                auto group = std::dynamic_pointer_cast<Group>(v);
+                if (!v)
+                    throw std::logic_error("[vgStealReferenceFrom] Somehow the object is not a Group");
+                if (auto xGroup = x.findGroup(v->id)) {
+                    group->stealReferenceFrom(*xGroup);
+                }
+            } break;
+        case tr::ObjType::TEXT: {
+                auto text = std::dynamic_pointer_cast<Text>(v);
+                if (!v)
+                    throw std::logic_error("[vgStealReferenceFrom] Somehow the object is not a Text");
+                if (auto xText = x.findPText(v->id)) {
+                    text->stealReferenceFrom(*xText.obj);
+                }
+            } break;
+        }
+    }
+}
+
+
 void tr::VirtualGroup::collectSyncGroups(
         std::vector<std::shared_ptr<tr::Group>>& r)
 {
@@ -1445,6 +1473,12 @@ tr::UpdateInfo::ByState tr::Text::stealDataFrom(
 }
 
 
+void tr::Text::stealReferenceFrom(Text& x)
+{
+    this->tr.reference = std::move(x.tr.translation);
+}
+
+
 void tr::Text::updateParent(const std::shared_ptr<VirtualGroup>& x)
 {
     fParentGroup = x;
@@ -1530,6 +1564,12 @@ tr::UpdateInfo tr::File::stealDataFrom(
     }
     this->info.translPath = std::move(x.info.translPath);
     return vgStealDataFrom(x, myParent, ctx);
+}
+
+
+void tr::File::stealReferenceFrom(tr::File& x)
+{
+    vgStealReferenceFrom(x);
 }
 
 
@@ -1971,6 +2011,18 @@ std::shared_ptr<tr::File> tr::Project::findFile(std::u8string_view aId)
 }
 
 
+void tr::Project::updateReference()
+{
+    if (!info.canHaveReference())
+        return;
+    removeReferenceChannel();
+
+    auto tempPrj = tr::Project::make();
+    tempPrj->load(this->info.ref.absPath);
+    stealReferenceFrom(*tempPrj);
+}
+
+
 tr::UpdateInfo tr::Project::updateData()
 {
     switch (info.type) {
@@ -2019,6 +2071,17 @@ tr::UpdateInfo tr::Project::stealDataFrom(tr::Project& x, const StealContext& ct
     auto delInfo = x.deletedInfo(CascadeDropCache::NO);
     r.deleted += delInfo;
     return r;
+}
+
+
+void tr::Project::stealReferenceFrom(tr::Project& x)
+{
+    // Try to steal
+    for (auto& v : files) {
+        if (auto xFile = x.findFile(v->id)) {
+            v->stealReferenceFrom(*xFile);
+        }
+    }
 }
 
 

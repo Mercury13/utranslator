@@ -205,4 +205,7 @@ private:
     void findBy(std::unique_ptr<tr::FindCriterion> crit);
     void setSearchAction(QAction* action, void (FmMain::* func)());
     void retrieveVersion();
+    void updateSyncGroups();
+    void updateOriginal();
+    void updateReference();
 };

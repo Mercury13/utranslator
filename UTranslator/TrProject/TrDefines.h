@@ -207,8 +207,9 @@ namespace tf {
 
     /// Mode for stealing original data
     /// @warning same order as TextOwner
-    ///     *this is from EXTERNAL SOFTWARE, x is HAND-EDITED
-    ///     so EDITOR (external software) = KEEP
+    ///     *this (current object) is from EXTERNAL SOFTWARE, x is HAND-EDITED
+    ///     so EDITOR is external software → then KEEP
+    ///     EDITOR is my program → then STEAL
     ///
     enum class StealOrig {
         KEEP,           ///< Keep original data

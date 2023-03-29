@@ -526,6 +526,7 @@ namespace tr {
         void vgRemoveTranslChannel();
         tr::UpdateInfo vgStealDataFrom(
                 VirtualGroup& x, UiObject* myParent, const StealContext& ctx);
+        void vgStealReferenceFrom(VirtualGroup& x);
         void vgUpdateChildrensParents(const std::shared_ptr<VirtualGroup>& that);
     };
 
@@ -567,6 +568,7 @@ namespace tr {
         ///  @return  CHANGED data
         UpdateInfo::ByState stealDataFrom(
                 Text& x, UiObject* myParent, const StealContext& ctx);
+        void stealReferenceFrom(Text& x);
     protected:
         std::shared_ptr<Entity> vclone(
                 const std::shared_ptr<VirtualGroup>& parent) const override
@@ -612,6 +614,7 @@ namespace tr {
         void removeTranslChannel() override { vgRemoveTranslChannel(); }
         UpdateInfo stealDataFrom(Group& x, UiObject* myParent, const StealContext& ctx)
             { return vgStealDataFrom(x, myParent, ctx); }
+        void stealReferenceFrom(Group& x) { return vgStealReferenceFrom(x); }
         UpdateInfo updateData();
     protected:
         void updateParent(const std::shared_ptr<VirtualGroup>& x) override;
@@ -657,6 +660,7 @@ namespace tr {
         constexpr FileMode mode() const noexcept { return FileMode::HOSTED; }
         tf::FileFormat* exportableFormat() noexcept;        
         UpdateInfo stealDataFrom(File& x, UiObject* myParent, const StealContext& ctx);
+        void stealReferenceFrom(File& x);
         void updateParents(const std::shared_ptr<Project>& x);
     protected:
         std::weak_ptr<Project> fProject;
@@ -729,7 +733,9 @@ namespace tr {
         std::u8string shownFname(std::u8string_view fallback);
 
         UpdateInfo updateData();
+        void updateReference();
         tr::UpdateInfo stealDataFrom(tr::Project& x, const StealContext& ctx);
+        void stealReferenceFrom(tr::Project& x);
         std::shared_ptr<tr::File> findFile(std::u8string_view aId);
 
         /// Use instead of ctor

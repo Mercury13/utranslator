@@ -1347,52 +1347,69 @@ void FmMain::doProjectProps()
 }
 
 
+void FmMain::updateSyncGroups()
+{
+    auto syncGroups = project->syncGroups();
+    if (syncGroups.empty()) {
+        QMessageBox::information(this, "Update data",
+                "This original has no synchronized groups. Nothing to update.");
+    } else {
+        ui->wiFind->close();
+        std::shared_ptr<tr::Group> thrownGroup;
+        updateInfo = tr::UpdateInfo::ZERO;
+        try {
+            auto lk = lockAll(RememberCurrent::YES);
+            for (const auto& sg : syncGroups) {
+                thrownGroup = sg;  // throws exception → know which group
+                updateInfo += sg->updateData();
+            }
+            reflectUpdateInfo();
+        } catch (std::exception& e) {
+            reflectUpdateInfo();
+            QString text;
+            if (thrownGroup) {
+                text += u8"While updating “";
+                text += str::toQ(thrownGroup->sync.absPath.filename().u8string());
+                text += u8"”:\n";
+            }
+            text += e.what();
+            QMessageBox::critical(this, "Update data", text);
+        }
+    }
+}
+
+
+void FmMain::updateOriginal()
+{
+    ui->wiFind->close();
+    bool wantReflect = false;
+    try {
+        { auto lk = lockAll(RememberCurrent::YES);
+            updateInfo = project->updateData();
+            wantReflect = true;
+            project->updateReference();
+        }
+        reflectUpdateInfo();
+    } catch (std::exception& e) {
+        if (wantReflect) {
+            reflectUpdateInfo();
+        }
+        QMessageBox::critical(this, "Update data", e.what());
+    }
+}
+
+
 void FmMain::doUpdateData()
 {
     if (!project)
         return;
     switch (project->info.type) {
     /// @todo [bilingual, #28] in synced groups bilinguals WILL have knownOriginal’s
-    case tr::PrjType::ORIGINAL: {
-            auto syncGroups = project->syncGroups();
-            if (syncGroups.empty()) {
-                QMessageBox::information(this, "Update data",
-                        "This original has no synchronized groups. Nothing to update.");
-            } else {
-                ui->wiFind->close();
-                std::shared_ptr<tr::Group> thrownGroup;
-                updateInfo = tr::UpdateInfo::ZERO;
-                try {
-                    auto lk = lockAll(RememberCurrent::YES);
-                    for (const auto& sg : syncGroups) {
-                        thrownGroup = sg;  // throws exception → know which group
-                        updateInfo += sg->updateData();
-                    }
-                    reflectUpdateInfo();
-                } catch (std::exception& e) {
-                    reflectUpdateInfo();
-                    QString text;
-                    if (thrownGroup) {
-                        text += u8"While updating “";
-                        text += str::toQ(thrownGroup->sync.absPath.filename().u8string());
-                        text += u8"”:\n";
-                    }
-                    text += e.what();
-                    QMessageBox::critical(this, "Update data", text);
-                }
-            }
-        } break;
+    case tr::PrjType::ORIGINAL:
+        updateSyncGroups();
+        break;
     case tr::PrjType::FULL_TRANSL:
-        ui->wiFind->close();
-        try {
-            { auto lk = lockAll(RememberCurrent::YES);
-                updateInfo = project->updateData();
-            }
-            reflectUpdateInfo();
-        } catch (std::exception& e) {
-            QMessageBox::critical(this, "Update data", e.what());
-        }
-
+        updateOriginal();
         break;
     }
 }
