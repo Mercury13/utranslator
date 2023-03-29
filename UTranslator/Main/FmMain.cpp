@@ -145,6 +145,9 @@ FmMain::FmMain(QWidget *parent)
     // Unused parts
     ui->grpCompatId->hide();
 
+    // Reference
+    ui->grpReference->hide();
+
     setEditorsEnabled(false);   // while no project, let it be false
     updateCaption();
 
@@ -303,6 +306,9 @@ void FmMain::loadObject(tr::UiObject& obj)
         }
     }
 
+    // Reference
+    ui->grpReference->setVisible(obj.project()->info.hasReference());
+
     bugCache.copyFrom(obj);
 
     auto id = str::toQ(obj.idColumn());
@@ -326,6 +332,7 @@ void FmMain::loadObject(tr::UiObject& obj)
         ui->wiId->setEnabled(canAddFiles);
         ui->wiOrigName->setVisible(canEditOriginal);
         ui->wiTranslName->setVisible(isTranslation);
+        ui->grpReference->setEnabled(false);
     } else if (bugCache.hasTranslatable) {
         // ORIGINAL, mutually exclusive with fileInfo
         ui->wiId->setEnabled(project->info.canEditOriginal());
@@ -345,6 +352,13 @@ void FmMain::loadObject(tr::UiObject& obj)
             } else {
                 qdif::write1(cursor, bugCache.original);
             }
+        }
+        if (bugCache.reference) {
+            ui->memoReference->setEnabled(true);
+            ui->memoReference->setPlainText(str::toQ(*bugCache.reference));
+        } else {
+            ui->memoReference->setEnabled(false);
+            ui->memoReference->setPlainText(STR_UNTRANSLATED);
         }
         setMemo(ui->grpTranslation, ui->memoTranslation, {}, bugCache.translation);
     } else {

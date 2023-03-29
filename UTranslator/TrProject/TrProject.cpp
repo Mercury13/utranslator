@@ -972,6 +972,14 @@ void tr::VirtualGroup::vgRemoveTranslChannel()
 }
 
 
+void tr::VirtualGroup::removeReferenceChannel()
+{
+    for (auto& v : children) {
+        v->removeTranslChannel();
+    }
+}
+
+
 tr::UpdateInfo tr::VirtualGroup::vgStealDataFrom(
         VirtualGroup& x, UiObject* myParent, const StealContext& ctx)
 {
@@ -1362,6 +1370,13 @@ void tr::Text::removeTranslChannel()
     tr.forceAttention = false;
     tr.knownOriginal.reset();
     tr.translation.reset();
+}
+
+
+void tr::Text::removeReferenceChannel()
+{
+    tr.reference.reset();
+    tr.knownReference.reset();
 }
 
 
@@ -1972,6 +1987,13 @@ void tr::Project::removeTranslChannel()
 {
     for (auto& v : files)
         v->removeTranslChannel();
+}
+
+
+void tr::Project::removeReferenceChannel()
+{
+    for (auto& v : files)
+        v->removeReferenceChannel();
 }
 
 

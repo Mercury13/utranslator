@@ -36,7 +36,7 @@ namespace tr {
     {
         std::u32string id {}, original {};
           ///< R/O, and as QString works quietly and with some mojibake → OK
-        std::optional<std::u32string> knownOriginal {};
+        std::optional<std::u32string> knownOriginal {}, reference {};
         std::u32string translation {};
         struct Comments {
             ///< R/O, and as QString works quietly and with some mojibake → OK

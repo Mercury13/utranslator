@@ -351,6 +351,7 @@ namespace tr {
 
         /// Removes everything related to translation, leaving only original
         virtual void removeTranslChannel() = 0;
+        virtual void removeReferenceChannel() = 0;
 
         void recache();
         void recursiveRecache();
@@ -511,6 +512,7 @@ namespace tr {
         void clearChildren() override { children.clear(); cascadeDropStats(); }
         std::shared_ptr<UiObject> selfUi() override { return fSelf.lock(); }
         void collectSyncGroups(std::vector<std::shared_ptr<tr::Group>>& r);
+        void removeReferenceChannel() override;
     protected:
         friend class Project;
         void doSwapChildren(size_t index1, size_t index2) override;
@@ -557,6 +559,7 @@ namespace tr {
         const Stats& stats(StatsMode mode, CascadeDropCache cascade) override;
         std::shared_ptr<UiObject> selfUi() override { return fSelf.lock(); }
         void removeTranslChannel() override;
+        void removeReferenceChannel() override;
         ///  @return  CHANGED data
         UpdateInfo::ByState stealDataFrom(
                 Text& x, UiObject* myParent, const StealContext& ctx);
@@ -696,6 +699,7 @@ namespace tr {
         void traverse(TraverseListener& x, tr::WalkOrder order, EnterMe enterMe) override;
         std::shared_ptr<VirtualGroup> nearestGroup() override { return {}; }
         void removeTranslChannel() override;
+        void removeReferenceChannel() override;
         void updateParents();
 
         void save();

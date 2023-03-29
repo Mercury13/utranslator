@@ -29,6 +29,9 @@ void tr::BugCache::copyFrom(tr::UiObject& x)
         if (tr->knownOriginal) {
             knownOriginal = mojibake::toM<std::u32string>(*tr->knownOriginal);
         }
+        if (tr->reference) {
+            reference = mojibake::toM<std::u32string>(*tr->reference);
+        }
         if (tr->translation) {
             if (!mojibake::isValid(*tr->translation))
                 moji |= Mjf::TRANSLATION;

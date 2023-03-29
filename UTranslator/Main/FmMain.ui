@@ -207,7 +207,7 @@ QLabel {
             </property>
             <item>
              <widget class="QWidget" name="wiEditors" native="true">
-              <layout class="QVBoxLayout" name="layEditors" stretch="0,3,2,1">
+              <layout class="QVBoxLayout" name="layEditors" stretch="0,3,3,2,1">
                <property name="spacing">
                 <number>0</number>
                </property>
@@ -254,7 +254,7 @@ QLabel {
                <item>
                 <widget class="QStackedWidget" name="stackOriginal">
                  <property name="currentIndex">
-                  <number>1</number>
+                  <number>2</number>
                  </property>
                  <widget class="QWidget" name="pageOriginal">
                   <layout class="QVBoxLayout" name="verticalLayout_11">
@@ -534,6 +534,46 @@ QLabel {
                 </widget>
                </item>
                <item>
+                <widget class="QGroupBox" name="grpReference">
+                 <property name="title">
+                  <string>Reference</string>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_19">
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>2</number>
+                  </property>
+                  <item>
+                   <widget class="QPlainTextEdit" name="memoReference">
+                    <property name="font">
+                     <font>
+                      <family>Segoe UI</family>
+                      <pointsize>10</pointsize>
+                     </font>
+                    </property>
+                    <property name="styleSheet">
+                     <string notr="true">QPlainTextEdit { background-color: palette(button); }</string>
+                    </property>
+                    <property name="frameShape">
+                     <enum>QFrame::NoFrame</enum>
+                    </property>
+                    <property name="readOnly">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
                 <widget class="QGroupBox" name="grpTranslation">
                  <property name="title">
                   <string>Translation</string>
@@ -553,6 +593,12 @@ QLabel {
                   </property>
                   <item>
                    <widget class="QPlainTextEdit" name="memoTranslation">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>40</height>
+                     </size>
+                    </property>
                     <property name="font">
                      <font>
                       <family>Segoe UI</family>
@@ -591,6 +637,12 @@ QLabel {
                   </property>
                   <item>
                    <widget class="QPlainTextEdit" name="memoComment">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>30</height>
+                     </size>
+                    </property>
                     <property name="frameShape">
                      <enum>QFrame::NoFrame</enum>
                     </property>
@@ -733,7 +785,7 @@ QLabel {
                     <string notr="true"/>
                    </property>
                    <property name="pixmap">
-                    <pixmap>:/Discrep/ok.png</pixmap>
+                    <pixmap resource="../Resources/req.qrc">:/Discrep/ok.png</pixmap>
                    </property>
                   </widget>
                  </item>
@@ -751,7 +803,7 @@ QLabel {
                     <string notr="true"/>
                    </property>
                    <property name="pixmap">
-                    <pixmap>:/Discrep/review.png</pixmap>
+                    <pixmap resource="../Resources/req.qrc">:/Discrep/review.png</pixmap>
                    </property>
                   </widget>
                  </item>
@@ -768,7 +820,7 @@ QLabel {
                     <string notr="true"/>
                    </property>
                    <property name="pixmap">
-                    <pixmap>:/Discrep/empty.png</pixmap>
+                    <pixmap resource="../Resources/req.qrc">:/Discrep/empty.png</pixmap>
                    </property>
                   </widget>
                  </item>
@@ -785,7 +837,7 @@ QLabel {
                     <string notr="true"/>
                    </property>
                    <property name="pixmap">
-                    <pixmap>:/Discrep/mojibake.png</pixmap>
+                    <pixmap resource="../Resources/req.qrc">:/Discrep/mojibake.png</pixmap>
                    </property>
                   </widget>
                  </item>
@@ -802,7 +854,7 @@ QLabel {
                     <string notr="true"/>
                    </property>
                    <property name="pixmap">
-                    <pixmap>:/Discrep/empty_b.png</pixmap>
+                    <pixmap resource="../Resources/req.qrc">:/Discrep/empty_b.png</pixmap>
                    </property>
                   </widget>
                  </item>
@@ -819,7 +871,7 @@ QLabel {
                     <string notr="true"/>
                    </property>
                    <property name="pixmap">
-                    <pixmap>:/Discrep/invisible.png</pixmap>
+                    <pixmap resource="../Resources/req.qrc">:/Discrep/invisible.png</pixmap>
                    </property>
                   </widget>
                  </item>
@@ -836,7 +888,7 @@ QLabel {
                     <string notr="true"/>
                    </property>
                    <property name="pixmap">
-                    <pixmap>:/Discrep/multiline.png</pixmap>
+                    <pixmap resource="../Resources/req.qrc">:/Discrep/multiline.png</pixmap>
                    </property>
                   </widget>
                  </item>
@@ -853,7 +905,7 @@ QLabel {
                     <string notr="true"/>
                    </property>
                    <property name="pixmap">
-                    <pixmap>:/Discrep/space_add_beg.png</pixmap>
+                    <pixmap resource="../Resources/req.qrc">:/Discrep/space_add_beg.png</pixmap>
                    </property>
                   </widget>
                  </item>
@@ -870,7 +922,7 @@ QLabel {
                     <string notr="true"/>
                    </property>
                    <property name="pixmap">
-                    <pixmap>:/Discrep/space_del_beg.png</pixmap>
+                    <pixmap resource="../Resources/req.qrc">:/Discrep/space_del_beg.png</pixmap>
                    </property>
                   </widget>
                  </item>
@@ -887,7 +939,7 @@ QLabel {
                     <string notr="true"/>
                    </property>
                    <property name="pixmap">
-                    <pixmap>:/Discrep/space_add_end.png</pixmap>
+                    <pixmap resource="../Resources/req.qrc">:/Discrep/space_add_end.png</pixmap>
                    </property>
                   </widget>
                  </item>
@@ -904,7 +956,7 @@ QLabel {
                     <string notr="true"/>
                    </property>
                    <property name="pixmap">
-                    <pixmap>:/Discrep/space_del_end.png</pixmap>
+                    <pixmap resource="../Resources/req.qrc">:/Discrep/space_del_end.png</pixmap>
                    </property>
                   </widget>
                  </item>
@@ -1396,20 +1448,25 @@ QLabel {
   </customwidget>
  </customwidgets>
  <tabstops>
+  <tabstop>btStartEdit</tabstop>
   <tabstop>btStartNew</tabstop>
   <tabstop>btStartOpen</tabstop>
+  <tabstop>browStart</tabstop>
   <tabstop>treeStrings</tabstop>
   <tabstop>edId</tabstop>
   <tabstop>memoOriginal</tabstop>
-  <tabstop>btFileFormat</tabstop>
   <tabstop>memoTranslation</tabstop>
   <tabstop>memoComment</tabstop>
   <tabstop>edCompatId</tabstop>
   <tabstop>btEditCompatId</tabstop>
-  <tabstop>btStartEdit</tabstop>
-  <tabstop>browStart</tabstop>
+  <tabstop>edOrigFilePath</tabstop>
+  <tabstop>edTranslFilePath</tabstop>
+  <tabstop>chkIdless</tabstop>
+  <tabstop>btFileFormat</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../Resources/req.qrc"/>
+ </resources>
  <connections/>
  <slots>
   <slot>doNew()</slot>
