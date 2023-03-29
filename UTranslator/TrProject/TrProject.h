@@ -350,7 +350,11 @@ namespace tr {
         virtual std::shared_ptr<UiObject> selfUi() = 0;
 
         /// Removes everything related to translation, leaving only original
+        ///   (translation, known translation, translator’s comments)
         virtual void removeTranslChannel() = 0;
+
+        /// Removes everything related to reference translation, leaving only original
+        ///   (reference, known reference if I have someday)
         virtual void removeReferenceChannel() = 0;
 
         void recache();
