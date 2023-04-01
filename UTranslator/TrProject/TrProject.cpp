@@ -2013,9 +2013,9 @@ std::shared_ptr<tr::File> tr::Project::findFile(std::u8string_view aId)
 
 void tr::Project::updateReference()
 {
-    if (!info.canHaveReference())
-        return;
     removeReferenceChannel();
+    if (!info.hasReference())
+        return;
 
     auto tempPrj = tr::Project::make();
     tempPrj->load(this->info.ref.absPath);

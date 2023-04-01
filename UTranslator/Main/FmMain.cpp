@@ -1460,7 +1460,8 @@ void FmMain::updateOriginal()
     ui->wiFind->close();
     auto place = UpdatePlace::ORIGINAL;
     try {
-        ExecAfter ex(EnableExec::NO, [this]{ reflectUpdateInfo(); });
+        auto whatExec = [this]{ reflectUpdateInfo(); };
+        ExecAfter ex(EnableExec::NO, whatExec);
         { auto lk = lockAll(RememberCurrent::YES);
             updateInfo = project->updateData();
             ex.enable();
