@@ -868,10 +868,12 @@ void FmMain::openFileThrow(std::filesystem::path fname, OpenPlace& rPlace)
     prj->load(fname);
     ui->wiFind->close();
     rPlace = OpenPlace::REFERENCE;
-    ExecAfter ea(EnableExec::YES, [&prj, &fname, this]() {
+
+    auto whatAfter = [&prj, &fname, this]() {
         plantNewProject(std::move(prj));
         config::history.pushFile(std::move(fname));
-    });
+    };
+    ExecAfter ea(EnableExec::YES, whatAfter);
     prj->updateReference();
     // ExecAfter will exec here!
 }
