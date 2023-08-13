@@ -2,18 +2,12 @@ VERSION = 0.3.5
 
 QT       += core gui widgets svgwidgets
 
-CONFIG += c++2a
+CONFIG += c++20 c++2a
 
 CONFIG(debug, debug|release) {
     DEFINES += AT_RANGE_CHECK
 }
-
-win32-g++ {
-    # To simplify debugging, we statically link these libraries
-    QMAKE_CXXFLAGS_DEBUG += -static-libgcc -static-libstdc++
-    # Qt — system headers
-    QMAKE_CXXFLAGS += -isystem $$[QT_INSTALL_HEADERS]
-}
+DEFINES += QT_STRINGS
 
 SOURCES += \
     ../Libs/PugiXml/pugixml.cpp \
@@ -21,6 +15,7 @@ SOURCES += \
     ../Libs/Qt/DblClickLabel.cpp \
     ../Libs/Qt/DblClickRadio.cpp \
     ../Libs/Qt/ElidedLabel.cpp \
+    ../Libs/SelfMade/L10n/LocFmt.cpp \
     ../Libs/SelfMade/Qt/QtMultiRadio.cpp \
     ../Libs/SelfMade/i_OpenSave.cpp \
     ../Libs/SelfMade/u_OpenSaveStrings.cpp \
@@ -140,6 +135,16 @@ win32 {         # and W64 too
     QMAKE_TARGET_PRODUCT = UTranslator
     QMAKE_TARGET_DESCRIPTION = UTranslator: translation tool for Unicodia
     QMAKE_TARGET_COPYRIGHT =  Mikhail Merkuryev
+}
+
+win32-g++ {
+    # To simplify debugging, we statically link these libraries
+    QMAKE_CXXFLAGS_DEBUG += -static-libgcc -static-libstdc++
+    CONFIG(debug, debug|release) {
+        LIBS += -static -lpthread
+    }
+    # Qt — system headers
+    QMAKE_CXXFLAGS += -isystem $$[QT_INSTALL_HEADERS]
 }
 
 RESOURCES += \

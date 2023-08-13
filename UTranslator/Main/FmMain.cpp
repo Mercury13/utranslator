@@ -20,6 +20,9 @@
 // Translation
 #include "TrFinder.h"
 
+// L10n
+#include "LocFmt.h"
+
 // Project-local
 #include "d_Config.h"
 #include "d_Strings.h"
@@ -758,9 +761,8 @@ void FmMain::doDelete()
                 message = "Delete empty group?";
                 else message = "Delete group w/o texts?";
             break;
-        /// @todo [future, #50] what to do with plural rules?
-        case 1: message = "Delete 1 text?"; break;
-        default: message = QString("Delete %1 texts?").arg(nTexts);
+        default:
+            message = loc::Fmt(u8"Delete {1|one=? text|many=? texts}?")(nTexts).q();
         }
 
     }
@@ -1564,17 +1566,14 @@ namespace {
 
 void FmMain::showUpdateInfo()
 {
-    /// @todo [L10n, #50] Printf here, not really well converts to Russian
     QString text;
-    text += QString("Strings added: %1").arg(updateInfo.nAdded);
+    text += loc::Fmt(u8"Strings added: {}")(updateInfo.nAdded).q();
     sep(text);
-    text += QString("Strings removed: %1 translated, %2 untranslated")
-                .arg(updateInfo.deleted.nTranslated)
-                .arg(updateInfo.deleted.nUntranslated);
+    text += loc::Fmt(u8"Strings removed: {} translated, {} untranslated")
+                (updateInfo.deleted.nTranslated, updateInfo.deleted.nUntranslated).q();
     sep(text);
-    text += QString("Strings changed: %1 translated, %2 untranslated")
-                .arg(updateInfo.changed.nTranslated)
-                .arg(updateInfo.changed.nUntranslated);
+    text += loc::Fmt(u8"Strings changed: {} translated, {} untranslated")
+                (updateInfo.changed.nTranslated, updateInfo.changed.nUntranslated).q();
 
     QMessageBox::information(this, "Update info", text);
 }

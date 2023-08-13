@@ -5,6 +5,7 @@
 #include "QModels.h"
 
 // Libs
+#include "Cpp03.h"
 #include "u_Qstrings.h"
 #include "u_EcArray.h"
 
