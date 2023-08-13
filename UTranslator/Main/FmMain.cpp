@@ -575,6 +575,7 @@ void FmMain::reenable()
     // Menu: Tools
     ui->acExtractOriginal->setEnabled(isMainVisible);
     ui->acSwitchOriginalAndTranslation->setEnabled(isMainVisible);
+    ui->acResetKnownOriginals->setEnabled(isMainVisible);
 }
 
 
