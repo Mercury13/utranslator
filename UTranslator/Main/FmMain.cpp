@@ -9,6 +9,7 @@
 #include <QItemSelectionModel>
 #include <QMessageBox>
 #include <QTimer>
+#include <QShortcut>
 
 // Qt misc
 #include "QModels.h"
@@ -37,6 +38,7 @@
 #include "FmProjectSettings.h"
 #include "FmExtractOriginal.h"
 #include "FmSwitchOriginalAndTranslation.h"
+#include "FmMessage.h"
 
 
 ///// FmMain ///////////////////////////////////////////////////////////////////
@@ -145,6 +147,10 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->acSwitchOriginalAndTranslation, &QAction::triggered, this, &This::switchOriginalAndTranslation);
     connect(ui->acResetKnownOriginals, &QAction::triggered, this, &This::resetKnownOriginals);
 
+    // Shortcuts
+    shAddGroup = addBadShortcut(ui->acAddHostedGroup);
+    shAddText  = addBadShortcut(ui->acAddText);
+
     // Unused parts
     ui->grpCompatId->hide();
 
@@ -160,6 +166,14 @@ FmMain::FmMain(QWidget *parent)
 FmMain::~FmMain()
 {
     delete ui;
+}
+
+
+QShortcut* FmMain::addBadShortcut(QAction* action)
+{
+    auto r = new QShortcut(action->shortcut(), this);
+    connect(r, &QShortcut::activated, this, &This::badShortcut);
+    return r;
 }
 
 
@@ -184,7 +198,12 @@ void FmMain::retrieveVersion()
         --nDots;
     }
     ui->lbVersion->setText("v" + version);
+}
 
+
+void FmMain::badShortcut()
+{
+    fmMessage.ensure(this).showOverWidget("Cannot edit original", ui->treeStrings);
 }
 
 
@@ -533,6 +552,8 @@ void FmMain::reenable()
     bool hasProject { project };
     bool isOriginal = (isMainVisible && hasProject
                        && project->info.canEditOriginal());
+    bool isNotOriginal = (isMainVisible && hasProject
+                       && !project->info.canEditOriginal());
     bool canAddFiles = (isMainVisible && hasProject
                        && project->info.canAddFiles());
     bool canSearch = ui->wiFind->isVisible() && isMainVisible;
@@ -559,6 +580,10 @@ void FmMain::reenable()
     ui->acMoveUp->setEnabled(isOriginal);
     ui->acMoveDown->setEnabled(isOriginal);
     ui->acLoadTexts->setEnabled(isOriginal);
+
+    // Menu: Original
+    shAddGroup->setEnabled(isNotOriginal);
+    shAddText->setEnabled(isNotOriginal);
 
     // Menu: Edit
     ui->acAcceptChanges->setEnabled(isMainVisible);

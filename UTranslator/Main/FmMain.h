@@ -40,8 +40,10 @@ class FmFind;
 class FmProjectSettings;
 class FmExtractOriginal;
 class FmSwitchOriginalAndTranslation;
+class FmMessage;
 class QPlainTextEdit;
 class QTreeView;
+class QShortcut;
 
 namespace ts {
     class Result;
@@ -123,6 +125,7 @@ private slots:
     void doClone();
     void doLoadText();
     void clearGroup();
+    void badShortcut();
     // Menu: Tools
     void runDecoder();
     void extractOriginal();
@@ -151,6 +154,7 @@ private:
     Uptr<FmProjectSettings> fmProjectSettings;
     Uptr<FmExtractOriginal> fmExtractOriginal;
     Uptr<FmSwitchOriginalAndTranslation> fmSwitchOriginalAndTranslation;
+    Uptr<FmMessage> fmMessage;
 
     struct loadSetsCache {
         void* fileKey = nullptr;
@@ -160,6 +164,7 @@ private:
     } loadSetsCache;
     tr::BugCache bugCache;
     std::atomic<bool> isChangingProgrammatically = false;
+    QShortcut *shAddGroup = nullptr, *shAddText = nullptr;
 
     /// Adapts window’s layout to project type:
     /// original / full translation / (someday) patch translation
@@ -212,4 +217,5 @@ private:
     void updateOriginal();
     void updateReference();
     void clearReference();
+    [[nodiscard]] QShortcut* addBadShortcut(QAction* action);
 };

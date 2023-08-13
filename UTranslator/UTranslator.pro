@@ -29,6 +29,7 @@ SOURCES += \
     FmExtractOriginal.cpp \
     FmFileFormat.cpp \
     FmFind.cpp \
+    FmMessage.cpp \
     FmProjectSettings.cpp \
     FmSwitchOriginalAndTranslation.cpp \
     History.cpp \
@@ -79,6 +80,7 @@ HEADERS += \
     FmExtractOriginal.h \
     FmFileFormat.h \
     FmFind.h \
+    FmMessage.h \
     FmProjectSettings.h \
     FmSwitchOriginalAndTranslation.h \
     History.h \
