@@ -21,8 +21,6 @@
 #include <limits>
 #include <cstring>
 
-#include "Cpp03.h"
-
 #if __cplusplus >= 201103L
     #define AT_MULTI_MOVE(x,y,z) std::move((x),(y),(z))
     #define AT_MOVE_SEMANTIC
@@ -194,7 +192,7 @@ void dumpV(std::ostream& aOs, Elem* x, size_t N)
     // -warn: new Elem[n] makes lots of warnings on GCC+LTO.
     template <class Elem>
     inline Elem* rawAlloc(size_t n) {
-        if (n < static_cast<size_t>(PTRDIFF_MAX))
+        if (n < static_cast<size_t>(std::numeric_limits<ptrdiff_t>::max()))
             return new Elem[n];
         else throw std::bad_alloc();
     }
@@ -250,13 +248,16 @@ struct Buf1d
     size_t _size;
     Elem* _ptr;
 
-    Elem* buffer() const { return _ptr; }
-    size_t size() const { return _size; }
+    Elem* buffer() const noexcept { return _ptr; }
+    size_t size() const noexcept { return _size; }
 
-    constexpr Buf1d() : _size(0), _ptr(NULL) {}
-    constexpr Buf1d(size_t aSize, Elem* aBuffer) : _size(aSize), _ptr(aBuffer) {}
-    void borrow(size_t aSize, Elem *aPtr)
+    constexpr Buf1d() noexcept : _size(0), _ptr(NULL) {}
+    constexpr Buf1d(size_t aSize, Elem* aBuffer) noexcept : _size(aSize), _ptr(aBuffer) {}
+    void borrow(size_t aSize, Elem *aPtr) noexcept
         { _size = aSize;  _ptr = aPtr;  }
+
+    template<size_t N>
+    constexpr Buf1d(Elem(&x)[N]) noexcept : _size(N), _ptr(x) {}
 
     //------------------------------------------------------------------------//
     ///  Index operator
