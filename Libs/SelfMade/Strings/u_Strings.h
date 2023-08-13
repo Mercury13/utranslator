@@ -163,6 +163,13 @@ namespace str {
         return r;
     }
 
+    void toUpperInPlace(std::string& x);
+    inline std::string toUpper(std::string_view x) {
+        std::string r{x};
+        toUpperInPlace(r);
+        return r;
+    }
+
     void toLowerInPlace(std::string& x);
     inline std::string toLower(std::string_view x) {
         std::string r{x};
@@ -285,6 +292,49 @@ namespace str {
                 Sv s, Sv comma, bool skipEmpty = true);
 
         template <class Sv>
+        [[nodiscard]] SafeVector<Sv> splitByAnySv(
+                Sv s, Sv comma, bool skipEmpty = true);
+
+        template <class Sv>
+        Sv prefixSv(Sv s, trait::Ch<Sv> comma) noexcept
+        {
+            auto p = s.find(comma);
+            if (p == Sv::npos)
+                return s;
+            return s.substr(0, p);
+        }
+
+        template <class Sv>
+        Sv prefixSv(Sv s, Sv comma) noexcept
+        {
+            auto p = s.find(comma);
+            if (p == Sv::npos)
+                return s;
+            return s.substr(0, p);
+        }
+
+        template <class Sv> bool latIsUpper(Sv s) noexcept
+        {
+            for (auto c : s) {
+                if (c >= 'a' && c <= 'z')
+                    return false;
+            }
+            return true;
+        }
+
+        template <class Sv> bool latIsLower(Sv s) noexcept
+        {
+            for (auto c : s) {
+                if (c >= 'A' && c <= 'Z')
+                    return false;
+            }
+            return true;
+        }
+
+        template <class Sv> bool latIsSingleCase(Sv s) noexcept
+        { return latIsUpper<Sv>(s) || latIsLower<Sv>(s); }
+
+        template <class Sv>
         Sv remainderSv(Sv s, Sv prefix, Sv suffix) noexcept
         {
             if (s.length() <= prefix.length() + suffix.length()
@@ -355,7 +405,10 @@ namespace str {
             }
         }
 
-        template <class S> consteval void checkSameSv() noexcept {}
+        /// This template checks parameters for “sameness”
+        /// e.g. const char*, string, string_view OK
+        ///      const wchar_t, string, u16string_view BAD
+        template <class S> consteval void checkSameSv() noexcept {}        
 
         template <class S1, class S2, class... Rest>
         consteval void checkSameSv() noexcept
@@ -451,6 +504,68 @@ namespace str {
         } else {
             return detail::splitSv<Sv>(s, static_cast<Sv>(comma), skipEmpty);
         }
+    }
+
+    /// All characters of ‘comma’ are treated as commas
+    template <class S, class Co>
+    [[nodiscard]] inline SafeVector<trait::Sv<S>> splitByAnySv(
+        const S& s, const Co& comma, bool skipEmpty = true)
+    {
+        using Sv = trait::Sv<S>;
+        return detail::splitByAnySv<Sv>(s, comma, skipEmpty);
+    }
+
+    template <class S, class Co>
+    [[nodiscard]] inline trait::Sv<S> prefixSv(const S& s, const Co& comma) noexcept
+    {
+        using Sv = trait::Sv<S>;
+        using Ch = trait::Ch<S>;
+        static_assert(!std::is_same_v<bool, Co>, "Cannot use bool as comma!");
+        if constexpr (std::is_convertible_v<Co, Ch>) {
+            return detail::prefixSv<Sv>(s, static_cast<Ch>(comma));
+        } else {
+            return detail::prefixSv<Sv>(s, static_cast<Sv>(comma));
+        }
+    }
+
+    ///
+    ///  @return [+] All Latin letters (A…Z) are capital
+    ///
+    template <class S>
+    [[nodiscard]] inline bool latIsUpper(const S& s) noexcept
+    {
+        using Sv = trait::Sv<S>;
+        return detail::latIsUpper<Sv>(s);
+    }
+
+    ///
+    ///  @return [+] All Latin letters (A…Z) are small
+    ///
+    template <class S>
+    [[nodiscard]] inline bool latIsLower(const S& s) noexcept
+    {
+        using Sv = trait::Sv<S>;
+        return detail::latIsLower<Sv>(s);
+    }
+
+    ///
+    ///  @return [+] Contains capital A…Z, ≡ !latIsLower(s)
+    ///
+    template <class S>
+    [[nodiscard]] inline bool latHasUpper(const S& s) noexcept
+    {
+        using Sv = trait::Sv<S>;
+        return !detail::latIsLower<Sv>(s);
+    }
+
+    ///
+    ///  @return [+] All Latin letters (A…Z) are all capital or all small
+    ///
+    template <class S>
+    [[nodiscard]] inline bool latIsSingleCase(const S& s) noexcept
+    {
+        using Sv = trait::Sv<S>;
+        return detail::latIsSingleCase<Sv>(s);
     }
 
     ///
@@ -673,6 +788,36 @@ template <class Sv>
 
 
 template <class Sv>
+[[nodiscard]] SafeVector<Sv> str::detail::splitByAnySv(
+        Sv s, Sv comma, bool skipEmpty)
+{
+    SafeVector<Sv> r;
+    using Ch = str::trait::Ch<Sv>;
+
+    const Ch* start = s.data();
+    const Ch* end = start + s.length();
+    str::trim(start, end);
+    if (start == end)
+        return r;
+
+    const Ch* sstart = start;
+    for (const Ch* p = start; p != end; ++p)
+    {
+        if (comma.find(*p) == Sv::npos) continue;
+        const Ch* send = p;
+        str::trim(sstart, send);
+        if (p != sstart || !skipEmpty)
+            r.emplace_back(sstart, send-sstart);
+        sstart = p + 1;
+    }
+    str::trim(sstart, end);
+    if (sstart != end || !skipEmpty)
+        r.emplace_back(sstart, end-sstart);
+    return r;
+}
+
+
+template <class Sv>
 [[nodiscard]] SafeVector<Sv> str::detail::splitSv(
         Sv s, Sv comma, bool skipEmpty)
 {
@@ -722,3 +867,21 @@ extern template SafeVector<std::wstring_view> str::detail::splitSv<std::wstring_
 extern template SafeVector<std::u8string_view> str::detail::splitSv<std::u8string_view>(std::u8string_view, std::u8string_view, bool);
 extern template SafeVector<std::u16string_view> str::detail::splitSv<std::u16string_view>(std::u16string_view, std::u16string_view, bool);
 extern template SafeVector<std::u32string_view> str::detail::splitSv<std::u32string_view>(std::u32string_view, std::u32string_view, bool);
+
+extern template bool str::detail::latIsUpper<std::string_view>(std::string_view);
+extern template bool str::detail::latIsUpper<std::wstring_view>(std::wstring_view);
+extern template bool str::detail::latIsUpper<std::u8string_view>(std::u8string_view);
+extern template bool str::detail::latIsUpper<std::u16string_view>(std::u16string_view);
+extern template bool str::detail::latIsUpper<std::u32string_view>(std::u32string_view);
+
+extern template bool str::detail::latIsLower<std::string_view>(std::string_view);
+extern template bool str::detail::latIsLower<std::wstring_view>(std::wstring_view);
+extern template bool str::detail::latIsLower<std::u8string_view>(std::u8string_view);
+extern template bool str::detail::latIsLower<std::u16string_view>(std::u16string_view);
+extern template bool str::detail::latIsLower<std::u32string_view>(std::u32string_view);
+
+extern template bool str::detail::latIsSingleCase<std::string_view>(std::string_view);
+extern template bool str::detail::latIsSingleCase<std::wstring_view>(std::wstring_view);
+extern template bool str::detail::latIsSingleCase<std::u8string_view>(std::u8string_view);
+extern template bool str::detail::latIsSingleCase<std::u16string_view>(std::u16string_view);
+extern template bool str::detail::latIsSingleCase<std::u32string_view>(std::u32string_view);
