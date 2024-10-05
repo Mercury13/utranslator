@@ -95,6 +95,7 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->btUpdateDismiss,  &QAbstractButton::clicked, this, &This::dismissUpdateInfo);
     connect(ui->btUpdateDismiss2, &QAbstractButton::clicked, this, &This::dismissUpdateInfo);
     connect(ui->btUpdateInfo, &QAbstractButton::clicked, this, &This::showUpdateInfo);
+    connect(ui->btUpdateFind, &QAbstractButton::clicked, this, &This::goChangedOriginal);
 
     // Signals/slots: menu
     // Starting screen
