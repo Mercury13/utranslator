@@ -83,5 +83,5 @@ bool ts::CritMismatchNumber::matchText(const tr::Text& x) const
 
 bool ts::CritChangedOriginal::matchText(const tr::Text& x) const
 {
-    return x.tr.knownOriginal.has_value();
+    return (x.tr.baseAttentionMode(project->info) == tr::AttentionMode::AUTO_PROBLEM);
 }

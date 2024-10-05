@@ -52,17 +52,23 @@ namespace ts {  // translation search
         std::unique_ptr<Result> r;
     };
 
+    class ProjectCriterion : public tr::FindCriterion
+    {
+    public:
+        ProjectCriterion(std::shared_ptr<tr::Project> x) : project(x) {}
+    protected:
+        std::shared_ptr<tr::Project> project;
+    };
+
     ///
     /// Criterion: any warning
     ///
-    class CritWarning : public tr::FindCriterion
+    class CritWarning : public ProjectCriterion
     {
     public:
-        CritWarning(std::shared_ptr<tr::Project> x) : project(x) {}
+        using ProjectCriterion::ProjectCriterion;
         bool matchText(const tr::Text&) const override;
         std::u8string caption() const override { return u8"Find warnings"; }
-    private:
-        std::shared_ptr<tr::Project> project;
     };
 
     ///
@@ -75,7 +81,6 @@ namespace ts {  // translation search
         bool matchGroup(const tr::VirtualGroup& x) const override { return match(x); }
         std::u8string caption() const override { return u8"Commented by author"; }
     private:
-        std::shared_ptr<tr::Project> project;
         static bool match(const tr::Entity& x) { return !x.comm.authors.empty(); }
     };
 
@@ -89,7 +94,6 @@ namespace ts {  // translation search
         bool matchGroup(const tr::VirtualGroup& x) const override { return match(x); }
         std::u8string caption() const override { return u8"Commented by translator"; }
     private:
-        std::shared_ptr<tr::Project> project;
         static bool match(const tr::Entity& x) { return !x.comm.translators.empty(); }
     };
 
@@ -102,17 +106,15 @@ namespace ts {  // translation search
         bool matchText(const tr::Text&) const override;
         std::u8string caption() const override { return u8"Mismatching # of lines"; }
     private:
-        std::shared_ptr<tr::Project> project;
         static size_t nLines(std::u8string_view x);
     };
 
-    class CritChangedOriginal : public tr::FindCriterion
+    class CritChangedOriginal : public ProjectCriterion
     {
     public:
+        using ProjectCriterion::ProjectCriterion;
         bool matchText(const tr::Text&) const override;
         std::u8string caption() const override { return u8"Changed original"; }
-    private:
-        std::shared_ptr<tr::Project> project;
     };
 
 }   // namespace ts

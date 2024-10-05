@@ -1171,7 +1171,7 @@ void FmMain::goChangedOriginal()
                             "with external software (e.g. UI messages with form editor) "
                             "and work as translation.");
     } else {
-        auto cond = std::make_unique<ts::CritChangedOriginal>();
+        auto cond = std::make_unique<ts::CritChangedOriginal>(project);
         findBy(std::move(cond));
     }
 }
