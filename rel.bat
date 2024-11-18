@@ -1,5 +1,4 @@
 @rem Settings
-@set VERSION=0.3.7
 @set QTDIR=c:\Qt\6.1.3\mingw81_64
 @rem Workaround for that Qt, maybe QtcW7Compat.7z
 @rem set WORKAROUND=
@@ -7,6 +6,7 @@
 @set SEVENZIP="c:\Program Files\7-zip\7z.exe"
 
 @rem Rest things
+@set /p VERSION=<VERSION.
 @set PRONAME=UTranslator\UTranslator.pro
 @set PRONAME_CON=UTransCon\UTransCon.pro
 @set EXENAME=UTranslator.exe

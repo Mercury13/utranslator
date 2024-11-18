@@ -48,3 +48,9 @@ HEADERS += \
     ../UTranslator/TrProject/TrDefines.h \
     ../UTranslator/TrProject/TrFile.h \
     ../UTranslator/TrProject/TrProject.h
+
+VERSION_FILE = ../VERSION
+VERSION = $$cat($${VERSION_FILE})
+{ # To trigger QMAKE
+    include($${VERSION_FILE})
+}

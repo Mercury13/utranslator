@@ -1,7 +1,4 @@
-VERSION = 0.3.7
-
 QT       += core gui widgets svgwidgets
-
 CONFIG += c++20 c++2a
 
 CONFIG(debug, debug|release) {
@@ -151,3 +148,9 @@ win32-g++ {
 
 RESOURCES += \
     Resources/req.qrc
+
+VERSION_FILE = ../VERSION
+VERSION = $$cat($${VERSION_FILE})
+{ # To trigger QMAKE
+    include($${VERSION_FILE})
+}
