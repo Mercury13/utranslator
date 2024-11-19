@@ -31,5 +31,5 @@
 constexpr const std::string_view langList[] = {
     "be", "cz", "cn", "de", "en", "es", "fr", "he", // Hebrew
     "hi",   // Hindi
-    "jp", "ru", "uk"
+    "it", "jp", "ru", "uk"
 };
