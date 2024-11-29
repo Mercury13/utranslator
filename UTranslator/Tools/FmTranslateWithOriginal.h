@@ -21,6 +21,7 @@ class FmTranslateWithOriginal : public QDialog
 {
     Q_OBJECT
     using Super = QDialog;
+    using This = FmTranslateWithOriginal;
 public:
     explicit FmTranslateWithOriginal(QWidget *parent = nullptr);
     ~FmTranslateWithOriginal() override;;
