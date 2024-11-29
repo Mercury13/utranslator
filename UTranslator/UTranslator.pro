@@ -20,7 +20,7 @@ SOURCES += \
     ../Libs/SelfMade/Strings/u_Decoders.cpp \
     ../Libs/SelfMade/Strings/u_Qstrings.cpp \
     ../Libs/SelfMade/Strings/u_Strings.cpp \
-    FmAboutFormat.cpp \    
+    FmAboutFormat.cpp \
     FmDisambigPair.cpp \
     FmFileFormat.cpp \
     FmFind.cpp \
@@ -34,6 +34,7 @@ SOURCES += \
     Main/WiFind.cpp \
     QtIconLib.cpp \
     Tools/FmDecoder.cpp \
+    Tools/FmTranslateWithOriginal.cpp \
     Tools/FmSwitchOriginalAndTranslation.cpp \
     Tools/FmExtractOriginal.cpp \
     TrProject/Modifiable.cpp \
@@ -87,6 +88,7 @@ HEADERS += \
     Tools/FmDecoder.h \
     Tools/FmExtractOriginal.h \
     Tools/FmSwitchOriginalAndTranslation.h \
+    Tools/FmTranslateWithOriginal.h \
     TrProject/Modifiable.h \
     TrProject/TrBugs.h \
     TrProject/TrDefines.h \
@@ -119,7 +121,8 @@ FORMS += \
     Tools/FmDecoder.ui \
     Tools/FmExtractOriginal.ui \
     Tools/FmSwitchOriginalAndTranslation.ui \
-    FmAboutFormat.ui \    
+    Tools/FmTranslateWithOriginal.ui \
+    FmAboutFormat.ui \
     FmDisambigPair.ui \
     FmFileFormat.ui \
     FmFind.ui \

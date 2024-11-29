@@ -144,6 +144,7 @@ FmMain::FmMain(QWidget *parent)
     setSearchAction(ui->acFindSpecialCommentedByTranslator, &This::goCommentedByTranslator);
     // Tools
     connect(ui->acDecoder, &QAction::triggered, this, &This::runDecoder);    
+    connect(ui->acTranslateWithOriginal, &QAction::triggered, this, &This::translateWithOriginal);
     connect(ui->acExtractOriginal, &QAction::triggered, this, &This::extractOriginal);
     connect(ui->acSwitchOriginalAndTranslation, &QAction::triggered, this, &This::switchOriginalAndTranslation);
     connect(ui->acResetKnownOriginals, &QAction::triggered, this, &This::resetKnownOriginals);
@@ -602,6 +603,7 @@ void FmMain::reenable()
     ui->acGoSearchAgain->setEnabled(canSearch);
 
     // Menu: Tools
+    ui->acTranslateWithOriginal->setEnabled(isMainVisible);
     ui->acExtractOriginal->setEnabled(isMainVisible);
     ui->acSwitchOriginalAndTranslation->setEnabled(isMainVisible);
     ui->acResetKnownOriginals->setEnabled(isMainVisible);
@@ -741,7 +743,7 @@ void FmMain::addSyncGroup()
                             group.subj->cache.treeUi.expandState = tr::ExpandState::EXPANDED;
                         }
                         startEditingOrig(group.index, EditMode::GROUP);
-                    } catch (std::exception& e) {
+                    } catch (const std::exception& e) {
                         QMessageBox::critical(this, "Load texts", QString::fromStdString(e.what()));
                     }
                 } // if group
@@ -1635,12 +1637,12 @@ void FmMain::extractOriginal()
 {
     if (!project->info.isTranslation()) {
         QMessageBox::information(this, "Extract original",
-                    "This is possible for bilinguals/translations only.");
-    } else {
-        if (auto sets = fmExtractOriginal.ensure(this).exec(0)) {
-            auto lk = lockAll(RememberCurrent::YES);
-            tr::extractOriginal(*project, *sets);
-        }
+                    STR_NEED_BILINGUAL_TRANSLATION);
+        return;
+    }
+    if (auto sets = fmExtractOriginal.ensure(this).exec(0)) {
+        auto lk = lockAll(RememberCurrent::YES);
+        tr::extractOriginal(*project, *sets);
     }
 }
 
@@ -1649,12 +1651,12 @@ void FmMain::switchOriginalAndTranslation()
 {
     if (!project->info.isTranslation()) {
         QMessageBox::information(this, "Switch original and translation",
-                    "This is possible for bilinguals/translations only.");
-    } else {
-        if (auto sets = fmSwitchOriginalAndTranslation.ensure(this).exec(*project)) {
-            auto lk = lockAll(RememberCurrent::YES);
-            tr::switchOriginalAndTranslation(*project, *sets);
-        }
+                    STR_NEED_BILINGUAL_TRANSLATION);
+        return;
+    }
+    if (auto sets = fmSwitchOriginalAndTranslation.ensure(this).exec(*project)) {
+        auto lk = lockAll(RememberCurrent::YES);
+        tr::switchOriginalAndTranslation(*project, *sets);
     }
 }
 
@@ -1671,5 +1673,28 @@ void FmMain::resetKnownOriginals()
             QMessageBox::No) == QMessageBox::Yes) {
         auto lk = lockAll(RememberCurrent::YES);
         tr::resetKnownOriginal(*project);
+    }
+}
+
+
+void FmMain::translateWithOriginal()
+{
+    if (!project->info.isTranslation()) {
+        QMessageBox::information(this, "Translate with original",
+                    STR_NEED_BILINGUAL_TRANSLATION);
+        return;
+    }
+    filedlg::Filters filters { FILTER_ORIGINAL, filedlg::ALL_FILES };
+    std::filesystem::path fileName = filedlg::open(
+            this, L"Translate with original", filters, WEXT_ORIGINAL,
+            filedlg::AddToRecent::NO);
+    if (!fileName.empty()) {
+        /// @todo [urgent] translate with original
+        tr::tw::Sets sets;
+        try {
+            tr::translateWithOriginal(*project, sets);
+        } catch (const std::exception& e) {
+            QMessageBox::critical(this, "Translate with original", QString::fromStdString(e.what()));
+        }
     }
 }

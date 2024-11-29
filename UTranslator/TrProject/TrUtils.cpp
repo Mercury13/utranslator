@@ -186,6 +186,7 @@ namespace {
             ++n;
         }
     }
+
 }   // anon namespace
 
 void tr::resetKnownOriginal(Project& prj)
@@ -196,4 +197,12 @@ void tr::resetKnownOriginal(Project& prj)
         prj.stats(StatsMode::DIRECT, CascadeDropCache::NO);
         prj.modify();
     }
+}
+
+
+void tr::translateWithOriginal(Project& prj, const tw::Sets& sets)
+{
+    std::shared_ptr<Project> extOrig = Project::make();
+    extOrig->load(sets.origPath);
+    /// @todo [urgent] translate with original
 }

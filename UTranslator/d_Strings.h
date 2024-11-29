@@ -9,6 +9,7 @@
 #define STR_EMPTY_STRING   "(Empty string)"
 
 #define EXT_ORIGINAL ".uorig"
+#define WEXT_ORIGINAL W(EXT_ORIGINAL)
 #define EXT_TRANSLATION ".utran"
 #define WMASK(ext)  L"*" ext
 #define W(s) (L"" s)
@@ -33,3 +34,6 @@ constexpr const std::string_view langList[] = {
     "hi",   // Hindi
     "it", "jp", "ru", "uk"
 };
+
+constexpr const char* STR_NEED_BILINGUAL_TRANSLATION =
+        "This is possible for bilinguals/translations only.";

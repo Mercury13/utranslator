@@ -21,12 +21,12 @@ namespace tr {
     ///             s3
     ///    s4
     ///
-    enum class WalkOrder {
+    enum class WalkOrder : unsigned char {
         EXACT,      ///< Exact order: top down, s1 s2 s3 s4
         ECONOMY     ///< Economy order: never twice the same group, s1 s4 s2 s3
     };
 
-    enum class WalkChannel { ORIGINAL, TRANSLATION };
+    enum class WalkChannel : unsigned char { ORIGINAL, TRANSLATION };
 
     ///  Opaque handle, but may be used as interface
     class IconObject
@@ -318,9 +318,7 @@ namespace tr {
         static bool isTranslation(PrjType type);
         bool isTranslation() const { return isTranslation(type); }
 
-        /// @return [+] Everything translation-related is available,
-        ///             incl. two new channels (translation, translator’s comment),
-        ///             translation settings…
+        /// @return [+] Can comment translations (false for original/bilingual
         static bool isTranslationCommentable(PrjType type) { return !canEditOriginal(type); }
         bool isTranslationCommentable() const { return isTranslationCommentable(type); }
 

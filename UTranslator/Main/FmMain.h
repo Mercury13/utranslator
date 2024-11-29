@@ -128,6 +128,7 @@ private slots:
     void badShortcut();
     // Menu: Tools
     void runDecoder();
+    void translateWithOriginal();
     void extractOriginal();
     void switchOriginalAndTranslation();
     void resetKnownOriginals();
