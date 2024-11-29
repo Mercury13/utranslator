@@ -1684,13 +1684,14 @@ void FmMain::translateWithOriginal()
                     STR_NEED_BILINGUAL_TRANSLATION);
         return;
     }
-    filedlg::Filters filters { FILTER_ORIGINAL, filedlg::ALL_FILES };
+    filedlg::Filters filters { FILTER_TRANSLATABLE, filedlg::ALL_FILES };
     std::filesystem::path fileName = filedlg::open(
             this, L"Translate with original", filters, WEXT_ORIGINAL,
             filedlg::AddToRecent::NO);
     if (!fileName.empty()) {
         /// @todo [urgent] translate with original
         tr::tw::Sets sets;
+        sets.origPath = fileName;
         try {
             tr::translateWithOriginal(*project, sets);
         } catch (const std::exception& e) {

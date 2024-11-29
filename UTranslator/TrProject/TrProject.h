@@ -49,7 +49,7 @@ constexpr bool operator == (detail::TriBool x, TriBool y) noexcept { return (x =
 namespace tr {
 
     /// Modification channel
-    enum class Mch {
+    enum class Mch : unsigned char {
         META    = 1,
         ID      = 2,
         ORIG    = 4,
@@ -87,9 +87,9 @@ namespace tr {
     class Text;
     class UiObject;
 
-    enum class ObjType { PROJECT, FILE, GROUP, TEXT };
+    enum class ObjType : unsigned char { PROJECT, FILE, GROUP, TEXT };
 
-    enum class ObjState { STAYING, ADDED, DELETED };
+    enum class ObjState : unsigned char { STAYING, ADDED, DELETED };
 
     class Entity;
 
@@ -137,7 +137,7 @@ namespace tr {
         void removeTranslChannel() { translators.clear(); }
     };
 
-    enum class AttentionMode {
+    enum class AttentionMode : unsigned char {
         BACKGROUND,     ///< patch translation only — untouched (grey)
         CALM,           ///< normal (green)
         USER_ATTENTION, ///< attention (yellow)
@@ -159,7 +159,7 @@ namespace tr {
         AttentionMode baseAttentionMode(const tr::PrjInfo& prjInfo) const;
     };
 
-    enum class Modify { NO, YES };
+    enum class Modify : unsigned char { NO, YES };
 
     /// Simple cache to speed up writing
     struct WrCache {
@@ -227,11 +227,11 @@ namespace tr {
         virtual void onLeaveGroup(const std::shared_ptr<VirtualGroup>&) {}
     };
 
-    enum class EnterMe { NO, YES };
+    enum class EnterMe : unsigned char { NO, YES };
 
-    enum class CascadeDropCache { NO, YES };
+    enum class CascadeDropCache : unsigned char { NO, YES };
 
-    enum class StatsMode {
+    enum class StatsMode : unsigned char {
         CACHED,         ///< Use cache if present
         SEMICACHED,     ///< Do not use cache for my object
         DIRECT          ///< Do not use cache at all
@@ -626,7 +626,7 @@ namespace tr {
         UpdateInfo updateData_Original();
     };
 
-    enum class FileMode { HOSTED, EXTERNAL };
+    enum class FileMode : unsigned char { HOSTED, EXTERNAL };
 
     class File final : public VirtualGroup
     {

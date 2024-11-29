@@ -2,7 +2,7 @@
 #include "ui_FmTranslateWithOriginal.h"
 
 FmTranslateWithOriginal::FmTranslateWithOriginal(QWidget *parent) :
-    QDialog(parent),
+    Super(parent),
     ui(new Ui::FmTranslateWithOriginal)
 {
     ui->setupUi(this);
@@ -11,4 +11,11 @@ FmTranslateWithOriginal::FmTranslateWithOriginal(QWidget *parent) :
 FmTranslateWithOriginal::~FmTranslateWithOriginal()
 {
     delete ui;
+}
+
+std::optional<tr::tw::Sets> FmTranslateWithOriginal::exec(int)
+{
+    if (!Super::exec())
+        return std::nullopt;
+    /// @todo [urgent] exec
 }

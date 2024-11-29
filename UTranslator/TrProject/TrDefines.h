@@ -196,14 +196,14 @@ namespace tf {
         void unifiedLoad(const pugi::xml_node&);
     };
 
-    enum class LoadTo { SELECTED, ROOT };
-    enum class Existing { KEEP, OVERWRITE };
+    enum class LoadTo : unsigned char { SELECTED, ROOT };
+    enum class Existing : unsigned char { KEEP, OVERWRITE };
     struct LoadTextsSettings {
         LoadTo loadTo;
         Existing existing;
     };
 
-    enum class TextOwner { EDITOR, ME };
+    enum class TextOwner : unsigned char { EDITOR, ME };
 
     /// Mode for stealing original data
     /// @warning same order as TextOwner
@@ -211,7 +211,7 @@ namespace tf {
     ///     so EDITOR is external software → then KEEP
     ///     EDITOR is my program → then STEAL
     ///
-    enum class StealOrig {
+    enum class StealOrig : unsigned char {
         KEEP,           ///< Keep original data
         STEAL,          ///< Steal original data
         KEEP_WARN       ///< Same as KEEP + use knownOrig
@@ -265,7 +265,17 @@ std::unique_ptr<T> CloningUptr<T>::upClone() const
 
 namespace tr {
 
-    enum class PrjType { ORIGINAL, FULL_TRANSL };
+    ///  Implemented:
+    ///   * Original: can fully edit
+    ///   * Full translation: counts untranslated strings
+    ///  Not implemented:
+    ///   * Bilingual: has both original and full translation
+    ///   * Patch translation: untranslated strings are not bugs;
+    ///      someday so-called “triggers”: we react to some text in original
+    ///   * Freestyle translation: original is not *.uorig but
+    ///      some other project, for translation of e.g. game
+    ///
+    enum class PrjType : unsigned char { ORIGINAL, FULL_TRANSL };
     constexpr int PrjType_N = static_cast<int>(PrjType::FULL_TRANSL) + 1;
     extern const char* const prjTypeNames[PrjType_N];
 
