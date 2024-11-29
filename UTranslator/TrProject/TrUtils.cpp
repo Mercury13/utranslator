@@ -206,7 +206,8 @@ namespace {
         size_t nTextsTouched = 0;
     };
 
-    /// @return  [+] we have text at ext
+    /// Checks whether ext.original is translated text
+    /// @return  [+] translated text  [-] untranslated hole
     ///
     bool twHasText(tr::Text& text, tr::Text& ext,  const tr::tw::Sets& sets)
     {
@@ -222,7 +223,8 @@ namespace {
         return true;
     }
 
-    /// @return  Translate with original: should we replace text with ext?
+    /// Checks whether we replace text.translation with ext.original
+    /// @return  [+] replace [-] keep
     ///
     bool twIsEligible(tr::Text& text, tr::Text& ext, const tr::tw::Sets& sets)
     {
@@ -259,13 +261,15 @@ namespace {
                     if (auto destGroup = ext.findGroup(srcGroup->id)) {
                         twWalkVgroup(*srcGroup, *destGroup, sets, stats);
                     }
-                } break;
+                }
+                break;
             case tr::ObjType::TEXT:
                 if (auto srcText = dynamic_cast<tr::Text*>(pSrcChild.get())) {
                     if (auto destText = ext.findText(srcText->id)) {
                         twWalkText(*srcText, *destText, sets, stats);
                     }
-                } break;
+                }
+                break;
             }
         }
     }

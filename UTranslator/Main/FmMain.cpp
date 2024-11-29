@@ -195,6 +195,7 @@ DblClickSvgWidget* FmMain::loadBugWidget(
 
 void FmMain::loadBugImages()
 {
+    /// @todo [L10n] strings hardcoded here
     // OK
     // Critical
     /// @todo [svg] Before: critical, need review
