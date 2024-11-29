@@ -186,6 +186,7 @@ DblClickSvgWidget* FmMain::loadBugWidget(
     wi->load(QString(path));
     auto layout = qobject_cast<QHBoxLayout*>(parentWi->layout());
     auto nWidgets = layout->count();
+        // minus 1: the last is spacer
     layout->insertWidget(nWidgets - 1, wi);
     wi->hide();
     return wi;
@@ -196,13 +197,13 @@ void FmMain::loadBugImages()
 {
     // OK
     // Critical
-    /// @todo [svg] Before: Need review
+    /// @todo [svg] Before: critical, need review
     imgBug.emptyTransl = loadBugWidget(":/Discrep/empty.svg",
             "<b>Empty translation</b>" "\n"
             "<p>If empty string is your actual translation, "
             "press “Accept changes” (Ctrl+Enter) or double-click this icon.");
     // Important
-    /// @todo [svg] After: mojibake
+    /// @todo [svg] After: important, mojibake
     // Information
 }
 
