@@ -200,9 +200,35 @@ void tr::resetKnownOriginal(Project& prj)
 }
 
 
+namespace {
+
+    struct TwStats {
+        size_t nTextsTouched = 0;
+    };
+
+    void twWalkFile(tr::File& prj, tr::File& ext,
+                    const tr::tw::Sets& sets, TwStats& stats)
+    {
+        /// @todo [urgent] translate with original
+    }
+
+    void twWalkProject(tr::Project& prj, tr::Project& ext,
+                       const tr::tw::Sets& sets, TwStats& stats)
+    {
+        for (auto& pSrcFile : prj.files) {
+            if (auto pExtFile = ext.findFile(pSrcFile->id)) {
+                twWalkFile(*pSrcFile, *pExtFile, sets, stats);
+            }
+        }
+    }
+
+}   // anon namespace
+
+
 void tr::translateWithOriginal(Project& prj, const tw::Sets& sets)
 {
-    std::shared_ptr<Project> extOrig = Project::make();
-    extOrig->load(sets.origPath);
-    /// @todo [urgent] translate with original
+    std::shared_ptr<Project> ext = Project::make();
+    ext->load(sets.origPath);
+    TwStats stats;
+    twWalkProject(prj, *ext, sets, stats);
 }
