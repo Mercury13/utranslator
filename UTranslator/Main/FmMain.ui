@@ -1173,7 +1173,14 @@ QLabel {
      <addaction name="acSwitchOriginalAndTranslation"/>
      <addaction name="acResetKnownOriginals"/>
     </widget>
+    <widget class="QMenu" name="menuTranslate_with">
+     <property name="title">
+      <string>Translate with</string>
+     </property>
+     <addaction name="acTranslateWithOriginal"/>
+    </widget>
     <addaction name="acDecoder"/>
+    <addaction name="menuTranslate_with"/>
     <addaction name="menuConvertProjectType"/>
    </widget>
    <addaction name="menuFile"/>
@@ -1432,6 +1439,11 @@ QLabel {
   <action name="acResetKnownOriginals">
    <property name="text">
     <string>Reset known originals</string>
+   </property>
+  </action>
+  <action name="acTranslateWithOriginal">
+   <property name="text">
+    <string>Another *.uorig…</string>
    </property>
   </action>
  </widget>

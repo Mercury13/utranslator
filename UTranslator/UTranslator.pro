@@ -20,21 +20,21 @@ SOURCES += \
     ../Libs/SelfMade/Strings/u_Decoders.cpp \
     ../Libs/SelfMade/Strings/u_Qstrings.cpp \
     ../Libs/SelfMade/Strings/u_Strings.cpp \
-    FmAboutFormat.cpp \
-    FmDecoder.cpp \
+    FmAboutFormat.cpp \    
     FmDisambigPair.cpp \
-    FmExtractOriginal.cpp \
     FmFileFormat.cpp \
     FmFind.cpp \
     FmMessage.cpp \
     FmProjectSettings.cpp \
-    FmSwitchOriginalAndTranslation.cpp \
     History.cpp \
     Main/DiffBrowser.cpp \
     Main/FmMain.cpp \
     Main/PrjTreeModel.cpp \
     Main/QtDiff.cpp \
     QtIconLib.cpp \
+    Tools/FmDecoder.cpp \
+    Tools/FmSwitchOriginalAndTranslation.cpp \
+    Tools/FmExtractOriginal.cpp \
     TrProject/Modifiable.cpp \
     TrProject/TrBugs.cpp \
     TrProject/TrDefines.cpp \
@@ -72,20 +72,20 @@ HEADERS += \
     ../Libs/SelfMade/Strings/u_Qstrings.h \
     ../Libs/SelfMade/Strings/u_Strings.h \
     FmAboutFormat.h \
-    FmDecoder.h \
     FmDisambigPair.h \
-    FmExtractOriginal.h \
     FmFileFormat.h \
     FmFind.h \
     FmMessage.h \
     FmProjectSettings.h \
-    FmSwitchOriginalAndTranslation.h \
     History.h \
     Main/DiffBrowser.h \
     Main/FmMain.h \
     Main/PrjTreeModel.h \
     Main/QtDiff.h \
     QtIconLib.h \
+    Tools/FmDecoder.h \
+    Tools/FmExtractOriginal.h \
+    Tools/FmSwitchOriginalAndTranslation.h \
     TrProject/Modifiable.h \
     TrProject/TrBugs.h \
     TrProject/TrDefines.h \
@@ -115,15 +115,15 @@ INCLUDEPATH += \
 
 FORMS += \
     Main/FmMain.ui \
-    FmAboutFormat.ui \
-    FmDecoder.ui \
+    Tools/FmDecoder.ui \
+    Tools/FmExtractOriginal.ui \
+    Tools/FmSwitchOriginalAndTranslation.ui \
+    FmAboutFormat.ui \    
     FmDisambigPair.ui \
-    FmExtractOriginal.ui \
     FmFileFormat.ui \
     FmFind.ui \
     FmNew.ui \
-    FmProjectSettings.ui \
-    FmSwitchOriginalAndTranslation.ui \
+    FmProjectSettings.ui \    
     WiFind.ui
 
 win32 {         # and W64 too
