@@ -45,6 +45,7 @@ class FmMessage;
 class QPlainTextEdit;
 class QTreeView;
 class QShortcut;
+class DblClickSvgWidget;
 
 namespace ts {
     class Result;
@@ -138,6 +139,11 @@ protected:
 private:
     Ui::FmMain *ui;
 
+    // Discrepancy images, completely programmatic now
+    struct ImgBug {
+        DblClickSvgWidget* emptyTransl = nullptr;
+    } imgBug;
+
     PrjTreeModel treeModel;
     std::shared_ptr<tr::Project> project;
     struct Search {
@@ -186,7 +192,7 @@ private:
     /// Returns parent group for addition, probably calling dialog form
     std::optional<std::shared_ptr<tr::VirtualGroup>> disambigGroup(std::u8string_view title);
     QModelIndex treeIndex();
-    enum class EditMode { GROUP, TEXT };
+    enum class EditMode : unsigned char { GROUP, TEXT };
     ///  Does what it needs to edit ORIGINAL (not translation)
     void startEditingOrig(const QModelIndex& index, EditMode editMode);
     void selectSmth();
@@ -221,4 +227,7 @@ private:
     void updateReference();
     void clearReference();
     [[nodiscard]] QShortcut* addBadShortcut(QAction* action);
+    void loadBugImages();
+    [[nodiscard]] DblClickSvgWidget* loadBugWidget(
+            const char* path, const char* description);
 };

@@ -11,6 +11,7 @@ SOURCES += \
     ../Libs/QModels/QModels.cpp \
     ../Libs/Qt/DblClickLabel.cpp \
     ../Libs/Qt/DblClickRadio.cpp \
+    ../Libs/Qt/DblClickSvgWidget.cpp \
     ../Libs/Qt/ElidedLabel.cpp \
     ../Libs/SelfMade/L10n/LocFmt.cpp \
     ../Libs/SelfMade/Qt/QtMultiRadio.cpp \
@@ -56,6 +57,7 @@ HEADERS += \
     ../Libs/QModels/QModels.h \
     ../Libs/Qt/DblClickLabel.h \
     ../Libs/Qt/DblClickRadio.h \
+    ../Libs/Qt/DblClickSvgWidget.h \
     ../Libs/Qt/ElidedLabel.h \
     ../Libs/SelfMade/Cpp03.h \
     ../Libs/SelfMade/L10n/LocFmt.h \

@@ -819,23 +819,6 @@ QLabel {
                   </widget>
                  </item>
                  <item>
-                  <widget class="DblClickLabel" name="imgBugEmptyTransl">
-                   <property name="toolTip">
-                    <string>&lt;b&gt;Empty translation&lt;/b&gt;
-&lt;p&gt;Is empty string is your actual translation, press “Accept changes” (Ctrl+Enter) or double-click this icon.</string>
-                   </property>
-                   <property name="toolTipDuration">
-                    <number>60000</number>
-                   </property>
-                   <property name="text">
-                    <string notr="true"/>
-                   </property>
-                   <property name="pixmap">
-                    <pixmap resource="../Resources/req.qrc">:/Discrep/empty.png</pixmap>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
                   <widget class="QLabel" name="imgBugMojibake">
                    <property name="toolTip">
                     <string>&lt;b&gt;Mojibake&lt;/b&gt;

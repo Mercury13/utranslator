@@ -13,6 +13,7 @@
 
 // Qt misc
 #include "QModels.h"
+#include "DblClickSvgWidget.h"
 
 // Libs
 #include "u_Qstrings.h"
@@ -55,6 +56,7 @@ FmMain::FmMain(QWidget *parent)
     ui->wiFind->close();
     dismissUpdateInfo();
     retrieveVersion();
+    loadBugImages();
 
     // Bugs
     timerBug = std::make_unique<QTimer>();
@@ -128,7 +130,7 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->acRevertChanges, &QAction::triggered, this, &This::revertCurrObject);
         // Edit — double clicks
         connect(ui->imgBugOrigChanged, &DblClickLabel::doubleClicked, this, &This::acceptCurrObjectOrigChanged);
-        connect(ui->imgBugEmptyTransl, &DblClickLabel::doubleClicked, this, &This::acceptCurrObjectEmptyTransl);
+        connect(imgBug.emptyTransl, &DblClickSvgWidget::doubleClicked, this, &This::acceptCurrObjectEmptyTransl);
     // Go
     connect(ui->acGoBack, &QAction::triggered, this, &This::goBack);
     connect(ui->acGoNext, &QAction::triggered, this, &This::goNext);
@@ -169,6 +171,39 @@ FmMain::FmMain(QWidget *parent)
 FmMain::~FmMain()
 {
     delete ui;
+}
+
+
+DblClickSvgWidget* FmMain::loadBugWidget(
+        const char* path, const char* description)
+{
+    auto parentWi = ui->grpBugs;
+    auto wi = new DblClickSvgWidget(parentWi);
+    wi->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    wi->setMinimumSize(32, 32);
+    wi->setToolTipDuration(60000);
+    wi->setToolTip(description);
+    wi->load(QString(path));
+    auto layout = qobject_cast<QHBoxLayout*>(parentWi->layout());
+    auto nWidgets = layout->count();
+    layout->insertWidget(nWidgets - 1, wi);
+    wi->hide();
+    return wi;
+}
+
+
+void FmMain::loadBugImages()
+{
+    // OK
+    // Critical
+    /// @todo [svg] Before: Need review
+    imgBug.emptyTransl = loadBugWidget(":/Discrep/empty.svg",
+            "<b>Empty translation</b>" "\n"
+            "<p>If empty string is your actual translation, "
+            "press “Accept changes” (Ctrl+Enter) or double-click this icon.");
+    // Important
+    /// @todo [svg] After: mojibake
+    // Information
 }
 
 
@@ -1561,7 +1596,7 @@ void FmMain::showBugs(Flags<tr::Bug> x)
 {
     stopBugTimer();
     ShowNone sh(x);
-    sh.showIfBug(ui->imgBugEmptyTransl, tr::Bug::TR_EMPTY );
+    sh.showIfBug(imgBug.emptyTransl   , tr::Bug::TR_EMPTY );
     sh.showIfBug(ui->imgBugOrigChanged, tr::Bug::TR_ORIG_CHANGED);
     sh.showIfBug(ui->imgBugMojibake   , tr::Bug::COM_MOJIBAKE);
     sh.showIfBug(ui->imgBugEmptyOrig  , tr::Bug::OR_EMPTY);

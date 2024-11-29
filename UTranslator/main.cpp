@@ -36,6 +36,9 @@ void setGeometry(QMainWindow& win, const QRect& rect)
 
 int main(int argc, char *argv[])
 {
+    // For debugging HiDPI: glitchy, but better then nothing
+    //qputenv("QT_SCALE_FACTOR", "1.25");
+
     QApplication a(argc, argv);
     FmMain w;
 
