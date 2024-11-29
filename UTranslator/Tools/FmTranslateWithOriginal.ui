@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>382</width>
-    <height>203</height>
+    <width>380</width>
+    <height>237</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,12 +28,26 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
+       <widget class="QLabel" name="lbUncheckAll">
+        <property name="text">
+         <string>Uncheck both if that file is known to be a full translation.</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QCheckBox" name="chkIsOriginal">
         <property name="text">
-         <string>Translation = original</string>
+         <string>That string = this original</string>
         </property>
         <property name="checked">
          <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="chkEmptyString">
+        <property name="text">
+         <string>Empty string</string>
         </property>
        </widget>
       </item>
@@ -49,7 +63,7 @@
       <item>
        <widget class="QRadioButton" name="radioPrioThis">
         <property name="text">
-         <string>This project (keep translations)</string>
+         <string>This project (keep these translations)</string>
         </property>
         <property name="checked">
          <bool>false</bool>
@@ -59,7 +73,7 @@
       <item>
        <widget class="QRadioButton" name="radioPrioExt">
         <property name="text">
-         <string>External original (overwrite translations)</string>
+         <string>External original (overwrite these translations)</string>
         </property>
        </widget>
       </item>

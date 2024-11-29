@@ -206,10 +206,68 @@ namespace {
         size_t nTextsTouched = 0;
     };
 
-    void twWalkFile(tr::File& prj, tr::File& ext,
+    /// @return  [+] we have text at ext
+    ///
+    bool twHasText(tr::Text& text, tr::Text& ext,  const tr::tw::Sets& sets)
+    {
+        // Check sign after sign
+        if (sets.holeSigns.origIsExt) {
+            if (text.tr.original == ext.tr.original)
+                return false;
+        }
+        if (sets.holeSigns.emptyString) {
+            if (ext.tr.original.empty())
+                return false;
+        }
+        return true;
+    }
+
+    /// @return  Translate with original: should we replace text with ext?
+    ///
+    bool twIsEligible(tr::Text& text, tr::Text& ext, const tr::tw::Sets& sets)
+    {
+        switch (sets.priority) {
+        case tr::tw::Priority::EXISTING:
+            // Only when translation is absent and anything is present at ext
+            return !text.tr.translation && twHasText(text, ext, sets);
+        case tr::tw::Priority::EXTERNAL:
+            // Always when text is present
+            return twHasText(text, ext, sets);
+        }
+        __builtin_unreachable();
+    }
+
+    void twWalkText(tr::Text& text, tr::Text& ext,
                     const tr::tw::Sets& sets, TwStats& stats)
     {
-        /// @todo [urgent] translate with original
+        if (twIsEligible(text, ext, sets)) {
+            text.tr.translation = std::move(ext.tr.original);
+            ++stats.nTextsTouched;
+        }
+    }
+
+    void twWalkVgroup(tr::VirtualGroup& group, tr::VirtualGroup& ext,
+                    const tr::tw::Sets& sets, TwStats& stats)
+    {
+        for (auto& pSrcChild : group.children) {
+            switch (pSrcChild->objType()) {
+            case tr::ObjType::PROJECT:
+            case tr::ObjType::FILE: // do nothing
+                break;
+            case tr::ObjType::GROUP:
+                if (auto srcGroup = dynamic_cast<tr::Group*>(pSrcChild.get())) {
+                    if (auto destGroup = ext.findGroup(srcGroup->id)) {
+                        twWalkVgroup(*srcGroup, *destGroup, sets, stats);
+                    }
+                } break;
+            case tr::ObjType::TEXT:
+                if (auto srcText = dynamic_cast<tr::Text*>(pSrcChild.get())) {
+                    if (auto destText = ext.findText(srcText->id)) {
+                        twWalkText(*srcText, *destText, sets, stats);
+                    }
+                } break;
+            }
+        }
     }
 
     void twWalkProject(tr::Project& prj, tr::Project& ext,
@@ -217,7 +275,7 @@ namespace {
     {
         for (auto& pSrcFile : prj.files) {
             if (auto pExtFile = ext.findFile(pSrcFile->id)) {
-                twWalkFile(*pSrcFile, *pExtFile, sets, stats);
+                twWalkVgroup(*pSrcFile, *pExtFile, sets, stats);
             }
         }
     }
@@ -231,4 +289,7 @@ void tr::translateWithOriginal(Project& prj, const tw::Sets& sets)
     ext->load(sets.origPath);
     TwStats stats;
     twWalkProject(prj, *ext, sets, stats);
+    if (stats.nTextsTouched != 0) {
+        prj.modify();
+    }
 }

@@ -32,7 +32,8 @@ std::optional<tr::tw::Sets> FmTranslateWithOriginal::exec(int)
     if (!Super::exec())
         return std::nullopt;
     tr::tw::Sets r;
-    r.holeSigns.originalIsTranslation = ui->chkIsOriginal->isChecked();
+    r.holeSigns.origIsExt = ui->chkIsOriginal->isChecked();
+    r.holeSigns.emptyString = ui->chkEmptyString->isChecked();
     r.priority = radioPriority.get();
     return r;
 }

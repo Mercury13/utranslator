@@ -29,8 +29,10 @@ namespace tr {
 
         struct Sets {
             std::filesystem::path origPath;
+            /// Signs of untranslated string
             struct HoleSigns {
-                bool originalIsTranslation = true;
+                bool origIsExt = true;      ///< text original = ext original → untranslated
+                bool emptyString = false;   ///< empty string → untranslated
             } holeSigns;
             Priority priority = Priority::EXISTING;
         };
