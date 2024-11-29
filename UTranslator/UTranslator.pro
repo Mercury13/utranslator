@@ -31,6 +31,7 @@ SOURCES += \
     Main/FmMain.cpp \
     Main/PrjTreeModel.cpp \
     Main/QtDiff.cpp \
+    Main/WiFind.cpp \
     QtIconLib.cpp \
     Tools/FmDecoder.cpp \
     Tools/FmSwitchOriginalAndTranslation.cpp \
@@ -43,7 +44,6 @@ SOURCES += \
     TrProject/TrProject.cpp \
     TrProject/TrUtils.cpp \
     TrProject/TrWrappers.cpp \
-    WiFind.cpp \
     d_Config.cpp \
     FmNew.cpp \
     main.cpp
@@ -82,6 +82,7 @@ HEADERS += \
     Main/FmMain.h \
     Main/PrjTreeModel.h \
     Main/QtDiff.h \
+    Main/WiFind.h \
     QtIconLib.h \
     Tools/FmDecoder.h \
     Tools/FmExtractOriginal.h \
@@ -94,7 +95,6 @@ HEADERS += \
     TrProject/TrProject.h \
     TrProject/TrUtils.h \
     TrProject/TrWrappers.h \
-    WiFind.h \
     d_Config.h \
     FmNew.h \
     d_Strings.h
@@ -115,6 +115,7 @@ INCLUDEPATH += \
 
 FORMS += \
     Main/FmMain.ui \
+    Main/WiFind.ui \
     Tools/FmDecoder.ui \
     Tools/FmExtractOriginal.ui \
     Tools/FmSwitchOriginalAndTranslation.ui \
@@ -123,8 +124,7 @@ FORMS += \
     FmFileFormat.ui \
     FmFind.ui \
     FmNew.ui \
-    FmProjectSettings.ui \    
-    WiFind.ui
+    FmProjectSettings.ui
 
 win32 {         # and W64 too
     LIBS += -lcomdlg32

@@ -32,13 +32,13 @@
 // UI forms
 #include "FmNew.h"
 #include "FmDisambigPair.h"
-#include "FmDecoder.h"
 #include "FmFileFormat.h"
 #include "FmFind.h"
 #include "FmProjectSettings.h"
-#include "FmExtractOriginal.h"
-#include "FmSwitchOriginalAndTranslation.h"
 #include "FmMessage.h"
+#include "Tools/FmDecoder.h"
+#include "Tools/FmExtractOriginal.h"
+#include "Tools/FmSwitchOriginalAndTranslation.h"
 
 
 ///// FmMain ///////////////////////////////////////////////////////////////////
