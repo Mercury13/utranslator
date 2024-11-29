@@ -40,6 +40,7 @@ class FmFind;
 class FmProjectSettings;
 class FmExtractOriginal;
 class FmSwitchOriginalAndTranslation;
+class FmTranslateWithOriginal;
 class FmMessage;
 class QPlainTextEdit;
 class QTreeView;
@@ -155,6 +156,7 @@ private:
     Uptr<FmProjectSettings> fmProjectSettings;
     Uptr<FmExtractOriginal> fmExtractOriginal;
     Uptr<FmSwitchOriginalAndTranslation> fmSwitchOriginalAndTranslation;
+    Uptr<FmTranslateWithOriginal> fmTranslateWithOriginal;
     Uptr<FmMessage> fmMessage;
 
     struct loadSetsCache {

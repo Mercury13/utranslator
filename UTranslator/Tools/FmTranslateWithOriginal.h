@@ -4,6 +4,9 @@
 // Qt
 #include <QDialog>
 
+// Qt ex
+#include "QtMultiRadio.h"
+
 // STL
 #include <optional>
 
@@ -26,6 +29,8 @@ public:
 
 private:
     Ui::FmTranslateWithOriginal *ui;
+    EcRadio<tr::tw::Priority> radioPriority;
+
     using Super::exec;
 };
 

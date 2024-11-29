@@ -37,6 +37,7 @@
 #include "FmProjectSettings.h"
 #include "FmMessage.h"
 #include "Tools/FmDecoder.h"
+#include "Tools/FmTranslateWithOriginal.h"
 #include "Tools/FmExtractOriginal.h"
 #include "Tools/FmSwitchOriginalAndTranslation.h"
 
@@ -1689,11 +1690,12 @@ void FmMain::translateWithOriginal()
             this, L"Translate with original", filters, WEXT_ORIGINAL,
             filedlg::AddToRecent::NO);
     if (!fileName.empty()) {
-        /// @todo [urgent] translate with original
-        tr::tw::Sets sets;
-        sets.origPath = fileName;
+        auto sets = fmTranslateWithOriginal.ensure(this).exec(0);
+        if (!sets)
+            return;
+        sets->origPath = fileName;
         try {
-            tr::translateWithOriginal(*project, sets);
+            tr::translateWithOriginal(*project, *sets);
         } catch (const std::exception& e) {
             QMessageBox::critical(this, "Translate with original", QString::fromStdString(e.what()));
         }

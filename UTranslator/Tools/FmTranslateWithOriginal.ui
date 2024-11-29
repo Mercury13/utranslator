@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>TranslateWithOriginal</string>
+   <string>Translate with original</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -30,7 +30,7 @@
       <item>
        <widget class="QCheckBox" name="chkIsOriginal">
         <property name="text">
-         <string>Transtation = original</string>
+         <string>Translation = original</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -52,12 +52,12 @@
          <string>This project (keep translations)</string>
         </property>
         <property name="checked">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QRadioButton" name="radioThatOrig">
+       <widget class="QRadioButton" name="radioPrioExt">
         <property name="text">
          <string>External original (overwrite translations)</string>
         </property>
