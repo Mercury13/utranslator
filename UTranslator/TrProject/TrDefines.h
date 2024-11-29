@@ -44,7 +44,7 @@ namespace tf {
     class Loader;
     class Walker;
 
-    enum class Fcap {
+    enum class Fcap : unsigned char {
         // FEATURES
         IMPORT = 1,
         EXPORT = 2,
@@ -58,7 +58,7 @@ namespace tf {
     };
     DEFINE_ENUM_OPS(Fcap)
 
-    enum class TextLineBreakStyle { LF, CRLF };
+    enum class TextLineBreakStyle : unsigned char { LF, CRLF };
 
     struct LineBreakStyleInfo {
         std::string_view techName;
@@ -90,7 +90,7 @@ namespace tf {
     extern const ec::Array<std::string_view, escape::LineBreakMode> lineBreakEscapeModeNames;
     extern const ec::Array<TechLoc, escape::SpaceMode> spaceEscapeModeInfo;
 
-    enum class Usfg {
+    enum class Usfg : unsigned char {
         TEXT_FORMAT = 1,
         TEXT_ESCAPE = 2,    ///< TEXT_ESCAPE implies TEXT_FORMAT
         MULTITIER = 4,      ///< has multitierSeparator
