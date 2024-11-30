@@ -294,6 +294,7 @@ void tr::translateWithOriginal(Project& prj, const tw::Sets& sets)
     TwStats stats;
     twWalkProject(prj, *ext, sets, stats);
     if (stats.nTextsTouched != 0) {
+        prj.stats(StatsMode::DIRECT, CascadeDropCache::NO);
         prj.modify();
     }
 }

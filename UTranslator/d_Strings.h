@@ -32,7 +32,7 @@
 constexpr const std::string_view langList[] = {
     "be", "cz", "cn", "de", "en", "es", "fr", "he", // Hebrew
     "hi",   // Hindi
-    "it", "jp", "ru", "uk"
+    "it", "ja", "ru", "uk"
 };
 
 constexpr const char* STR_NEED_BILINGUAL_TRANSLATION =
