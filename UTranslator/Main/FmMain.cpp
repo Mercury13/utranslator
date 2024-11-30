@@ -197,7 +197,11 @@ void FmMain::loadBugImages()
 {
     /// @todo [L10n] strings hardcoded here
     // OK
-    /// @todo [svg] Before: OK
+    imgBug.ok = loadBugWidget(":Discrep/ok.svg",
+            "<b>No discrepancies</b>" "\n"
+            "<p>UTranslator found no problems. "
+                "<b>Do not</b> chase this sign: "
+                "sometimes extra spaces and line breaks are your intentions.");
     // Critical
     imgBug.origChanged = loadBugWidget(":/Discrep/review.svg",
             "<b>Review needed</b>" "\n"
@@ -1618,7 +1622,7 @@ void FmMain::showBugs(Flags<tr::Bug> x)
     sh.showIfBug(ui->imgBugSpaceDelBeg, tr::Bug::TR_SPACE_HEAD_DEL);
     sh.showIfBug(ui->imgBugSpaceAddEnd, tr::Bug::TR_SPACE_TAIL_ADD);
     sh.showIfBug(ui->imgBugSpaceDelEnd, tr::Bug::TR_SPACE_TAIL_DEL);
-    ui->imgBugOk->setVisible(sh.isNoneShown());
+    imgBug.ok->setVisible(sh.isNoneShown());
 }
 
 

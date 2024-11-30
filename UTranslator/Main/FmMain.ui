@@ -784,23 +784,6 @@ QLabel {
                   <number>2</number>
                  </property>
                  <item>
-                  <widget class="QLabel" name="imgBugOk">
-                   <property name="toolTip">
-                    <string>&lt;b&gt;No discrepancies&lt;/b&gt;
-&lt;p&gt;UTranslator found no problems. &lt;b&gt;Do not&lt;/b&gt; chase this sign, sometimes extra spaces and line breaks are your intention.</string>
-                   </property>
-                   <property name="toolTipDuration">
-                    <number>60000</number>
-                   </property>
-                   <property name="text">
-                    <string notr="true"/>
-                   </property>
-                   <property name="pixmap">
-                    <pixmap resource="../Resources/req.qrc">:/Discrep/ok.png</pixmap>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
                   <widget class="QLabel" name="imgBugEmptyOrig">
                    <property name="toolTip">
                     <string>&lt;b&gt;Empty original&lt;/b&gt;
