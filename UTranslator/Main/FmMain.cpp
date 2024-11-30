@@ -210,8 +210,12 @@ void FmMain::loadBugImages()
             "<p>If empty string is your actual translation, "
                 "press “Accept changes” (Ctrl+Enter) or double-click this icon.");
     // Important
-    /// @todo [svg] After: important, mojibake
+    imgBug.mojibake = loadBugWidget(":/Discrep/mojibake.svg",
+            "<b>Mojibake</b>" "\n"
+            "<p>One of fields was not decoded properly. "
+                "Check it twice before accepting.");
     // Information
+    /// @todo [svg] After: information, empty original
 }
 
 
@@ -1606,7 +1610,7 @@ void FmMain::showBugs(Flags<tr::Bug> x)
     ShowNone sh(x);
     sh.showIfBug(imgBug.emptyTransl   , tr::Bug::TR_EMPTY );
     sh.showIfBug(imgBug.origChanged   , tr::Bug::TR_ORIG_CHANGED);
-    sh.showIfBug(ui->imgBugMojibake   , tr::Bug::COM_MOJIBAKE);
+    sh.showIfBug(imgBug.mojibake      , tr::Bug::COM_MOJIBAKE);
     sh.showIfBug(ui->imgBugEmptyOrig  , tr::Bug::OR_EMPTY);
     sh.showIfBug(ui->imgBugInvisible  , tr::Bug::COM_INVISIBLE);
     sh.showIfBug(ui->imgBugMultiline  , tr::Bug::TR_MULTILINE);

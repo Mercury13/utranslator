@@ -143,6 +143,7 @@ private:
     struct ImgBug {
         DblClickSvgWidget* origChanged = nullptr;
         DblClickSvgWidget* emptyTransl = nullptr;
+        DblClickSvgWidget* mojibake = nullptr;
     } imgBug;
 
     PrjTreeModel treeModel;

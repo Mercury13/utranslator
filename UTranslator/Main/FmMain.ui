@@ -801,23 +801,6 @@ QLabel {
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLabel" name="imgBugMojibake">
-                   <property name="toolTip">
-                    <string>&lt;b&gt;Mojibake&lt;/b&gt;
-&lt;p&gt;One of fields was not decoded properly. Check it twice before accepting.</string>
-                   </property>
-                   <property name="toolTipDuration">
-                    <number>60000</number>
-                   </property>
-                   <property name="text">
-                    <string notr="true"/>
-                   </property>
-                   <property name="pixmap">
-                    <pixmap resource="../Resources/req.qrc">:/Discrep/mojibake.png</pixmap>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
                   <widget class="QLabel" name="imgBugEmptyOrig">
                    <property name="toolTip">
                     <string>&lt;b&gt;Empty original&lt;/b&gt;
