@@ -195,12 +195,13 @@ DblClickSvgWidget* FmMain::loadBugWidget(
 
 void FmMain::loadBugImages()
 {
+    // The order of images is programed HERE!
     /// @todo [L10n] strings hardcoded here
     // OK
     imgBug.ok = loadBugWidget(":Discrep/ok.svg",
             "<b>No discrepancies</b>" "\n"
-            "<p>UTranslator found no problems. "
-                "<b>Do not</b> chase this sign: "
+            "<p>UTranslator found no problems."
+            "<p><b>Do not</b> chase this sign: "
                 "sometimes extra spaces and line breaks are your intentions.");
     // Critical
     imgBug.origChanged = loadBugWidget(":/Discrep/review.svg",
@@ -219,7 +220,17 @@ void FmMain::loadBugImages()
             "<p>One of fields was not decoded properly. "
                 "Check it twice before accepting.");
     // Information
-    /// @todo [svg] After: information, empty original
+    imgBug.emptyOrig = loadBugWidget(":/Discrep/empty_b.svg",
+            "<b>Empty original</b>" "\n"
+            "<p>The original string is completely empty. "
+                "Beware, concatenating strings is usually bad, "
+                    "substitution marks are better, "
+                    "and self-sufficient strings are the best."
+            "<p>Horrible: British + Grand Prix<br>"
+                "Bad: British + Grand Prix + ⌀<br>"
+                "Better: %s Grand Prix<br>"
+                "Best: British Grand Prix");
+    /// @todo [svg] After: information, invisible strings
 }
 
 
@@ -1615,7 +1626,7 @@ void FmMain::showBugs(Flags<tr::Bug> x)
     sh.showIfBug(imgBug.emptyTransl   , tr::Bug::TR_EMPTY );
     sh.showIfBug(imgBug.origChanged   , tr::Bug::TR_ORIG_CHANGED);
     sh.showIfBug(imgBug.mojibake      , tr::Bug::COM_MOJIBAKE);
-    sh.showIfBug(ui->imgBugEmptyOrig  , tr::Bug::OR_EMPTY);
+    sh.showIfBug(imgBug.emptyOrig     , tr::Bug::OR_EMPTY);
     sh.showIfBug(ui->imgBugInvisible  , tr::Bug::COM_INVISIBLE);
     sh.showIfBug(ui->imgBugMultiline  , tr::Bug::TR_MULTILINE);
     sh.showIfBug(ui->imgBugSpaceAddBeg, tr::Bug::TR_SPACE_HEAD_ADD);
