@@ -227,7 +227,7 @@ void FmMain::loadBugImages()
                     "substitution marks are better, "
                     "and self-sufficient strings are the best."
             "<p>Horrible: British + Grand Prix<br>"
-                "Bad: British + Grand Prix + ⌀<br>"
+                "Poor: British + Grand Prix + ⌀<br>"
                 "Better: %s Grand Prix<br>"
                 "Best: British Grand Prix");
     imgBug.invisible = loadBugWidget(":/Discrep/invisible.svg",
