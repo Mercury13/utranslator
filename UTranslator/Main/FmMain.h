@@ -141,6 +141,7 @@ private:
 
     // Discrepancy images, completely programmatic now
     struct ImgBug {
+        DblClickSvgWidget* origChanged = nullptr;
         DblClickSvgWidget* emptyTransl = nullptr;
     } imgBug;
 

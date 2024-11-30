@@ -129,7 +129,7 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->acAcceptChanges, &QAction::triggered, this, &This::acceptCurrObjectAll);
     connect(ui->acRevertChanges, &QAction::triggered, this, &This::revertCurrObject);
         // Edit — double clicks
-        connect(ui->imgBugOrigChanged, &DblClickLabel::doubleClicked, this, &This::acceptCurrObjectOrigChanged);
+        connect(imgBug.origChanged, &DblClickSvgWidget::doubleClicked, this, &This::acceptCurrObjectOrigChanged);
         connect(imgBug.emptyTransl, &DblClickSvgWidget::doubleClicked, this, &This::acceptCurrObjectEmptyTransl);
     // Go
     connect(ui->acGoBack, &QAction::triggered, this, &This::goBack);
@@ -197,12 +197,18 @@ void FmMain::loadBugImages()
 {
     /// @todo [L10n] strings hardcoded here
     // OK
+    /// @todo [svg] Before: OK
     // Critical
-    /// @todo [svg] Before: critical, need review
+    imgBug.origChanged = loadBugWidget(":/Discrep/review.svg",
+            "<b>Review needed</b>" "\n"
+            "<p>The original text was changed. "
+                "Please check whether existing translation still works, or retranslate if needed."
+            "<p>If everything’s OK, press “Accept changes” (Ctrl+Enter), "
+                "or double-click this icon.");
     imgBug.emptyTransl = loadBugWidget(":/Discrep/empty.svg",
             "<b>Empty translation</b>" "\n"
             "<p>If empty string is your actual translation, "
-            "press “Accept changes” (Ctrl+Enter) or double-click this icon.");
+                "press “Accept changes” (Ctrl+Enter) or double-click this icon.");
     // Important
     /// @todo [svg] After: important, mojibake
     // Information
@@ -1599,7 +1605,7 @@ void FmMain::showBugs(Flags<tr::Bug> x)
     stopBugTimer();
     ShowNone sh(x);
     sh.showIfBug(imgBug.emptyTransl   , tr::Bug::TR_EMPTY );
-    sh.showIfBug(ui->imgBugOrigChanged, tr::Bug::TR_ORIG_CHANGED);
+    sh.showIfBug(imgBug.origChanged   , tr::Bug::TR_ORIG_CHANGED);
     sh.showIfBug(ui->imgBugMojibake   , tr::Bug::COM_MOJIBAKE);
     sh.showIfBug(ui->imgBugEmptyOrig  , tr::Bug::OR_EMPTY);
     sh.showIfBug(ui->imgBugInvisible  , tr::Bug::COM_INVISIBLE);
