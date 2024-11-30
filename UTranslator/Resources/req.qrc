@@ -10,10 +10,10 @@
         <file>Discrep/multiline.svg</file>
         <file>Discrep/ok.svg</file>
         <file>Discrep/review.svg</file>
-        <file>Discrep/space_add_beg.png</file>
-        <file>Discrep/space_add_end.png</file>
-        <file>Discrep/space_del_beg.png</file>
-        <file>Discrep/space_del_end.png</file>
+        <file>Discrep/space_add_beg.svg</file>
+        <file>Discrep/space_add_end.svg</file>
+        <file>Discrep/space_del_beg.svg</file>
+        <file>Discrep/space_del_end.svg</file>
         <file>Status/ok.svg</file>
         <file>Status/stop.svg</file>
     </qresource>

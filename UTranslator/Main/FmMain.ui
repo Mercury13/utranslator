@@ -784,74 +784,6 @@ QLabel {
                   <number>2</number>
                  </property>
                  <item>
-                  <widget class="QLabel" name="imgBugSpaceAddBeg">
-                   <property name="toolTip">
-                    <string>&lt;b&gt;Added heading space&lt;/b&gt;
-&lt;p&gt;Original has no heading spaces, translation has. This may lead to problems in window composition, building of meaningful phrases.</string>
-                   </property>
-                   <property name="toolTipDuration">
-                    <number>60000</number>
-                   </property>
-                   <property name="text">
-                    <string notr="true"/>
-                   </property>
-                   <property name="pixmap">
-                    <pixmap resource="../Resources/req.qrc">:/Discrep/space_add_beg.png</pixmap>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLabel" name="imgBugSpaceDelBeg">
-                   <property name="toolTip">
-                    <string>&lt;b&gt;Removed heading spaces&lt;/b&gt;
-&lt;p&gt;Original has initial spaces, translation hasn’t. This may lead to problems in window composition, building of meaningful phrases.</string>
-                   </property>
-                   <property name="toolTipDuration">
-                    <number>60000</number>
-                   </property>
-                   <property name="text">
-                    <string notr="true"/>
-                   </property>
-                   <property name="pixmap">
-                    <pixmap resource="../Resources/req.qrc">:/Discrep/space_del_beg.png</pixmap>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLabel" name="imgBugSpaceAddEnd">
-                   <property name="toolTip">
-                    <string>&lt;b&gt;Added trailing space&lt;/b&gt;
-&lt;p&gt;Original has no trailing spaces, translation has. This may lead to problems in window composition, building of meaningful phrases.</string>
-                   </property>
-                   <property name="toolTipDuration">
-                    <number>60000</number>
-                   </property>
-                   <property name="text">
-                    <string notr="true"/>
-                   </property>
-                   <property name="pixmap">
-                    <pixmap resource="../Resources/req.qrc">:/Discrep/space_add_end.png</pixmap>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLabel" name="imgBugSpaceDelEnd">
-                   <property name="toolTip">
-                    <string>&lt;b&gt;Removed trailing spaces&lt;/b&gt;
-&lt;p&gt;Original has trailing spaces, translation hasn’t. This may lead to problems in window composition, building of meaningful phrases.</string>
-                   </property>
-                   <property name="toolTipDuration">
-                    <number>60000</number>
-                   </property>
-                   <property name="text">
-                    <string notr="true"/>
-                   </property>
-                   <property name="pixmap">
-                    <pixmap resource="../Resources/req.qrc">:/Discrep/space_del_end.png</pixmap>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
                   <spacer name="horizontalSpacer_3">
                    <property name="orientation">
                     <enum>Qt::Horizontal</enum>
@@ -1362,9 +1294,7 @@ QLabel {
   <tabstop>chkIdless</tabstop>
   <tabstop>btFileFormat</tabstop>
  </tabstops>
- <resources>
-  <include location="../Resources/req.qrc"/>
- </resources>
+ <resources/>
  <connections/>
  <slots>
   <slot>doNew()</slot>

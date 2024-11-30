@@ -238,7 +238,22 @@ void FmMain::loadBugImages()
             "<b>Multiline translation</b>" "\n"
             "<p>Translation is multiline, original isn’t. "
                 "Check for yourself whether it’s OK.");
-    /// @todo [svg] After: information, spaces added in the beginning
+    imgBug.space.addBeg = loadBugWidget(":/Discrep/space_add_beg.svg",
+            "<b>Added heading spaces</b>" "\n"
+            "<p>Original has no initial spaces, translation has. "
+                STR_SPACE_MAY_LEAD);
+    imgBug.space.delBeg = loadBugWidget(":/Discrep/space_del_beg.svg",
+            "<b>Removed heading spaces</b>" "\n"
+            "<p>Original has initial spaces, translation hasn’t. "
+                STR_SPACE_MAY_LEAD);
+    imgBug.space.addEnd = loadBugWidget(":/Discrep/space_add_end.svg",
+            "<b>Added trailing spaces</b>" "\n"
+            "<p>Original has no final spaces, translation has. "
+                STR_SPACE_MAY_LEAD);
+    imgBug.space.delEnd = loadBugWidget(":/Discrep/space_del_end.svg",
+            "<b>Removed trailing spaces</b>" "\n"
+            "<p>Original has final spaces, translation hasn’t. "
+                STR_SPACE_MAY_LEAD);
 }
 
 
@@ -1632,18 +1647,18 @@ void FmMain::showBugs(Flags<tr::Bug> x)
     stopBugTimer();
     ShowNone sh(x);
     // Problems
-    sh.showIfBug(imgBug.emptyTransl   , tr::Bug::TR_EMPTY );
-    sh.showIfBug(imgBug.origChanged   , tr::Bug::TR_ORIG_CHANGED);
+    sh.showIfBug(imgBug.emptyTransl , tr::Bug::TR_EMPTY );
+    sh.showIfBug(imgBug.origChanged , tr::Bug::TR_ORIG_CHANGED);
     // Warnings
-    sh.showIfBug(imgBug.mojibake      , tr::Bug::COM_MOJIBAKE);
+    sh.showIfBug(imgBug.mojibake    , tr::Bug::COM_MOJIBAKE);
     // Info
-    sh.showIfBug(imgBug.emptyOrig     , tr::Bug::OR_EMPTY);
-    sh.showIfBug(imgBug.invisible     , tr::Bug::COM_INVISIBLE);
-    sh.showIfBug(imgBug.multiline     , tr::Bug::TR_MULTILINE);
-    sh.showIfBug(ui->imgBugSpaceAddBeg, tr::Bug::TR_SPACE_HEAD_ADD);
-    sh.showIfBug(ui->imgBugSpaceDelBeg, tr::Bug::TR_SPACE_HEAD_DEL);
-    sh.showIfBug(ui->imgBugSpaceAddEnd, tr::Bug::TR_SPACE_TAIL_ADD);
-    sh.showIfBug(ui->imgBugSpaceDelEnd, tr::Bug::TR_SPACE_TAIL_DEL);
+    sh.showIfBug(imgBug.emptyOrig   , tr::Bug::OR_EMPTY);
+    sh.showIfBug(imgBug.invisible   , tr::Bug::COM_INVISIBLE);
+    sh.showIfBug(imgBug.multiline   , tr::Bug::TR_MULTILINE);
+    sh.showIfBug(imgBug.space.addBeg, tr::Bug::TR_SPACE_HEAD_ADD);
+    sh.showIfBug(imgBug.space.delBeg, tr::Bug::TR_SPACE_HEAD_DEL);
+    sh.showIfBug(imgBug.space.addEnd, tr::Bug::TR_SPACE_TAIL_ADD);
+    sh.showIfBug(imgBug.space.delEnd, tr::Bug::TR_SPACE_TAIL_DEL);
     imgBug.ok->setVisible(sh.isNoneShown());
 }
 

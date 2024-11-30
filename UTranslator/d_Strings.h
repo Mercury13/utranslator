@@ -37,3 +37,6 @@ constexpr const std::string_view langList[] = {
 
 constexpr const char* STR_NEED_BILINGUAL_TRANSLATION =
         "This is possible for bilinguals/translations only.";
+
+#define STR_SPACE_MAY_LEAD \
+    "This may lead to problems in window composition, building of meaningful phrases."

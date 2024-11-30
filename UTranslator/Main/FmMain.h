@@ -148,6 +148,12 @@ private:
         DblClickSvgWidget* emptyOrig = nullptr;
         DblClickSvgWidget* invisible = nullptr;
         DblClickSvgWidget* multiline = nullptr;
+        struct Space {
+            DblClickSvgWidget* addBeg = nullptr;
+            DblClickSvgWidget* delBeg = nullptr;
+            DblClickSvgWidget* addEnd = nullptr;
+            DblClickSvgWidget* delEnd = nullptr;
+        } space;
     } imgBug;
 
     PrjTreeModel treeModel;
