@@ -234,7 +234,11 @@ void FmMain::loadBugImages()
             "<b>Whitespace only</b>" "\n"
             "<p>The string consists of invisible characters, "
                     "such as line breaks and spaces.");
-    /// @todo [svg] After: information, multiline
+    imgBug.multiline = loadBugWidget(":/Discrep/multiline.svg",
+            "<b>Multiline translation</b>" "\n"
+            "<p>Translation is multiline, original isn’t. "
+                "Check for yourself whether it’s OK.");
+    /// @todo [svg] After: information, spaces added in the beginning
 }
 
 
@@ -1635,7 +1639,7 @@ void FmMain::showBugs(Flags<tr::Bug> x)
     // Info
     sh.showIfBug(imgBug.emptyOrig     , tr::Bug::OR_EMPTY);
     sh.showIfBug(imgBug.invisible     , tr::Bug::COM_INVISIBLE);
-    sh.showIfBug(ui->imgBugMultiline  , tr::Bug::TR_MULTILINE);
+    sh.showIfBug(imgBug.multiline     , tr::Bug::TR_MULTILINE);
     sh.showIfBug(ui->imgBugSpaceAddBeg, tr::Bug::TR_SPACE_HEAD_ADD);
     sh.showIfBug(ui->imgBugSpaceDelBeg, tr::Bug::TR_SPACE_HEAD_DEL);
     sh.showIfBug(ui->imgBugSpaceAddEnd, tr::Bug::TR_SPACE_TAIL_ADD);

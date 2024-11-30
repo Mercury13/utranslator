@@ -4,7 +4,7 @@
 
 namespace tr {
 
-    enum class Bug {
+    enum class Bug : unsigned short {
         TR_EMPTY        = 1<<0,     ///< empty translation
         TR_ORIG_CHANGED = 1<<1,     ///< translation needs review
         COM_WARNING     = 1<<2,     ///< TODO manual warning
@@ -25,7 +25,8 @@ namespace tr {
 
     DEFINE_ENUM_OPS(Bug)
 
-    enum class Mjf {
+    /// Mojibake (badly-encoded characters)
+    enum class Mjf : unsigned char {
         ID = 1,
         ORIGINAL = 2,
         TRANSLATION = 4,
