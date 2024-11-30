@@ -230,7 +230,11 @@ void FmMain::loadBugImages()
                 "Bad: British + Grand Prix + ⌀<br>"
                 "Better: %s Grand Prix<br>"
                 "Best: British Grand Prix");
-    /// @todo [svg] After: information, invisible strings
+    imgBug.invisible = loadBugWidget(":/Discrep/invisible.svg",
+            "<b>Whitespace only</b>" "\n"
+            "<p>The string consists of invisible characters, "
+                    "such as line breaks and spaces.");
+    /// @todo [svg] After: information, multiline
 }
 
 
@@ -1623,11 +1627,14 @@ void FmMain::showBugs(Flags<tr::Bug> x)
 {
     stopBugTimer();
     ShowNone sh(x);
+    // Problems
     sh.showIfBug(imgBug.emptyTransl   , tr::Bug::TR_EMPTY );
     sh.showIfBug(imgBug.origChanged   , tr::Bug::TR_ORIG_CHANGED);
+    // Warnings
     sh.showIfBug(imgBug.mojibake      , tr::Bug::COM_MOJIBAKE);
+    // Info
     sh.showIfBug(imgBug.emptyOrig     , tr::Bug::OR_EMPTY);
-    sh.showIfBug(ui->imgBugInvisible  , tr::Bug::COM_INVISIBLE);
+    sh.showIfBug(imgBug.invisible     , tr::Bug::COM_INVISIBLE);
     sh.showIfBug(ui->imgBugMultiline  , tr::Bug::TR_MULTILINE);
     sh.showIfBug(ui->imgBugSpaceAddBeg, tr::Bug::TR_SPACE_HEAD_ADD);
     sh.showIfBug(ui->imgBugSpaceDelBeg, tr::Bug::TR_SPACE_HEAD_DEL);

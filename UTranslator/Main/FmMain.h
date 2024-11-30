@@ -146,6 +146,7 @@ private:
         DblClickSvgWidget* emptyTransl = nullptr;
         DblClickSvgWidget* mojibake = nullptr;
         DblClickSvgWidget* emptyOrig = nullptr;
+        DblClickSvgWidget* invisible = nullptr;
     } imgBug;
 
     PrjTreeModel treeModel;
