@@ -191,7 +191,8 @@ private:
     } loadSetsCache;
     tr::BugCache bugCache;
     std::atomic<bool> isChangingProgrammatically = false;
-    QShortcut *shAddGroup = nullptr, *shAddText = nullptr;
+    QShortcut *shAddGroup = nullptr, *shAddText = nullptr,
+              *shMarkAttention = nullptr;
 
     /// Adapts window’s layout to project type:
     /// original / full translation / (someday) patch translation
@@ -206,6 +207,9 @@ private:
     void acceptObject(tr::UiObject& obj, Flags<tr::Bug> bugsToRemove);
     /// Enables-disables UI actions according to current things edited
     void reenable();
+    void reenableOnSelect();
+    void reenableOnSelect(tr::UiObject* obj);
+    void reenableOnSelect(tr::UiObject& obj) { reenableOnSelect(&obj); }
     void updateCaption();
     /// Returns parent group for addition, probably calling dialog form
     std::optional<std::shared_ptr<tr::VirtualGroup>> disambigGroup(std::u8string_view title);

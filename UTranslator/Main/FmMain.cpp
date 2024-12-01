@@ -133,6 +133,9 @@ FmMain::FmMain(QWidget *parent)
         connect(imgBug.origChanged, &DblClickSvgWidget::doubleClicked, this, &This::acceptCurrObjectOrigChanged);
         connect(imgBug.emptyTransl, &DblClickSvgWidget::doubleClicked, this, &This::acceptCurrObjectEmptyTransl);
         connect(imgBug.attention  , &DblClickSvgWidget::doubleClicked, this, &This::removeAttentionCurrObject);
+        // Edit — special shortcuts
+        shMarkAttention = new QShortcut(ui->acMarkAttention->shortcut(), this);
+        connect(shMarkAttention, &QShortcut::activated, this, &This::markAttentionCurrObject);
     // Go
     connect(ui->acGoBack, &QAction::triggered, this, &This::goBack);
     connect(ui->acGoNext, &QAction::triggered, this, &This::goNext);
@@ -373,6 +376,7 @@ void FmMain::treeCurrentChanged(
     }
     // Otherwise
     setEditorsEnabled(false);
+    reenableOnSelect(nullptr);
 }
 
 
@@ -524,6 +528,7 @@ void FmMain::loadObject(tr::UiObject& obj)
         loadContext(&obj);
     }
 
+    reenableOnSelect(obj);
     showBugs(bugCache.bugs());
 }
 
@@ -586,7 +591,7 @@ void FmMain::acceptObject(tr::UiObject& obj, Flags<tr::Bug> bugsToRemove)
         project->tempRevert();
     }
     obj.stats(tr::StatsMode::SEMICACHED, tr::CascadeDropCache::YES);
-    treeModel.dataChanged({}, {});
+    emit treeModel.dataChanged({}, {});
 
     // “Bugs to remove” is also the sign that we go on editing
     if (bugsToRemove) {
@@ -648,6 +653,25 @@ void FmMain::revertCurrObject()
 }
 
 
+void FmMain::reenableOnSelect(tr::UiObject* obj)
+{
+    bool isMainVisible = (ui->stackMain->currentWidget() == ui->pageMain);
+    bool isTrableSelected = isMainVisible && obj && obj->translatable();
+    ui->acAcceptChanges->setEnabled(isTrableSelected);
+    ui->acRevertChanges->setEnabled(isTrableSelected);
+    ui->acMarkAttention->setEnabled(isTrableSelected);
+    shMarkAttention->setEnabled(isMainVisible && !isTrableSelected);
+}
+
+
+void FmMain::reenableOnSelect()
+{
+    auto index = treeIndex();
+    auto obj = treeModel.toObjOr(index, nullptr);
+    reenableOnSelect(obj);
+}
+
+
 void FmMain::reenable()
 {
     bool isStartVisible = (ui->stackMain->currentWidget() == ui->pageStart);
@@ -688,11 +712,7 @@ void FmMain::reenable()
     shAddGroup->setEnabled(isNotOriginal);
     shAddText->setEnabled(isNotOriginal);
 
-    // Menu: Edit
-    ui->acAcceptChanges->setEnabled(isMainVisible);
-    ui->acRevertChanges->setEnabled(isMainVisible);
-    /// @todo [attention] more finegrained enable?
-    ui->acMarkAttention->setEnabled(isMainVisible);
+    // Menu: Edit (none now)
 
     // Menu: Go
     ui->acGoBack->setEnabled(isMainVisible);
@@ -710,6 +730,8 @@ void FmMain::reenable()
     ui->acExtractOriginal->setEnabled(isMainVisible);
     ui->acSwitchOriginalAndTranslation->setEnabled(isMainVisible);
     ui->acResetKnownOriginals->setEnabled(isMainVisible);
+
+    reenableOnSelect();
 }
 
 
@@ -909,7 +931,7 @@ void FmMain::doDelete()
 void FmMain::modStateChanged(ModState oldState, ModState newState)
 {
     if (newState == ModState::UNMOD && oldState == ModState::MOD)
-        treeModel.dataChanged({}, {});
+        emit treeModel.dataChanged({}, {});
     updateCaption();
 }
 
@@ -969,7 +991,7 @@ bool FmMain::doSaveAs()
 
 namespace {
 
-    enum class EnableExec { NO, YES };
+    enum class EnableExec : unsigned char { NO, YES };
 
     ///
     /// \brief  Executes something afterwards
@@ -1592,7 +1614,7 @@ void FmMain::updateSyncGroups()
 
 
 namespace {
-    enum class UpdatePlace { ORIGINAL, REFERENCE };
+    enum class UpdatePlace : unsigned char { ORIGINAL, REFERENCE };
 }   // anon namespace
 
 
@@ -1819,7 +1841,7 @@ void FmMain::translateWithOriginal()
 void FmMain::markAttentionCurrObjectEx(FuncBoolBool x)
 {
     auto index = treeIndex();
-    auto obj = treeModel.toObj(index);
+    auto obj = treeModel.toObjOr(index, nullptr);
     if (!obj) {
         showMessageOverTree(u8"Nothing is selected");
         return;
@@ -1829,7 +1851,12 @@ void FmMain::markAttentionCurrObjectEx(FuncBoolBool x)
         showMessageOverTree(u8"This object is not a text");
         return;
     }
-    trable->forceAttention = x(trable->forceAttention);
+    auto newV = x(trable->forceAttention);
+    if (newV != trable->forceAttention) {
+        trable->forceAttention = newV;
+        obj->doModify(tr::Mch::META);
+    }
+    emit treeModel.dataChanged({}, {});
     showBugs(bugCache.bugs());
 }
 
