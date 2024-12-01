@@ -249,5 +249,14 @@ Flags<tr::Bug> tr::BugCache::bugs() const
         r |= smallBugsOf(comm.editable, Mjf::COMMENT);
     }
 
+    // Object itself
+    { auto lobj = obj.lock();
+        if (auto tr = lobj->translatable()) {
+            if (tr->forceAttention) {
+                r |= Bug::COM_ATTENTION;
+            }
+        }
+    }
+
     return r;
 }

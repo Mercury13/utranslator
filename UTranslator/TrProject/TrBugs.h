@@ -7,7 +7,7 @@ namespace tr {
     enum class Bug : unsigned short {
         TR_EMPTY        = 1<<0,     ///< empty translation
         TR_ORIG_CHANGED = 1<<1,     ///< translation needs review
-        COM_WARNING     = 1<<2,     ///< TODO manual warning
+        COM_ATTENTION   = 1<<2,     ///< manual warning
         OR_SPACE_HEAD   = 1<<3,     ///< TODO original: space in the beginning
         OR_SPACE_TAIL   = 1<<4,     ///< TODO original: space in the end
         OR_LF_TAIL      = 1<<5,     ///< TODO original: line break in the end
@@ -20,7 +20,7 @@ namespace tr {
         COM_MOJIBAKE    = 1<<12,    ///< common: replacement character found
         OR_EMPTY       = 1<<13,     ///< original: empty string
 
-        ALL_SERIOUS = TR_EMPTY | TR_ORIG_CHANGED | COM_WARNING,
+        ALL_SERIOUS = TR_EMPTY | TR_ORIG_CHANGED | COM_ATTENTION,
     };
 
     DEFINE_ENUM_OPS(Bug)

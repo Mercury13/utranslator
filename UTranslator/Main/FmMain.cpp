@@ -214,7 +214,7 @@ void FmMain::loadBugImages()
             "<b>Empty translation</b>" "\n"
             "<p>If empty string is your actual translation, "
                 "press “Edit → Accept changes”, or double-click this icon.");
-    imgBug.badLang = loadBugWidget(":/Discrep/bad_lang.svg",
+    imgBug.attention = loadBugWidget(":/Discrep/attention.svg",
             "<b>Bad text</b>" "\n"
             "<p>Someone marked the text as bad to draw the attention of other editors. "
                 "Maybe he/she wrote something in comments or development forum."
@@ -682,6 +682,8 @@ void FmMain::reenable()
     // Menu: Edit
     ui->acAcceptChanges->setEnabled(isMainVisible);
     ui->acRevertChanges->setEnabled(isMainVisible);
+    /// @todo [attention] more finegrained enable?
+    ui->acMarkAttention->setEnabled(isMainVisible);
 
     // Menu: Go
     ui->acGoBack->setEnabled(isMainVisible);
@@ -1654,9 +1656,8 @@ void FmMain::showBugs(Flags<tr::Bug> x)
     ShowNone sh(x);
     // Problems
     sh.showIfBug(imgBug.emptyTransl , tr::Bug::TR_EMPTY );
-    /// @todo [urgent, badLang] Use showIfBug when finally ready
-    imgBug.badLang->show();
     sh.showIfBug(imgBug.origChanged , tr::Bug::TR_ORIG_CHANGED);
+    sh.showIfBug(imgBug.attention   , tr::Bug::COM_ATTENTION);
     // Warnings
     sh.showIfBug(imgBug.mojibake    , tr::Bug::COM_MOJIBAKE);
     // Info

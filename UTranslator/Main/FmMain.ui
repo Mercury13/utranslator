@@ -972,6 +972,7 @@ QLabel {
     </property>
     <addaction name="acAcceptChanges"/>
     <addaction name="acRevertChanges"/>
+    <addaction name="acMarkAttention"/>
    </widget>
    <widget class="QMenu" name="menu_Tools">
     <property name="title">
@@ -1256,6 +1257,14 @@ QLabel {
   <action name="acTranslateWithOriginal">
    <property name="text">
     <string>Another *.uorig…</string>
+   </property>
+  </action>
+  <action name="acMarkAttention">
+   <property name="text">
+    <string>Mark as &amp;bad</string>
+   </property>
+   <property name="shortcut">
+    <string>F8</string>
    </property>
   </action>
  </widget>

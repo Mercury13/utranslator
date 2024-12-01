@@ -143,8 +143,8 @@ private:
     struct ImgBug {
         DblClickSvgWidget* ok = nullptr;
         DblClickSvgWidget* origChanged = nullptr;
-        DblClickSvgWidget* badLang = nullptr;
         DblClickSvgWidget* emptyTransl = nullptr;
+        DblClickSvgWidget* attention = nullptr;
         DblClickSvgWidget* mojibake = nullptr;
         DblClickSvgWidget* emptyOrig = nullptr;
         DblClickSvgWidget* invisible = nullptr;
