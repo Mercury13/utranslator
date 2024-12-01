@@ -1395,7 +1395,7 @@ const tr::Stats& tr::Text::stats(StatsMode, CascadeDropCache cascade)
 void tr::Text::removeTranslChannel()
 {
     entityRemoveTranslChannel();
-    tr.forceAttention = false;
+    tr.forceAttention = false;  // attention is probably in the translation channel
     tr.knownOriginal.reset();
     tr.translation.reset();
 }
