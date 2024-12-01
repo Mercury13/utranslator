@@ -53,6 +53,8 @@ namespace ts {
 
 enum class OpenPlace { PROJECT, REFERENCE };
 
+using EvBoolBool = bool (*)(bool);
+
 class FmMain :
         public QMainWindow,
         public ModListener,
@@ -107,6 +109,8 @@ private slots:
     /// accept curr object, all bugs gagged
     tr::UiObject* acceptCurrObjectAll();
     void revertCurrObject();
+    void markAttentionCurrObject();
+    void removeAttentionCurrObject();
     // Menu: Go
     void goBack();
     void goNext();
@@ -115,6 +119,7 @@ private slots:
     void goSearchAgain();
     void goAllWarnings();
     void goChangedOriginal();
+    void goAttention();
     void goMismatchNumber();
     void goCommentedByAuthor();
     void goCommentedByTranslator();
@@ -243,4 +248,6 @@ private:
     void loadBugImages();
     [[nodiscard]] DblClickSvgWidget* loadBugWidget(
             const char* path, const char* description);
+    void showMessageOverTree(std::u8string_view msg);
+    void markAttentionCurrObjectEx(EvBoolBool func);
 };

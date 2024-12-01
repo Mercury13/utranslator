@@ -109,12 +109,26 @@ namespace ts {  // translation search
         static size_t nLines(std::u8string_view x);
     };
 
+    ///
+    /// Criterion: changed original
+    ///
     class CritChangedOriginal : public ProjectCriterion
     {
     public:
         using ProjectCriterion::ProjectCriterion;
         bool matchText(const tr::Text&) const override;
         std::u8string caption() const override { return u8"Changed original"; }
+    };
+
+
+    ///
+    /// Criterion: attention
+    ///
+    class CritAttention : public tr::FindCriterion
+    {
+    public:
+        bool matchText(const tr::Text&) const override;
+        std::u8string caption() const override { return u8"Marked as bad"; }
     };
 
 }   // namespace ts

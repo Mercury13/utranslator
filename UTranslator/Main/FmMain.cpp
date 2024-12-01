@@ -128,9 +128,11 @@ FmMain::FmMain(QWidget *parent)
     // Edit
     connect(ui->acAcceptChanges, &QAction::triggered, this, &This::acceptCurrObjectAll);
     connect(ui->acRevertChanges, &QAction::triggered, this, &This::revertCurrObject);
+    connect(ui->acMarkAttention, &QAction::triggered, this, &This::markAttentionCurrObject);
         // Edit — double clicks
         connect(imgBug.origChanged, &DblClickSvgWidget::doubleClicked, this, &This::acceptCurrObjectOrigChanged);
         connect(imgBug.emptyTransl, &DblClickSvgWidget::doubleClicked, this, &This::acceptCurrObjectEmptyTransl);
+        connect(imgBug.attention  , &DblClickSvgWidget::doubleClicked, this, &This::removeAttentionCurrObject);
     // Go
     connect(ui->acGoBack, &QAction::triggered, this, &This::goBack);
     connect(ui->acGoNext, &QAction::triggered, this, &This::goNext);
@@ -142,6 +144,7 @@ FmMain::FmMain(QWidget *parent)
     setSearchAction(ui->acGoFind, &This::goFind);
     setSearchAction(ui->acFindWarningsAll, &This::goAllWarnings);
     setSearchAction(ui->acFindWarningsChangedOriginal, &This::goChangedOriginal);
+    setSearchAction(ui->acFindWarningsAttention, &This::goAttention);
     setSearchAction(ui->acFindSpecialMismatchNumber, &This::goMismatchNumber);
     setSearchAction(ui->acFindSpecialCommentedByAuthor, &This::goCommentedByAuthor);
     setSearchAction(ui->acFindSpecialCommentedByTranslator, &This::goCommentedByTranslator);
@@ -295,9 +298,15 @@ void FmMain::retrieveVersion()
 }
 
 
+void FmMain::showMessageOverTree(std::u8string_view msg)
+{
+    fmMessage.ensure(this).showOverWidget(str::toQ(msg), ui->treeStrings);
+}
+
+
 void FmMain::badShortcut()
 {
-    fmMessage.ensure(this).showOverWidget("Cannot edit original", ui->treeStrings);
+    showMessageOverTree(u8"Cannot edit original");
 }
 
 
@@ -1273,6 +1282,13 @@ void FmMain::goChangedOriginal()
 }
 
 
+void FmMain::goAttention()
+{
+    auto cond = std::make_unique<ts::CritAttention>();
+    findBy(std::move(cond));
+}
+
+
 void FmMain::goMismatchNumber()
 {
     if (!project->info.isTranslation()) {
@@ -1797,4 +1813,34 @@ void FmMain::translateWithOriginal()
             QMessageBox::critical(this, "Translate with original", QString::fromStdString(e.what()));
         }
     }
+}
+
+
+void FmMain::markAttentionCurrObjectEx(EvBoolBool x)
+{
+    auto index = treeIndex();
+    auto obj = treeModel.toObj(index);
+    if (!obj) {
+        showMessageOverTree(u8"Nothing is selected");
+        return;
+    }
+    auto trable = obj->translatable();
+    if (!trable) {
+        showMessageOverTree(u8"This object is not a text");
+        return;
+    }
+    trable->forceAttention = x(trable->forceAttention);
+    showBugs(bugCache.bugs());
+}
+
+
+void FmMain::markAttentionCurrObject()
+{
+    markAttentionCurrObjectEx([](bool x) { return !x; });
+}
+
+
+void FmMain::removeAttentionCurrObject()
+{
+    markAttentionCurrObjectEx([](bool) { return false; });
 }

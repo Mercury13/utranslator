@@ -944,6 +944,7 @@ QLabel {
      </property>
      <addaction name="acFindWarningsAll"/>
      <addaction name="acFindWarningsChangedOriginal"/>
+     <addaction name="acFindWarningsAttention"/>
     </widget>
     <widget class="QMenu" name="menuFind_special">
      <property name="title">
@@ -1265,6 +1266,11 @@ QLabel {
    </property>
    <property name="shortcut">
     <string>F8</string>
+   </property>
+  </action>
+  <action name="acFindWarningsAttention">
+   <property name="text">
+    <string>Marked as bad</string>
    </property>
   </action>
  </widget>

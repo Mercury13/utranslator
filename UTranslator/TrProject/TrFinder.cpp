@@ -63,8 +63,7 @@ void ts::Finder::onEnterGroup(const std::shared_ptr<tr::VirtualGroup>& x)
 
 bool ts::CritWarning::matchText(const tr::Text& x) const
 {
-    auto atMode = x.tr.attentionMode(project->info);
-    return (atMode >= tr::AttentionMode::USER_ATTENTION);
+    return (x.tr.baseAttentionMode(project->info) >= tr::AttentionMode::USER_ATTENTION);
 }
 
 size_t ts::CritMismatchNumber::nLines(std::u8string_view x)
@@ -84,4 +83,9 @@ bool ts::CritMismatchNumber::matchText(const tr::Text& x) const
 bool ts::CritChangedOriginal::matchText(const tr::Text& x) const
 {
     return (x.tr.baseAttentionMode(project->info) == tr::AttentionMode::AUTO_PROBLEM);
+}
+
+bool ts::CritAttention::matchText(const tr::Text& x) const
+{
+    return x.tr.forceAttention;
 }
