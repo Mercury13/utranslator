@@ -653,25 +653,6 @@ void FmMain::revertCurrObject()
 }
 
 
-void FmMain::reenableOnSelect(tr::UiObject* obj)
-{
-    bool isMainVisible = (ui->stackMain->currentWidget() == ui->pageMain);
-    bool isTrableSelected = isMainVisible && obj && obj->translatable();
-    ui->acAcceptChanges->setEnabled(isTrableSelected);
-    ui->acRevertChanges->setEnabled(isTrableSelected);
-    ui->acMarkAttention->setEnabled(isTrableSelected);
-    shMarkAttention->setEnabled(isMainVisible && !isTrableSelected);
-}
-
-
-void FmMain::reenableOnSelect()
-{
-    auto index = treeIndex();
-    auto obj = treeModel.toObjOr(index, nullptr);
-    reenableOnSelect(obj);
-}
-
-
 void FmMain::reenable()
 {
     bool isStartVisible = (ui->stackMain->currentWidget() == ui->pageStart);
@@ -712,7 +693,9 @@ void FmMain::reenable()
     shAddGroup->setEnabled(isNotOriginal);
     shAddText->setEnabled(isNotOriginal);
 
-    // Menu: Edit (none now)
+    // Menu: Edit
+    ui->acAcceptChanges->setEnabled(isMainVisible);
+    ui->acRevertChanges->setEnabled(isMainVisible);
 
     // Menu: Go
     ui->acGoBack->setEnabled(isMainVisible);
@@ -732,6 +715,24 @@ void FmMain::reenable()
     ui->acResetKnownOriginals->setEnabled(isMainVisible);
 
     reenableOnSelect();
+}
+
+
+void FmMain::reenableOnSelect(tr::UiObject* obj)
+{
+    bool isMainVisible = (ui->stackMain->currentWidget() == ui->pageMain);
+    bool isObjVisible = isMainVisible && obj;
+    bool isTranslatable = isObjVisible && obj->translatable();
+    ui->acMarkAttention->setEnabled(isTranslatable);
+    shMarkAttention->setEnabled(isMainVisible && !isTranslatable);
+}
+
+
+void FmMain::reenableOnSelect()
+{
+    auto index = treeIndex();
+    auto obj = treeModel.toObjOr(index, nullptr);
+    reenableOnSelect(obj);
 }
 
 
