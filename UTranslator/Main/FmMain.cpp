@@ -208,12 +208,18 @@ void FmMain::loadBugImages()
             "<b>Review needed</b>" "\n"
             "<p>The original text was changed. "
                 "Please check whether existing translation still works, or retranslate if needed."
-            "<p>If everything’s OK, press “Accept changes” (Ctrl+Enter), "
+            "<p>If everything’s OK, press “Edit → Accept changes”, "
                 "or double-click this icon.");
     imgBug.emptyTransl = loadBugWidget(":/Discrep/empty.svg",
             "<b>Empty translation</b>" "\n"
             "<p>If empty string is your actual translation, "
-                "press “Accept changes” (Ctrl+Enter) or double-click this icon.");
+                "press “Edit → Accept changes”, or double-click this icon.");
+    imgBug.badLang = loadBugWidget(":/Discrep/bad_lang.svg",
+            "<b>Bad text</b>" "\n"
+            "<p>Someone marked the text as bad to draw the attention of other editors. "
+                "Maybe he/she wrote something in comments or development forum."
+            "<p>If everything’s OK, press “Edit → Mark as bad”, "
+                "or double-click this icon.");
     // Important
     imgBug.mojibake = loadBugWidget(":/Discrep/mojibake.svg",
             "<b>Mojibake</b>" "\n"
@@ -226,9 +232,9 @@ void FmMain::loadBugImages()
                 "Beware, concatenating strings is usually bad, "
                     "substitution marks are better, "
                     "and self-sufficient strings are the best."
-            "<p>Horrible: British + Grand Prix<br>"
-                "Poor: British + Grand Prix + ⌀<br>"
-                "Better: %s Grand Prix<br>"
+            "<p>Horrible: British + Grand Prix"   TAG_BR
+                "Poor: British + Grand Prix + ⌀"  TAG_BR
+                "Better: %s Grand Prix"           TAG_BR
                 "Best: British Grand Prix");
     imgBug.invisible = loadBugWidget(":/Discrep/invisible.svg",
             "<b>Whitespace only</b>" "\n"
@@ -1648,6 +1654,8 @@ void FmMain::showBugs(Flags<tr::Bug> x)
     ShowNone sh(x);
     // Problems
     sh.showIfBug(imgBug.emptyTransl , tr::Bug::TR_EMPTY );
+    /// @todo [urgent, badLang] Use showIfBug when finally ready
+    imgBug.badLang->show();
     sh.showIfBug(imgBug.origChanged , tr::Bug::TR_ORIG_CHANGED);
     // Warnings
     sh.showIfBug(imgBug.mojibake    , tr::Bug::COM_MOJIBAKE);

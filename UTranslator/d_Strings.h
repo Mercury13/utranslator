@@ -40,3 +40,5 @@ constexpr const char* STR_NEED_BILINGUAL_TRANSLATION =
 
 #define STR_SPACE_MAY_LEAD \
     "This may lead to problems in window composition, building of meaningful phrases."
+
+#define TAG_BR "<br>"
