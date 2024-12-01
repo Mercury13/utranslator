@@ -722,9 +722,12 @@ void FmMain::reenableOnSelect(tr::UiObject* obj)
 {
     bool isMainVisible = (ui->stackMain->currentWidget() == ui->pageMain);
     bool isObjVisible = isMainVisible && obj;
-    bool isTranslatable = isObjVisible && obj->translatable();
+    const tr::Translatable* trable = isObjVisible ? obj->translatable() : nullptr;
+    bool isTranslatable = trable;
+    // Mark attention (bad in UI)
     ui->acMarkAttention->setEnabled(isTranslatable);
     shMarkAttention->setEnabled(isMainVisible && !isTranslatable);
+    ui->acMarkAttention->setChecked(isTranslatable && trable->forceAttention);
 }
 
 
@@ -1857,8 +1860,9 @@ void FmMain::markAttentionCurrObjectEx(FuncBoolBool x)
         trable->forceAttention = newV;
         obj->doModify(tr::Mch::META);
     }
-    emit treeModel.dataChanged({}, {});
+    reenableOnSelect(obj);
     showBugs(bugCache.bugs());
+    emit treeModel.dataChanged({}, {});
 }
 
 

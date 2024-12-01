@@ -1261,6 +1261,9 @@ QLabel {
    </property>
   </action>
   <action name="acMarkAttention">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Mark as &amp;bad</string>
    </property>
@@ -1271,6 +1274,9 @@ QLabel {
   <action name="acFindWarningsAttention">
    <property name="text">
     <string>Marked as bad</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F8</string>
    </property>
   </action>
  </widget>
