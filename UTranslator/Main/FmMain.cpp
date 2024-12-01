@@ -1816,7 +1816,7 @@ void FmMain::translateWithOriginal()
 }
 
 
-void FmMain::markAttentionCurrObjectEx(EvBoolBool x)
+void FmMain::markAttentionCurrObjectEx(FuncBoolBool x)
 {
     auto index = treeIndex();
     auto obj = treeModel.toObj(index);

@@ -51,9 +51,9 @@ namespace ts {
     class Result;
 }
 
-enum class OpenPlace { PROJECT, REFERENCE };
+enum class OpenPlace : unsigned char { PROJECT, REFERENCE };
 
-using EvBoolBool = bool (*)(bool);
+using FuncBoolBool = bool (*)(bool);
 
 class FmMain :
         public QMainWindow,
@@ -249,5 +249,5 @@ private:
     [[nodiscard]] DblClickSvgWidget* loadBugWidget(
             const char* path, const char* description);
     void showMessageOverTree(std::u8string_view msg);
-    void markAttentionCurrObjectEx(EvBoolBool func);
+    void markAttentionCurrObjectEx(FuncBoolBool func);
 };
