@@ -295,7 +295,11 @@ namespace tr {
         } ref;
         struct Transl {
             std::string lang;            
-            bool wantPseudoLocIfFull = true;  ///< [+] pseudo-localize while exporting
+            /// @warning  Pseudo-localization is applicable to full/bilingual only
+            struct Pseudoloc {
+                bool isOn = true;
+                bool operator == (const Pseudoloc& x) const = default;
+            } pseudoloc;
             bool operator == (const Transl& x) const = default;
             void clear() { *this = Transl(); }
         } transl;
@@ -345,7 +349,7 @@ namespace tr {
         bool hasOriginalPath() const { return hasOriginalPath(type); }
 
         /// @return [+] want pseudo-L10n
-        bool wantPseudoLoc() const { return isFullTranslation() && transl.wantPseudoLocIfFull; }
+        bool wantPseudoLoc() const { return isFullTranslation() && transl.pseudoloc.isOn; }
 
         /// Turns settings to original’s
         void switchToOriginal(WalkChannel channel);

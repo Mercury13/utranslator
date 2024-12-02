@@ -59,7 +59,7 @@ void FmProjectSettings::copyFrom(const tr::PrjInfo& x)
     ui->wiReference->setEnabled(x.canHaveReference());
     ui->edTranslLanguage->setCurrentText(str::toQ(x.transl.lang));
     ui->edReference->setText(str::toQ(x.ref.absPath.wstring()));
-    ui->chkPseudoLoc->setChecked(x.transl.wantPseudoLocIfFull);
+    ui->chkPseudoLoc->setChecked(x.transl.pseudoloc.isOn);
 }
 
 void FmProjectSettings::copyTo(tr::PrjInfo& r)
@@ -76,7 +76,7 @@ void FmProjectSettings::copyTo(tr::PrjInfo& r)
     // TRANSL: language
     if (r.isTranslation()) {
         r.transl.lang = ui->edTranslLanguage->currentText().toStdString();
-        r.transl.wantPseudoLocIfFull = ui->chkPseudoLoc->isChecked();
+        r.transl.pseudoloc.isOn = ui->chkPseudoLoc->isChecked();
         if (r.canHaveReference()) {
             r.ref.absPath = ui->edReference->text().toStdWString();
         }

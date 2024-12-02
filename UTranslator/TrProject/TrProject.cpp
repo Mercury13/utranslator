@@ -1821,7 +1821,7 @@ void tr::Project::writeToXml(
         auto nodeTransl = nodeInfo.append_child("transl");
             nodeTransl.append_attribute("lang") = info.transl.lang.c_str();
             if (info.isFullTranslation()) {
-                nodeTransl.append_attribute("pseudoloc") = info.transl.wantPseudoLocIfFull;
+                nodeTransl.append_attribute("pseudoloc") = info.transl.pseudoloc.isOn;
             }
     }
     for (auto& file : files) {
@@ -1853,7 +1853,7 @@ void tr::Project::readFromXml(
     if (info.isTranslation()) {
         auto nodeTransl = rqChild(nodeInfo, "transl");
             info.transl.lang = rqAttr(nodeTransl, "lang").value();
-            info.transl.wantPseudoLocIfFull = nodeTransl.attribute("pseudoloc").as_bool(true);
+            info.transl.pseudoloc.isOn = nodeTransl.attribute("pseudoloc").as_bool(true);
     }
     for (auto& v : node.children("file")) {
         auto file = addFile({}, Modify::NO);
