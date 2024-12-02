@@ -2,6 +2,8 @@
 
 #include <QDialog>
 
+#include "QtMultiRadio.h"
+
 #include "TrDefines.h"
 
 namespace Ui {
@@ -23,6 +25,8 @@ private slots:
     void browseReference();
 private:
     Ui::FmProjectSettings *ui;
+    EcRadio<tr::PrefixSuffixMode> radioPslPrefix;
+
     void copyFrom(const tr::PrjInfo& x);
     void copyTo(tr::PrjInfo& r);
     using Super::exec;

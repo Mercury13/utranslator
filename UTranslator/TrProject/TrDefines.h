@@ -279,6 +279,8 @@ namespace tr {
     constexpr int PrjType_N = static_cast<int>(PrjType::FULL_TRANSL) + 1;
     extern const char* const prjTypeNames[PrjType_N];
 
+    enum class PrefixSuffixMode : unsigned char { OFF, DFLT };
+
     struct PrjInfo {
         PrjType type = PrjType::ORIGINAL;
         struct Orig {
@@ -297,8 +299,13 @@ namespace tr {
             std::string lang;            
             /// @warning  Pseudo-localization is applicable to full/bilingual only
             struct Pseudoloc {
-                bool isOn = true;
+                PrefixSuffixMode prefixSuffixMode = PrefixSuffixMode::DFLT;
+
                 bool operator == (const Pseudoloc& x) const = default;
+
+                bool isDefault() const { return static_cast<bool>(prefixSuffixMode); }
+                void setDefault(bool x) { prefixSuffixMode = static_cast<PrefixSuffixMode>(x); }
+                bool isOn() const { return (prefixSuffixMode != PrefixSuffixMode::OFF); }
             } pseudoloc;
             bool operator == (const Transl& x) const = default;
             void clear() { *this = Transl(); }
@@ -348,8 +355,10 @@ namespace tr {
         static bool hasOriginalPath(PrjType type);
         bool hasOriginalPath() const { return hasOriginalPath(type); }
 
-        /// @return [+] want pseudo-L10n
-        bool wantPseudoLoc() const { return isFullTranslation() && transl.pseudoloc.isOn; }
+        /// @return [+] Want pseudo-L10n in some manner
+        ///         [-] Original is surely unchanged
+        bool wantPseudoLoc() const
+            { return isFullTranslation() && transl.pseudoloc.isOn(); }
 
         /// Turns settings to original’s
         void switchToOriginal(WalkChannel channel);

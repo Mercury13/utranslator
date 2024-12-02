@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>470</width>
-    <height>286</height>
+    <width>471</width>
+    <height>320</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -138,13 +138,6 @@
          </layout>
         </item>
         <item>
-         <widget class="QCheckBox" name="chkPseudoLoc">
-          <property name="text">
-           <string>Pseudo-localize untranslated strings while exporting</string>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="QWidget" name="wiReference" native="true">
           <layout class="QHBoxLayout" name="horizontalLayout">
            <property name="leftMargin">
@@ -182,6 +175,62 @@
           </layout>
          </widget>
         </item>
+        <item>
+         <widget class="QGroupBox" name="grpPseudoLoc">
+          <property name="title">
+           <string>Pseudo-localization of untranslated strings</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_6">
+           <property name="topMargin">
+            <number>4</number>
+           </property>
+           <property name="bottomMargin">
+            <number>4</number>
+           </property>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_6">
+             <property name="spacing">
+              <number>12</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="lbPrefixSuffix">
+               <property name="text">
+                <string>Prefix-suffix</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="radioPslPrefOff">
+               <property name="text">
+                <string>Off</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="radioPslPrefDefault">
+               <property name="text">
+                <string>Default</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>10</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
        </layout>
       </item>
      </layout>
@@ -196,6 +245,14 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>edOrigLanguage</tabstop>
+  <tabstop>edOrigFile</tabstop>
+  <tabstop>edTranslLanguage</tabstop>
+  <tabstop>edReference</tabstop>
+  <tabstop>radioPslPrefOff</tabstop>
+  <tabstop>radioPslPrefDefault</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
