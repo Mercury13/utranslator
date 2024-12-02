@@ -1821,8 +1821,8 @@ void tr::Project::writeToXml(
         auto nodeTransl = nodeInfo.append_child("transl");
             nodeTransl.append_attribute("lang") = info.transl.lang.c_str();
             if (info.isFullTranslation()) {
-                nodeTransl.append_attribute("pseudoloc")
-                        = static_cast<bool>(info.transl.pseudoloc.prefixSuffixMode);
+                bool hasPseudoloc = info.transl.pseudoloc.isOn();
+                nodeTransl.append_attribute("pseudoloc") = hasPseudoloc;
             }
     }
     for (auto& file : files) {
@@ -1854,7 +1854,11 @@ void tr::Project::readFromXml(
     if (info.isTranslation()) {
         auto nodeTransl = rqChild(nodeInfo, "transl");
             info.transl.lang = rqAttr(nodeTransl, "lang").value();
-            info.transl.pseudoloc.setDefault(nodeTransl.attribute("pseudoloc").as_bool(true));
+            if (nodeTransl.attribute("pseudoloc").as_bool(true)) {
+                info.transl.pseudoloc = tr::PrjInfo::Transl::Pseudoloc::DFLT;
+            } else {
+                info.transl.pseudoloc = tr::PrjInfo::Transl::Pseudoloc::OFF;
+            }
     }
     for (auto& v : node.children("file")) {
         auto file = addFile({}, Modify::NO);
