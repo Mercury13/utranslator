@@ -43,7 +43,6 @@ HEADERS += \
     ../Libs/SelfMade/u_Args.h \
     ../Libs/SelfMade/u_Vector.h \
     ../Libs/SelfMade/u_XmlUtils.h \
-    ../Libs/Unicode/unicode.h \
     ../UTranslator/TrProject/Modifiable.h \
     ../UTranslator/TrProject/TrDefines.h \
     ../UTranslator/TrProject/TrFile.h \

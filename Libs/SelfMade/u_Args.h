@@ -7,8 +7,7 @@
 
 #include "u_Vector.h"
 
-// Unicode
-#include "unicode.h"
+#include "Mojibake/mojibake.h"
 
 namespace detail {
     constexpr size_t BUF_SIZE = 1024;
@@ -116,8 +115,8 @@ inline bool Args<Ch>::recoverProg()
 
 template <class Ch> Args<Ch>::Entry::Entry(Sv x) : full(x), key(x)
 {
-    static const Ch goodChars[] { ':', '=' };
-    auto iEq = x.find_first_of(goodChars, std::size(goodChars));
+    static const Ch goodChars[] { ':', '=', 0 };
+    auto iEq = x.find_first_of(goodChars, std::size(goodChars) - 1);
     if (iEq != 0 && iEq != std::string_view::npos) {
         key = x.substr(0, iEq);
         value = x.substr(iEq + 1);
@@ -128,7 +127,7 @@ template <class Ch> Args<Ch>::Entry::Entry(Sv x) : full(x), key(x)
 template <class Ch> template <class OtherCh>
 auto Args<Ch>::convertCh(const OtherCh* s) -> Sv
 {
-    auto dest = unicode::convert<std::basic_string_view<OtherCh>, Str>(s);
+    auto dest = mojibake::toQ<Str>(s);
     auto& place = storage.emplace_back(std::move(dest));
     return place;
 }
