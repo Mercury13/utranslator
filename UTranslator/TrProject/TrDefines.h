@@ -281,7 +281,7 @@ namespace tr {
     extern const ec::Array<const char*, PrjType> prjTypeNames;
 
     DEFINE_ENUM_TYPE_IN_NS(tr, PrefixSuffixMode, unsigned char,
-        OFF, DFLT, CUSTOM)
+        OFF, DFLT)
 
     struct PrjInfo {
         PrjType type = PrjType::ORIGINAL;
