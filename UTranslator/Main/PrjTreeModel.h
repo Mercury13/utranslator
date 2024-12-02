@@ -21,9 +21,8 @@ struct Thing {
 
 enum class RememberCurrent { NO, YES };
 
-enum class PrjColClass {
-    DUMMY, ID, ORIGINAL, REFERENCE, TRANSLATION
-};
+DEFINE_ENUM_TYPE(PrjColClass, unsigned char,
+    DUMMY, ID, ORIGINAL, REFERENCE, TRANSLATION)
 
 class TempProps
 {

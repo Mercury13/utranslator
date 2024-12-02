@@ -9,6 +9,9 @@
 // Qt ex
 #include "QtConsts.h"
 
+// Libs
+#include "u_Strings.h"
+
 // Decoder
 #include "u_Decoders.h"
 

@@ -10,10 +10,19 @@
 // Project-local
 #include "u_Decoders.h"
 
+// C++
+#include <array>
 
-constinit const char* const tr::prjTypeNames[tr::PrjType_N] {
-    "original", "full-transl"
-};
+
+const tr::PrjInfo::Transl::Pseudoloc
+    tr::PrjInfo::Transl::Pseudoloc::OFF {
+        .prefixSuffixMode = tr::PrefixSuffixMode::OFF  },
+    tr::PrjInfo::Transl::Pseudoloc::DFLT {
+        .prefixSuffixMode = tr::PrefixSuffixMode::DFLT };
+
+
+constinit const ec::Array<const char*, tr::PrjType> tr::prjTypeNames {
+    "original", "full-transl" };
 
 constinit const ec::Array<tf::LineBreakStyleInfo, tf::TextLineBreakStyle> tf::textLineBreakStyleInfo {
     ec::ARRAY_INIT,

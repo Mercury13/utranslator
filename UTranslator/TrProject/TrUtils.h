@@ -1,5 +1,9 @@
 #pragma once
 
+// Libs
+#include "u_EnumSize.h"
+
+// C++
 #include <filesystem>
 
 namespace tr {
@@ -8,9 +12,11 @@ namespace tr {
 
     // Extract original
     namespace eo {
-        enum class Text : unsigned char { ORIG, TRANSL_ORIG };
+        DEFINE_ENUM_TYPE_IN_NS2(tr, eo, Text, unsigned char,
+            ORIG, TRANSL_ORIG)
 
-        enum class Comment : unsigned char { AUTHOR, AUTHOR_TRANSL, TRANSL, TRANSL_AUTHOR };
+        DEFINE_ENUM_TYPE_IN_NS2(tr, eo, Comment, unsigned char,
+            AUTHOR, AUTHOR_TRANSL, TRANSL, TRANSL_AUTHOR)
 
         struct Sets {
             Text text = eo::Text::ORIG;

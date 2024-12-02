@@ -3,8 +3,7 @@
 #include <string>
 #include <iostream>
 
-#include "u_Vector.h"
-#include "u_Strings.h"
+#include "u_EnumSize.h"
 
 template<class Ec>
 constexpr Ec ecIf(bool x) {
@@ -16,27 +15,23 @@ constexpr Ec ecIf(bool x) {
     }
 }
 
-enum class Enquote { NO, YES };
+enum class Enquote : unsigned char { NO, YES };
 
 namespace escape {
 
-    enum class LineBreakMode {
+    DEFINE_ENUM_TYPE_IN_NS(escape, LineBreakMode, unsigned char,
         BANNED,         ///< Line-breaks banned
         C_CR,           ///< C mode: break = /r, / = //   (actually BACKslash here)
         C_LF,           ///< C mode: break = /n, / = //   (actually BACKslash here)
-        SPECIFIED_TEXT, ///< Specified character that’s banned in text
-        Z_LAST = SPECIFIED_TEXT
-    };
-    constexpr auto LineBreakMode_N = static_cast<int>(LineBreakMode::SPECIFIED_TEXT) + 1;
+        SPECIFIED_TEXT  ///< Specified character that’s banned in text
+    )
 
-    enum class SpaceMode {
+    DEFINE_ENUM_TYPE_IN_NS(escape, SpaceMode, unsigned char,
         BARE,
         DELIMITED,
         QUOTED,
-        SLASH_SPACE,
-        Z_LAST = SLASH_SPACE
-    };
-    constexpr auto SpaceMode_N = static_cast<int>(SpaceMode::SLASH_SPACE) + 1;
+        SLASH_SPACE
+    )
 
     ///  Principles of escaping line-breaks
     struct Text {

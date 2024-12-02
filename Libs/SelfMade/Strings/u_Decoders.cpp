@@ -1,6 +1,9 @@
 // My header
 #include "u_Decoders.h"
 
+// Libs
+#include "u_Strings.h"
+
 // C++
 #include <regex>
 

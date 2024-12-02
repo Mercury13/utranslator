@@ -12,6 +12,7 @@
 
 // Libs
 #include "u_Vector.h"
+#include "u_Strings.h"
 
 namespace pugi {
     class xml_document;

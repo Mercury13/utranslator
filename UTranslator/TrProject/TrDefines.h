@@ -58,7 +58,8 @@ namespace tf {
     };
     DEFINE_ENUM_OPS(Fcap)
 
-    enum class TextLineBreakStyle : unsigned char { LF, CRLF };
+    DEFINE_ENUM_TYPE_IN_NS(tf, TextLineBreakStyle, unsigned char,
+            LF, CRLF)
 
     struct LineBreakStyleInfo {
         std::string_view techName;
@@ -275,11 +276,12 @@ namespace tr {
     ///   * Freestyle translation: original is not *.uorig but
     ///      some other project, for translation of e.g. game
     ///
-    enum class PrjType : unsigned char { ORIGINAL, FULL_TRANSL };
-    constexpr int PrjType_N = static_cast<int>(PrjType::FULL_TRANSL) + 1;
-    extern const char* const prjTypeNames[PrjType_N];
+    DEFINE_ENUM_TYPE_IN_NS(tr, PrjType, unsigned char,
+        ORIGINAL, FULL_TRANSL)
+    extern const ec::Array<const char*, PrjType> prjTypeNames;
 
-    enum class PrefixSuffixMode : unsigned char { OFF, DFLT };
+    DEFINE_ENUM_TYPE_IN_NS(tr, PrefixSuffixMode, unsigned char,
+        OFF, DFLT, CUSTOM)
 
     struct PrjInfo {
         PrjType type = PrjType::ORIGINAL;
@@ -303,9 +305,11 @@ namespace tr {
 
                 bool operator == (const Pseudoloc& x) const = default;
 
+                static const Pseudoloc OFF, DFLT;
+
                 bool isDefault() const { return static_cast<bool>(prefixSuffixMode); }
                 void setDefault(bool x) { prefixSuffixMode = static_cast<PrefixSuffixMode>(x); }
-                bool isOn() const { return (prefixSuffixMode != PrefixSuffixMode::OFF); }
+                bool isOn() const { return (*this != OFF); }
             } pseudoloc;
             bool operator == (const Transl& x) const = default;
             void clear() { *this = Transl(); }

@@ -1,7 +1,8 @@
 #pragma once
 
-#include "magic_enum.hpp"
 #include <stdexcept>
+
+#include "u_EnumSize.h"
 
 namespace ec {
 
@@ -13,22 +14,9 @@ namespace ec {
     constexpr bool AT_NOEXCEPT = !RANGE_CHECK;
 
     namespace detail {
-        enum class ArrayInit { INST };
+        enum class ArrayInit : unsigned char { INST };
     }
     constexpr detail::ArrayInit ARRAY_INIT = detail::ArrayInit::INST;
-
-    ///
-    ///  Size of ec::Array
-    ///  Reimplement if you want
-    ///
-    template <class Ec> requires std::is_enum_v<Ec>
-    consteval size_t size() {
-        auto values = magic_enum::enum_values<Ec>();
-        size_t r = 0;
-        for (auto v : values)
-            r = std::max(r, static_cast<size_t>(v) + 1);
-        return r;
-    }
 
     template <class V, class Ec> requires std::is_enum_v<Ec>
     class Array
@@ -37,7 +25,8 @@ namespace ec {
         using value_type = V;
         using iterator = V*;
         using const_iterator = const V*;
-        static constexpr size_t Size = ec::size<Ec>();
+        static constexpr size_t Size = ::ec::size<Ec>();
+        static_assert(Size > 0);
         static constexpr size_t InitCount = Size;
         using CArray = V[Size];
         using CppArray = std::array<V, Size>;
@@ -62,6 +51,20 @@ namespace ec {
         {
             static_assert(N == InitCount, "[ec::Array(arr)] Wrong size!");
             std::copy(x.begin(), x.end(), std::begin(a));
+        }
+
+        template <class U, size_t N>
+        constexpr Array(detail::ArrayInit, U (&&x)[N])
+        {
+            static_assert(N == InitCount, "[ec::Array(arr&&)] Wrong size!");
+            std::move(std::begin(x), std::end(x), std::begin(a));
+        }
+
+        template <class U, size_t N>
+        constexpr Array(detail::ArrayInit, U (&x)[N])
+        {
+            static_assert(N == InitCount, "[ec::Array(arr)] Wrong size!");
+            std::copy(std::begin(x), std::end(x), std::begin(a));
         }
 
         constexpr size_t size() const noexcept { return Size; }

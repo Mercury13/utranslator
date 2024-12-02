@@ -1801,7 +1801,7 @@ void tr::Project::writeToXml(
         const std::filesystem::path& basePath) const
 {
     auto root = doc.append_child("ut");
-    root.append_attribute("type") = prjTypeNames[static_cast<int>(info.type)];
+    root.append_attribute("type") = prjTypeNames[info.type];
     WrCache c(info, basePath);
     auto nodeInfo = root.append_child("info");
         auto nodeOrig = nodeInfo.append_child("orig");
@@ -1840,7 +1840,7 @@ void tr::Project::readFromXml(
         .baseDir = basePath,
     };
     auto attrType = rqAttr(node, "type");
-    info.type = parseEnumRq<PrjType>(attrType.value(), tr::prjTypeNames);
+    info.type = parseEnumRq<PrjType>(attrType.value(), tr::prjTypeNames.cArray());
     auto nodeInfo = rqChild(node, "info");
         auto nodeOrig = rqChild(nodeInfo, "orig");
             info.orig.lang = nodeOrig.attribute("lang").as_string("en");
