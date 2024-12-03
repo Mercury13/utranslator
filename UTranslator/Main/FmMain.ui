@@ -913,6 +913,7 @@ QLabel {
     <addaction name="separator"/>
     <addaction name="acUpdateData"/>
     <addaction name="acProjectProps"/>
+    <addaction name="acStats"/>
     <addaction name="separator"/>
     <addaction name="acStartingScreen"/>
    </widget>
@@ -1277,6 +1278,11 @@ QLabel {
    </property>
    <property name="shortcut">
     <string>Ctrl+F8</string>
+   </property>
+  </action>
+  <action name="acStats">
+   <property name="text">
+    <string>Statistics</string>
    </property>
   </action>
  </widget>
