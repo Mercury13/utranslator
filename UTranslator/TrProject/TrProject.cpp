@@ -1854,7 +1854,7 @@ void tr::Project::readFromXml(
     if (info.isTranslation()) {
         auto nodeTransl = rqChild(nodeInfo, "transl");
             info.transl.lang = rqAttr(nodeTransl, "lang").value();
-            if (nodeTransl.attribute("pseudoloc").as_bool(true)) {
+            if (nodeTransl.attribute("pseudoloc").as_bool(false)) {
                 info.transl.pseudoloc = tr::PrjInfo::Transl::Pseudoloc::DFLT;
             } else {
                 info.transl.pseudoloc = tr::PrjInfo::Transl::Pseudoloc::OFF;

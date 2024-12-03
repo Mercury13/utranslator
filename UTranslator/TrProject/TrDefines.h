@@ -301,7 +301,7 @@ namespace tr {
             std::string lang;            
             /// @warning  Pseudo-localization is applicable to full/bilingual only
             struct Pseudoloc {
-                PrefixSuffixMode prefixSuffixMode = PrefixSuffixMode::DFLT;
+                PrefixSuffixMode prefixSuffixMode = PrefixSuffixMode::OFF;
 
                 bool operator == (const Pseudoloc& x) const = default;
 
