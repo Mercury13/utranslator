@@ -80,9 +80,15 @@ bool ts::CritMismatchNumber::matchText(const tr::Text& x) const
     return (nLines(x.tr.original) != nLines(*x.tr.translation));
 }
 
-bool ts::CritChangedOriginal::matchText(const tr::Text& x) const
+bool ts::CritChangedUntransl::matchText(const tr::Text& x) const
 {
     return (x.tr.baseAttentionMode(project->info) == tr::AttentionMode::AUTO_PROBLEM);
+}
+
+bool ts::CritChangedOnly::matchText(const tr::Text& x) const
+{
+    return (x.tr.translation
+            && x.tr.baseAttentionMode(project->info) == tr::AttentionMode::AUTO_PROBLEM);
 }
 
 bool ts::CritAttention::matchText(const tr::Text& x) const

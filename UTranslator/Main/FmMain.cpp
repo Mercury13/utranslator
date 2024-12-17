@@ -98,7 +98,7 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->btUpdateDismiss,  &QAbstractButton::clicked, this, &This::dismissUpdateInfo);
     connect(ui->btUpdateDismiss2, &QAbstractButton::clicked, this, &This::dismissUpdateInfo);
     connect(ui->btUpdateInfo, &QAbstractButton::clicked, this, &This::showUpdateInfo);
-    connect(ui->btUpdateFind, &QAbstractButton::clicked, this, &This::goChangedOriginal);
+    connect(ui->btUpdateFind, &QAbstractButton::clicked, this, &This::goChangedUntransl);
 
     // Signals/slots: menu
     // Starting screen
@@ -146,7 +146,8 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->acGoSearchAgain, &QAction::triggered, this, &This::goSearchAgain);
     setSearchAction(ui->acGoFind, &This::goFind);
     setSearchAction(ui->acFindWarningsAll, &This::goAllWarnings);
-    setSearchAction(ui->acFindWarningsChangedOriginal, &This::goChangedOriginal);
+    setSearchAction(ui->acFindWarningsChangedUntransl, &This::goChangedUntransl);
+    setSearchAction(ui->acFindWarningsChangedOnly, &This::goChangedOnly);
     setSearchAction(ui->acFindWarningsAttention, &This::goAttention);
     setSearchAction(ui->acFindSpecialMismatchNumber, &This::goMismatchNumber);
     setSearchAction(ui->acFindSpecialCommentedByAuthor, &This::goCommentedByAuthor);
@@ -1292,17 +1293,23 @@ void FmMain::goAllWarnings()
 }
 
 
-void FmMain::goChangedOriginal()
+void FmMain::goChangedUntransl()
 {
     if (!project->info.isTranslation()) {
-        QMessageBox::information(this, "Changed original",
-                    "This criterion works for translations only.\n"
-                        "It will find nothing in originals.\n"
-                        "In bilinguals it’s meaningful if portions of original are managed "
-                            "with external software (e.g. UI messages with form editor) "
-                            "and work as translation.");
+        QMessageBox::information(this, "Changed original / untranslated", STR_FIND_TRANSL);
     } else {
-        auto cond = std::make_unique<ts::CritChangedOriginal>(project);
+        auto cond = std::make_unique<ts::CritChangedUntransl>(project);
+        findBy(std::move(cond));
+    }
+}
+
+
+void FmMain::goChangedOnly()
+{
+    if (!project->info.isTranslation()) {
+        QMessageBox::information(this, "Changed original only", STR_FIND_TRANSL);
+    } else {
+        auto cond = std::make_unique<ts::CritChangedOnly>(project);
         findBy(std::move(cond));
     }
 }

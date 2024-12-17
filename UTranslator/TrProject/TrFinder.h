@@ -112,14 +112,25 @@ namespace ts {  // translation search
     ///
     /// Criterion: changed original
     ///
-    class CritChangedOriginal : public ProjectCriterion
+    class CritChangedUntransl : public ProjectCriterion
     {
     public:
         using ProjectCriterion::ProjectCriterion;
         bool matchText(const tr::Text&) const override;
-        std::u8string caption() const override { return u8"Changed original"; }
+        std::u8string caption() const override { return u8"Changed original / untranslated"; }
     };
 
+
+    ///
+    /// Criterion: changed original
+    ///
+    class CritChangedOnly : public ProjectCriterion
+    {
+    public:
+        using ProjectCriterion::ProjectCriterion;
+        bool matchText(const tr::Text&) const override;
+        std::u8string caption() const override { return u8"Changed original only"; }
+    };
 
     ///
     /// Criterion: attention

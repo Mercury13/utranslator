@@ -118,7 +118,8 @@ private slots:
     void goFind();
     void goSearchAgain();
     void goAllWarnings();
-    void goChangedOriginal();
+    void goChangedUntransl();
+    void goChangedOnly();
     void goAttention();
     void goMismatchNumber();
     void goCommentedByAuthor();

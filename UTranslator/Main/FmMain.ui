@@ -944,7 +944,8 @@ QLabel {
       <string>Find &amp;warnings</string>
      </property>
      <addaction name="acFindWarningsAll"/>
-     <addaction name="acFindWarningsChangedOriginal"/>
+     <addaction name="acFindWarningsChangedUntransl"/>
+     <addaction name="acFindWarningsChangedOnly"/>
      <addaction name="acFindWarningsAttention"/>
     </widget>
     <widget class="QMenu" name="menuFind_special">
@@ -1223,7 +1224,7 @@ QLabel {
     <string>Extract original…</string>
    </property>
   </action>
-  <action name="acFindWarningsChangedOriginal">
+  <action name="acFindWarningsChangedUntransl">
    <property name="text">
     <string>Changed original / untranslated</string>
    </property>
@@ -1283,6 +1284,14 @@ QLabel {
   <action name="acStats">
    <property name="text">
     <string>Statistics</string>
+   </property>
+  </action>
+  <action name="acFindWarningsChangedOnly">
+   <property name="text">
+    <string>Changed original only</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+F6</string>
    </property>
   </action>
  </widget>

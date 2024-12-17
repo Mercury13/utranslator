@@ -41,4 +41,12 @@ constexpr const char* STR_NEED_BILINGUAL_TRANSLATION =
 #define STR_SPACE_MAY_LEAD \
     "This may lead to problems in window composition, building of meaningful phrases."
 
+#define STR_FIND_TRANSL \
+    "This criterion works for translations only.\n"  \
+        "It will find nothing in originals."
+        /// @todo [bilingual] STR_FIND_TRANSL text for bilinguals
+        //"In bilinguals it’s meaningful if portions of original are managed "
+        //    "with external software (e.g. UI messages with form editor) "
+        //    "and work as translation."
+
 #define TAG_BR "<br>"
