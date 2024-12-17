@@ -1860,6 +1860,8 @@ void FmMain::markAttentionCurrObjectEx(FuncBoolBool x)
         trable->forceAttention = newV;
         obj->doModify(tr::Mch::META);
     }
+        // Let it be YES for now (cascade is for children, and they are absent)
+    obj->stats(tr::StatsMode::DIRECT, tr::CascadeDropCache::YES);
     reenableOnSelect(obj);
     showBugs(bugCache.bugs());
     emit treeModel.dataChanged({}, {});

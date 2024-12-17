@@ -234,8 +234,8 @@ namespace tr {
 
     enum class StatsMode : unsigned char {
         CACHED,         ///< Use cache if present
-        SEMICACHED,     ///< Do not use cache for my object
-        DIRECT          ///< Do not use cache at all
+        SEMICACHED,     ///< Mine is computed, subobjects cached
+        DIRECT          ///< Totally computed, both mine and subobjects
     };
 
     struct Stats {
