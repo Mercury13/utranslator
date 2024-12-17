@@ -1225,7 +1225,7 @@ QLabel {
   </action>
   <action name="acFindWarningsChangedOriginal">
    <property name="text">
-    <string>Changed original</string>
+    <string>Changed original / untranslated</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+F6</string>
