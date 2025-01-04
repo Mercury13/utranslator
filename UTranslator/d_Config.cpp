@@ -120,14 +120,14 @@ void config::save(
         hWin.append_attribute("max") = isMaximized;
 
         if (!window::desktopSize.isEmpty()) {
-                hWin.append_attribute("x") = winRect.left();
-                hWin.append_attribute("y") = winRect.top();
-                hWin.append_attribute("w") = winRect.width();
-                hWin.append_attribute("h") = winRect.height();
+            hWin.append_attribute("x") = winRect.left();
+            hWin.append_attribute("y") = winRect.top();
+            hWin.append_attribute("w") = winRect.width();
+            hWin.append_attribute("h") = winRect.height();
 
-                auto hDesk = hWin.append_child("desktop");
-                    hDesk.append_attribute("w") = window::desktopSize.width();
-                    hDesk.append_attribute("h") = window::desktopSize.height();
+            auto hDesk = hWin.append_child("desktop");
+                hDesk.append_attribute("w") = window::desktopSize.width();
+                hDesk.append_attribute("h") = window::desktopSize.height();
         }
 
     config::history.save(root, "history");
