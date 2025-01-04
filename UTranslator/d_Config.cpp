@@ -114,18 +114,21 @@ void config::save(
 
     auto root = doc.append_child("config");
 
-    if (!window::desktopSize.isEmpty()) {
-        auto hWin = root.append_child("window");
-            hWin.append_attribute("x") = winRect.left();
-            hWin.append_attribute("y") = winRect.top();
-            hWin.append_attribute("w") = winRect.width();
-            hWin.append_attribute("h") = winRect.height();
-            hWin.append_attribute("max") = isMaximized;
+    // Maximized window will remain maximized regardless of desktop size,
+    // probably on other monitor
+    auto hWin = root.append_child("window");
+        hWin.append_attribute("max") = isMaximized;
 
-        auto hDesk = hWin.append_child("desktop");
-            hDesk.append_attribute("w") = window::desktopSize.width();
-            hDesk.append_attribute("h") = window::desktopSize.height();
-    }
+        if (!window::desktopSize.isEmpty()) {
+                hWin.append_attribute("x") = winRect.left();
+                hWin.append_attribute("y") = winRect.top();
+                hWin.append_attribute("w") = winRect.width();
+                hWin.append_attribute("h") = winRect.height();
+
+                auto hDesk = hWin.append_child("desktop");
+                    hDesk.append_attribute("w") = window::desktopSize.width();
+                    hDesk.append_attribute("h") = window::desktopSize.height();
+        }
 
     config::history.save(root, "history");
     doc.save_file(fname::config.c_str());
