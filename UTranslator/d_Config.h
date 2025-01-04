@@ -34,9 +34,13 @@ namespace config {
     extern hist::History history;
 
     namespace window {
+        extern QSize desktopSize;
         extern bool isMaximized;
     }
 
-    void init(QRect& winRect);
-    void save(const QRect& winRect, bool isMaximized);
+    void init(
+            QRect& winRect);
+    void save(
+            const QRect& winRect,
+            bool isMaximized);
 }

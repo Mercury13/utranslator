@@ -26,6 +26,7 @@ std::filesystem::path path::config;
 // config
 hist::History config::history;
 bool config::window::isMaximized;
+QSize config::window::desktopSize { 0, 0 };
 
 
 #define APP_NAME "UTranslator"
@@ -59,12 +60,15 @@ namespace {
             auto root = doc.child("config");
             auto oldW = winRect.width();
             auto oldH = winRect.height();
-            auto tagWin = root.child("window");
-                winRect.setLeft(tagWin.attribute("x").as_int(winRect.left()));
-                winRect.setTop(tagWin.attribute("y").as_int(winRect.top()));
-                winRect.setWidth(tagWin.attribute("w").as_int(oldW));
-                winRect.setHeight(tagWin.attribute("h").as_int(oldH));
-                config::window::isMaximized = tagWin.attribute("max").as_bool();
+            auto hWin = root.child("window");
+                winRect.setLeft(hWin.attribute("x").as_int(winRect.left()));
+                winRect.setTop(hWin.attribute("y").as_int(winRect.top()));
+                winRect.setWidth(hWin.attribute("w").as_int(oldW));
+                winRect.setHeight(hWin.attribute("h").as_int(oldH));
+                config::window::isMaximized = hWin.attribute("max").as_bool();
+                auto hDesktop = hWin.child("desktop");
+                    config::window::desktopSize.setWidth (hDesktop.attribute("w").as_int());
+                    config::window::desktopSize.setHeight(hDesktop.attribute("h").as_int());
 
             auto tagHistory = root.child("history");
             config::history.load(tagHistory);
@@ -102,17 +106,26 @@ void config::init(QRect& winRect)
 }
 
 
-void config::save(const QRect& winRect, bool isMaximized)
+void config::save(
+        const QRect& winRect,
+        bool isMaximized)
 {
     pugi::xml_document doc;
 
     auto root = doc.append_child("config");
-    auto tagWin = root.append_child("window");
-        tagWin.append_attribute("x") = winRect.left();
-        tagWin.append_attribute("y") = winRect.top();
-        tagWin.append_attribute("w") = winRect.width();
-        tagWin.append_attribute("h") = winRect.height();
-        tagWin.append_attribute("max") = isMaximized;
+
+    if (!window::desktopSize.isEmpty()) {
+        auto hWin = root.append_child("window");
+            hWin.append_attribute("x") = winRect.left();
+            hWin.append_attribute("y") = winRect.top();
+            hWin.append_attribute("w") = winRect.width();
+            hWin.append_attribute("h") = winRect.height();
+            hWin.append_attribute("max") = isMaximized;
+
+        auto hDesk = hWin.append_child("desktop");
+            hDesk.append_attribute("w") = window::desktopSize.width();
+            hDesk.append_attribute("h") = window::desktopSize.height();
+    }
 
     config::history.save(root, "history");
     doc.save_file(fname::config.c_str());
