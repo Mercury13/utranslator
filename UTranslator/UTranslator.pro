@@ -15,6 +15,7 @@ SOURCES += \
     ../Libs/Qt/ElidedLabel.cpp \
     ../Libs/SelfMade/L10n/LocFmt.cpp \
     ../Libs/SelfMade/Qt/QtMultiRadio.cpp \
+    ../Libs/SelfMade/Qt/RememberWindow.cpp \
     ../Libs/SelfMade/i_OpenSave.cpp \
     ../Libs/SelfMade/u_OpenSaveStrings.cpp \
     ../Libs/SelfMade/u_XmlUtils.cpp \
@@ -64,6 +65,7 @@ HEADERS += \
     ../Libs/SelfMade/Mojibake/mojibake.h \
     ../Libs/SelfMade/Qt/QtConsts.h \
     ../Libs/SelfMade/Qt/QtMultiRadio.h \
+    ../Libs/SelfMade/Qt/RememberWindow.h \
     ../Libs/SelfMade/i_OpenSave.h \
     ../Libs/SelfMade/u_Array.h \
     ../Libs/SelfMade/u_EcArray.h \
