@@ -142,4 +142,14 @@ namespace ts {  // translation search
         std::u8string caption() const override { return u8"Marked as bad"; }
     };
 
+    ///
+    /// Criterion: changed today
+    ///
+    class CritChangedToday : public tr::FindCriterion
+    {
+    public:
+        bool matchText(const tr::Text&) const override;
+        std::u8string caption() const override { return u8"Changed today"; }
+    };
+
 }   // namespace ts

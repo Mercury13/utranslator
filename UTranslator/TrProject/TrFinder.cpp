@@ -95,3 +95,8 @@ bool ts::CritAttention::matchText(const tr::Text& x) const
 {
     return x.tr.forceAttention;
 }
+
+bool ts::CritChangedToday::matchText(const tr::Text& x) const
+{
+    return x.tr.wasChangedToday;
+}
