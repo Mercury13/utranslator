@@ -150,10 +150,10 @@ namespace tr {
         std::u8string original;     ///< Current original string
         std::optional<std::u8string>
                     knownOriginal,  ///< Known original string we translated (never == original!)
-                    knownReference, ///< Known reference string in other language (if it’s second original)
                     reference,      ///< Reference string in other language (see PrjInfo.canHaveReference)
                     translation;    ///< Translation for known original (if present) or original
         bool forceAttention = false;
+        bool wasChangedToday = false;  ///<
         std::u8string_view translationSv() const
             { return translation ? *translation : std::u8string_view(); }
         AttentionMode attentionMode(const tr::PrjInfo& prjInfo) const;

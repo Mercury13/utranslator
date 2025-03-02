@@ -1404,7 +1404,6 @@ void tr::Text::removeTranslChannel()
 void tr::Text::removeReferenceChannel()
 {
     tr.reference.reset();
-    tr.knownReference.reset();
 }
 
 
