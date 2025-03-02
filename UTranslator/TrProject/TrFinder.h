@@ -145,9 +145,10 @@ namespace ts {  // translation search
     ///
     /// Criterion: changed today
     ///
-    class CritChangedToday : public tr::FindCriterion
+    class CritChangedToday : public ProjectCriterion
     {
     public:
+        using ProjectCriterion::ProjectCriterion;
         bool matchText(const tr::Text&) const override;
         std::u8string caption() const override { return u8"Changed today"; }
     };

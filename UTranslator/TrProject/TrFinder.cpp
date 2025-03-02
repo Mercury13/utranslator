@@ -98,5 +98,6 @@ bool ts::CritAttention::matchText(const tr::Text& x) const
 
 bool ts::CritChangedToday::matchText(const tr::Text& x) const
 {
-    return x.tr.wasChangedToday;
+    return x.tr.wasChangedToday
+        && (x.tr.baseAttentionMode(project->info) == tr::AttentionMode::AUTO_PROBLEM);
 }
