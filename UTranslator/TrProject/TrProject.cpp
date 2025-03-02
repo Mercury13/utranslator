@@ -1011,6 +1011,8 @@ tr::UpdateInfo tr::VirtualGroup::vgStealDataFrom(
                     text->state = ObjState::STAYING;   // stays!
                     xText.place->reset();   // Remove that text!!
                     r.changed += text->stealDataFrom(*xText.obj, this, ctx);
+                } else {
+                    text->tr.wasChangedToday = true;
                 }
             } break;
         }
