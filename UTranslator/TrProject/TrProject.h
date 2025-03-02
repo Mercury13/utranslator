@@ -272,7 +272,7 @@ namespace tr {
         static const UpdateInfo ZERO;
     };
 
-    enum class ExpandState {
+    enum class ExpandState : unsigned char {
         ALL_COLLAPSED,   ///< it + children of all levels are collapsed
         COLLAPSED,       ///< just it is collapsed
         UNKNOWN,         ///< who knows

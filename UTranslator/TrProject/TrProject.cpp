@@ -1012,7 +1012,7 @@ tr::UpdateInfo tr::VirtualGroup::vgStealDataFrom(
                     xText.place->reset();   // Remove that text!!
                     r.changed += text->stealDataFrom(*xText.obj, this, ctx);
                 } else {
-                    text->tr.wasChangedToday = true;
+                    text->tr.wasChangedToday = true;  // new text, just mark somehow
                 }
             } break;
         }
