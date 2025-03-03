@@ -130,7 +130,7 @@ QLabel {
                    <enum>Qt::NoFocus</enum>
                   </property>
                   <property name="text">
-                   <string>Find changed (Ct+F6)</string>
+                   <string>Today’s changes (F7)</string>
                   </property>
                  </widget>
                 </item>
