@@ -1429,9 +1429,6 @@ tr::UpdateInfo::ByState tr::Text::stealDataFrom(
     // Build stats
     const bool isOrigChanged = (this->tr.original != x.tr.original);
     tr.wasChangedToday |= (tr.wasChangedToday || isOrigChanged);
-    if (tr.wasChangedToday) {
-        printf("Changed today\n");
-    }
 
     auto plus1 = [this, isOrigChanged, &r] {
         if (isOrigChanged) {
