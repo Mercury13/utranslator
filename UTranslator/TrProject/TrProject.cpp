@@ -1011,8 +1011,6 @@ tr::UpdateInfo tr::VirtualGroup::vgStealDataFrom(
                     text->state = ObjState::STAYING;   // stays!
                     xText.place->reset();   // Remove that text!!
                     r.changed += text->stealDataFrom(*xText.obj, this, ctx);
-                } else {
-                    text->tr.wasChangedToday = true;  // new text, just mark somehow
                 }
             } break;
         }
@@ -1020,8 +1018,10 @@ tr::UpdateInfo tr::VirtualGroup::vgStealDataFrom(
 
     // Add?
     for (auto& v : children) {
-        if (v->state == ObjState::ADDED)
+        if (v->state == ObjState::ADDED) {
+            v->markChildrenAsAddedToday();
             r += v->addedInfo(CascadeDropCache::NO);
+        }
     }
     return r;
 }
@@ -1075,6 +1075,14 @@ void tr::VirtualGroup::vgUpdateChildrensParents(
 {
     for (auto& v : children)
         v->updateParent(that);
+}
+
+
+void tr::VirtualGroup::markChildrenAsAddedToday()
+{
+    for (auto& v : children) {
+        v->markChildrenAsAddedToday();
+    }
 }
 
 
@@ -1421,6 +1429,9 @@ tr::UpdateInfo::ByState tr::Text::stealDataFrom(
     // Build stats
     const bool isOrigChanged = (this->tr.original != x.tr.original);
     tr.wasChangedToday |= (tr.wasChangedToday || isOrigChanged);
+    if (tr.wasChangedToday) {
+        printf("Changed today\n");
+    }
 
     auto plus1 = [this, isOrigChanged, &r] {
         if (isOrigChanged) {
@@ -2128,4 +2139,12 @@ std::vector<std::shared_ptr<tr::Group>> tr::Project::syncGroups()
         v->collectSyncGroups(r);
     }
     return r;
+}
+
+
+void tr::Project::markChildrenAsAddedToday()
+{
+    for (auto& v : files) {
+        v->markChildrenAsAddedToday();
+    }
 }

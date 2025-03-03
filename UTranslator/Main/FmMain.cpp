@@ -150,6 +150,7 @@ FmMain::FmMain(QWidget *parent)
     setSearchAction(ui->acFindWarningsChangedOnly, &This::goChangedOnly);
     setSearchAction(ui->acFindWarningsUntranslatedOnly, &This::goUntranslOnly);
     setSearchAction(ui->acFindWarningsAttention, &This::goAttention);
+    setSearchAction(ui->acFindChangedToday, &This::goChangedToday);
     setSearchAction(ui->acFindSpecialMismatchNumber, &This::goMismatchNumber);
     setSearchAction(ui->acFindSpecialCommentedByAuthor, &This::goCommentedByAuthor);
     setSearchAction(ui->acFindSpecialCommentedByTranslator, &This::goCommentedByTranslator);
@@ -1331,6 +1332,17 @@ void FmMain::goAttention()
 {
     auto cond = std::make_unique<ts::CritAttention>();
     findBy(std::move(cond));
+}
+
+
+void FmMain::goChangedToday()
+{
+    if (!project->info.isTranslation()) {
+        QMessageBox::information(this, "Changed/added today", STR_FIND_TRANSL);
+    } else {
+        auto cond = std::make_unique<ts::CritChangedToday>(project);
+        findBy(std::move(cond));
+    }
 }
 
 

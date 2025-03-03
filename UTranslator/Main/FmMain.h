@@ -122,6 +122,7 @@ private slots:
     void goChangedOnly();
     void goUntranslOnly();
     void goAttention();
+    void goChangedToday();
     void goMismatchNumber();
     void goCommentedByAuthor();
     void goCommentedByTranslator();

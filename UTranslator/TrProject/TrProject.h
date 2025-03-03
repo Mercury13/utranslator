@@ -335,6 +335,7 @@ namespace tr {
                 TraverseListener& x, tr::WalkOrder order, EnterMe enterMe) = 0;
         virtual std::shared_ptr<VirtualGroup> nearestGroup() = 0;
         virtual HIcon icon() const { return nullptr; }
+        virtual void markChildrenAsAddedToday() = 0;
 
         /// Makes nChildren == 0
         /// @warning For project: clear() makes a brand new project
@@ -518,6 +519,7 @@ namespace tr {
         std::shared_ptr<UiObject> selfUi() override { return fSelf.lock(); }
         void collectSyncGroups(std::vector<std::shared_ptr<tr::Group>>& r);
         void removeReferenceChannel() override;
+        void markChildrenAsAddedToday() override;
     protected:
         friend class Project;
         void doSwapChildren(size_t index1, size_t index2) override;
@@ -566,6 +568,7 @@ namespace tr {
         std::shared_ptr<UiObject> selfUi() override { return fSelf.lock(); }
         void removeTranslChannel() override;
         void removeReferenceChannel() override;
+        void markChildrenAsAddedToday() override { tr.wasChangedToday = true; }
         ///  @return  CHANGED data
         UpdateInfo::ByState stealDataFrom(
                 Text& x, UiObject* myParent, const StealContext& ctx);
@@ -709,6 +712,7 @@ namespace tr {
         std::shared_ptr<VirtualGroup> nearestGroup() override { return {}; }
         void removeTranslChannel() override;
         void removeReferenceChannel() override;
+        void markChildrenAsAddedToday() override;
         void updateParents();
 
         void save();

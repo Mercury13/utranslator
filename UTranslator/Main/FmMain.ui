@@ -947,7 +947,7 @@ QLabel {
      <addaction name="acFindWarningsChangedUntransl"/>
      <addaction name="acFindWarningsChangedOnly"/>
      <addaction name="acFindWarningsUntranslatedOnly"/>
-     <addaction name="acChangedToday"/>
+     <addaction name="acFindChangedToday"/>
      <addaction name="acFindWarningsAttention"/>
     </widget>
     <widget class="QMenu" name="menuFind_special">
@@ -1301,7 +1301,7 @@ QLabel {
     <string>Untranslated only</string>
    </property>
   </action>
-  <action name="acChangedToday">
+  <action name="acFindChangedToday">
    <property name="text">
     <string>Added/changed today</string>
    </property>
