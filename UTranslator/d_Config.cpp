@@ -5,6 +5,9 @@
 #include <QCoreApplication>
 #include <QStandardPaths>
 
+// Qt ex
+#include "RememberWindow.h"
+
 // XML
 #include "pugixml.hpp"
 
@@ -25,8 +28,6 @@ std::filesystem::path path::config;
 
 // config
 hist::History config::history;
-bool config::window::isMaximized;
-QSize config::window::desktopSize { 0, 0 };
 
 
 #define APP_NAME "UTranslator"
@@ -50,7 +51,7 @@ namespace {
             progsets::dirMode = progsets::DirMode::PORTABLE;
     }
 
-    void loadConfig(QRect& winRect)
+    void loadConfig(config::window::State& state)
     {
         if (fname::config.empty() || !std::filesystem::exists(fname::config))
             return;
@@ -58,17 +59,9 @@ namespace {
         pugi::xml_document doc;
         if (auto res = doc.load_file(fname::config.c_str())) {
             auto root = doc.child("config");
-            auto oldW = winRect.width();
-            auto oldH = winRect.height();
-            auto hWin = root.child("window");
-                winRect.setLeft(hWin.attribute("x").as_int(winRect.left()));
-                winRect.setTop(hWin.attribute("y").as_int(winRect.top()));
-                winRect.setWidth(hWin.attribute("w").as_int(oldW));
-                winRect.setHeight(hWin.attribute("h").as_int(oldH));
-                config::window::isMaximized = hWin.attribute("max").as_bool();
-                auto hDesktop = hWin.child("desktop");
-                    config::window::desktopSize.setWidth (hDesktop.attribute("w").as_int());
-                    config::window::desktopSize.setHeight(hDesktop.attribute("h").as_int());
+
+            // Window position
+            config::window::load(root, state);
 
             auto tagHistory = root.child("history");
             config::history.load(tagHistory);
@@ -77,7 +70,7 @@ namespace {
 
 }   // anon namespace
 
-void config::init(QRect& winRect)
+void config::init(window::State& state)
 {
     path::exeBundled = QCoreApplication::applicationFilePath().toStdWString();
 #ifdef _WIN32
@@ -102,33 +95,17 @@ void config::init(QRect& winRect)
     }
     std::filesystem::create_directories(path::config);
     fname::config = path::config / CONFIG_NAME;
-    loadConfig(winRect);
+    loadConfig(state);
 }
 
 
-void config::save(
-        const QRect& winRect,
-        bool isMaximized)
+void config::save(const config::window::State& state)
 {
     pugi::xml_document doc;
 
     auto root = doc.append_child("config");
 
-    // Maximized window will remain maximized regardless of desktop size,
-    // probably on other monitor
-    auto hWin = root.append_child("window");
-        hWin.append_attribute("max") = isMaximized;
-
-        if (!window::desktopSize.isEmpty()) {
-            hWin.append_attribute("x") = winRect.left();
-            hWin.append_attribute("y") = winRect.top();
-            hWin.append_attribute("w") = winRect.width();
-            hWin.append_attribute("h") = winRect.height();
-
-            auto hDesk = hWin.append_child("desktop");
-                hDesk.append_attribute("w") = window::desktopSize.width();
-                hDesk.append_attribute("h") = window::desktopSize.height();
-        }
+    config::window::save(root, state);
 
     config::history.save(root, "history");
     doc.save_file(fname::config.c_str());
