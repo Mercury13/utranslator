@@ -49,4 +49,8 @@ constexpr const char* STR_NEED_BILINGUAL_TRANSLATION =
         //    "with external software (e.g. UI messages with form editor) "
         //    "and work as translation."
 
+#define STR_FIND_FULL_TRANSL \
+    "This criterion works for full translations only.\n"  \
+        "It will find nothing in originals."
+
 #define TAG_BR "<br>"

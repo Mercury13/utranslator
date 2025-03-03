@@ -133,6 +133,17 @@ namespace ts {  // translation search
     };
 
     ///
+    /// Criterion: untranslated
+    ///
+    class CritUntranslated : public ProjectCriterion
+    {
+    public:
+        using ProjectCriterion::ProjectCriterion;
+        bool matchText(const tr::Text&) const override;
+        std::u8string caption() const override { return u8"Untranslated"; }
+    };
+
+    ///
     /// Criterion: attention
     ///
     class CritAttention : public tr::FindCriterion

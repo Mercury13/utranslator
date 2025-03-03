@@ -91,6 +91,11 @@ bool ts::CritChangedOnly::matchText(const tr::Text& x) const
             && x.tr.baseAttentionMode(project->info) == tr::AttentionMode::AUTO_PROBLEM);
 }
 
+bool ts::CritUntranslated::matchText(const tr::Text& x) const
+{
+    return !x.tr.translation;
+}
+
 bool ts::CritAttention::matchText(const tr::Text& x) const
 {
     return x.tr.forceAttention;

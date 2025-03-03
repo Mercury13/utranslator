@@ -148,6 +148,7 @@ FmMain::FmMain(QWidget *parent)
     setSearchAction(ui->acFindWarningsAll, &This::goAllWarnings);
     setSearchAction(ui->acFindWarningsChangedUntransl, &This::goChangedUntransl);
     setSearchAction(ui->acFindWarningsChangedOnly, &This::goChangedOnly);
+    setSearchAction(ui->acFindWarningsUntranslatedOnly, &This::goUntranslOnly);
     setSearchAction(ui->acFindWarningsAttention, &This::goAttention);
     setSearchAction(ui->acFindSpecialMismatchNumber, &This::goMismatchNumber);
     setSearchAction(ui->acFindSpecialCommentedByAuthor, &This::goCommentedByAuthor);
@@ -1310,6 +1311,17 @@ void FmMain::goChangedOnly()
         QMessageBox::information(this, "Changed original only", STR_FIND_TRANSL);
     } else {
         auto cond = std::make_unique<ts::CritChangedOnly>(project);
+        findBy(std::move(cond));
+    }
+}
+
+
+void FmMain::goUntranslOnly()
+{
+    if (!project->info.isFullTranslation()) {
+        QMessageBox::information(this, "Untranslated", STR_FIND_FULL_TRANSL);
+    } else {
+        auto cond = std::make_unique<ts::CritUntranslated>(project);
         findBy(std::move(cond));
     }
 }
