@@ -161,7 +161,7 @@ namespace ts {  // translation search
     public:
         using ProjectCriterion::ProjectCriterion;
         bool matchText(const tr::Text&) const override;
-        std::u8string caption() const override { return u8"Changed today"; }
+        std::u8string caption() const override { return u8"Changed since the last Open"; }
     };
 
 }   // namespace ts
