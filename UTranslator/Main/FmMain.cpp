@@ -676,10 +676,11 @@ void FmMain::reenable()
         // New, Open are always available
     ui->acSave->setEnabled(hasProject);
     ui->acSaveAs->setEnabled(hasProject);
-    ui->acProjectProps->setEnabled(hasProject);
+    ui->acProjectProps->setEnabled(hasProject && isMainVisible);
     ui->acUpdateData->setEnabled(hasProject && isMainVisible);
     ui->acStartingScreen->setEnabled(hasProject);
         ui->acStartingScreen->setChecked(hasProject && isStartVisible);
+    ui->acStats->setEnabled(hasProject);
 
     // Menu: Original; always isOriginal
     ui->acAddHostedFile->setEnabled(canAddFiles);
@@ -1908,4 +1909,10 @@ void FmMain::markAttentionCurrObject()
 void FmMain::removeAttentionCurrObject()
 {
     markAttentionCurrObjectEx([](bool) { return false; });
+}
+
+
+void FmMain::doProjectStats()
+{
+
 }

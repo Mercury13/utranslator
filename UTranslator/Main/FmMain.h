@@ -101,6 +101,7 @@ private slots:
     void doMoveDown();
     void doProjectProps();
     void doUpdateData();
+    void doProjectStats();
     // Menu: Edit
     /// accept curr object, no bugs gagged
     tr::UiObject* acceptCurrObjectNone();
