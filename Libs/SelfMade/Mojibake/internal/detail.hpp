@@ -11,6 +11,10 @@
 #include <iterator> // won’t be included actually
 #include <limits>   // won’t be included actually
 
+#if __cplusplus >= 202002L
+    #include <bit>
+#endif
+
 namespace mojibake::detail {
 
     template <class It>
@@ -200,6 +204,7 @@ namespace mojibake::detail {
         template <class It2, class Enc2, class Mjh>
         static inline It2 copy(It p, It end, It2 dest, const Mjh& onMojibake);
 
+        static size_t countCps(It p, It end);
         static bool isValid(It p, It end);
     };
 
@@ -234,6 +239,17 @@ namespace mojibake::detail {
     {
         auto result = onMojibake(ptr, event);
         return !ItEnc<It2, Enc2>::put(dest, result);
+    }
+
+    template <class It>
+    size_t ItEnc<It, Utf32>::countCps(It p, It end)
+    {
+        size_t r = 0;
+        for (; p != end; ++p) {
+            if (mojibake::isValid(*p))
+                ++r;
+        }
+        return r;
     }
 
     template <class It>
@@ -282,6 +298,7 @@ namespace mojibake::detail {
         template <class It2, class Enc2, class Mjh>
         static It2 copy(It p, It end, It2 dest, const Mjh& onMojibake);
 
+        static size_t countCps(It p, It end);
         static bool isValid(It p, It end);
     };
 
@@ -347,6 +364,41 @@ namespace mojibake::detail {
     }
 
     template <class It>
+    size_t ItEnc<It, Utf16>::countCps(It p, It end)
+    {
+        size_t r = 0;
+        for (; p != end;) {
+            auto cpStart = p++;
+            char16_t word1 = *cpStart;
+            if (word1 < SURROGATE_HI_MIN) CPP20_LIKELY {
+                if (word1 < SURROGATE_MIN) { // Low BMP char => OK
+                    ++r;
+                } else {  // Leading surrogate
+                    if (p == end) CPP20_UNLIKELY {
+                        // do nothing, bad CP
+                    } else {
+                        char16_t word2 = *p;
+                        if (word2 < SURROGATE_HI_MIN || word2 > SURROGATE_HI_MAX)
+                        CPP20_UNLIKELY {
+                            // do nothing, bad CP
+                        } else CPP20_LIKELY {
+                            ++p;
+                            ++r;
+                        }
+                    }
+                }
+            } else {
+                if (word1 <= SURROGATE_MAX) CPP20_UNLIKELY { // Trailing surrogate
+                    // do nothing, bad CP
+                } else { // High BMP char => OK
+                    ++r;
+                }
+            }   // big if
+        }   // for
+        return r;
+    }
+
+    template <class It>
     bool ItEnc<It, Utf16>::isValid(It p, It end)
     {
         for (; p != end;) {
@@ -389,6 +441,7 @@ namespace mojibake::detail {
         template <class It2, class Enc2, class Mjh>
         static inline It2 copy(It p, It end, It2 dest, const Mjh& onMojibake);
 
+        static size_t countCps(It p, It end);
         static bool isValid(It p, It end);
     };
 
@@ -539,6 +592,67 @@ namespace mojibake::detail {
 #undef MJ_PUT_BRK
 #undef MJ_PUT_HALTSTMT
 #undef MJ_CHECK_REM
+
+
+    template <class It>
+    size_t ItEnc<It, Utf8>::countCps(It p, It end)
+    {
+        size_t r = 0;
+
+#define MJ_READCP \
+            if (p == end) return r; \
+            byte1 = *p;  \
+            if (!isU8ContinueByte(byte1)) continue; \
+            ++p;
+
+        for (; p != end;) {
+            auto cpStart = p++;
+            unsigned char byte1 = *cpStart;
+            unsigned cp;
+            switch (count1(byte1)) {
+            case 0:  // 0###.#### = 1 byte
+                ++r;
+                break;
+            // 1 is default!!
+            case 2:  // 110#.#### = 2 bytes
+                // 110#.####  10##.####,  put 80 = 1000.0000 →
+                // ___0.0010  __00.0000
+                // byte1 < 1100.0010 = C2 → BAD
+                if (byte1 < 0xC2)
+                    break;
+                MJ_READCP;
+                ++r;
+                break;
+            case 3: // 1110.#### = 3 bytes
+                // E0 A0 80 = 800  (1st 3-byte)
+                // ED A0 80 = D800 (1st surrogate)
+                // ED BF BF = DFFF (last surrogate)
+                cp = byte1 << 8;
+                MJ_READCP;  cp |= byte1;
+                if ((cp >= 0xEDA0 && cp <= 0xEDBF) || cp < 0xE0A0)
+                    break;
+                MJ_READCP;
+                ++r;
+                break;
+            case 4: // 1111.0### = 4 bytes
+                // F0 90 80 80 = 1'0000  (1st 4-byte)
+                // F4 8F BF BF = 10'FFFF (last Unicode)
+                cp = byte1 << 8;
+                MJ_READCP;  cp |= byte1;
+                if (cp < 0xF090 || cp > 0xF48F)
+                    break;
+                MJ_READCP;
+                MJ_READCP;
+                ++r;
+                break;
+            default:;
+                // bad CP, do nothing
+            }   // switch
+        }   // for
+        return r;
+
+#undef MJ_READCP
+    }
 
     template <class It>
     bool ItEnc<It, Utf8>::isValid(It p, It end)

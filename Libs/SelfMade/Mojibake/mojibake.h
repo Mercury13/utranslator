@@ -11,10 +11,6 @@
 #include <iterator>
 #include <type_traits>
 
-#if __cplusplus >= 202002L
-    #include <bit>
-#endif
-
 #include "internal/auto.hpp"
 
 namespace mojibake {
@@ -147,6 +143,21 @@ namespace mojibake {
     inline bool put(It& it, char32_t cp)
         { return detail::ItEnc<It, Enc>::put(it, cp); }
 
+    /// Counts # of valid codepoints in [beg, end)
+    template <class It,
+              class Enc = typename detail::ItUtfTraits<It>::Enc,
+              class = std::void_t<typename std::iterator_traits<It>::value_type>>
+    inline size_t countCps(It beg, It end)
+        { return detail::ItEnc<It, Enc>::countCps(beg, end); }
+
+    /// Counts # of valid codepoints in x
+    template <class From,
+              class Enc = typename detail::ContUtfTraits<From>::Enc>
+    inline size_t countCps(const From& x)
+    {
+        using It = decltype(std::begin(x));
+        return detail::ItEnc<It, Enc>::countCps(std::begin(x), std::end(x));
+    }
 
     ///
     /// Copies data to another,
