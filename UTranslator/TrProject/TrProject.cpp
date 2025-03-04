@@ -1540,14 +1540,12 @@ void tr::Text::collectBigStats(BigStats& r, const PrjInfo& info) const
 {
     auto q = tr.info(info);
     r.all.add(q);
-    if (info.isTranslation()) {
-        if (tr.translation->empty()) {
-            r.untransl.add(q);
-        } else if (attentionMode() >= AttentionMode::CALM) {
-            r.dubious.add(q);
-        } else {
-            r.transl.add(q);
-        }
+    if (tr.attentionMode(info) > AttentionMode::CALM) {
+        r.dubious.add(q);
+    } else if (!info.isTranslation() || tr.translation->empty()) {
+        r.untransl.add(q);
+    } else {
+        r.transl.add(q);
     }
 }
 
