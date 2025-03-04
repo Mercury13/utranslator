@@ -6,6 +6,7 @@
 
 // Libs
 #include "u_Strings.h"
+#include "mojibake.h"
 
 // Pugixml
 #include "pugixml.hpp"
@@ -82,6 +83,17 @@ tr::CanaryObject::~CanaryObject()
 }
 
 
+///// BigStats /////////////////////////////////////////////////////////////////
+
+
+void tr::BigStats::LittleBigStats::add(const Translatable::Info& info)
+{
+    ++nStrings;
+    nCpsOrig += info.nCpsOrig;
+    nCpsTransl += info.nCpsTransl;
+}
+
+
 ///// Translatable /////////////////////////////////////////////////////////////
 
 
@@ -113,6 +125,17 @@ tr::AttentionMode tr::Translatable::attentionMode(const tr::PrjInfo& prjInfo) co
         r = std::max(r, tr::AttentionMode::USER_ATTENTION);
     return r;
 }
+
+
+auto tr::Translatable::info(const tr::PrjInfo& prjInfo) const -> Info
+{
+    Info r;
+    r.nCpsOrig = mojibake::countCps(original);
+    if (translation && prjInfo.isTranslation())
+        r.nCpsTransl = mojibake::countCps(*translation);
+    return r;
+}
+
 
 ///// UpdateInfo ///////////////////////////////////////////////////////////////
 
@@ -504,6 +527,16 @@ void tr::UiObject::uiStealDataFrom(UiObject& x, UiObject* myParent)
             myParent->cache.treeUi.currObject = this->selfUi();
         }
     }
+}
+
+
+tr::BigStats tr::UiObject::bigStats() const
+{
+    BigStats r;
+    if (auto q = project()) {
+        collectBigStats(r, q->info);
+    }
+    return r;
 }
 
 
@@ -1086,6 +1119,14 @@ void tr::VirtualGroup::markChildrenAsAddedToday()
 }
 
 
+void tr::VirtualGroup::collectBigStats(BigStats& r, const PrjInfo& info) const
+{
+    for (auto& v : children) {
+        v->collectBigStats(r, info);
+    }
+}
+
+
 ///// Group ////////////////////////////////////////////////////////////////////
 
 
@@ -1492,6 +1533,22 @@ void tr::Text::stealReferenceFrom(Text& x)
 void tr::Text::updateParent(const std::shared_ptr<VirtualGroup>& x)
 {
     fParentGroup = x;
+}
+
+
+void tr::Text::collectBigStats(BigStats& r, const PrjInfo& info) const
+{
+    auto q = tr.info(info);
+    r.all.add(q);
+    if (info.isTranslation()) {
+        if (tr.translation->empty()) {
+            r.untransl.add(q);
+        } else if (attentionMode() >= AttentionMode::CALM) {
+            r.dubious.add(q);
+        } else {
+            r.transl.add(q);
+        }
+    }
 }
 
 
@@ -2143,5 +2200,13 @@ void tr::Project::markChildrenAsAddedToday()
 {
     for (auto& v : files) {
         v->markChildrenAsAddedToday();
+    }
+}
+
+
+void tr::Project::collectBigStats(BigStats& r, const PrjInfo& info) const
+{
+    for (auto& v : files) {
+        v->collectBigStats(r, info);
     }
 }

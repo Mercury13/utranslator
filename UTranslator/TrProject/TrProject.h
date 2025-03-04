@@ -158,6 +158,11 @@ namespace tr {
             { return translation ? *translation : std::u8string_view(); }
         AttentionMode attentionMode(const tr::PrjInfo& prjInfo) const;
         AttentionMode baseAttentionMode(const tr::PrjInfo& prjInfo) const;
+
+        struct Info {
+            size_t nCpsOrig = 0, nCpsTransl = 0;
+        };
+        Info info(const tr::PrjInfo& prjInfo) const;
     };
 
     enum class Modify : unsigned char { NO, YES };
@@ -283,6 +288,16 @@ namespace tr {
         tf::StealOrig orig;
     };
 
+    struct BigStats {
+        struct LittleBigStats {
+            size_t nStrings = 0;
+            size_t nCpsOrig = 0;
+            size_t nCpsTransl = 0;
+
+            void add(const Translatable::Info& info);
+        } all, transl, untransl, dubious;
+    };
+
     class UiObject : public CanaryObject
     {
     public:
@@ -359,6 +374,9 @@ namespace tr {
         ///   (reference, known reference if I have someday)
         virtual void removeReferenceChannel() = 0;
 
+        /// @warning Better use UiObject:: bigStats()
+        virtual void collectBigStats(BigStats& r, const PrjInfo& info) const = 0;
+
         void recache();
         void recursiveRecache();
         void recursiveUnmodify();
@@ -413,7 +431,8 @@ namespace tr {
         bool canMoveDown(const UiObject* aChild) const;
         bool moveUp(UiObject* aChild);
         bool moveDown(UiObject* aChild);
-        void swapChildren(size_t index1, size_t index2);        
+        void swapChildren(size_t index1, size_t index2);
+        BigStats bigStats() const;
 
         // Const verions
         const FileInfo* ownFileInfo() const
@@ -520,6 +539,7 @@ namespace tr {
         void collectSyncGroups(std::vector<std::shared_ptr<tr::Group>>& r);
         void removeReferenceChannel() override;
         void markChildrenAsAddedToday() override;
+        void collectBigStats(BigStats& r, const PrjInfo& info) const override;
     protected:
         friend class Project;
         void doSwapChildren(size_t index1, size_t index2) override;
@@ -569,6 +589,7 @@ namespace tr {
         void removeTranslChannel() override;
         void removeReferenceChannel() override;
         void markChildrenAsAddedToday() override { tr.wasChangedToday = true; }
+        void collectBigStats(BigStats& r, const PrjInfo& info) const override;
         ///  @return  CHANGED data
         UpdateInfo::ByState stealDataFrom(
                 Text& x, UiObject* myParent, const StealContext& ctx);
@@ -713,6 +734,7 @@ namespace tr {
         void removeTranslChannel() override;
         void removeReferenceChannel() override;
         void markChildrenAsAddedToday() override;
+        void collectBigStats(BigStats& r, const PrjInfo& info) const override;
         void updateParents();
 
         void save();
