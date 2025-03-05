@@ -113,6 +113,7 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->acSaveAs, &QAction::triggered, this, &This::doSaveAs);
     connect(ui->acUpdateData, &QAction::triggered, this, &This::doUpdateData);
     connect(ui->acProjectProps, &QAction::triggered, this, &This::doProjectProps);    
+    connect(ui->acStats, &QAction::triggered, this, &This::doProjectStats);
     connect(ui->acStartingScreen, &QAction::triggered, this, &This::goToggleStart);
     // Original
     connect(ui->acAddHostedFile, &QAction::triggered, this, &This::addHostedFile);
@@ -1912,7 +1913,50 @@ void FmMain::removeAttentionCurrObject()
 }
 
 
+namespace {
+
+    constexpr std::string_view TMPL_TRANSLATION =
+        "{1}: {2|one=? string|many=? strings}, "
+             "{3|one=? char|many=? chars} original, "
+             "{4|one=? char|many=? chars} translation";
+    constexpr std::string_view TMPL_UNTRANSLATED =
+        "{1}: {2|one=? string|many=? strings}, "
+             "{3|one=? char|many=? chars} original";
+    constexpr std::string_view TMPL_ORIGINAL =
+        "{1}: {2|one=? string|many=? strings}, "
+             "{3|one=? char|many=? chars}";
+
+    void appendLine(
+            QString& text,
+            tr::BigStats::LittleBigStats& part,
+            std::string_view name,
+            std::string_view tmpl)
+    {
+        if (!text.isEmpty())
+            text += '\n';
+        text += loc::FmtL(tmpl)
+                        (name)(part.nStrings)(part.nCpsOrig)(part.nCpsTransl).q();
+    }
+
+}   // anon namespace
+
+
 void FmMain::doProjectStats()
 {
-
+    if (!project)
+        return;
+    auto stats = project->bigStats();
+    QString text;
+    auto& info = project->info;
+    if (info.isTranslation()) {
+        appendLine(text, stats.all,      "All",          TMPL_TRANSLATION);
+        appendLine(text, stats.untransl, "Untranslated", TMPL_UNTRANSLATED);
+        appendLine(text, stats.dubious,  "Dubious",      TMPL_TRANSLATION);
+        appendLine(text, stats.transl,   "Translated",   TMPL_TRANSLATION);
+    } else {
+        appendLine(text, stats.all,      "All",          TMPL_ORIGINAL);
+        appendLine(text, stats.untransl, "Normal",       TMPL_ORIGINAL);
+        appendLine(text, stats.dubious,  "Dubious",      TMPL_ORIGINAL);
+    }
+    QMessageBox::information(this, "Statistics", text);
 }

@@ -1541,20 +1541,20 @@ void tr::Text::collectBigStats(BigStats& r, const PrjInfo& info) const
     auto q = tr.info(info);
     r.all.add(q);
     if (info.isTranslation()) {
-        // For original
-        if (tr.attentionMode(info) > AttentionMode::CALM) {
-            r.dubious.add(q);
-        } else {
-            r.untransl.add(q);
-        }
-    } else {
         // For all types of translations
-        if (tr.translation->empty()) {
+        if (!tr.translation) {
             r.untransl.add(q);
         } else if (tr.attentionMode(info) > AttentionMode::CALM) {
             r.dubious.add(q);
         } else {
             r.transl.add(q);
+        }
+    } else {
+        // For original
+        if (tr.attentionMode(info) > AttentionMode::CALM) {
+            r.dubious.add(q);
+        } else {
+            r.untransl.add(q);
         }
     }
 }
