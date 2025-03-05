@@ -31,6 +31,7 @@ INCLUDEPATH += \
     ../Libs/MagicEnum \
     ../Libs/PugiXml \
     ../Libs/SelfMade \
+    ../Libs/SelfMade/Mojibake \
     ../Libs/SelfMade/Strings \
     ../Libs/Unicode \
     ../UTranslator/TrProject
