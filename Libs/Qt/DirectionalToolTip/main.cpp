@@ -4,7 +4,7 @@
 
 int main(int argc, char *argv[])
 {
-    qputenv("QT_SCALE_FACTOR", "1.75");
+    //qputenv("QT_SCALE_FACTOR", "1.75");
 
     QApplication a(argc, argv);
     MainWindow w;

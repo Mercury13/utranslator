@@ -30,11 +30,18 @@ void BalloonTip::showBalloon(
         const QPoint& pos, int timeout,
         BalloonDir arrowDir)
 {
-    showBalloonAbsDir(icon, title, msg, pos, timeout, flipDir(arrowDir));
+    showBalloon_absDir(icon, title, msg, pos, timeout, flipDir(arrowDir));
 }
 
 
-void BalloonTip::showBalloonAbsDir(
+void BalloonTip::showBalloon(
+        QMessageBox::Icon icon, const QString& title, const QString& msg,
+        const QWidget* widget, int timeout, BalloonDir arrowDir)
+{
+    showBalloon_absDir(icon, title, msg, widget, timeout, flipDir(arrowDir));
+}
+
+void BalloonTip::showBalloon_absDir(
         QMessageBox::Icon icon, const QString& title,
         const QString& message,
         const QPoint& pos, int timeout,
@@ -49,6 +56,73 @@ void BalloonTip::showBalloonAbsDir(
         timeout = 10000; //10 s default
     theSolitaryBalloonTip->balloonAbsDir(pos, timeout, arrowDir);
 }
+
+namespace {
+
+    int threeOne(int x, int y) {
+        return (x * 3 + y) / 4;
+    }
+
+    int mid(int x, int y) {
+        return (x + y) >> 1;
+    }
+
+}   // anon namespace
+
+void BalloonTip::showBalloon_absDir(
+        QMessageBox::Icon icon, const QString& title,
+        const QString& msg,
+        const QWidget* widget, int timeout,
+        BalloonDir arrowDir)
+{
+    QPoint pos { 0, 0 };
+    QRect r = widget->rect();
+    auto lt = r.left();
+    auto rt = r.right() + 1;
+    auto tp = r.top();
+    auto bt = r.bottom() + 1;
+    switch(arrowDir) {
+    case BalloonDir::BLN_12_OC:
+        pos = QPoint { mid(lt, rt), tp };
+        break;
+    case BalloonDir::BLN_1_OC:
+        pos = QPoint { threeOne(rt, lt), tp };
+        break;
+    case BalloonDir::BLN_2_OC:
+        pos = QPoint { rt, threeOne(tp, bt) };
+        break;
+    case BalloonDir::BLN_3_OC:
+        pos = QPoint { rt, mid(tp, bt) };
+        break;
+    case BalloonDir::BLN_4_OC:
+        pos = QPoint { rt, threeOne(bt, tp) };
+        break;
+    case BalloonDir::BLN_5_OC:
+        pos = QPoint { threeOne(rt, lt), bt };
+        break;
+    case BalloonDir::BLN_6_OC:
+        pos = QPoint { mid(lt, rt), bt };
+        break;
+    case BalloonDir::BLN_7_OC:
+        pos = QPoint { threeOne(lt, rt), bt };
+        break;
+    case BalloonDir::BLN_8_OC:
+        pos = QPoint { lt, threeOne(bt, tp) };
+        break;
+    case BalloonDir::BLN_9_OC:
+        pos = QPoint { lt, mid(tp, bt) };
+        break;
+    case BalloonDir::BLN_10_OC:
+        pos = QPoint { lt, threeOne(tp, bt) };
+        break;
+    case BalloonDir::BLN_11_OC:
+        pos = QPoint { threeOne(lt, rt), tp };
+        break;
+    }
+    pos = widget->mapToGlobal(pos);
+    showBalloon_absDir(icon, title, msg, pos, timeout, arrowDir);
+}
+
 
 void BalloonTip::hideBalloon()
 {
@@ -74,8 +148,10 @@ bool BalloonTip::isBalloonVisible()
 
 BalloonTip::BalloonTip(QMessageBox::Icon icon, const QString& title,
                          const QString& message)
-    : QWidget(nullptr, Qt::Popup), timerId(-1), eventTimerId(-1), enablePressEvent(false)
+    : QWidget(nullptr, Qt::Popup | Qt::FramelessWindowHint),
+      timerId(-1), eventTimerId(-1), enablePressEvent(false)
 {
+    setAttribute(Qt::WA_TranslucentBackground);
     setAttribute(Qt::WA_DeleteOnClose);
     //QObject::connect(ti, SIGNAL(destroyed()), this, SLOT(close()));
 
@@ -149,7 +225,6 @@ BalloonTip::BalloonTip(QMessageBox::Icon icon, const QString& title,
     default:
         break;
     }
-    anyWidget = msgLabel;
 
     QGridLayout *layout = new QGridLayout;
     if (!si.isNull()) {
@@ -180,11 +255,23 @@ BalloonTip::~BalloonTip()
     theSolitaryBalloonTip = 0;
 }
 
+namespace {
+    constexpr int border = 1;
+    constexpr int ah = 18, ao = 18, aw = 18, rc = 7;
+}
+
 void BalloonTip::paintEvent(QPaintEvent*)
 {
     QPainter painter(this);
 
-    painter.drawPixmap(rect(), pixmap);
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    QColor penColor = palette().color(QPalette::Window).darker(160);
+    painter.fillRect(rect(), penColor);
+    QPen pen = QPen(penColor, border);
+    painter.setPen(pen);
+    painter.setBrush(palette().color(QPalette::Window));
+
+    painter.drawPath(myPath);
 }
 
 void BalloonTip::resizeEvent(QResizeEvent *ev)
@@ -192,15 +279,15 @@ void BalloonTip::resizeEvent(QResizeEvent *ev)
     QWidget::resizeEvent(ev);
 }
 
-void BalloonTip::balloonAbsDir(const QPoint& pos, int msecs,
-                         BalloonDir arrowDir)
+void BalloonTip::balloonAbsDir(
+        const QPoint& pos, int msecs,
+        BalloonDir arrowDir)
 {
+    auto myScreen = screen();
     enablePressEvent = false;
     this->arrowDir = arrowDir;
     //QRect scr = QApplication::desktop()->screenGeometry(pos);
     QSize sh;
-    const int border = 1;
-    constexpr int ah = 18, ao = 18, aw = 18, rc = 7;
 
     enum class CoarseDir : unsigned char { ARR_TOP, ARR_RIGHT, ARR_LEFT, ARR_BOTTOM };
     CoarseDir coarseDir = CoarseDir::ARR_TOP;
@@ -351,32 +438,39 @@ void BalloonTip::balloonAbsDir(const QPoint& pos, int msecs,
     path.arcTo(ml, mt, rc*2, rc*2, 180, -90);
     path.closeSubpath();
 
-    // Set the mask
-    QBitmap bitmap = QBitmap(sh);
-    bitmap.fill(Qt::color0);
-    QPainter painter1(&bitmap);
-    painter1.setPen(QPen(Qt::color1, border));
-    painter1.setBrush(QBrush(Qt::color1));
+    auto dpr = myScreen->devicePixelRatio();
+    QSize sh1 (std::lround(sh.width() * dpr),
+               std::lround(sh.height() * dpr) );
+
+    // Set imprecise mask, enough for shadow
+    QPixmap pixMask(sh1);
+    pixMask.fill(Qt::black);
+    QPainter painter1(&pixMask);
+    painter1.setRenderHint(QPainter::Antialiasing, true);
+    painter1.setPen(QPen(Qt::white, border));
+    painter1.setBrush(QBrush(Qt::white));
     painter1.drawPath(path);
-    setMask(bitmap);
 
-    // Draw the border
-    QColor penColor = palette().color(QPalette::Window).darker(160);
-    QPen pen = QPen(penColor, border);
-    pixmap = QPixmap(sh);
-    pixmap.fill(penColor);
-    QPainter painter2(&pixmap);
-    painter2.setRenderHint(QPainter::Antialiasing, true);
-    painter2.setPen(pen);
-    painter2.setBrush(palette().color(QPalette::Window));
-    painter2.drawPath(path);
+    QImage imMask = pixMask.toImage();
 
-//    setMask(pixmap.mask());
+    for (int y = 0; y < sh1.height(); ++y) {
+        for (int x = 0; x < sh1.width(); ++x) {
+            QColor cl = imMask.pixelColor(x, y);
+            if (cl.greenF() < 0.6) {
+                imMask.setPixelColor(x, y, Qt::color0);
+            } else {
+                imMask.setPixelColor(x, y, Qt::color1);
+            }
+        }
+    }
+    QBitmap bmMask = QBitmap::fromImage(imMask);
+    setMask(bmMask);
+
+    myPath = std::move(path);
 
     if (msecs > 0)
         timerId = startTimer(msecs);
 
-    //eventTimerId = startTimer(500);
     show();
 }
 

@@ -5,6 +5,7 @@
 #include <QMessageBox>
 #include <QPixmap>
 #include <QTimerEvent>
+#include <QPainterPath>
 
 enum class BalloonDir : unsigned char {
     // Just clock face: balloon faces 12 o’clock
@@ -21,21 +22,30 @@ class BalloonTip : public QWidget
 {
     Q_OBJECT
 public:
-    // Turns relative direction to absolute, and vice-versa
+    /// Turns relative direction to absolute, and vice-versa
     static BalloonDir flipDir(BalloonDir x);
     static void showBalloon(QMessageBox::Icon icon, const QString& title,
                             const QString& msg,
                             const QPoint& pos, int timeout,
                             BalloonDir arrowDir = BalloonDir::BLN_12_OC);
+    static void showBalloon(QMessageBox::Icon icon, const QString& title,
+                            const QString& msg,
+                            const QWidget* widget, int timeout,
+                            BalloonDir arrowDir = BalloonDir::BLN_12_OC);
     static void hideBalloon();
     static bool isBalloonVisible();
     static void updateBalloonPosition(const QPoint& pos);
 
-private:
-    static void showBalloonAbsDir(QMessageBox::Icon icon, const QString& title,
+    /// Shows balloon with absolute direction
+    static void showBalloon_absDir(QMessageBox::Icon icon, const QString& title,
                             const QString& msg,
                             const QPoint& pos, int timeout,
                             BalloonDir arrowDir = BalloonDir::BLN_12_OC);
+    static void showBalloon_absDir(QMessageBox::Icon icon, const QString& title,
+                            const QString& msg,
+                            const QWidget* widget, int timeout,
+                            BalloonDir arrowDir = BalloonDir::BLN_12_OC);
+private:
     BalloonTip(QMessageBox::Icon icon, const QString& title,
                 const QString& msg);
     ~BalloonTip();
@@ -48,12 +58,11 @@ protected:
     void timerEvent(QTimerEvent *e) Q_DECL_OVERRIDE;
 
 private:
-    QPixmap pixmap;
-    QWidget* anyWidget;
     int timerId;
     int eventTimerId;
     bool enablePressEvent;
     BalloonDir arrowDir;
+    QPainterPath myPath;
 };
 
 #endif // BALLOONTIP_H

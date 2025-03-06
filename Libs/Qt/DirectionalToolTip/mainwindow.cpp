@@ -17,7 +17,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_clicked()
 {
-    BalloonTip::showBalloon(QMessageBox::Warning, "Test", "Hello World", QCursor::pos(), 10000,
+    BalloonTip::showBalloon(QMessageBox::Warning, "Test", "Hello World", ui->spinBox, 10000,
                             static_cast<BalloonDir>(ui->spinBox->value()));
 }
 
