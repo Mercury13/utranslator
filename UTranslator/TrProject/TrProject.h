@@ -702,6 +702,7 @@ namespace tr {
         PrjInfo info;
         std::filesystem::path fname;
         SafeVector<std::shared_ptr<File>> files;
+        SafeVector<Translatable> trash;
 
         /// @brief addTestOriginal
         ///   Adds a few files and strings that will serve as test original
