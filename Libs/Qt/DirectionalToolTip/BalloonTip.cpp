@@ -11,8 +11,6 @@
 #include <QPainterPath>
 #include <QMessageBox>
 
-//#include <QWidgetTextControl>
-
 
 static BalloonTip *theSolitaryBalloonTip = nullptr;
 
