@@ -22,8 +22,9 @@ void writeUsage()
     std::cout << ENDL
                  "UTransCon: console version of UTranslator" ENDL
                  ENDL
-                 "USAGE: UTransCon filename.uorig(.ufull) -options" ENDL
+                 "USAGE: UTransCon filename.uorig(.utran) -options" ENDL
                  "  Options:" ENDL
+                 "  -update              update (doeds not make files for itself!)" ENDL
                  "  -build:directory     build L10n resource" ENDL
                  ENDL;
 }
@@ -47,6 +48,16 @@ int myMain(const Args<char8_t>& args)
         std::cout << "Loaded project <" << fname.string() << ">." ENDL;
 
         bool didSmth = false;
+
+        if (args.hasParam(u8"-update", I_START)) {
+            auto res = prj->updateData(tr::TrashMode::LEAVE);
+            if (res.isOriginal) {
+                std::cout << "WARN: the project is original, no update needed." ENDL;
+            } else {
+                didSmth = true;
+                std::cout << "Updated data." ENDL;
+            }
+        }
 
         if (auto dir = args.paramOptDef(u8"-build", u8".", I_START)) {
             std::filesystem::path exportDir = *dir;

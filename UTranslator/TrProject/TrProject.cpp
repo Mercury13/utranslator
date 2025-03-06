@@ -2103,13 +2103,13 @@ void tr::Project::updateReference()
 }
 
 
-tr::UpdateInfo tr::Project::updateData()
+tr::UpdateInfo tr::Project::updateData(TrashMode mode)
 {
     switch (info.type) {
     case tr::PrjType::ORIGINAL:
-        return {};
+        return { .isOriginal = true };
     case tr::PrjType::FULL_TRANSL:
-        return updateData_FullTransl();
+        return updateData_FullTransl(mode);
     }
     throw std::logic_error("[updateData] Strange project type");
 }
@@ -2165,7 +2165,7 @@ void tr::Project::stealReferenceFrom(tr::Project& x)
 }
 
 
-tr::UpdateInfo tr::Project::updateData_FullTransl()
+tr::UpdateInfo tr::Project::updateData_FullTransl(TrashMode mode)
 {
     auto tempPrj = tr::Project::make();
     tempPrj->load(this->info.orig.absPath);

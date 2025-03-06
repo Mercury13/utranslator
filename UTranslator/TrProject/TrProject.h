@@ -165,6 +165,15 @@ namespace tr {
         Info info(const tr::PrjInfo& prjInfo) const;
     };
 
+    struct Trash {
+        struct Line {
+            std::vector<std::u8string> idChain;
+            Translatable tr;
+        };
+
+        SafeVector<Line> data;
+    };
+
     enum class Modify : unsigned char { NO, YES };
 
     /// Simple cache to speed up writing
@@ -259,7 +268,7 @@ namespace tr {
         bool operator == (const Stats& x) const = default;
     };
 
-    struct UpdateInfo {
+    struct UpdateInfo {        
         size_t nAdded = 0;
         struct ByState {
             size_t nTranslated = 0;
@@ -268,7 +277,8 @@ namespace tr {
             size_t nTotal() const noexcept { return nTranslated + nUntranslated; }
             ByState& operator += (const ByState& x);
             bool operator == (const ByState& x) const noexcept = default;
-        } deleted, changed;
+        } deleted {}, changed {};
+        bool isOriginal = false;
 
         UpdateInfo& operator += (const UpdateInfo& x);
         bool operator == (const UpdateInfo& x) const = default;
@@ -693,6 +703,8 @@ namespace tr {
         virtual void updateParent(const std::shared_ptr<VirtualGroup>&) override {}
     };
 
+    enum class TrashMode : unsigned char { LEAVE, FILL };
+
     class Project final :
             public UiObject,
             public SimpleModifiable,
@@ -702,7 +714,6 @@ namespace tr {
         PrjInfo info;
         std::filesystem::path fname;
         SafeVector<std::shared_ptr<File>> files;
-        SafeVector<Translatable> trash;
 
         /// @brief addTestOriginal
         ///   Adds a few files and strings that will serve as test original
@@ -760,7 +771,7 @@ namespace tr {
 
         std::u8string shownFname(std::u8string_view fallback);
 
-        UpdateInfo updateData();
+        UpdateInfo updateData(TrashMode mode);
         void updateReference();
         tr::UpdateInfo stealDataFrom(tr::Project& x, const StealContext& ctx);
         void stealReferenceFrom(tr::Project& x);
@@ -785,7 +796,7 @@ namespace tr {
         Project() = default;
         Project(const Project&) = default;
         Project(PrjInfo&& aInfo) noexcept : info(std::move(aInfo)) {}
-        UpdateInfo updateData_FullTransl();
+        UpdateInfo updateData_FullTransl(TrashMode mode);
     };
 
     ///  To prevent TrFinder from including everywhere
