@@ -7,6 +7,7 @@
 // Qt ex
 #include "QtConsts.h"
 #include "u_Qstrings.h"
+#include "BalloonTip.h"
 
 
 const FindOptions::Channels FindOptions::Channels::NONE;
@@ -58,6 +59,14 @@ std::u8string FindOptions::caption() const
     return r;
 }
 
+FindIssue FindOptions::firstIssue() const
+{
+    if (text.isEmpty())
+        return FindIssue::TEXT;
+    if (channels == Channels::NONE)
+        return FindIssue::CHANNELS;
+    return FindIssue::OK;
+}
 
 
 ///// FmFind ///////////////////////////////////////////////////////////////////
@@ -74,13 +83,23 @@ FmFind::FmFind(QWidget *parent) :
 
 void FmFind::acceptIf()
 {
+    static constexpr int TIMEOUT = 15'000;
     copyTo(opts);
-    if (opts.areSet()) {
+    switch (opts.firstIssue()) {
+    case FindIssue::OK:
         accept();
-    } else {
-        QMessageBox::warning(this,
-                "Find",
-                "Please enter non-empty text, and check at least one channel");
+        break;
+    case FindIssue::TEXT:
+        ui->edFind->setFocus();
+        BalloonTip::showBalloon(QMessageBox::Critical,
+                "Find", "Please enter some text.",
+                ui->edFind, TIMEOUT, BalloonDir::BLN_5_OC);
+        break;
+    case FindIssue::CHANNELS:
+        BalloonTip::showBalloon(QMessageBox::Critical,
+                "Find", "Please check at least one channel.",
+                ui->grpChannels, TIMEOUT, BalloonDir::BLN_3_OC);
+        break;
     }
 }
 

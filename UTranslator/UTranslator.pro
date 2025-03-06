@@ -12,6 +12,7 @@ SOURCES += \
     ../Libs/Qt/DblClickLabel.cpp \
     ../Libs/Qt/DblClickRadio.cpp \
     ../Libs/Qt/DblClickSvgWidget.cpp \
+    ../Libs/Qt/DirectionalToolTip/BalloonTip.cpp \
     ../Libs/Qt/ElidedLabel.cpp \
     ../Libs/SelfMade/L10n/LocFmt.cpp \
     ../Libs/SelfMade/Qt/QtMultiRadio.cpp \
@@ -59,6 +60,7 @@ HEADERS += \
     ../Libs/Qt/DblClickLabel.h \
     ../Libs/Qt/DblClickRadio.h \
     ../Libs/Qt/DblClickSvgWidget.h \
+    ../Libs/Qt/DirectionalToolTip/BalloonTip.h \
     ../Libs/Qt/ElidedLabel.h \
     ../Libs/SelfMade/Cpp03.h \
     ../Libs/SelfMade/L10n/LocFmt.h \
@@ -110,6 +112,7 @@ INCLUDEPATH += \
     ../Libs/MagicEnum \
     ../Libs/PugiXml \
     ../Libs/Qt \
+    ../Libs/Qt/DirectionalToolTip \
     ../Libs/QModels \
     ../Libs/SelfMade \
     ../Libs/SelfMade/L10n \

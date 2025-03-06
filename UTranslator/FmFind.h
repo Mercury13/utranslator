@@ -8,6 +8,10 @@ namespace Ui {
 class FmFind;
 }
 
+enum class FindIssue : unsigned char {
+    OK, TEXT, CHANNELS
+};
+
 struct FindOptions : public tr::FindCriterion
 {
 public:
@@ -24,7 +28,8 @@ public:
     } options;
 
     explicit operator bool () const { return !text.isEmpty(); }
-    bool areSet() const { return !text.isEmpty() && channels != Channels::NONE; }
+    FindIssue firstIssue() const;
+    bool areSet() const { return (firstIssue() != FindIssue::OK); }
 
     Qt::CaseSensitivity qCaseSen() const
     {

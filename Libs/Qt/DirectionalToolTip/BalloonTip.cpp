@@ -149,7 +149,7 @@ BalloonTip::BalloonTip(QMessageBox::Icon icon, const QString& title,
     : QWidget(nullptr, Qt::Popup | Qt::FramelessWindowHint),
       timerId(-1), eventTimerId(-1), enablePressEvent(false)
 {
-    setAttribute(Qt::WA_TranslucentBackground);
+    //setAttribute(Qt::WA_TranslucentBackground);
     setAttribute(Qt::WA_DeleteOnClose);
     //QObject::connect(ti, SIGNAL(destroyed()), this, SLOT(close()));
 
