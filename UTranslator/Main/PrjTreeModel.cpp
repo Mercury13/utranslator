@@ -315,7 +315,7 @@ QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
             case PrjColClass::ID:
                 return str::toQ(obj->idColumn());
             case PrjColClass::ORIGINAL:
-                /// @todo [urgent] get rid of origColumn
+                /// @todo [urgent, #9] get rid of origColumn
                 return brushLineEnds(obj->origColumn());
             case PrjColClass::REFERENCE:
                 return brushLineEnds(fly.getRef(*obj));
