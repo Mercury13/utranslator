@@ -19,7 +19,7 @@ struct Thing {
     explicit operator bool() const { return static_cast<bool>(subj); }
 };
 
-enum class RememberCurrent { NO, YES };
+enum class RememberCurrent : unsigned char { NO, YES };
 
 DEFINE_ENUM_TYPE(PrjColClass, unsigned char,
     DUMMY, ID, ORIGINAL, REFERENCE, TRANSLATION)
