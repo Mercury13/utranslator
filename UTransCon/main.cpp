@@ -58,7 +58,7 @@ int myMain(const Args<char8_t>& args)
                 std::cout << "WARN: the project is original, no update needed." ENDL;
             } else {
                 if (rqUpdate && res.hasSmth())
-                    throw std::logic_error("The project is not up to date." ENDL
+                    throw std::logic_error("The translation is not up to date." ENDL
                             "It's usually turned on for known languages." ENDL
                             "Open in UTranslator, File - Update data, save file.");
                 didSmth = true;
