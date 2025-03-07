@@ -57,7 +57,7 @@ int myMain(const Args<char8_t>& args)
             if (res.isOriginal) {
                 std::cout << "WARN: the project is original, no update needed." ENDL;
             } else {
-                /// @todo [patch] Every activity beyond patched strings is OK, check
+                /// @todo [patch, #23] Every activity beyond patched strings is OK, check
                 if (rqUpdate && res.hasSmth())
                     throw std::logic_error("The translation is not up to date." ENDL
                             "It's usually turned on for known languages." ENDL
