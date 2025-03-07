@@ -1974,12 +1974,10 @@ void FmMain::runTrash()
     TrashChannel channel = TrashChannel::NOMATTER;
     if (ui->memoOriginal->hasFocus()) {
         obj = std::make_unique<MemoObject>(ui->memoOriginal);
+        channel = TrashChannel::ORIGINAL;
     } else if (ui->memoTranslation->hasFocus()) {
         obj = std::make_unique<MemoObject>(ui->memoTranslation);
+        channel = TrashChannel::TRANSLATION;
     }
-    /// @todo [future] No comment in memoComment for now
-    // else if (ui->memoComment->hasFocus()) {
-    //     obj = std::make_unique<MemoObject>(ui->memoComment);
-    // }
-    fmTrash.ensure(this).exec(channel);
+    fmTrash.ensure(this).exec(project->trash, obj.get(), channel);
 }

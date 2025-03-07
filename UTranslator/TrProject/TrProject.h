@@ -165,6 +165,8 @@ namespace tr {
         Info info(const tr::PrjInfo& prjInfo) const;
     };
 
+    struct Passport {};
+
     struct Trash {
         struct Line {
             std::vector<std::u8string> idChain;
@@ -172,6 +174,11 @@ namespace tr {
         };
 
         SafeVector<Line> data;
+        std::unique_ptr<Passport> passport = std::make_unique<Passport>();
+
+        bool isEmpty() const noexcept { return data.empty(); }
+        bool hasSmth() const noexcept { return !isEmpty(); }
+        size_t size() const noexcept { return data.size(); }
     };
 
     enum class Modify : unsigned char { NO, YES };
@@ -714,6 +721,7 @@ namespace tr {
         PrjInfo info;
         std::filesystem::path fname;
         SafeVector<std::shared_ptr<File>> files;
+        Trash trash;
 
         /// @brief addTestOriginal
         ///   Adds a few files and strings that will serve as test original
@@ -721,7 +729,7 @@ namespace tr {
         void addTestOriginal();
 
         /// Ctors are private, op= is the same
-        Project& operator = (const Project&) = default;
+        Project& operator = (const Project&) = delete;
         Project& operator = (Project&&) noexcept = default;
 
         void clearChildren() override { files.clear(); cache.stats.reset(); }
@@ -794,7 +802,8 @@ namespace tr {
     private:
         /// Ctors are private, use make!
         Project() = default;
-        Project(const Project&) = default;
+        Project(const Project&) = delete;
+        Project(Project&&) = default;
         Project(PrjInfo&& aInfo) noexcept : info(std::move(aInfo)) {}
         UpdateInfo updateData_FullTransl(TrashMode mode);
     };
