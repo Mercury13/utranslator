@@ -13,6 +13,7 @@
 // Libs
 #include "u_Vector.h"
 #include "u_Strings.h"
+#include "function_ref.hpp"
 
 namespace pugi {
     class xml_document;
@@ -315,6 +316,10 @@ namespace tr {
         } all, transl, untransl, dubious;
     };
 
+    class Text;
+    using EvText = tl::function_ref<void(Text&)>;
+    using EvCText = tl::function_ref<void(const Text&)>;
+
     class UiObject : public CanaryObject
     {
     public:
@@ -343,6 +348,8 @@ namespace tr {
         /// @warning  Because of recache, complexity is O(n)
         virtual std::shared_ptr<Entity> extractChild(size_t, Modify) { return {}; }
         virtual std::shared_ptr<File> file() = 0;        
+        virtual void traverseTexts(const EvText&) = 0;
+        virtual void traverseCTexts(const EvCText&) const = 0;
 
         /// @return  ptr to comments, or null
         virtual Comments* comments() { return nullptr; }
@@ -386,13 +393,6 @@ namespace tr {
         /// Removes everything related to translation, leaving only original
         ///   (translation, known translation, translator’s comments)
         virtual void removeTranslChannel() = 0;
-
-        /// Removes everything related to reference translation, leaving only original
-        ///   (reference, known reference if I have someday)
-        virtual void removeReferenceChannel() = 0;
-
-        /// @warning Better use UiObject:: bigStats()
-        virtual void collectBigStats(BigStats& r, const PrjInfo& info) const = 0;
 
         void recache();
         void recursiveRecache();
@@ -450,6 +450,10 @@ namespace tr {
         bool moveDown(UiObject* aChild);
         void swapChildren(size_t index1, size_t index2);
         BigStats bigStats() const;
+
+        /// Removes everything related to reference translation, leaving only original
+        ///   (reference, known reference if I have someday)
+        void removeReferenceChannel();
 
         // Const verions
         const FileInfo* ownFileInfo() const
@@ -554,9 +558,9 @@ namespace tr {
         void clearChildren() override { children.clear(); cascadeDropStats(); }
         std::shared_ptr<UiObject> selfUi() override { return fSelf.lock(); }
         void collectSyncGroups(std::vector<std::shared_ptr<tr::Group>>& r);
-        void removeReferenceChannel() override;
         void markChildrenAsAddedToday() override;
-        void collectBigStats(BigStats& r, const PrjInfo& info) const override;
+        void traverseTexts(const EvText&) override;
+        void traverseCTexts(const EvCText&) const override;
     protected:
         friend class Project;
         void doSwapChildren(size_t index1, size_t index2) override;
@@ -604,9 +608,9 @@ namespace tr {
         const Stats& stats(StatsMode mode, CascadeDropCache cascade) override;
         std::shared_ptr<UiObject> selfUi() override { return fSelf.lock(); }
         void removeTranslChannel() override;
-        void removeReferenceChannel() override;
         void markChildrenAsAddedToday() override { tr.wasChangedToday = true; }
-        void collectBigStats(BigStats& r, const PrjInfo& info) const override;
+        void traverseTexts(const EvText&) override;
+        void traverseCTexts(const EvCText&) const override;
         ///  @return  CHANGED data
         UpdateInfo::ByState stealDataFrom(
                 Text& x, UiObject* myParent, const StealContext& ctx);
@@ -752,9 +756,9 @@ namespace tr {
         void traverse(TraverseListener& x, tr::WalkOrder order, EnterMe enterMe) override;
         std::shared_ptr<VirtualGroup> nearestGroup() override { return {}; }
         void removeTranslChannel() override;
-        void removeReferenceChannel() override;
         void markChildrenAsAddedToday() override;
-        void collectBigStats(BigStats& r, const PrjInfo& info) const override;
+        void traverseTexts(const EvText&) override;
+        void traverseCTexts(const EvCText&) const override;
         void updateParents();
 
         void save();

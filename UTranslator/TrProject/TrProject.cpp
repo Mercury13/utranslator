@@ -533,10 +533,40 @@ void tr::UiObject::uiStealDataFrom(UiObject& x, UiObject* myParent)
 tr::BigStats tr::UiObject::bigStats() const
 {
     BigStats r;
-    if (auto q = project()) {
-        collectBigStats(r, q->info);
+    if (auto prj = project()) {
+        auto& prjInfo = prj->info;
+        traverseCTexts([&r, &prjInfo](const tr::Text& tx) {
+            auto textInfo = tx.tr.info(prjInfo);
+            r.all.add(textInfo);
+            if (prjInfo.isTranslation()) {
+                // For all types of translations
+                if (!tx.tr.translation) {
+                    r.untransl.add(textInfo);
+                } else if (tx.tr.attentionMode(prjInfo) > AttentionMode::CALM) {
+                    r.dubious.add(textInfo);
+                } else {
+                    r.transl.add(textInfo);
+                }
+            } else {
+                // For original
+                if (tx.tr.attentionMode(prjInfo) > AttentionMode::CALM) {
+                    r.dubious.add(textInfo);
+                } else {
+                    r.untransl.add(textInfo);
+                }
+            }
+        });
     }
     return r;
+}
+
+
+
+void tr::UiObject::removeReferenceChannel()
+{
+    traverseTexts([](tr::Text& tx) {
+        tx.tr.reference.reset();
+    });
 }
 
 
@@ -1005,14 +1035,6 @@ void tr::VirtualGroup::vgRemoveTranslChannel()
 }
 
 
-void tr::VirtualGroup::removeReferenceChannel()
-{
-    for (auto& v : children) {
-        v->removeReferenceChannel();
-    }
-}
-
-
 tr::UpdateInfo tr::VirtualGroup::vgStealDataFrom(
         VirtualGroup& x, UiObject* myParent, const StealContext& ctx)
 {
@@ -1119,10 +1141,18 @@ void tr::VirtualGroup::markChildrenAsAddedToday()
 }
 
 
-void tr::VirtualGroup::collectBigStats(BigStats& r, const PrjInfo& info) const
+void tr::VirtualGroup::traverseTexts(const EvText& ev)
 {
     for (auto& v : children) {
-        v->collectBigStats(r, info);
+        v->traverseTexts(ev);
+    }
+}
+
+
+void tr::VirtualGroup::traverseCTexts(const EvCText& ev) const
+{
+    for (auto& v : children) {
+        v->traverseCTexts(ev);
     }
 }
 
@@ -1452,12 +1482,6 @@ void tr::Text::removeTranslChannel()
 }
 
 
-void tr::Text::removeReferenceChannel()
-{
-    tr.reference.reset();
-}
-
-
 tr::UpdateInfo::ByState tr::Text::stealDataFrom(
         tr::Text& x, UiObject* myParent, const StealContext& ctx)
 {
@@ -1536,28 +1560,12 @@ void tr::Text::updateParent(const std::shared_ptr<VirtualGroup>& x)
 }
 
 
-void tr::Text::collectBigStats(BigStats& r, const PrjInfo& info) const
-{
-    auto q = tr.info(info);
-    r.all.add(q);
-    if (info.isTranslation()) {
-        // For all types of translations
-        if (!tr.translation) {
-            r.untransl.add(q);
-        } else if (tr.attentionMode(info) > AttentionMode::CALM) {
-            r.dubious.add(q);
-        } else {
-            r.transl.add(q);
-        }
-    } else {
-        // For original
-        if (tr.attentionMode(info) > AttentionMode::CALM) {
-            r.dubious.add(q);
-        } else {
-            r.untransl.add(q);
-        }
-    }
-}
+void tr::Text::traverseTexts(const EvText& ev)
+    { ev(*this); }
+
+
+void tr::Text::traverseCTexts(const EvCText& ev) const
+    { ev(*this); }
 
 
 ///// File /////////////////////////////////////////////////////////////////////
@@ -2122,13 +2130,6 @@ void tr::Project::removeTranslChannel()
 }
 
 
-void tr::Project::removeReferenceChannel()
-{
-    for (auto& v : files)
-        v->removeReferenceChannel();
-}
-
-
 tr::UpdateInfo tr::Project::stealDataFrom(tr::Project& x, const StealContext& ctx)
 {
     tr::UpdateInfo r;
@@ -2212,9 +2213,17 @@ void tr::Project::markChildrenAsAddedToday()
 }
 
 
-void tr::Project::collectBigStats(BigStats& r, const PrjInfo& info) const
+void tr::Project::traverseTexts(const EvText& ev)
 {
     for (auto& v : files) {
-        v->collectBigStats(r, info);
+        v->traverseTexts(ev);
+    }
+}
+
+
+void tr::Project::traverseCTexts(const EvCText& ev) const
+{
+    for (auto& v : files) {
+        v->traverseCTexts(ev);
     }
 }
