@@ -29,6 +29,7 @@ SOURCES += \
     FmFind.cpp \
     FmMessage.cpp \
     FmProjectSettings.cpp \
+    FmTrash.cpp \
     History.cpp \
     Main/DiffBrowser.cpp \
     Main/FmMain.cpp \
@@ -84,6 +85,7 @@ HEADERS += \
     FmFind.h \
     FmMessage.h \
     FmProjectSettings.h \
+    FmTrash.h \
     History.h \
     Main/DiffBrowser.h \
     Main/FmMain.h \
@@ -123,6 +125,7 @@ INCLUDEPATH += \
     TrProject
 
 FORMS += \
+    FmTrash.ui \
     Main/FmMain.ui \
     Main/WiFind.ui \
     Tools/FmDecoder.ui \

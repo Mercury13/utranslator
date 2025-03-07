@@ -1663,7 +1663,7 @@ void FmMain::updateOriginal()
         auto whatExec = [this]{ reflectUpdateInfo(); };
         ExecAfter ex(EnableExec::NO, whatExec);
         { auto lk = lockAll(RememberCurrent::YES);
-            updateInfo = project->updateData();
+            updateInfo = project->updateData(tr::TrashMode::FILL);
             ex.enable();
             place = UpdatePlace::REFERENCE;
             project->updateReference();

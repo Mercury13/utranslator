@@ -978,6 +978,8 @@ QLabel {
     <addaction name="acAcceptChanges"/>
     <addaction name="acRevertChanges"/>
     <addaction name="acMarkAttention"/>
+    <addaction name="separator"/>
+    <addaction name="acDecoder"/>
    </widget>
    <widget class="QMenu" name="menu_Tools">
     <property name="title">
@@ -997,7 +999,6 @@ QLabel {
      </property>
      <addaction name="acTranslateWithOriginal"/>
     </widget>
-    <addaction name="acDecoder"/>
     <addaction name="menuTranslate_with"/>
     <addaction name="menuConvertProjectType"/>
    </widget>
