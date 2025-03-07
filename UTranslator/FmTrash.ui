@@ -6,13 +6,81 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>534</width>
-    <height>334</height>
+    <width>555</width>
+    <height>489</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0">
+   <item>
+    <widget class="QTreeView" name="treeAll"/>
+   </item>
+   <item>
+    <widget class="QWidget" name="wiIds" native="true">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="lbIdChain">
+        <property name="text">
+         <string>ID chain</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="edIdChain">
+        <property name="styleSheet">
+         <string notr="true">QLineEdit {background-color: palette(button); }</string>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="grpOrig">
+     <property name="title">
+      <string>Original</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="grpRef">
+     <property name="title">
+      <string>Reference</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="grpTransl">
+     <property name="title">
+      <string>Translation</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Close|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
  </widget>
  <resources/>
  <connections/>

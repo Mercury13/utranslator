@@ -1,8 +1,10 @@
 #include "FmTrash.h"
 #include "ui_FmTrash.h"
 
+#include "QtConsts.h"
+
 FmTrash::FmTrash(QWidget *parent) :
-    QDialog(parent),
+    QDialog(parent, QDlgType::SIZEABLE),
     ui(new Ui::FmTrash)
 {
     ui->setupUi(this);

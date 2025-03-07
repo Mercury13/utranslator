@@ -25,6 +25,7 @@ void writeUsage()
                  "USAGE: UTransCon filename.uorig(.utran) -options" ENDL
                  "  Options:" ENDL
                  "  -update              update (doeds not make files for itself!)" ENDL
+                 "  -rqupdate            same but throw an error when something was done" ENDL
                  "  -build:directory     build L10n resource" ENDL
                  ENDL;
 }
@@ -49,11 +50,17 @@ int myMain(const Args<char8_t>& args)
 
         bool didSmth = false;
 
-        if (args.hasParam(u8"-update", I_START)) {
+        bool rqUpdate = args.hasParam(u8"-rqupdate", I_START);
+        bool wantUpdate = rqUpdate || args.hasParam(u8"-update", I_START);
+        if (wantUpdate) {
             auto res = prj->updateData(tr::TrashMode::LEAVE);
             if (res.isOriginal) {
                 std::cout << "WARN: the project is original, no update needed." ENDL;
             } else {
+                if (rqUpdate && res.hasSmth())
+                    throw std::logic_error("The project is not up to date." ENDL
+                            "It's usually turned on for known languages." ENDL
+                            "Open in UTranslator, File - Update data, save file.");
                 didSmth = true;
                 std::cout << "Updated data." ENDL;
             }
