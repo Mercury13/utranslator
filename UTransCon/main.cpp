@@ -24,8 +24,8 @@ void writeUsage()
                  ENDL
                  "USAGE: UTransCon filename.uorig(.utran) -options" ENDL
                  "  Options:" ENDL
-                 "  -update              update (doeds not make files for itself!)" ENDL
-                 "  -rqupdate            same but throw an error when something was done" ENDL
+                 "  -update              update (does not make files for itself!)" ENDL
+                 "  -rqupdate            same but update should do nothing, otherwise ERRORLEVEL" ENDL
                  "  -build:directory     build L10n resource" ENDL
                  ENDL;
 }
