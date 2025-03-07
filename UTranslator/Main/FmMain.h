@@ -42,6 +42,7 @@ class FmExtractOriginal;
 class FmSwitchOriginalAndTranslation;
 class FmTranslateWithOriginal;
 class FmMessage;
+class FmTrash;
 class QPlainTextEdit;
 class QTreeView;
 class QShortcut;
@@ -112,6 +113,8 @@ private slots:
     void revertCurrObject();
     void markAttentionCurrObject();
     void removeAttentionCurrObject();
+    void runDecoder();
+    void runTrash();
     // Menu: Go
     void goBack();
     void goNext();
@@ -138,7 +141,6 @@ private slots:
     void clearGroup();
     void badShortcut();
     // Menu: Tools
-    void runDecoder();
     void translateWithOriginal();
     void extractOriginal();
     void switchOriginalAndTranslation();
@@ -186,6 +188,7 @@ private:
     Uptr<FmSwitchOriginalAndTranslation> fmSwitchOriginalAndTranslation;
     Uptr<FmTranslateWithOriginal> fmTranslateWithOriginal;
     Uptr<FmMessage> fmMessage;
+    Uptr<FmTrash> fmTrash;
 
     struct loadSetsCache {
         void* fileKey = nullptr;

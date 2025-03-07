@@ -4,7 +4,7 @@
 #include "QtConsts.h"
 
 FmTrash::FmTrash(QWidget *parent) :
-    QDialog(parent, QDlgType::SIZEABLE),
+    Super(parent, QDlgType::SIZEABLE),
     ui(new Ui::FmTrash)
 {
     ui->setupUi(this);
@@ -13,4 +13,10 @@ FmTrash::FmTrash(QWidget *parent) :
 FmTrash::~FmTrash()
 {
     delete ui;
+}
+
+void FmTrash::exec(TrashChannel channel)
+{
+    /// @todo [urgent] exec trash
+    Super::exec();
 }

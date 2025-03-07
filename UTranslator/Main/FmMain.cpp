@@ -29,6 +29,7 @@
 #include "d_Config.h"
 #include "d_Strings.h"
 #include "QtDiff.h"
+#include "Tools/QstrObject.h"
 
 // UI forms
 #include "FmNew.h"
@@ -37,6 +38,7 @@
 #include "FmFind.h"
 #include "FmProjectSettings.h"
 #include "FmMessage.h"
+#include "FmTrash.h"
 #include "Tools/FmDecoder.h"
 #include "Tools/FmTranslateWithOriginal.h"
 #include "Tools/FmExtractOriginal.h"
@@ -130,6 +132,8 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->acAcceptChanges, &QAction::triggered, this, &This::acceptCurrObjectAll);
     connect(ui->acRevertChanges, &QAction::triggered, this, &This::revertCurrObject);
     connect(ui->acMarkAttention, &QAction::triggered, this, &This::markAttentionCurrObject);
+    connect(ui->acDecoder, &QAction::triggered, this, &This::runDecoder);
+    connect(ui->acTrash, &QAction::triggered, this, &This::runTrash);
         // Edit — double clicks
         connect(imgBug.origChanged, &DblClickSvgWidget::doubleClicked, this, &This::acceptCurrObjectOrigChanged);
         connect(imgBug.emptyTransl, &DblClickSvgWidget::doubleClicked, this, &This::acceptCurrObjectEmptyTransl);
@@ -156,7 +160,6 @@ FmMain::FmMain(QWidget *parent)
     setSearchAction(ui->acFindSpecialCommentedByAuthor, &This::goCommentedByAuthor);
     setSearchAction(ui->acFindSpecialCommentedByTranslator, &This::goCommentedByTranslator);
     // Tools
-    connect(ui->acDecoder, &QAction::triggered, this, &This::runDecoder);    
     connect(ui->acTranslateWithOriginal, &QAction::triggered, this, &This::translateWithOriginal);
     connect(ui->acExtractOriginal, &QAction::triggered, this, &This::extractOriginal);
     connect(ui->acSwitchOriginalAndTranslation, &QAction::triggered, this, &This::switchOriginalAndTranslation);
@@ -701,6 +704,7 @@ void FmMain::reenable()
     // Menu: Edit
     ui->acAcceptChanges->setEnabled(isMainVisible);
     ui->acRevertChanges->setEnabled(isMainVisible);
+    ui->acTrash->setEnabled(hasProject);
 
     // Menu: Go
     ui->acGoBack->setEnabled(isMainVisible);
@@ -1959,4 +1963,23 @@ void FmMain::doProjectStats()
         appendLine(text, stats.dubious,  "Dubious",      TMPL_ORIGINAL);
     }
     QMessageBox::information(this, "Statistics", text);
+}
+
+
+void FmMain::runTrash()
+{
+    if (!project)
+        return;
+    std::unique_ptr<QstrObject> obj;
+    TrashChannel channel = TrashChannel::NOMATTER;
+    if (ui->memoOriginal->hasFocus()) {
+        obj = std::make_unique<MemoObject>(ui->memoOriginal);
+    } else if (ui->memoTranslation->hasFocus()) {
+        obj = std::make_unique<MemoObject>(ui->memoTranslation);
+    }
+    /// @todo [future] No comment in memoComment for now
+    // else if (ui->memoComment->hasFocus()) {
+    //     obj = std::make_unique<MemoObject>(ui->memoComment);
+    // }
+    fmTrash.ensure(this).exec(channel);
 }

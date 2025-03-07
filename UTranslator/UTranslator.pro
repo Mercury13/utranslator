@@ -41,6 +41,7 @@ SOURCES += \
     Tools/FmTranslateWithOriginal.cpp \
     Tools/FmSwitchOriginalAndTranslation.cpp \
     Tools/FmExtractOriginal.cpp \
+    Tools/QstrObject.cpp \
     TrProject/Modifiable.cpp \
     TrProject/TrBugs.cpp \
     TrProject/TrDefines.cpp \
@@ -97,6 +98,7 @@ HEADERS += \
     Tools/FmExtractOriginal.h \
     Tools/FmSwitchOriginalAndTranslation.h \
     Tools/FmTranslateWithOriginal.h \
+    Tools/QstrObject.h \
     TrProject/Modifiable.h \
     TrProject/TrBugs.h \
     TrProject/TrDefines.h \

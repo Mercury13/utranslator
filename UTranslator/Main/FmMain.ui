@@ -979,6 +979,7 @@ QLabel {
     <addaction name="acRevertChanges"/>
     <addaction name="acMarkAttention"/>
     <addaction name="separator"/>
+    <addaction name="acTrash"/>
     <addaction name="acDecoder"/>
    </widget>
    <widget class="QMenu" name="menu_Tools">
@@ -1308,6 +1309,14 @@ QLabel {
    </property>
    <property name="shortcut">
     <string>F7</string>
+   </property>
+  </action>
+  <action name="acTrash">
+   <property name="text">
+    <string>Trash…</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
    </property>
   </action>
  </widget>
