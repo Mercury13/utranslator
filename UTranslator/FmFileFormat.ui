@@ -47,9 +47,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-24</y>
+        <y>0</y>
         <width>385</width>
-        <height>301</height>
+        <height>284</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -339,9 +339,9 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="grpIncomplete">
+        <widget class="QGroupBox" name="grpLive">
          <property name="title">
-          <string>Incomplete translations</string>
+          <string>Untranslated texts / fallback locale</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_6">
           <property name="spacing">
@@ -357,18 +357,84 @@
            <number>1</number>
           </property>
           <item>
-           <widget class="QRadioButton" name="radioIncompleteYes">
-            <property name="text">
-             <string>Allow, the engine will take strings from other languages</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="radioIncompleteNo">
-            <property name="text">
-             <string>Forbid, translation tool must create a full text resource</string>
-            </property>
-           </widget>
+           <layout class="QHBoxLayout" name="horizontalLayout_10">
+            <item>
+             <widget class="QLabel" name="lbSignOf">
+              <property name="text">
+               <string>Sign of those texts</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="comboUntranslSign">
+              <property name="minimumSize">
+               <size>
+                <width>100</width>
+                <height>0</height>
+               </size>
+              </property>
+              <item>
+               <property name="text">
+                <string>No difference</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Skip them</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>ID prefix</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>ID suffix</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Text prefix</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Text suffix</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="comboUntranslPrefix">
+              <property name="maximumSize">
+               <size>
+                <width>80</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="baseSize">
+               <size>
+                <width>80</width>
+                <height>0</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_8">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
@@ -644,10 +710,14 @@
   <tabstop>comboSpaceEscape</tabstop>
   <tabstop>edSpaceDelimiter</tabstop>
   <tabstop>edMultitierChar</tabstop>
+  <tabstop>comboUntranslSign</tabstop>
+  <tabstop>comboUntranslPrefix</tabstop>
   <tabstop>radioPlaceSelected</tabstop>
   <tabstop>radioPlaceRoot</tabstop>
   <tabstop>radioExistingKeep</tabstop>
   <tabstop>radioExistingOverwrite</tabstop>
+  <tabstop>radioSyncExternal</tabstop>
+  <tabstop>radioSyncMine</tabstop>
  </tabstops>
  <resources/>
  <connections/>
