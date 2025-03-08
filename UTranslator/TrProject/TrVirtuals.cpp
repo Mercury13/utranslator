@@ -457,3 +457,71 @@ tr::BigStats tr::UiObject::bigStats() const
     }
     return r;
 }
+
+
+std::shared_ptr<tr::UiObject> tr::UiObject::extract(Modify wantModify)
+{
+    auto pnt = parent();
+    // No parent?
+    if (!pnt)
+        return {};
+
+    auto nc = pnt->nChildren();
+    // Initial cache lookup
+    if (static_cast<size_t>(cache.index) < nc
+            && pnt->child(cache.index).get() == this) {
+        return pnt->extractChild(cache.index, wantModify);
+    }
+
+    // Search by cache
+    for (size_t i = 0; i < nc; ++i) {
+        if (pnt->child(i).get() == this) {
+            return pnt->extractChild(cache.index, wantModify);
+        }
+    }
+    return {};
+}
+
+
+bool tr::UiObject::canMoveUp(const UiObject* aChild) const
+{
+    size_t index = aChild->cache.index;
+    return (index > 0 && index < nChildren() && child(index).get() == aChild);
+}
+
+
+bool tr::UiObject::canMoveDown(const UiObject* aChild) const
+{
+    size_t index = aChild->cache.index;
+    return (index + 1 < nChildren() && child(index).get() == aChild);
+}
+
+
+void tr::UiObject::swapChildren(size_t index1, size_t index2)
+{
+    doSwapChildren(index1, index2);
+    child(index1)->cache.index = index1;
+    child(index2)->cache.index = index2;
+}
+
+
+const tr::Stats& tr::UiObject::stats(StatsMode mode, CascadeDropCache cascade)
+{
+    if (cache.stats && mode == StatsMode::CACHED)
+        return *cache.stats;
+
+    if (mode == StatsMode::SEMICACHED)
+        mode = StatsMode::CACHED;
+
+    Stats r;
+    r.isGroup = true;
+    for (size_t i = 0; i < nChildren(); ++i) {
+        auto ch = child(i);
+        if (ch) {
+            auto& chst = ch->stats(mode, CascadeDropCache::NO);
+            r += chst;
+        }
+    }
+
+    return resetCacheIf(r, cascade);
+}

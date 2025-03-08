@@ -159,8 +159,6 @@ namespace tr {
 
     /// @todo [urgent, #70] File here, what to do?
     class File;
-    /// @todo [urgent, #70] Project here, what to do?
-    class Project;
     /// @todo [urgent, #70] VirtualGroup here, what to do?
     class VirtualGroup;
 
