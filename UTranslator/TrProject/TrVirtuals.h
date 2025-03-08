@@ -212,15 +212,6 @@ namespace tr {
         }
     };
 
-    /// @todo [urgent, #70] Text
-    class Text;
-    class TraverseListener {    // interface
-    public:
-        virtual void onText(const std::shared_ptr<Text>&) = 0;
-        virtual void onEnterGroup(const std::shared_ptr<VirtualGroup>&) {}
-        virtual void onLeaveGroup(const std::shared_ptr<VirtualGroup>&) {}
-    };
-
     enum class EnterMe : unsigned char { NO, YES };
     enum class CascadeDropCache : unsigned char { NO, YES };
 
@@ -292,8 +283,6 @@ namespace tr {
         virtual CloneObj startCloning(
                 [[maybe_unused]] const std::shared_ptr<UiObject>& parent) const
             { return { CloneErr::UNCLONEABLE, {} }; }
-        virtual void traverse(
-                TraverseListener& x, tr::WalkOrder order, EnterMe enterMe) = 0;
         virtual std::shared_ptr<VirtualGroup> nearestGroup() = 0;
         virtual HIcon icon() const { return nullptr; }
         virtual void markChildrenAsAddedToday() = 0;

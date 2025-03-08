@@ -54,11 +54,26 @@ namespace tr {
     class File;
     class Project;
     class Text;
-    class UiObject;
 
     enum class ObjType : unsigned char { PROJECT, FILE, GROUP, TEXT };
 
     enum class ObjState : unsigned char { STAYING, ADDED, DELETED };
+
+    class TraverseListener {    // interface
+    public:
+        virtual void onText(const std::shared_ptr<Text>&) = 0;
+        virtual void onEnterGroup(const std::shared_ptr<VirtualGroup>&) {}
+        virtual void onLeaveGroup(const std::shared_ptr<VirtualGroup>&) {}
+    };
+
+    class Traversable : public UiObject
+    {
+    public:
+        /// More comprehensive traversal,
+        /// mainly called from Project only
+        virtual void traverse(
+                TraverseListener& x, tr::WalkOrder order, EnterMe enterMe) = 0;
+    };
 
     template <class T>
     class Self
@@ -112,7 +127,7 @@ namespace tr {
             { return toAbsPath(str::toU8sv(x)); }
     };
 
-    class Entity : public UiObject
+    class Entity : public Traversable
     {
     public:
         std::u8string id;               ///< Identifier of group or string
@@ -344,7 +359,7 @@ namespace tr {
     enum class TrashMode : unsigned char { LEAVE, FILL };
 
     class Project final :
-            public UiObject,
+            public Traversable,
             public SimpleModifiable,
             private Self<Project>
     {
