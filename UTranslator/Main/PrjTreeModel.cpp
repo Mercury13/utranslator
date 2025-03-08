@@ -428,7 +428,7 @@ Thing<tr::Text> PrjTreeModel::addText(
 }
 
 
-std::shared_ptr<tr::Entity> PrjTreeModel::extract(tr::UiObject* obj)
+std::shared_ptr<tr::UiObject> PrjTreeModel::extract(tr::UiObject* obj)
 {
     if (!obj)
         return {};

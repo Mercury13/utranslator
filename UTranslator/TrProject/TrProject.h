@@ -162,8 +162,8 @@ namespace tr {
         SafeVector<std::shared_ptr<Entity>> children;
 
         size_t nChildren() const noexcept override { return children.size(); };
-        std::shared_ptr<Entity> child(size_t i) const override;
-        std::shared_ptr<Entity> extractChild(size_t i, Modify wantModify) override;
+        std::shared_ptr<UiObject> child(size_t i) const override;
+        std::shared_ptr<UiObject> extractChild(size_t i, Modify wantModify) override;
         void traverse(
                 TraverseListener& x, tr::WalkOrder order, EnterMe enterMe) override;
 
@@ -211,7 +211,7 @@ namespace tr {
 
         ObjType objType() const noexcept override { return ObjType::TEXT; }
         size_t nChildren() const noexcept override { return 0; };
-        std::shared_ptr<Entity> child(size_t) const override { return {}; }
+        std::shared_ptr<UiObject> child(size_t) const override { return {}; }
         std::shared_ptr<UiObject> parent() const override { return fParentGroup.lock(); }
         Pair<VirtualGroup> additionParents() override { return fParentGroup.lock(); }
         Translatable* translatable() override { return &tr; }
@@ -370,12 +370,12 @@ namespace tr {
         ObjType objType() const noexcept override { return ObjType::PROJECT; }
         std::shared_ptr<File> file() override { return {}; }
         size_t nChildren() const noexcept override { return files.size(); };
-        std::shared_ptr<Entity> child(size_t i) const override;
+        std::shared_ptr<UiObject> child(size_t i) const override;
         std::shared_ptr<UiObject> parent() const override { return {}; }
         std::u8string_view idColumn() const override { return {}; }
         std::shared_ptr<Project> project() override { return fSelf.lock(); }
         Pair<VirtualGroup> additionParents() override { return {}; }
-        std::shared_ptr<Entity> extractChild(size_t i, Modify wantModify) override;
+        std::shared_ptr<UiObject> extractChild(size_t i, Modify wantModify) override;
         void writeToXml(
                 pugi::xml_node&,
                 const std::filesystem::path& basePath) const;

@@ -260,14 +260,14 @@ namespace tr {
         virtual ObjType objType() const noexcept = 0;
         virtual std::shared_ptr<UiObject> parent() const = 0;
         virtual size_t nChildren() const noexcept = 0;
-        virtual std::shared_ptr<Entity> child(size_t i) const = 0;
+        virtual std::shared_ptr<UiObject> child(size_t i) const = 0;
         virtual std::u8string_view idColumn() const = 0;
         /// @return [+] was changed
         virtual bool setId(std::u8string_view, tr::Modify) { return false; }
         /// Deletes i’th child
         /// @return extracted child
         /// @warning  Because of recache, complexity is O(n)
-        virtual std::shared_ptr<Entity> extractChild(size_t, Modify) { return {}; }
+        virtual std::shared_ptr<UiObject> extractChild(size_t, Modify) { return {}; }
         virtual std::shared_ptr<File> file() = 0;
         virtual void traverseTexts(const EvText&) = 0;
         virtual void traverseCTexts(const EvCText&) const = 0;
@@ -345,7 +345,7 @@ namespace tr {
         const FileInfo* inheritedFileInfo() const;
 
         /// @return  [+] s_p to this  [0] nothing happened
-        std::shared_ptr<Entity> extract(Modify wantModify);
+        std::shared_ptr<UiObject> extract(Modify wantModify);
         /// Adds statistics about a single object (not children)
         void doModify(Mch ch);
         bool canMoveUp(const UiObject* aChild) const;

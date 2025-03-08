@@ -72,7 +72,7 @@ public:
     /// @return  s_p to new text
     Thing<tr::Text> addText(const std::shared_ptr<tr::VirtualGroup>& parent);
     /// @return  [+] s_p to extracted object  [0] nothing happened
-    std::shared_ptr<tr::Entity> extract(tr::UiObject* obj);
+    std::shared_ptr<tr::UiObject> extract(tr::UiObject* obj);
     struct CloneResult {
         tr::CloneErr err;       /// OK, or error reason
         QModelIndex index;      /// OK: new index    BAD: do not use

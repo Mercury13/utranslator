@@ -145,7 +145,7 @@ std::u8string tr::UiObject::makeId(
     size_t newIndex = 0;
     for (size_t i = 0; i < nc; ++i) {
         auto ch = child(i);
-        auto sNumber = str::remainderSv(ch->id, prefix, suffix);
+        auto sNumber = str::remainderSv(ch->idColumn(), prefix, suffix);
         size_t num = 0;
         auto chars = str::fromChars(sNumber, num);
         if (chars.ec == std::errc() && num >= newIndex) {
@@ -174,7 +174,7 @@ const tr::FileInfo* tr::UiObject::inheritedFileInfo() const
 }
 
 
-std::shared_ptr<tr::Entity> tr::UiObject::extract(Modify wantModify)
+std::shared_ptr<tr::UiObject> tr::UiObject::extract(Modify wantModify)
 {
     auto pnt = parent();
     // No parent?
@@ -523,7 +523,7 @@ namespace {
 ///// VirtualGroup /////////////////////////////////////////////////////////////
 
 
-std::shared_ptr<tr::Entity> tr::VirtualGroup::child(size_t i) const
+std::shared_ptr<tr::UiObject> tr::VirtualGroup::child(size_t i) const
 {
     if (i >= children.size())
         return {};
@@ -573,7 +573,7 @@ std::shared_ptr<tr::Project> tr::VirtualGroup::project()
 }
 
 
-std::shared_ptr<tr::Entity> tr::VirtualGroup::extractChild(
+std::shared_ptr<tr::UiObject> tr::VirtualGroup::extractChild(
         size_t i, Modify wantModify)
 {
     if (i >= children.size())
@@ -1484,7 +1484,7 @@ namespace {
 ///// Project //////////////////////////////////////////////////////////////////
 
 
-std::shared_ptr<tr::Entity> tr::Project::child(size_t i) const
+std::shared_ptr<tr::UiObject> tr::Project::child(size_t i) const
 {
     if (i >= files.size())
         return {};
@@ -1531,7 +1531,7 @@ void tr::Project::addTestOriginal()
 }
 
 
-std::shared_ptr<tr::Entity> tr::Project::extractChild(
+std::shared_ptr<tr::UiObject> tr::Project::extractChild(
         size_t i, Modify wantModify)
 {
     if (i >= files.size())
