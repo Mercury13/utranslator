@@ -54,40 +54,7 @@ std::filesystem::path tr::ReadContext::toAbsPath(const std::filesystem::path& x)
 
 ///// UiObject /////////////////////////////////////////////////////////////////
 
-
 /// @todo [urgent, #70] links to different objects
-
-void tr::UiObject::recache()
-{
-    auto nc = nChildren();
-    for (size_t i = 0; i < nc; ++i) {
-        child(i)->cache.index = i;
-    }
-}
-
-
-void tr::UiObject::recursiveRecache()
-{
-    auto nc = nChildren();
-    for (size_t i = 0; i < nc; ++i) {
-        auto ch = child(i);
-        ch->cache.index = i;
-        ch->recursiveRecache();
-    }
-}
-
-
-void tr::UiObject::recursiveUnmodify()
-{
-    cache.mod.clear();
-    auto nc = nChildren();
-    for (size_t i = 0; i < nc; ++i) {
-        auto ch = child(i);
-        ch->recursiveUnmodify();
-    }
-}
-
-
 
 void tr::UiObject::doModify(Mch ch)
 {
@@ -134,32 +101,6 @@ void tr::UiObject::removeReferenceChannel()
     traverseTexts([](tr::Text& tx) {
         tx.tr.reference.reset();
     });
-}
-
-
-std::u8string tr::UiObject::makeId(
-        std::u8string_view prefix,
-        std::u8string_view suffix) const
-{
-    auto nc = nChildren();
-    size_t newIndex = 0;
-    for (size_t i = 0; i < nc; ++i) {
-        auto ch = child(i);
-        auto sNumber = str::remainderSv(ch->idColumn(), prefix, suffix);
-        size_t num = 0;
-        auto chars = str::fromChars(sNumber, num);
-        if (chars.ec == std::errc() && num >= newIndex) {
-            newIndex = num + 1;
-        }
-    }
-    char buf[30];
-    auto sIndex = str::toCharsU8(buf, newIndex);
-
-    std::u8string s;
-    s.append(prefix);
-    s.append(sIndex);
-    s.append(suffix);
-    return s;
 }
 
 
