@@ -52,50 +52,19 @@ std::filesystem::path tr::ReadContext::toAbsPath(const std::filesystem::path& x)
 }
 
 
+//// Traversable ///////////////////////////////////////////////////////////////
+
+
+std::shared_ptr<tr::VirtualProject> tr::Traversable::vproject()
+{
+    return project();
+}
+
+
+
 ///// UiObject /////////////////////////////////////////////////////////////////
 
 /// @todo [urgent, #70] links to different objects
-
-void tr::UiObject::doModify(Mch ch)
-{
-    cache.mod.set(ch);
-    if (auto p = project())
-        p->modify();
-}
-
-
-tr::BigStats tr::UiObject::bigStats() const
-{
-    BigStats r;
-    /// @todo [urgent, #70] project here
-    if (auto prj = project()) {
-        auto& prjInfo = prj->info;
-        traverseCTexts([&r, &prjInfo](const UiObject&, const Translatable& tr) {
-            auto textInfo = tr.info(prjInfo);
-            r.all.add(textInfo);
-            if (prjInfo.isTranslation()) {
-                // For all types of translations
-                if (!tr.translation) {
-                    r.untransl.add(textInfo);
-                } else if (tr.attentionMode(prjInfo) > AttentionMode::CALM) {
-                    r.dubious.add(textInfo);
-                } else {
-                    r.transl.add(textInfo);
-                }
-            } else {
-                // For original
-                if (tr.attentionMode(prjInfo) > AttentionMode::CALM) {
-                    r.dubious.add(textInfo);
-                } else {
-                    r.untransl.add(textInfo);
-                }
-            }
-        });
-    }
-    return r;
-}
-
-
 
 const tr::FileInfo* tr::UiObject::inheritedFileInfo() const
 {

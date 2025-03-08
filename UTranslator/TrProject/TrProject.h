@@ -73,6 +73,14 @@ namespace tr {
         /// mainly called from Project only
         virtual void traverse(
                 TraverseListener& x, tr::WalkOrder order, EnterMe enterMe) = 0;
+        /// @return  ptr to project
+        virtual std::shared_ptr<Project> project() = 0;
+
+        std::shared_ptr<VirtualProject> vproject() final;
+
+        // Const versions
+        std::shared_ptr<const Project> project() const
+            { return const_cast<Traversable*>(this)->project(); }
     };
 
     template <class T>
@@ -360,6 +368,7 @@ namespace tr {
 
     class Project final :
             public Traversable,
+            public VirtualProject,
             public SimpleModifiable,
             private Self<Project>
     {
@@ -401,6 +410,7 @@ namespace tr {
         void markChildrenAsAddedToday() override;
         void traverseTexts(const EvText&) override;
         void traverseCTexts(const EvCText&) const override;
+        const PrjInfo& prjInfo() const override { return info; }
         void updateParents();
 
         void save();

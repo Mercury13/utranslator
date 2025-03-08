@@ -40,7 +40,7 @@ namespace {
 auto tw::Flyweight::getTransl(tr::UiObject& x) -> const TranslObj&
 {
     if (auto tr = x.translatable()) {
-        auto attention = tr->attentionMode(x.project()->info);
+        auto attention = tr->attentionMode(x.vproject()->prjInfo());
         auto foregnd = attentionToFg[static_cast<int>(attention)];
         if (tr->translation) {
             if (tr->translation->empty()) {

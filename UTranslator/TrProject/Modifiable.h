@@ -65,7 +65,7 @@ public:
 };
 
 
-class SimpleModifiable : public Modifiable
+class SimpleModifiable : virtual public Modifiable
 {
 public:
     void setStaticModifyListener(ModListener* aListener);

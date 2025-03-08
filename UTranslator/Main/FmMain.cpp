@@ -373,8 +373,8 @@ void FmMain::treeCurrentChanged(
     auto currentObj = treeModel.toObj(current);
 
     if (current.isValid()) {
-        if (auto currentPrj = currentObj->project()) {
-            if (formerObj->project() == currentPrj)
+        if (auto currentPrj = currentObj->vproject()) {
+            if (formerObj->vproject() == currentPrj)
                 acceptObject(*formerObj, {});
             setEditorsEnabled(true);
             loadObject(*currentObj);
@@ -450,7 +450,7 @@ void FmMain::loadObject(tr::UiObject& obj)
     }
 
     // Reference
-    ui->grpReference->setVisible(obj.project()->info.hasReference());
+    ui->grpReference->setVisible(obj.vproject()->prjInfo().hasReference());
 
     bugCache.copyFrom(obj);
 

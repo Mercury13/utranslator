@@ -129,6 +129,14 @@ tr::Stats& tr::Stats::operator += (const Stats& x)
 ///// UiObject /////////////////////////////////////////////////////////////////
 
 
+void tr::UiObject::doModify(Mch ch)
+{
+    cache.mod.set(ch);
+    if (auto p = vproject())
+        p->modify();
+}
+
+
 void tr::UiObject::recache()
 {
     auto nc = nChildren();
@@ -417,4 +425,35 @@ void tr::UiObject::removeReferenceChannel()
     traverseTexts1([](tr::Translatable& tr) {
         tr.reference.reset();
     });
+}
+
+
+tr::BigStats tr::UiObject::bigStats() const
+{
+    BigStats r;
+    if (auto prj = vproject()) {
+        const auto& prjInfo = prj->prjInfo();
+        traverseCTexts([&r, &prjInfo](const UiObject&, const Translatable& tr) {
+            auto textInfo = tr.info(prjInfo);
+            r.all.add(textInfo);
+            if (prjInfo.isTranslation()) {
+                // For all types of translations
+                if (!tr.translation) {
+                    r.untransl.add(textInfo);
+                } else if (tr.attentionMode(prjInfo) > AttentionMode::CALM) {
+                    r.dubious.add(textInfo);
+                } else {
+                    r.transl.add(textInfo);
+                }
+            } else {
+                // For original
+                if (tr.attentionMode(prjInfo) > AttentionMode::CALM) {
+                    r.dubious.add(textInfo);
+                } else {
+                    r.untransl.add(textInfo);
+                }
+            }
+        });
+    }
+    return r;
 }

@@ -6,6 +6,7 @@
 
 // Translation
 #include "TrDefines.h"
+#include "Modifiable.h"
 
 // Libs
 #include "function_ref.hpp"
@@ -234,6 +235,14 @@ namespace tr {
         static const UpdateInfo ZERO;
     };
 
+
+    class VirtualProject : virtual public Modifiable    // interface
+    {
+    public:
+        virtual const PrjInfo& prjInfo() const = 0;
+    };
+
+
     class UiObject : public CanaryObject
     {
     public:
@@ -274,8 +283,7 @@ namespace tr {
         virtual CloningUptr<tf::FileFormat>* ownFileFormat() { return nullptr; }
         /// Goes together with ownFileFormat. Checks which formats are allowed
         virtual const tf::ProtoFilter* allowedFormats() const { return nullptr; }
-        /// @return  ptr to project
-        virtual std::shared_ptr<Project> project() = 0;
+        virtual std::shared_ptr<VirtualProject> vproject() = 0;
         /// @return  one or two parent groups for “Add group” / “Add string”
         virtual Pair<VirtualGroup> additionParents() = 0;
         /// @param [in]  idlib   [+] ID library; [0] copy ID
@@ -357,8 +365,8 @@ namespace tr {
             { return const_cast<UiObject*>(this)->ownFileInfo(); }
         std::shared_ptr<const File> file() const
             { return const_cast<UiObject*>(this)->file(); }
-        std::shared_ptr<const Project> project() const
-            { return const_cast<UiObject*>(this)->project(); }
+        std::shared_ptr<const VirtualProject> vproject() const
+            { return const_cast<UiObject*>(this)->vproject(); }
     protected:
         // passkey idiom
         struct PassKey {};

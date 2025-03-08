@@ -16,13 +16,13 @@ void tr::BugCache::copyFrom(tr::UiObject& x)
         moji |= Mjf::ID;
     id = mojibake::toM<std::u32string>(idc);
 
-    auto prj = x.project();
-    isProjectOriginal = !prj || prj->info.canEditOriginal();
+    auto prj = x.vproject();
+    isProjectOriginal = !prj || prj->prjInfo().canEditOriginal();
 
     // Translatable
     if (auto tr = x.translatable()) {
         hasTranslatable = true;
-        isProjectTranslation = prj && prj->info.isTranslation();
+        isProjectTranslation = prj && prj->prjInfo().isTranslation();
         if (isProjectOriginal && !mojibake::isValid(tr->original))
             moji |= Mjf::ORIGINAL;
         original = mojibake::toM<std::u32string>(tr->original);
