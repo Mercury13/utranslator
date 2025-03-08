@@ -275,13 +275,6 @@ int PrjTreeModel::columnCount(const QModelIndex &) const
 namespace {
     constexpr QColor BG_MODIFIED { 0xFA, 0xF0, 0xE6 };
 
-    QString brushLineEnds(std::u8string_view x)
-    {
-        auto r = str::toQ(x);
-        r.replace('\n', QChar{L'¶'});
-        return r;
-    }
-
     QString brushLineEnds(const tw::TranslObj& x)
     {
         auto r = str::toQ(x.str());
@@ -393,12 +386,28 @@ namespace {
         .textPrefix = {}
     };
 
+    template <tr::ObjType Objt>
+    inline std::u8string makeIdT(const tr::UiObject& obj, const tr::IdLib& idlib)
+    {
+        if constexpr (Objt == tr::ObjType::PROJECT) {
+            return u8"project";
+        } else if constexpr (Objt == tr::ObjType::FILE) {
+            return obj.makeId(idlib.filePrefix, idlib.fileSuffix);
+        } else if constexpr (Objt == tr::ObjType::GROUP) {
+            return obj.makeId(idlib.groupPrefix, {});
+        } else if constexpr (Objt == tr::ObjType::TEXT) {
+            return obj.makeTextId(idlib);
+        } else {
+            throw std::logic_error("[UiObject.makeId] Strange objType");
+        }
+    }
+
 }   // anon namespace
 
 
 Thing<tr::File> PrjTreeModel::addHostedFile()
 {
-    auto newId = prj->makeId<tr::ObjType::FILE>(myIds);
+    auto newId = makeIdT<tr::ObjType::FILE>(*prj, myIds);
     auto newIndex = prj->nChildren();
     beginInsertRows(QModelIndex(), newIndex, newIndex);
     auto file = prj->addFile(newId, tr::Modify::YES);
@@ -412,7 +421,7 @@ Thing<tr::Group> PrjTreeModel::addGroup(
 {
     if (!parent)
         return {};
-    auto newId = parent->makeId<tr::ObjType::GROUP>(myIds);
+    auto newId = makeIdT<tr::ObjType::GROUP>(*parent, myIds);
     auto newIndex = parent->nChildren();
     beginInsertRows(toIndex(parent, 0), newIndex, newIndex);
     auto group = parent->addGroup(newId, tr::Modify::YES);
@@ -426,7 +435,7 @@ Thing<tr::Text> PrjTreeModel::addText(
 {
     if (!parent)
         return {};
-    auto newId = parent->makeId<tr::ObjType::TEXT>(myIds);
+    auto newId = makeIdT<tr::ObjType::TEXT>(*parent, myIds);
     auto newIndex = parent->nChildren();
     beginInsertRows(toIndex(parent, 0), newIndex, newIndex);
     auto text = parent->addText(newId, {}, tr::Modify::YES);

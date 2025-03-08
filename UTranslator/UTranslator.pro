@@ -49,6 +49,7 @@ SOURCES += \
     TrProject/TrFinder.cpp \
     TrProject/TrProject.cpp \
     TrProject/TrUtils.cpp \
+    TrProject/TrVirtuals.cpp \
     TrProject/TrWrappers.cpp \
     d_Config.cpp \
     FmNew.cpp \
@@ -106,6 +107,7 @@ HEADERS += \
     TrProject/TrFinder.h \
     TrProject/TrProject.h \
     TrProject/TrUtils.h \
+    TrProject/TrVirtuals.h \
     TrProject/TrWrappers.h \
     d_Config.h \
     FmNew.h \
