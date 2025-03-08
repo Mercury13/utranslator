@@ -67,23 +67,24 @@ void tr::UiObject::doModify(Mch ch)
 tr::BigStats tr::UiObject::bigStats() const
 {
     BigStats r;
+    /// @todo [urgent, #70] project here
     if (auto prj = project()) {
         auto& prjInfo = prj->info;
-        traverseCTexts([&r, &prjInfo](const tr::Text& tx) {
-            auto textInfo = tx.tr.info(prjInfo);
+        traverseCTexts([&r, &prjInfo](const UiObject&, const Translatable& tr) {
+            auto textInfo = tr.info(prjInfo);
             r.all.add(textInfo);
             if (prjInfo.isTranslation()) {
                 // For all types of translations
-                if (!tx.tr.translation) {
+                if (!tr.translation) {
                     r.untransl.add(textInfo);
-                } else if (tx.tr.attentionMode(prjInfo) > AttentionMode::CALM) {
+                } else if (tr.attentionMode(prjInfo) > AttentionMode::CALM) {
                     r.dubious.add(textInfo);
                 } else {
                     r.transl.add(textInfo);
                 }
             } else {
                 // For original
-                if (tx.tr.attentionMode(prjInfo) > AttentionMode::CALM) {
+                if (tr.attentionMode(prjInfo) > AttentionMode::CALM) {
                     r.dubious.add(textInfo);
                 } else {
                     r.untransl.add(textInfo);
@@ -94,14 +95,6 @@ tr::BigStats tr::UiObject::bigStats() const
     return r;
 }
 
-
-
-void tr::UiObject::removeReferenceChannel()
-{
-    traverseTexts([](tr::Text& tx) {
-        tx.tr.reference.reset();
-    });
-}
 
 
 const tr::FileInfo* tr::UiObject::inheritedFileInfo() const
@@ -1193,11 +1186,11 @@ void tr::Text::updateParent(const std::shared_ptr<VirtualGroup>& x)
 
 
 void tr::Text::traverseTexts(const EvText& ev)
-    { ev(*this); }
+    { ev(*this, tr); }
 
 
 void tr::Text::traverseCTexts(const EvCText& ev) const
-    { ev(*this); }
+    { ev(*this, tr); }
 
 
 ///// File /////////////////////////////////////////////////////////////////////

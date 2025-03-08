@@ -150,10 +150,11 @@ namespace tr {
         } all, transl, untransl, dubious;
     };
 
-    /// @todo [urgent, #70] Text here
-    class Text;
-    using EvText = tl::function_ref<void(Text&)>;
-    using EvCText = tl::function_ref<void(const Text&)>;
+    class UiObject;
+    using EvText = tl::function_ref<void(UiObject&, Translatable&)>;
+    using EvCText = tl::function_ref<void(const UiObject&, const Translatable&)>;
+    using EvMiniText = tl::function_ref<void(Translatable&)>;
+    using EvMiniCText = tl::function_ref<void(const Translatable&)>;
 
     /// @todo [urgent, #70] File here, what to do?
     class File;
@@ -211,6 +212,8 @@ namespace tr {
         }
     };
 
+    /// @todo [urgent, #70] Text
+    class Text;
     class TraverseListener {    // interface
     public:
         virtual void onText(const std::shared_ptr<Text>&) = 0;
@@ -352,6 +355,9 @@ namespace tr {
         bool moveDown(UiObject* aChild);
         void swapChildren(size_t index1, size_t index2);
         BigStats bigStats() const;
+
+        void traverseTexts1(const EvMiniText&);
+        void traverseCTexts1(const EvMiniCText&) const;
 
         /// Removes everything related to reference translation, leaving only original
         ///   (reference, known reference if I have someday)

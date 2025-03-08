@@ -392,3 +392,29 @@ void tr::UiObject::uiStealDataFrom(UiObject& x, UiObject* myParent)
         }
     }
 }
+
+
+void tr::UiObject::traverseTexts1(const EvMiniText& ev)
+{
+    auto q = [&ev](tr::UiObject&, tr::Translatable& tr) {
+        ev(tr);
+    };
+    traverseTexts(q);
+}
+
+
+void tr::UiObject::traverseCTexts1(const EvMiniCText& ev) const
+{
+    auto q = [&ev](const tr::UiObject&, const tr::Translatable& tr) {
+        ev(tr);
+    };
+    traverseCTexts(q);
+}
+
+
+void tr::UiObject::removeReferenceChannel()
+{
+    traverseTexts1([](tr::Translatable& tr) {
+        tr.reference.reset();
+    });
+}
