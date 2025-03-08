@@ -11,8 +11,8 @@
 namespace tw {
 
     // Foreground
-    enum class Fg { NORMAL, UNTRANSLATED_CAT, ATTENTION, OK, STATS, LIGHT };
-    constexpr int Fg_N = static_cast<int>(Fg::LIGHT) + 1;
+    DEFINE_ENUM_TYPE_IN_NS(tw, Fg, unsigned char,
+        NORMAL, UNTRANSLATED_CAT, ATTENTION, OK, STATS, LIGHT);
 
     /// Localization strings
     struct L10n {
@@ -26,8 +26,6 @@ namespace tw {
         virtual std::u8string_view str() const = 0;
         virtual bool mayContainEols() const = 0;
         virtual Fg fg() const = 0;
-
-        int iFg() const { return static_cast<int>(fg()); }
     };
 
     class NoString final : public TranslObj {   // interface
@@ -64,6 +62,7 @@ namespace tw {
     {
     public:
         void setL10n(const L10n& x) { l10n = x; }
+        const TranslObj& getOrig(tr::UiObject& x);
         const TranslObj& getTransl(tr::UiObject& x);
         const TranslObj& getRef(tr::UiObject& x);
     private:

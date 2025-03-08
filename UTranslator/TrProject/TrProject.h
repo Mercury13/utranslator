@@ -340,7 +340,6 @@ namespace tr {
         virtual size_t nChildren() const noexcept = 0;
         virtual std::shared_ptr<Entity> child(size_t i) const = 0;
         virtual std::u8string_view idColumn() const = 0;
-        virtual std::u8string_view origColumn() const { return {}; }
         /// @return [+] was changed
         virtual bool setId(std::u8string_view, tr::Modify) { return false; }
         /// Deletes i’th child
@@ -584,7 +583,6 @@ namespace tr {
         ObjType objType() const noexcept override { return ObjType::TEXT; }
         size_t nChildren() const noexcept override { return 0; };
         std::shared_ptr<Entity> child(size_t) const override { return {}; }
-        std::u8string_view origColumn() const override { return tr.original; }
         std::shared_ptr<UiObject> parent() const override { return fParentGroup.lock(); }
         Pair<VirtualGroup> additionParents() override { return fParentGroup.lock(); }
         Translatable* translatable() override { return &tr; }

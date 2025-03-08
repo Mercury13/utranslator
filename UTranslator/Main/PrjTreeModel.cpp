@@ -291,7 +291,7 @@ namespace {
         return r;
     }
 
-    constinit const QColor fgColors[] = {
+    constexpr QColor fgColorsArr[] = {
         QColor(),               // NORMAL,
         { 0x77, 0x00, 0x00 },   // UNTRANSLATED_CAT — some dark red
         { 0xDC, 0x14, 0x3C },   // ATTENTION — HTML crimson
@@ -299,7 +299,8 @@ namespace {
         { 0x69, 0x69, 0x69 },   // STATS — HTML dim gray
         { 0xCC, 0xCC, 0xCC },   // LIGHT — HTML light gray
     };
-    static_assert(std::size(fgColors) == tw::Fg_N);
+    constinit const ec::Array<QColor, tw::Fg> fgColors {
+        ec::ARRAY_INIT, fgColorsArr };
 }
 
 QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
@@ -315,8 +316,7 @@ QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
             case PrjColClass::ID:
                 return str::toQ(obj->idColumn());
             case PrjColClass::ORIGINAL:
-                /// @todo [urgent, #9] get rid of origColumn
-                return brushLineEnds(obj->origColumn());
+                return brushLineEnds(fly.getOrig(*obj));
             case PrjColClass::REFERENCE:
                 return brushLineEnds(fly.getRef(*obj));
             case PrjColClass::TRANSLATION:
@@ -349,11 +349,11 @@ QVariant PrjTreeModel::data(const QModelIndex &index, int role) const
             auto obj = toObj(index);
             switch (colMeanings.safeGetV(index.column(), PrjColClass::DUMMY)) {
             case PrjColClass::TRANSLATION: {
-                    auto& cl = fgColors[fly.getTransl(*obj).iFg()];
+                    auto& cl = fgColors[fly.getTransl(*obj).fg()];
                     return cl.isValid() ? cl : QVariant();
                 }
             case PrjColClass::REFERENCE: {
-                    auto& cl = fgColors[fly.getRef(*obj).iFg()];
+                    auto& cl = fgColors[fly.getRef(*obj).fg()];
                     return cl.isValid() ? cl : QVariant();
                 }
             case PrjColClass::ID:
