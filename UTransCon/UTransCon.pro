@@ -24,10 +24,12 @@ SOURCES += \
         ../UTranslator/TrProject/TrDefines.cpp \
         ../UTranslator/TrProject/TrFile.cpp \
         ../UTranslator/TrProject/TrProject.cpp \
+        ../UTranslator/TrProject/TrVirtuals.cpp \
         main.cpp
 
 
 INCLUDEPATH += \
+    ../Libs \
     ../Libs/MagicEnum \
     ../Libs/PugiXml \
     ../Libs/SelfMade \
@@ -44,10 +46,12 @@ HEADERS += \
     ../Libs/SelfMade/u_Args.h \
     ../Libs/SelfMade/u_Vector.h \
     ../Libs/SelfMade/u_XmlUtils.h \
+    ../Libs/function_ref.hpp \
     ../UTranslator/TrProject/Modifiable.h \
     ../UTranslator/TrProject/TrDefines.h \
     ../UTranslator/TrProject/TrFile.h \
-    ../UTranslator/TrProject/TrProject.h
+    ../UTranslator/TrProject/TrProject.h \
+    ../UTranslator/TrProject/TrVirtuals.h
 
 VERSION_FILE = ../VERSION
 VERSION = $$cat($${VERSION_FILE})
