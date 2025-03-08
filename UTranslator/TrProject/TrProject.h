@@ -55,8 +55,6 @@ namespace tr {
     class Project;
     class Text;
 
-    enum class ObjType : unsigned char { PROJECT, FILE, GROUP, TEXT };
-
     enum class ObjState : unsigned char { STAYING, ADDED, DELETED };
 
     class TraverseListener {    // interface

@@ -413,7 +413,6 @@ void FmMain::loadContext(tr::UiObject* lastSon)
     // Build HTML backwards
     QString html = "</dl>";
     for (auto p = lastSon;
-            /// @todo [urgent, #70] project here?
             p && p->objType() != tr::ObjType::PROJECT;
             p = p->parent().get()) {
         auto itsText = u8"<dt>•&nbsp;" + str::toQ(p->idColumn()).toHtmlEscaped() + "</dt>";
@@ -1500,9 +1499,10 @@ void FmMain::doLoadText()
             std::shared_ptr<tr::VirtualGroup> destGroup;
             switch (loadSetsCache.text.loadTo) {
             case tf::LoadTo::ROOT:
-                //destGroup = file;
-                /// @todo [urgent, #70] destGroup = file, what to replace
-                destGroup = nullptr;
+                /// @todo [bad, #70] dynamic_cast here
+                /// @todo [bad, #70] Anyway UiObject’s API is too simple, and w/o it
+                ///        there are troubles with orter APIs
+                destGroup = dynamic_cast<tr::Traversable*>(obj)->file();
                 break;
             case tf::LoadTo::SELECTED:
                 destGroup = selectedGroup;

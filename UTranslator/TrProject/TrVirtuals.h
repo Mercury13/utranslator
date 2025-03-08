@@ -13,8 +13,8 @@
 
 namespace tr {
 
-    /// Forward-declared, let it be improved afterwards
-    enum class ObjType : unsigned char;
+    /// At least we should know in UI what we are dealing with
+    enum class ObjType : unsigned char { PROJECT, FILE, GROUP, TEXT };
 
     /// Modification channel
     enum class Mch : unsigned char {
