@@ -240,8 +240,6 @@ namespace tr {
         static const UpdateInfo ZERO;
     };
 
-    class Entity;
-
     class UiObject : public CanaryObject
     {
     public:
