@@ -903,12 +903,31 @@ void tr::Group::readFromXml(const pugi::xml_node& node, const ReadContext& ctx)
 }
 
 
+namespace {
+
+    template <tr::ObjType Objt>
+    std::u8string cloneIdT(
+            const tr::UiObject& that, const tr::IdLib* idlib,
+            const tr::UiObject* src)
+    {
+        if (idlib) {
+            return makeIdT<Objt>(that, *idlib);
+        } else if (src) {
+            return std::u8string { src->idColumn() };
+        } else {
+            return std::u8string { that.idColumn() };
+        }
+    }
+
+}
+
+
 std::shared_ptr<tr::Group> tr::Group::clone(
         const std::shared_ptr<VirtualGroup>& parent,
         const IdLib* idlib,
         tr::Modify wantModify) const
 {
-    auto newId = parent->makeId<ObjType::GROUP>(idlib, this);
+    auto newId = cloneIdT<ObjType::GROUP>(*parent, idlib, this);
     auto newGroup = parent->addGroup(newId, Modify::NO);
     for (auto& v : children) {
         auto newSub = v->vclone(newGroup);
@@ -1079,7 +1098,7 @@ std::shared_ptr<tr::Text> tr::Text::clone(
         const IdLib* idlib,
         tr::Modify wantModify) const
 {
-    auto newId = parent->makeId<ObjType::TEXT>(idlib, this);
+    auto newId = cloneIdT<ObjType::TEXT>(*parent, idlib, this);
     auto newText = parent->addText(newId, {}, Modify::NO);
     newText->tr = this->tr;
     newText->comm = this->comm;

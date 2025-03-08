@@ -386,22 +386,6 @@ namespace {
         .textPrefix = {}
     };
 
-    template <tr::ObjType Objt>
-    inline std::u8string makeIdT(const tr::UiObject& obj, const tr::IdLib& idlib)
-    {
-        if constexpr (Objt == tr::ObjType::PROJECT) {
-            return u8"project";
-        } else if constexpr (Objt == tr::ObjType::FILE) {
-            return obj.makeId(idlib.filePrefix, idlib.fileSuffix);
-        } else if constexpr (Objt == tr::ObjType::GROUP) {
-            return obj.makeId(idlib.groupPrefix, {});
-        } else if constexpr (Objt == tr::ObjType::TEXT) {
-            return obj.makeTextId(idlib);
-        } else {
-            throw std::logic_error("[UiObject.makeId] Strange objType");
-        }
-    }
-
 }   // anon namespace
 
 

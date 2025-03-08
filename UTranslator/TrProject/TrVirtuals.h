@@ -341,8 +341,6 @@ namespace tr {
                 std::u8string_view prefix,
                 std::u8string_view suffix) const;
         std::u8string makeTextId(const IdLib& idlib) const;
-        template <ObjType Objt>
-        std::u8string makeId(const IdLib* idlib, const UiObject* src) const;
         /// @return  fileInfo, either own or inherited from file
         const FileInfo* inheritedFileInfo() const;
 

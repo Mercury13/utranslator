@@ -448,25 +448,29 @@ namespace tr {
         virtual std::u8string caption() const = 0;
         virtual ~FindCriterion() = default;
     };
+
+
+    template <tr::ObjType Objt>
+    inline std::u8string makeIdT(const tr::UiObject& obj, const tr::IdLib& idlib)
+    {
+        if constexpr (Objt == tr::ObjType::PROJECT) {
+            return u8"project";
+        } else if constexpr (Objt == tr::ObjType::FILE) {
+            return obj.makeId(idlib.filePrefix, idlib.fileSuffix);
+        } else if constexpr (Objt == tr::ObjType::GROUP) {
+            return obj.makeId(idlib.groupPrefix, {});
+        } else if constexpr (Objt == tr::ObjType::TEXT) {
+            return obj.makeTextId(idlib);
+        } else {
+            throw std::logic_error("[UiObject.makeId] Strange objType");
+        }
+    }
+
 }   // namespace tr
 
 
 ///// Template implementations /////////////////////////////////////////////////
 
-
-template <tr::ObjType Objt>
-std::u8string tr::UiObject::makeId(const IdLib* idlib, const UiObject* src) const
-{
-    if (idlib) {
-        /// @todo [urgent, #70] Yo-yo here
-        ///return makeId<Objt>(*this, *idlib);
-        return u8"Bad-bad ID";
-    } else if (src) {
-        return std::u8string { src->idColumn() };
-    } else {
-        return std::u8string { idColumn() };
-    }
-}
 
 template <class T>
 unsigned tr::Pair<T>::size() const
@@ -483,3 +487,4 @@ template<class... T>
     r->fSelf = r;
     return r;
 }
+
