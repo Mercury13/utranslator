@@ -60,22 +60,13 @@ std::shared_ptr<tr::VirtualProject> tr::Traversable::vproject()
     return project();
 }
 
-
-
-///// UiObject /////////////////////////////////////////////////////////////////
-
-/// @todo [urgent, #70] links to different objects
-
-const tr::FileInfo* tr::UiObject::inheritedFileInfo() const
+std::shared_ptr<const tr::FileInfo> tr::Traversable::inheritedFileInfo() const
 {
     if (auto f = file()) {
-        if (auto fi = f->ownFileInfo()) {
-            return fi;
-        }
+        return { f, &f->info };
     }
-    return nullptr;
+    return {};
 }
-
 
 ///// Entity ///////////////////////////////////////////////////////////////////
 

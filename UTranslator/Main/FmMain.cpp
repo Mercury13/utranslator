@@ -781,10 +781,10 @@ void FmMain::startEditingOrig(const QModelIndex& index, EditMode editMode)
 {
     ui->treeStrings->setCurrentIndex(index);
     auto obj = treeModel.toObj(index);
-    auto file = obj->file();
+    auto fileInfo = obj->inheritedFileInfo();
     switch (editMode) {
     case EditMode::TEXT:
-        if (file && file->info.isIdless) {
+        if (fileInfo && fileInfo->isIdless) {
             ui->memoOriginal->setFocus();
             break;
         }
@@ -1467,17 +1467,17 @@ void FmMain::doLoadText()
     QModelIndex index = ui->treeStrings->currentIndex();
     auto obj = treeModel.toObj(index);
     auto selectedGroup = obj->nearestGroup();
-    auto file = obj->file();
-    if (!selectedGroup || !file) {
+    auto fileInfo = obj->inheritedFileInfo();
+    if (!selectedGroup || !fileInfo) {
         QMessageBox::warning(this, "Load texts", "Please select something!");
         return;
     }
 
     // Get current file
     CloningUptr<tf::FileFormat> fileFormat;
-    if (file.get() != loadSetsCache.fileKey) {
-        if (file->info.format)
-            fileFormat = file->info.format->clone();
+    if (fileInfo.get() != loadSetsCache.fileKey) {
+        if (fileInfo->format)
+            fileFormat = fileInfo->format->clone();
     }
     if (!fileFormat && loadSetsCache.format) {
         fileFormat = loadSetsCache.format->clone();
@@ -1489,7 +1489,7 @@ void FmMain::doLoadText()
                 tf::ProtoFilter::ALL_IMPORTING)) {
         // Save as soon as we chose smth, even if we press Cancel afterwards
         loadSetsCache.format = std::move(fileFormat);
-        loadSetsCache.fileKey = file.get();
+        loadSetsCache.fileKey = fileInfo.get();
         auto filter = loadSetsCache.format->fileFilter();
         filedlg::Filters filters { filter, filedlg::ALL_FILES };
         std::filesystem::path fileName = filedlg::open(
@@ -1500,7 +1500,9 @@ void FmMain::doLoadText()
             std::shared_ptr<tr::VirtualGroup> destGroup;
             switch (loadSetsCache.text.loadTo) {
             case tf::LoadTo::ROOT:
-                destGroup = file;
+                //destGroup = file;
+                /// @todo [urgent, #70] destGroup = file, what to replace
+                destGroup = nullptr;
                 break;
             case tf::LoadTo::SELECTED:
                 destGroup = selectedGroup;

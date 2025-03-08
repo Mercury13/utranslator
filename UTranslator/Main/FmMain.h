@@ -191,7 +191,7 @@ private:
     Uptr<FmTrash> fmTrash;
 
     struct loadSetsCache {
-        void* fileKey = nullptr;
+        const void* fileKey = nullptr;
         CloningUptr<tf::FileFormat> format;
         tf::LoadTextsSettings text;
         tf::SyncInfo syncInfo;

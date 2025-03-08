@@ -73,14 +73,23 @@ namespace tr {
         /// mainly called from Project only
         virtual void traverse(
                 TraverseListener& x, tr::WalkOrder order, EnterMe enterMe) = 0;
+        /// @return  ptr to file
+        virtual std::shared_ptr<File> file() = 0;
         /// @return  ptr to project
         virtual std::shared_ptr<Project> project() = 0;
 
+        // Finals
         std::shared_ptr<VirtualProject> vproject() final;
+        std::shared_ptr<const FileInfo> inheritedFileInfo() const final;
+
+        // Utils
+        /// @return  fileInfo, either own or inherited from file
 
         // Const versions
         std::shared_ptr<const Project> project() const
             { return const_cast<Traversable*>(this)->project(); }
+        std::shared_ptr<const File> file() const
+            { return const_cast<Traversable*>(this)->file(); }
     };
 
     template <class T>
@@ -343,7 +352,7 @@ namespace tr {
         void writeToXml(pugi::xml_node&, WrCache&) const override;
         void readFromXml(const pugi::xml_node& node, const ReadContext& ctx) override;
         using Super::ownFileInfo;
-        virtual FileInfo* ownFileInfo() override { return &info; }
+        std::shared_ptr<FileInfo> ownFileInfo() override { return { selfUi(), &info }; }
         std::shared_ptr<Entity> vclone(
                 const std::shared_ptr<VirtualGroup>&) const override
             { throw std::logic_error("Cannot clone files"); }

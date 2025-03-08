@@ -157,8 +157,6 @@ namespace tr {
     using EvText1 = tl::function_ref<void(Translatable&)>;
     using EvCText1 = tl::function_ref<void(const Translatable&)>;
 
-    /// @todo [urgent, #70] File here, what to do?
-    class File;
     /// @todo [urgent, #70] VirtualGroup here, what to do?
     class VirtualGroup;
 
@@ -261,13 +259,14 @@ namespace tr {
         virtual size_t nChildren() const noexcept = 0;
         virtual std::shared_ptr<UiObject> child(size_t i) const = 0;
         virtual std::u8string_view idColumn() const = 0;
+        virtual std::shared_ptr<const FileInfo> inheritedFileInfo() const = 0;
+        virtual std::shared_ptr<FileInfo> ownFileInfo() { return {}; }
         /// @return [+] was changed
         virtual bool setId(std::u8string_view, tr::Modify) { return false; }
         /// Deletes i’th child
         /// @return extracted child
         /// @warning  Because of recache, complexity is O(n)
         virtual std::shared_ptr<UiObject> extractChild(size_t, Modify) { return {}; }
-        virtual std::shared_ptr<File> file() = 0;
         virtual void traverseTexts(const EvText&) = 0;
         virtual void traverseCTexts(const EvCText&) const = 0;
 
@@ -276,7 +275,6 @@ namespace tr {
         /// @return  ptr to original/translation, or null
         virtual Translatable* translatable() { return nullptr; }
         /// @return  ptr to file info, or null
-        virtual FileInfo* ownFileInfo() { return nullptr; }
         /// @return  ptr to own file foprmat, or null
         virtual CloningUptr<tf::FileFormat>* ownFileFormat() { return nullptr; }
         /// Goes together with ownFileFormat. Checks which formats are allowed
@@ -337,8 +335,6 @@ namespace tr {
                 std::u8string_view prefix,
                 std::u8string_view suffix) const;
         std::u8string makeTextId(const IdLib& idlib) const;
-        /// @return  fileInfo, either own or inherited from file
-        const FileInfo* inheritedFileInfo() const;
 
         /// @return  [+] s_p to this  [0] nothing happened
         std::shared_ptr<UiObject> extract(Modify wantModify);
@@ -359,10 +355,8 @@ namespace tr {
         void removeReferenceChannel();
 
         // Const verions
-        const FileInfo* ownFileInfo() const
+        std::shared_ptr<const FileInfo> ownFileInfo() const
             { return const_cast<UiObject*>(this)->ownFileInfo(); }
-        std::shared_ptr<const File> file() const
-            { return const_cast<UiObject*>(this)->file(); }
         std::shared_ptr<const VirtualProject> vproject() const
             { return const_cast<UiObject*>(this)->vproject(); }
     protected:
