@@ -458,7 +458,7 @@ template <tr::ObjType Objt>
 std::u8string tr::UiObject::makeId(const IdLib* idlib, const UiObject* src) const
 {
     if (idlib) {
-        /// #todo [#70] Yo-yo here
+        /// @todo [urgent, #70] Yo-yo here
         ///return makeId<Objt>(*this, *idlib);
         return u8"Bad-bad ID";
     } else if (src) {
