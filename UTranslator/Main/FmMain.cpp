@@ -893,6 +893,9 @@ void FmMain::addSyncGroup()
 
 void FmMain::addText()
 {
+    /// @todo [urgent, #70] The chain is:
+    ///       disambigGroup() returns concrete VirtualGroup
+    ///       VirtualGroup’s add() returns text
     if (auto dis = disambigGroup(u8"Add text")) {
         auto text = treeModel.addText(*dis);
         if (text) {    // Have text
