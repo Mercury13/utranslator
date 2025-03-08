@@ -154,8 +154,8 @@ namespace tr {
     class UiObject;
     using EvText = tl::function_ref<void(UiObject&, Translatable&)>;
     using EvCText = tl::function_ref<void(const UiObject&, const Translatable&)>;
-    using EvMiniText = tl::function_ref<void(Translatable&)>;
-    using EvMiniCText = tl::function_ref<void(const Translatable&)>;
+    using EvText1 = tl::function_ref<void(Translatable&)>;
+    using EvCText1 = tl::function_ref<void(const Translatable&)>;
 
     /// @todo [urgent, #70] File here, what to do?
     class File;
@@ -351,8 +351,8 @@ namespace tr {
         void swapChildren(size_t index1, size_t index2);
         BigStats bigStats() const;
 
-        void traverseTexts1(const EvMiniText&);
-        void traverseCTexts1(const EvMiniCText&) const;
+        void traverseTexts1(const EvText1&);
+        void traverseCTexts1(const EvCText1&) const;
 
         /// Removes everything related to reference translation, leaving only original
         ///   (reference, known reference if I have someday)

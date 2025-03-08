@@ -402,7 +402,7 @@ void tr::UiObject::uiStealDataFrom(UiObject& x, UiObject* myParent)
 }
 
 
-void tr::UiObject::traverseTexts1(const EvMiniText& ev)
+void tr::UiObject::traverseTexts1(const EvText1& ev)
 {
     auto q = [&ev](tr::UiObject&, tr::Translatable& tr) {
         ev(tr);
@@ -411,7 +411,7 @@ void tr::UiObject::traverseTexts1(const EvMiniText& ev)
 }
 
 
-void tr::UiObject::traverseCTexts1(const EvMiniCText& ev) const
+void tr::UiObject::traverseCTexts1(const EvCText1& ev) const
 {
     auto q = [&ev](const tr::UiObject&, const tr::Translatable& tr) {
         ev(tr);
