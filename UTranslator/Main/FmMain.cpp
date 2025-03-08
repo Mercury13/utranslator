@@ -413,6 +413,7 @@ void FmMain::loadContext(tr::UiObject* lastSon)
     // Build HTML backwards
     QString html = "</dl>";
     for (auto p = lastSon;
+            /// @todo [urgent, #70] project here?
             p && p->objType() != tr::ObjType::PROJECT;
             p = p->parent().get()) {
         auto itsText = u8"<dt>•&nbsp;" + str::toQ(p->idColumn()).toHtmlEscaped() + "</dt>";
