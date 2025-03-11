@@ -209,15 +209,15 @@ namespace {
     /// Checks whether ext.original is translated text
     /// @return  [+] translated text  [-] untranslated hole
     ///
-    bool twHasText(tr::Text& text, tr::Text& ext,  const tr::tw::Sets& sets)
+    bool twHasText(tr::Translatable& text, tr::Translatable& ext,  const tr::tw::Sets& sets)
     {
         // Check sign after sign
         if (sets.holeSigns.origIsExt) {
-            if (text.tr.original == ext.tr.original)
+            if (text.original == ext.original)
                 return false;
         }
         if (sets.holeSigns.emptyString) {
-            if (ext.tr.original.empty())
+            if (ext.original.empty())
                 return false;
         }
         return true;
@@ -231,10 +231,10 @@ namespace {
         switch (sets.priority) {
         case tr::tw::Priority::EXISTING:
             // Only when translation is absent and anything is present at ext
-            return !text.tr.translation && twHasText(text, ext, sets);
+            return !text.tr.translation && twHasText(text.tr, ext.tr, sets);
         case tr::tw::Priority::EXTERNAL:
             // Always when text is present
-            return twHasText(text, ext, sets);
+            return twHasText(text.tr, ext.tr, sets);
         }
         __builtin_unreachable();
     }
