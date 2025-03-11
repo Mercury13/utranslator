@@ -248,6 +248,7 @@ namespace {
         }
     }
 
+    /// @todo [future, #70] Is it possible to walk through the project using simpler means?
     void twWalkVgroup(tr::VirtualGroup& group, tr::VirtualGroup& ext,
                     const tr::tw::Sets& sets, TwStats& stats)
     {
