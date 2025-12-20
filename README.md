@@ -21,6 +21,9 @@ Set in “UTranslator.xml” file “portable=1”
 #### Original: you just edit original strings
 ![Mode:original](docs/pix/original.png)
 
+#### Translation: you translate the UTranslator’s original
+![Mode:translation](docs/pix/translation.png)
+
 ## Supported formats
 
 #### Simple INI (text, read/write)
