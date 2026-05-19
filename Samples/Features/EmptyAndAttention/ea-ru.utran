@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ut type="full-transl">
+ <info>
+  <orig lang="en" fname="ea-en.uorig" />
+  <transl lang="ru" pseudoloc="false" />
+ </info>
+ <file name="file0.txt" idless="false">
+  <text id="1">
+   <orig>One</orig>
+   <transl>Один</transl>
+  </text>
+ </file>
+</ut>
