@@ -53,7 +53,7 @@ namespace {
         { subst = std::u32string_view { subst.data(), subst.size() + n }; }
 
     qdif::Pair& backOf(qdif::EditScript& r, bool needCommon,
-                       const char32_t& a, const char32_t& b)
+                       const char32_t* a, const char32_t* b)
     {
         if (!r.empty()) {
             auto& bk = r.back();
@@ -79,8 +79,8 @@ namespace {
             }
         }
         auto& newBk = r.emplace_back();
-        newBk.del = std::u32string_view { &a, 0 };
-        newBk.ins = std::u32string_view { &b, 0 };
+        newBk.del = std::u32string_view { a, 0 };
+        newBk.ins = std::u32string_view { b, 0 };
         newBk.isCommon = needCommon;
         return newBk;
     }
@@ -184,27 +184,32 @@ namespace {
         // Forward move
         size_t ii = 0, jj = 0;
         while (ii != a.length() || jj != b.length()) {
+            if (ii > a.length() || ii > b.length()) {
+                throw std::logic_error("Went too far away");
+            }
+            const char32_t* pA = a.data() + ii;
+            const char32_t* pB = b.data() + jj;
             switch (dr(ii, jj)) {
             case Dir::COM: {
                     //std::cout << "Common at " << ii << "/" << jj << std::endl;
-                    auto& bk = backOf(r, true, a[ii], b[jj]);
+                    auto& bk = backOf(r, true, pA, pB);
                     inc1(bk.del, ii);
                     inc1(bk.ins, jj);
                 } break;
             case Dir::CHG: {
                     //std::cout << "Change at " << ii << "/" << jj << std::endl;
-                    auto& bk = backOf(r, false, a[ii], b[jj]);
+                    auto& bk = backOf(r, false, pA, pB);
                     inc1(bk.del, ii);
                     inc1(bk.ins, jj);
                 } break;
             case Dir::DEL: {
                     //std::cout << "Delete at " << ii << "/" << jj << std::endl;
-                    auto& bk = backOf(r, false, a[ii], b[jj]);
+                    auto& bk = backOf(r, false, pA, pB);
                     inc1(bk.del, ii);
                 } break;
             case Dir::INS: {
                     //std::cout << "Insert at " << ii << "/" << jj << std::endl;
-                    auto& bk = backOf(r, false, a[ii], b[jj]);
+                    auto& bk = backOf(r, false, pA, pB);
                     inc1(bk.ins, jj);
                 } break;
             }
