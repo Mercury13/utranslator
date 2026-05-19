@@ -296,9 +296,11 @@ void FmMain::retrieveVersion()
     auto version = QApplication::applicationVersion();
         // Count “.” chars
     int nDots = 0;
-    for (auto c : version)
+    for (const auto verCopy = version;
+         auto& c : verCopy) {
         if (c == '.')
             ++nDots;
+    }
     // Remove '.0' if there will be dots remaining
     while (nDots > 1 && version.endsWith(".0")) {
         version.resize(version.length() - 2);

@@ -41,7 +41,7 @@ namespace tr {
         std::u32string translation {};
         struct Comments {
             ///< R/O, and as QString works quietly and with some mojibake → OK
-            std::u8string_view importers {};
+            std::u8string importers {};
             std::u32string editable {};
         } comm;
 

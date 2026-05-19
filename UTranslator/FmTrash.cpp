@@ -9,7 +9,7 @@
 #include "QtConsts.h"
 
 // Project
-#include "TrProject.h"
+#include "TrVirtuals.h"
 
 FmTrash::FmTrash(QWidget *parent) :
     Super(parent, QDlgType::SIZEABLE),
