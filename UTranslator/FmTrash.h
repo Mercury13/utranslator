@@ -9,7 +9,7 @@ namespace Ui {
 class FmTrash;
 }
 
-class QstrObject;
+class StrObject;
 
 namespace tr {
     struct Trash;
@@ -44,19 +44,20 @@ class FmTrash : public QDialog
 public:
     explicit FmTrash(QWidget *parent = nullptr);
     ~FmTrash() override;
-    void exec(tr::Trash& trash, QstrObject* obj, TrashChannel channel);
+    void exec(tr::Trash& trash, StrObject* obj, TrashChannel channel);
 private:
     Ui::FmTrash *ui;
-    using Super::exec;
-
     TrashModel model;
-
     struct {
         tr::Passport* passport = nullptr;
         size_t size = 0;
     } oldTrash;
+    bool canAccept = false;
 
+    using Super::exec;
     bool isSameTrash(const tr::Trash& x) noexcept;
+private slots:
+    void treeDblClicked(const QModelIndex& index);
 };
 
 #endif // FMTRASH_H

@@ -13,6 +13,20 @@
 
 // Utils
 #include "u_Qstrings.h"
+#include "Tools/QstrObject.h"
+
+///  Simple conversion signed → unsigned
+template <std::integral T>
+auto toUnsigned(T x) -> std::make_unsigned_t<T>
+    { return x; }
+
+///  Saturating conversion signed → unsigned (neg→0)
+template <std::integral T>
+auto satUnsigned(T x) -> std::make_unsigned_t<T>
+{
+    static_assert(std::is_signed_v<T>);
+    return (x < 0) ? 0 : x;
+}
 
 
 ///// TrashModel ///////////////////////////////////////////////////////////////
@@ -40,7 +54,7 @@ int TrashModel::columnCount(const QModelIndex&) const
 
 QVariant TrashModel::data(const QModelIndex &index, int role) const
 {
-    if (!trash || index.row() >= rowCount({}))
+    if (!trash || toUnsigned(index.row()) >= satUnsigned(rowCount({})))
         return {};
     switch (role) {
     case Qt::DisplayRole: {
@@ -75,7 +89,7 @@ QVariant TrashModel::headerData(
         "Id", "Original", "Translation",
     };
     static_assert(std::size(names) == COL_N);
-    if (unsigned sec = section; sec < COL_N) {
+    if (auto sec = toUnsigned(section); sec < COL_N) {
         return names[sec];
     }
     return {};
@@ -108,12 +122,22 @@ FmTrash::FmTrash(QWidget *parent) :
 
     ui->treeAll->setModel(&model);
 
-    connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &This::close);
+    connect(ui->treeAll, &QTreeView::doubleClicked, this, &This::treeDblClicked);
+    connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &This::accept);
+    connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &This::reject);
 }
 
 FmTrash::~FmTrash()
 {
     delete ui;
+}
+
+
+void FmTrash::treeDblClicked(const QModelIndex& index)
+{
+    if (canAccept && index.isValid()) {
+        accept();
+    }
 }
 
 
@@ -127,11 +151,12 @@ bool FmTrash::isSameTrash(const tr::Trash& x) noexcept
 }
 
 
-void FmTrash::exec(tr::Trash& trash, QstrObject* obj, TrashChannel channel)
+void FmTrash::exec(tr::Trash& trash, StrObject* obj, TrashChannel channel)
 {
     // Enable-disable OK
     auto btOk = ui->buttonBox->button(QDialogButtonBox::Ok);
-    btOk->setEnabled(obj && trash.hasSmth());
+    canAccept = obj && trash.hasSmth();
+    btOk->setEnabled(canAccept);
 
     model.setTrash(trash);
     if (trash.hasSmth()) {
@@ -142,13 +167,17 @@ void FmTrash::exec(tr::Trash& trash, QstrObject* obj, TrashChannel channel)
     auto result = Super::exec();
 
     if (obj && result) {
-        switch (channel) {
-        case TrashChannel::ORIGINAL:
-            /// @todo [urgent] original
-            break;
-        case TrashChannel::TRANSLATION:
-            /// @todo [urgent] translation
-            break;
+        auto index = toUnsigned(ui->treeAll->currentIndex().row());
+        if (index < trash.size()) {
+            auto& line = trash.data[index];
+            switch (channel) {
+            case TrashChannel::ORIGINAL:
+                obj->set(line.tr.original);
+                break;
+            case TrashChannel::TRANSLATION:
+                obj->set(line.tr.translationSv());
+                break;
+            }
         }
     }
 
