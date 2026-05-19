@@ -4,7 +4,7 @@ A very common scenario: a developer w/o language knowlegde sloppily (analogy/AI)
 **Method of reproduction:**
 1. Open ea-ru.utran
 2. Update data (^F5)
-3. Select the newly-created string (2)
+3. Select the newly-created string (id=2)
 4. Write something
 5. Mark as bad (F8)
 
