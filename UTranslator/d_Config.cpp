@@ -47,7 +47,7 @@ namespace {
         pugi::xml_document doc;
         doc.load_file(fname::progsets.c_str());
         auto root = doc.child("program");
-        if (root.attribute("portable").as_bool(false))
+        if (root.attribute("portable").as_bool(true))
             progsets::dirMode = progsets::DirMode::PORTABLE;
     }
 
