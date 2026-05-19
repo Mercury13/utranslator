@@ -261,4 +261,6 @@ private:
             const char* path, const char* description);
     void showMessageOverTree(std::u8string_view msg);
     void markAttentionCurrObjectEx(FuncBoolBool func);
+    /// Shows bugs as visible on the screen
+    void showBugsAsVisible();
 };

@@ -1803,15 +1803,22 @@ void FmMain::stopBugTimer()
 }
 
 
+void FmMain::showBugsAsVisible()
+{
+    stopBugTimer();
+    tr::BugCache tmp;
+    uiToCache(tmp);
+    showBugs(tmp.bugs());
+}
+
+
 void FmMain::bugTicked()
 {
     QModelIndex index = ui->treeStrings->currentIndex();
     auto obj = treeModel.toObj(index);
     auto lkBug = bugCache.obj.lock();
     if (obj == lkBug.get()) {
-        tr::BugCache tmp;
-        uiToCache(tmp);
-        showBugs(tmp.bugs());
+        showBugsAsVisible();
     }
 }
 
@@ -1906,7 +1913,7 @@ void FmMain::markAttentionCurrObjectEx(FuncBoolBool x)
         // Let it be YES for now (cascade is for children, and they are absent)
     obj->stats(tr::StatsMode::DIRECT, tr::CascadeDropCache::YES);
     reenableOnSelect(obj);
-    showBugs(bugCache.bugs());
+    showBugsAsVisible();
     emit treeModel.dataChanged({}, {});
 }
 
