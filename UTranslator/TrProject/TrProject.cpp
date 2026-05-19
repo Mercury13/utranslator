@@ -586,8 +586,8 @@ tr::UpdateInfo tr::VirtualGroup::vgStealDataFrom(
     // Fill trash
     if (ctx.trash) {
         for (auto& w : x.children) {
-            if (w->state != ObjState::DELETED
-                    || w->objType() != ObjType::TEXT)
+            if (!w || w->state != ObjState::DELETED
+                   || w->objType() != ObjType::TEXT)
                 continue;
             if (auto* tr = w->translatable()) {
                 if (tr->translation) {

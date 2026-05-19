@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ut type="full-transl">
+ <info>
+  <orig lang="en" fname="trash-en-new.uorig" />
+  <transl lang="qps" pseudoloc="false" />
+ </info>
+ <file name="file0.txt" idless="false">
+  <group id="G1">
+   <text id="1">
+    <orig>One</orig>
+    <transl>-one-</transl>
+   </text>
+   <text id="2">
+    <orig>Two</orig>
+    <transl>-two-</transl>
+   </text>
+   <text id="3">
+    <orig>Three</orig>
+    <transl>-three-</transl>
+   </text>
+  </group>
+  <group id="G2" />
+ </file>
+</ut>

@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ut type="original">
+ <info>
+  <orig lang="en" />
+ </info>
+ <file name="file0.txt" idless="false">
+  <group id="G1">
+   <text id="1">
+    <orig>One</orig>
+   </text>
+   <text id="2">
+    <orig>Two</orig>
+   </text>
+   <text id="3">
+    <orig>Three</orig>
+   </text>
+  </group>
+  <group id="G2" />
+ </file>
+</ut>

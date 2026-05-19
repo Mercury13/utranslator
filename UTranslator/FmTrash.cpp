@@ -11,11 +11,103 @@
 // Project
 #include "TrVirtuals.h"
 
+// Utils
+#include "u_Qstrings.h"
+
+
+///// TrashModel ///////////////////////////////////////////////////////////////
+
+
+int TrashModel::rowCount(const QModelIndex&) const
+{
+    if (!trash)
+        return 0;
+    return trash->size();
+}
+
+
+enum {
+    COL_ID, COL_ORIG, COL_TRANSL,
+    COL_N
+};
+
+
+int TrashModel::columnCount(const QModelIndex&) const
+{
+    return COL_N;
+}
+
+
+QVariant TrashModel::data(const QModelIndex &index, int role) const
+{
+    if (!trash || index.row() >= rowCount({}))
+        return {};
+    switch (role) {
+    case Qt::DisplayRole: {
+            const auto& line = trash->data[index.row()];
+            switch (index.column()) {
+            case COL_ID:
+                if (line.idChain.empty())
+                    return {};
+                return str::toQ(line.idChain.back());
+            case COL_ORIG:
+                return str::toQ(line.tr.original);
+            case COL_TRANSL:
+                return str::toQ(line.tr.translationSv());
+            default:
+                return {};
+            }
+        }
+    default:
+        return {};
+    }
+}
+
+
+QVariant TrashModel::headerData(
+        int section, Qt::Orientation orientation, int role) const
+{
+    if (orientation != Qt::Horizontal
+            || role != Qt::DisplayRole) {
+        return {};
+    }
+    static constinit const char* names[] {
+        "Id", "Original", "Translation",
+    };
+    static_assert(std::size(names) == COL_N);
+    if (unsigned sec = section; sec < COL_N) {
+        return names[sec];
+    }
+    return {};
+}
+
+
+void TrashModel::setTrash(tr::Trash& x)
+{
+    beginResetModel();
+    trash = &x;
+    endResetModel();
+}
+
+void TrashModel::removeTrash()
+{
+    beginResetModel();
+    trash = nullptr;
+    endResetModel();
+}
+
+
+///// FmTrash //////////////////////////////////////////////////////////////////
+
+
 FmTrash::FmTrash(QWidget *parent) :
     Super(parent, QDlgType::SIZEABLE),
     ui(new Ui::FmTrash)
 {
     ui->setupUi(this);
+
+    ui->treeAll->setModel(&model);
+
     connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &This::close);
 }
 
@@ -41,10 +133,15 @@ void FmTrash::exec(tr::Trash& trash, QstrObject* obj, TrashChannel channel)
     auto btOk = ui->buttonBox->button(QDialogButtonBox::Ok);
     btOk->setEnabled(obj && trash.hasSmth());
 
-    /// @todo [urgent] exec trash
-    Super::exec();
+    model.setTrash(trash);
+    if (trash.hasSmth()) {
+        ui->treeAll->setCurrentIndex(model.index(0, 0));
+        ui->treeAll->setFocus();
+    }
 
-    if (obj) {
+    auto result = Super::exec();
+
+    if (obj && result) {
         switch (channel) {
         case TrashChannel::ORIGINAL:
             /// @todo [urgent] original
@@ -54,4 +151,6 @@ void FmTrash::exec(tr::Trash& trash, QstrObject* obj, TrashChannel channel)
             break;
         }
     }
+
+    model.removeTrash();
 }
