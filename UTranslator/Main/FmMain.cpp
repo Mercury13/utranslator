@@ -296,7 +296,7 @@ void FmMain::retrieveVersion()
     auto version = QApplication::applicationVersion();
         // Count “.” chars
     int nDots = 0;
-    for (const auto verCopy = version;
+    for (const auto verCopy = version;  // as QString is shared, OK -warn
          auto& c : verCopy) {
         if (c == '.')
             ++nDots;
