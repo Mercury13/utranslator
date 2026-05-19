@@ -1,5 +1,5 @@
 **Bug:**
-A very common scenario: a developer w/o language knowlegde sloppily (analogy/AI) translates a new string, marks 
+A very common scenario: a developer w/o language knowlegde sloppily (analogy/AI) translates a new string, marks it as bad and gets a wrong discrepancy
 
 **Method of reproduction:**
 1. Open ea-ru.utran
