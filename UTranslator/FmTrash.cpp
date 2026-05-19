@@ -34,9 +34,7 @@ auto satUnsigned(T x) -> std::make_unsigned_t<T>
 
 int TrashModel::rowCount(const QModelIndex&) const
 {
-    if (!trash)
-        return 0;
-    return trash->size();
+    return knownSize();
 }
 
 
@@ -98,16 +96,47 @@ QVariant TrashModel::headerData(
 
 void TrashModel::setTrash(tr::Trash& x)
 {
-    beginResetModel();
-    trash = &x;
-    endResetModel();
+    auto diff = trashDiff(x);
+    if (diff.isSame) {
+        if (diff.oldSize == diff.newSize) {
+            changeTrash(x);
+            emit dataChanged({}, {});
+        } else {
+            beginInsertRows({}, diff.oldSize, diff.newSize - 1);
+            changeTrash(x);
+            endInsertRows();
+        }
+    } else {
+        beginResetModel();
+        changeTrash(x);
+        endResetModel();
+    }
 }
+
 
 void TrashModel::removeTrash()
 {
-    beginResetModel();
     trash = nullptr;
-    endResetModel();
+    emit dataChanged({}, {});
+}
+
+
+TrashModel::TrashDiff TrashModel::trashDiff(const tr::Trash& x) noexcept
+{
+    return {
+        .oldSize = oldTrash.size,
+        .newSize = x.size(),
+        .isSame = (x.passport == oldTrash.passport
+                   && x.size() >= oldTrash.size),
+    };
+}
+
+
+void TrashModel::changeTrash(const tr::Trash& x)
+{
+    oldTrash.passport = x.passport;
+    oldTrash.size = x.size();
+    trash = &x;
 }
 
 
@@ -141,16 +170,6 @@ void FmTrash::treeDblClicked(const QModelIndex& index)
 }
 
 
-bool FmTrash::isSameTrash(const tr::Trash& x) noexcept
-{
-    bool r = (x.passport.get() == oldTrash.passport
-           && x.size() >= oldTrash.size);
-    oldTrash.passport = x.passport.get();
-    oldTrash.size = x.size();
-    return r;
-}
-
-
 void FmTrash::exec(tr::Trash& trash, StrObject* obj, TrashChannel channel)
 {
     // Enable-disable OK
@@ -159,7 +178,7 @@ void FmTrash::exec(tr::Trash& trash, StrObject* obj, TrashChannel channel)
     btOk->setEnabled(canAccept);
 
     model.setTrash(trash);
-    if (trash.hasSmth()) {
+    if (trash.hasSmth() && !ui->treeAll->currentIndex().isValid()) {
         ui->treeAll->setCurrentIndex(model.index(0, 0));
         ui->treeAll->setFocus();
     }

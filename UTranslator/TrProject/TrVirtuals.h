@@ -134,7 +134,7 @@ namespace tr {
         };
 
         SafeVector<Line> data;
-        std::unique_ptr<Passport> passport = std::make_unique<Passport>();
+        std::shared_ptr<Passport> passport = std::make_shared<Passport>();
 
         bool isEmpty() const noexcept { return data.empty(); }
         bool hasSmth() const noexcept { return !isEmpty(); }

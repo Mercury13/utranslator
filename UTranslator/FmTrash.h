@@ -32,8 +32,22 @@ public:
 
     void setTrash(tr::Trash& x);
     void removeTrash();
+    size_t knownSize() const { return oldTrash.size; }
 private:
-    tr::Trash* trash = nullptr;
+    const tr::Trash* trash = nullptr;
+
+    struct {
+        std::shared_ptr<tr::Passport> passport {};
+        size_t size = 0;
+    } oldTrash;
+
+    struct TrashDiff {
+        /// As we add new items to the end only, diff is enough
+        size_t oldSize = 0, newSize = 0;
+        bool isSame = false;
+    };
+    TrashDiff trashDiff(const tr::Trash& x) noexcept;
+    void changeTrash(const tr::Trash& x);
 };
 
 class FmTrash : public QDialog        
@@ -48,14 +62,9 @@ public:
 private:
     Ui::FmTrash *ui;
     TrashModel model;
-    struct {
-        tr::Passport* passport = nullptr;
-        size_t size = 0;
-    } oldTrash;
     bool canAccept = false;
 
     using Super::exec;
-    bool isSameTrash(const tr::Trash& x) noexcept;
 private slots:
     void treeDblClicked(const QModelIndex& index);
 };
