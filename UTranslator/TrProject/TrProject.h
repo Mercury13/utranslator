@@ -127,8 +127,11 @@ namespace tr {
         tf::ProtoFilter filter;
     };
 
+    enum class TrashMode : unsigned char { LEAVE, FILL };
+
     struct StealContext {
         tf::StealOrig orig;
+        Trash* trash;
     };
 
     struct ReadContext {
@@ -370,8 +373,6 @@ namespace tr {
         /// actually unused. Maybe a bit poor architecture…
         virtual void updateParent(const std::shared_ptr<VirtualGroup>&) override {}
     };
-
-    enum class TrashMode : unsigned char { LEAVE, FILL };
 
     class Project final :
             public Traversable,

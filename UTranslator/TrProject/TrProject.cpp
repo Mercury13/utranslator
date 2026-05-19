@@ -538,9 +538,14 @@ tr::UpdateInfo tr::VirtualGroup::vgStealDataFrom(
 {
     entityStealDataFrom(x, myParent, ctx);
     tr::UpdateInfo r;
-    // Switch state to added
+    // Switch state to added in ME...
     for (auto& v : children)
         v->state = ObjState::ADDED;
+    // And in deleted with HIM!
+    if (ctx.trash) {
+        for (auto& w : x.children)
+            w->state = ObjState::DELETED;
+    }
     // Try to steal
     for (auto& v : children) {
         switch (v->objType()) {
@@ -558,12 +563,13 @@ tr::UpdateInfo tr::VirtualGroup::vgStealDataFrom(
             } break;
         case tr::ObjType::TEXT: {
                 auto text = std::dynamic_pointer_cast<Text>(v);
-                if (!v)
+                if (!text)
                     throw std::logic_error("[vgStealDataFrom] Somehow the object is not a Text");
                 if (auto xText = x.findPText(v->id)) {
                     text->state = ObjState::STAYING;   // stays!
                     xText.place->reset();   // Remove that text!!
                     r.changed += text->stealDataFrom(*xText.obj, this, ctx);
+                    xText.obj->state = ObjState::STAYING;
                 }
             } break;
         }
@@ -576,6 +582,24 @@ tr::UpdateInfo tr::VirtualGroup::vgStealDataFrom(
             r += v->addedInfo(CascadeDropCache::NO);
         }
     }
+
+    // Fill trash
+    if (ctx.trash) {
+        for (auto& w : x.children) {
+            if (w->state != ObjState::DELETED
+                    || w->objType() != ObjType::TEXT)
+                continue;
+            if (auto* tr = w->translatable()) {
+                if (tr->translation) {
+                    auto& lastTrash = ctx.trash->data.emplace_back();
+                    /// @todo [urgent, trash] set IDs
+                    lastTrash.idChain.push_back(w->id);
+                    lastTrash.tr = *tr;
+                }
+            }
+        }
+    }
+
     return r;
 }
 
@@ -844,6 +868,7 @@ tr::UpdateInfo tr::Group::updateData_Original()
 
     StealContext ctx {
         .orig = static_cast<tf::StealOrig>(sync.info.textOwner),
+        .trash = nullptr,  // no trash in original
     };
     auto r = this->stealDataFrom(*tempGroup, nullptr, ctx);
     auto delInfo = tempGroup->deletedInfo(CascadeDropCache::NO);
@@ -1695,6 +1720,7 @@ tr::UpdateInfo tr::Project::updateData_FullTransl(TrashMode mode)
     this->removeTranslChannel();    // Do not forget, we swapped!
     StealContext ctx {
         .orig = tf::StealOrig::KEEP_WARN,
+        .trash = (mode == TrashMode::FILL) ? &this->trash : nullptr,
     };
     auto r = this->stealDataFrom(*tempPrj, ctx);
     // Stats will always be funked up!
