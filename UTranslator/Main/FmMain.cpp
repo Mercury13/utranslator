@@ -295,12 +295,7 @@ void FmMain::retrieveVersion()
 {
     auto version = QApplication::applicationVersion();
         // Count “.” chars
-    int nDots = 0;
-    for (const auto verCopy = version;  // as QString is shared, OK -warn
-         auto& c : verCopy) {
-        if (c == '.')
-            ++nDots;
-    }
+    int nDots = version.count('.');
     // Remove '.0' if there will be dots remaining
     while (nDots > 1 && version.endsWith(".0")) {
         version.resize(version.length() - 2);
