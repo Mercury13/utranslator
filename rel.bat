@@ -1,9 +1,6 @@
 @rem Settings
-@set QTDIR=c:\Qt\6.1.3\mingw81_64
-@rem Workaround for that Qt, maybe QtcW7Compat.7z
-@rem set WORKAROUND=
-@set MINGW=c:\msys64\mingw64\bin
-@set SEVENZIP="c:\Program Files\7-zip\7z.exe"
+@call xsetup.bat
+@if exist ~setup_local.bat call ~setup_local.bat
 
 @rem Rest things
 @set /p VERSION=<VERSION.
@@ -83,9 +80,6 @@
 @copy %QTDIR%\plugins\platforms\qwindows.dll %DEPLOY%\platforms
 @md %DEPLOY%\styles
 @copy %QTDIR%\plugins\styles\qwindowsvistastyle.dll %DEPLOY%\styles
-@if [%WORKAROUND%] == [] goto no_workaround
-@%SEVENZIP% x MiscFiles\%WORKAROUND% -o%DEPLOY%
-:no_workaround
 
 @REM @echo.
 @REM @echo ===== Building L10n =====
