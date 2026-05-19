@@ -1,6 +1,11 @@
 QT       += core gui widgets svgwidgets
 CONFIG += c++20 c++2a
 
+win32-g++ {
+    # To simplify debugging, we statically link these libraries
+    QMAKE_CXXFLAGS_DEBUG += -static-libgcc -static-libstdc++
+}
+
 CONFIG(debug, debug|release) {
     DEFINES += AT_RANGE_CHECK
 }
