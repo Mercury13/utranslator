@@ -21,6 +21,7 @@ enum class TrashChannel : unsigned char {
 class FmTrash : public QDialog        
 {
     Q_OBJECT
+    using This = FmTrash;
     using Super = QDialog;
 public:
     explicit FmTrash(QWidget *parent = nullptr);

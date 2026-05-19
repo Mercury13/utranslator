@@ -123,6 +123,8 @@ namespace tr {
         EXPANDED         ///< expanded
     };
 
+    /// A simple object intended for checking: are we working
+    ///   with the same project? Used mainly for trash.
     struct Passport {};
 
     struct Trash {

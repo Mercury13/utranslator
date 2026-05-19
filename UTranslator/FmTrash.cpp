@@ -16,6 +16,7 @@ FmTrash::FmTrash(QWidget *parent) :
     ui(new Ui::FmTrash)
 {
     ui->setupUi(this);
+    connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &This::close);
 }
 
 FmTrash::~FmTrash()
