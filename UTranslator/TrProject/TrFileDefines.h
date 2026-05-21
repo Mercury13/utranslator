@@ -66,12 +66,14 @@ namespace tr {
 
     struct TextFormat {
         static constexpr auto DEFAULT_STYLE = TextLineBreakStyle::CRLF;
+
         bool writeBom = true;
         TextLineBreakStyle lineBreakStyle = DEFAULT_STYLE;
+
         std::string_view eol() const
-        { return textLineBreakStyleInfo[lineBreakStyle].eol; }
+            { return textLineBreakStyleInfo[lineBreakStyle].eol; }
         std::string_view lineBreakTechName() const
-        { return textLineBreakStyleInfo[lineBreakStyle].techName; }
+            { return textLineBreakStyleInfo[lineBreakStyle].techName; }
         static TextLineBreakStyle parseStyle(std::string_view name);
     };
 
@@ -154,7 +156,7 @@ namespace tr {
     class FormatQueryObj  // interface
     {
     public:
-        virtual std::optional<QueryResult> query(std::span<std::u8string_view> ids);
+        virtual std::optional<QueryResult> query(std::span<std::u8string_view> ids) = 0;
         virtual ~FormatQueryObj() = default;
     };
 
@@ -179,7 +181,7 @@ namespace tr {
         ///  @warning  Needs both IMPORT and EXPORT flags
         ///  @warning  The object must be self-sufficient, i.e. do not rely
         ///    on the existence of FileFormat caller
-        std::unique_ptr<FormatQueryObj> doImportAsQuery(
+        virtual std::unique_ptr<FormatQueryObj> doImportAsQuery(
             const std::filesystem::path&) { return {}; }
 
         virtual const FormatProto& proto() const = 0;

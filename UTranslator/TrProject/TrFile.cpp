@@ -3,6 +3,7 @@
 
 // Qt
 #include <map>
+#include <unordered_map>
 
 // PugiXML
 #include "pugixml.hpp"
@@ -209,7 +210,7 @@ namespace {
 
 
 void tf::Ini::doImport(Loader& loader,
-              const std::filesystem::path& fname)
+            const std::filesystem::path& fname)
 {
     std::ifstream is(fname);
     if (!is.is_open()) {
@@ -219,6 +220,84 @@ void tf::Ini::doImport(Loader& loader,
     decode::ini(is, im);
 }
 
+
+namespace {
+
+    class IniQuery final :
+            public tf::FormatQueryObj,
+            public decode::IniCallback
+    {
+    public:
+        IniQuery(const escape::Text& te,
+                 const tf::MultitierStyle& mu);
+
+        using Group = std::unordered_map<std::u8string, std::u8string>;
+        std::unordered_map<std::u8string, Group> data;
+        // FormatQueryObj
+        std::optional<tf::QueryResult> query(std::span<std::u8string_view> ids) override;
+        // IniCallback
+        virtual void onGroup(std::u8string_view) override;
+        virtual void onVar(std::u8string_view name, std::u8string_view rawValue) override;
+    private:
+        escape::Text textEscape;
+        tf::MultitierStyle multitier;
+        Group* currGroup = nullptr;
+    };
+
+    IniQuery::IniQuery(const escape::Text& te,
+                       const tf::MultitierStyle& mu)
+        : textEscape(te), multitier(mu) {}
+
+    void IniQuery::onGroup(std::u8string_view text)
+    {
+        currGroup = &data[std::u8string{text}];
+    }
+
+    void IniQuery::onVar(std::u8string_view name, std::u8string_view rawValue)
+    {
+        if (!currGroup) {
+            currGroup = &data[{}];
+        }
+        (*currGroup)[std::u8string{name}] = textEscape.unescape(rawValue);
+    }
+
+    std::optional<tf::QueryResult> IniQuery::query(std::span<std::u8string_view> ids)
+    {
+        auto nIds = ids.size();
+        if (nIds == 0)
+            return {};
+        auto nGroupPart = nIds - 1;
+        std::u8string groupName;
+        for (size_t i = 0; i < nGroupPart; ++i) {
+            if (i != 0)
+                groupName += multitier.separator;
+            groupName += ids[i];
+        }
+        auto it1 = data.find(groupName);
+        if (it1 == data.end())
+            return {};
+
+        auto& group = it1->second;
+        auto it2 = group.find(groupName);
+        if (it2 == group.end())
+            return {};
+
+        return tf::QueryResult { .text = it2->second };
+    }
+
+}   // anon namespace
+
+
+std::unique_ptr<tf::FormatQueryObj> tf::Ini::doImportAsQuery(
+            const std::filesystem::path& fname)
+{
+    std::ifstream is(fname);
+    if (!is.is_open()) {
+        throw std::runtime_error("Cannot open file " + str::toStr(fname.filename().u8string()));
+    }
+    auto que = std::make_unique<IniQuery>(textEscape, multitier);
+    return que;
+}
 
 
 void tf::Ini::save(pugi::xml_node& node) const
