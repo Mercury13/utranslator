@@ -174,7 +174,7 @@ namespace tr {
             [[maybe_unused]] const std::filesystem::path& fnExisting,
             [[maybe_unused]] const std::filesystem::path& fnExported) {};
         ///  This object works around banned ID chars, requiring the host
-        ///    to query through a sequence of IDs.
+        ///    to query by a sequence of IDs.
         ///  For "Translate with → Exported directory" only.
         ///  @warning  Needs both IMPORT and EXPORT flags
         ///  @warning  The object must be self-sufficient, i.e. do not rely
