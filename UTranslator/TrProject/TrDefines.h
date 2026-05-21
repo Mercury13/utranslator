@@ -3,6 +3,8 @@
 #include <string>
 #include <memory>
 #include <filesystem>
+#include <span>
+#include <optional>
 
 #include "u_TypedFlags.h"
 #include "u_EcArray.h"
@@ -155,6 +157,13 @@ namespace tf {
         bool isWithin(const ProtoFilter& filter) const;
     };
 
+    class FormatQueryObj  // interface
+    {
+    public:
+        virtual std::optional<std::u8string> query(std::span<std::u8string_view> ids);
+        virtual ~FormatQueryObj() = default;
+    };
+
     ///
     /// \brief The FileInfo class
     ///   Common ancestor for file import/export
@@ -170,6 +179,14 @@ namespace tf {
                 Walker&,
                 [[maybe_unused]] const std::filesystem::path& fnExisting,
                 [[maybe_unused]] const std::filesystem::path& fnExported) {};
+        ///  This object works around banned ID chars, requiring the host
+        ///    to query through a sequence of IDs.
+        ///  For "Translate with → Exported directory" only.
+        ///  @warning  Useless when cannot save
+        ///  @warning  The object must be self-sufficient, i.e. do not rely
+        ///    on the existence of FileFormat caller
+        std::unique_ptr<FormatQueryObj> doImportAsQuery(
+                const std::filesystem::path&) { return {}; }
 
         virtual const FormatProto& proto() const = 0;
 
