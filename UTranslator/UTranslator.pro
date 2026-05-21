@@ -51,6 +51,7 @@ SOURCES += \
     TrProject/TrBugs.cpp \
     TrProject/TrDefines.cpp \
     TrProject/TrFile.cpp \
+    TrProject/TrFileDefines.cpp \
     TrProject/TrFinder.cpp \
     TrProject/TrProject.cpp \
     TrProject/TrUtils.cpp \
@@ -109,6 +110,7 @@ HEADERS += \
     TrProject/TrBugs.h \
     TrProject/TrDefines.h \
     TrProject/TrFile.h \
+    TrProject/TrFileDefines.h \
     TrProject/TrFinder.h \
     TrProject/TrProject.h \
     TrProject/TrUtils.h \

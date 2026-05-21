@@ -10,7 +10,7 @@
 #include "QtMultiRadio.h"
 
 // Translation
-#include "TrDefines.h"
+#include "TrFileDefines.h"
 
 namespace Ui {
 class FmFileFormat;

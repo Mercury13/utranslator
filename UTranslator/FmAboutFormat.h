@@ -3,7 +3,7 @@
 
 #include <QDialog>
 
-#include "TrDefines.h"
+#include "TrFileDefines.h"
 
 namespace Ui {
 class FmAboutFormat;

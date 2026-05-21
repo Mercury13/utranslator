@@ -8,6 +8,7 @@
 #include "u_Vector.h"
 
 #include "TrDefines.h"
+#include "TrFileDefines.h"
 
 namespace bom {
     constexpr std::string_view u8 = "\xEF\xBB\xBF";

@@ -1,0 +1,152 @@
+#include "TrFileDefines.h"
+
+#include "u_Strings.h"
+#include "u_XmlUtils.h"
+
+#include "pugixml.hpp"
+
+constinit const ec::Array<tf::LineBreakStyleInfo, tf::TextLineBreakStyle> tf::textLineBreakStyleInfo {
+    ec::ARRAY_INIT,
+    std::to_array<tf::LineBreakStyleInfo>({
+                                           { "lf",   "LF (Unix)",       "\n"   },
+                                           { "crlf", "CR+LF (Windows)", "\r\n" },
+                                           })
+};
+
+//constinit const ec::Array<tf::LineBreakStyleInfo, tf::BinaryLineBreakStyle> tf::binaryLineBreakStyleInfo {
+//    tf::LineBreakStyleInfo { "cr",   "CR #13 (Pascal/Windows)", "\r"   },
+//    tf::LineBreakStyleInfo { "lf",   "LF #10 (C/Unix)",         "\n"   },
+//    tf::LineBreakStyleInfo { "crlf", "CR+LF #13#10",            "\r\n" },
+//};
+
+constinit const ec::Array<std::string_view, escape::LineBreakMode> tf::lineBreakEscapeModeNames {
+                                                                                                "banned", "c-cr", "c-lf", "specified" };
+
+constinit const tf::ProtoFilter tf::ProtoFilter::ALL_EXPORTING_AND_NULL {
+    .wantedCaps = tf::Fcap::EXPORT,
+    .allowEmpty = true
+};
+constinit const tf::ProtoFilter tf::ProtoFilter::ALL_IMPORTING {
+    .wantedCaps = tf::Fcap::IMPORT,
+    .allowEmpty = false
+};
+
+const ec::Array<tf::TechLoc, escape::SpaceMode> tf::spaceEscapeModeInfo {
+    ec::ARRAY_INIT,
+    std::to_array<TechLoc>({
+                            { "bare",    u8"␣Bare␣"            },
+                            { "delim",   u8"␣Delimiter␣|"      },
+                            { "quoted",  u8"\" Quoted \""       },
+                            { "slashs",  u8"\\s (C-like only!)" },
+                            })
+};
+
+constinit const char* const tf::textOwnerNames[TextOwner_N] {
+                                                            "editor", "me" };
+
+
+///// TextFormat ///////////////////////////////////////////////////////////////
+
+
+tf::TextLineBreakStyle tf::TextFormat::parseStyle(std::string_view name)
+{
+    return textLineBreakStyleInfo.findIfDef(DEFAULT_STYLE,
+                                            [name](auto& x) { return x.techName == name; });
+}
+
+///// FormatProto //////////////////////////////////////////////////////////////
+
+
+bool tf::FormatProto::isWithin(const ProtoFilter& filter) const
+{
+    auto c = caps();
+    return (filter.allowEmpty && !c)
+           || (c.haveAll(filter.wantedCaps));
+}
+
+
+///// FileFormat ///////////////////////////////////////////////////////////////
+
+
+void tf::FileFormat::unifiedSave(pugi::xml_node& node) const
+{
+    auto sets = unifiedSets();
+    auto working = proto().workingSets();
+
+    if (working.have(Usfg::TEXT_FORMAT)) {
+        auto nodeFormat = node.append_child("text-format");
+        nodeFormat.append_attribute("bom") = sets.textFormat.writeBom;
+        nodeFormat.append_attribute("line-break") = sets.textFormat.lineBreakTechName().data();
+    }
+
+    if (working.have(Usfg::TEXT_ESCAPE)) {
+        auto nodeEscape = node.append_child("text-escape");
+        if (sets.textEscape.lineBreak == escape::LineBreakMode::SPECIFIED_TEXT) {
+            nodeEscape.append_attribute("line-break-text") = str::toC(sets.textEscape.lineBreakText);
+        } else {
+            // OK s_v.data here, constinit
+            nodeEscape.append_attribute("line-break-mode") =
+                lineBreakEscapeModeNames[sets.textEscape.lineBreak].data();
+        }
+        if (sets.textEscape.space == escape::SpaceMode::DELIMITED) {
+            nodeEscape.append_attribute("space-delimiter") = str::toC(sets.textEscape.spaceDelimiter);
+        } else {
+            // OK s_v.data here, constinit
+            nodeEscape.append_attribute("space-escape") =
+                spaceEscapeModeInfo[sets.textEscape.space].techName.data();
+        }
+    }
+
+    if (working.have(Usfg::MULTITIER)) {
+        auto nodeMulti = node.append_child("multitier");
+        nodeMulti.append_attribute("separator") = str::toC(sets.multitier.separator);
+    }
+}
+
+
+void tf::FileFormat::unifiedLoad(const pugi::xml_node& node)
+{
+    auto working = proto().workingSets();
+    if (!working)
+        return;
+
+    UnifiedSets sets;
+    if (working.have(Usfg::TEXT_FORMAT)) {
+        if (auto nodeFormat = node.child("text-format")) {
+            sets.textFormat.writeBom = nodeFormat.attribute("bom").as_bool();
+            sets.textFormat.lineBreakStyle =
+                TextFormat::parseStyle(nodeFormat.attribute("line-break").as_string());
+        }
+    }
+
+    if (working.have(Usfg::TEXT_ESCAPE)) {
+        if (auto nodeEscape = node.child("text-escape")) {
+            if (auto attr = nodeEscape.attribute("line-break-text")) {
+                sets.textEscape.setLineBreakText(str::toU8sv(attr.as_string()));
+            } else {
+                sets.textEscape.lineBreak = lineBreakEscapeModeNames.findDef(
+                    nodeEscape.attribute("line-break-mode").as_string(),
+                    escape::LineBreakMode::BANNED);
+                if (sets.textEscape.lineBreak == escape::LineBreakMode::SPECIFIED_TEXT)
+                    sets.textEscape.lineBreak = escape::LineBreakMode::BANNED;
+            }
+            if (auto attr = nodeEscape.attribute("space-delimiter")) {
+                sets.textEscape.setSpaceDelimiter(str::toU8sv(attr.as_string()));
+            } else {
+                sets.textEscape.space = parseEnumTechDef(
+                    nodeEscape.attribute("space-escape").as_string(),
+                    tf::spaceEscapeModeInfo.cArray(),
+                    escape::SpaceMode::BARE);
+            }
+        }
+    }
+
+    if (working.have(Usfg::MULTITIER)) {
+        if (auto nodeMulti = node.child("multitier")) {
+            sets.multitier.separator = str::toU8sv(
+                nodeMulti.attribute("separator").as_string());
+        }
+    }
+
+    setUnifiedSets(sets);
+}

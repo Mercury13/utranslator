@@ -6,10 +6,12 @@
 
 // Translation
 #include "TrDefines.h"
+#include "TrFileDefines.h"
 #include "Modifiable.h"
 
 // Libs
 #include "function_ref.hpp"
+#include "u_Vector.h"
 
 namespace tr {
 
