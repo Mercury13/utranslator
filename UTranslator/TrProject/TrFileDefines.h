@@ -147,10 +147,14 @@ namespace tr {
         bool isWithin(const ProtoFilter& filter) const;
     };
 
+    struct QueryResult {
+        std::u8string text;
+    };
+
     class FormatQueryObj  // interface
     {
     public:
-        virtual std::optional<std::u8string> query(std::span<std::u8string_view> ids);
+        virtual std::optional<QueryResult> query(std::span<std::u8string_view> ids);
         virtual ~FormatQueryObj() = default;
     };
 
@@ -172,7 +176,7 @@ namespace tr {
         ///  This object works around banned ID chars, requiring the host
         ///    to query through a sequence of IDs.
         ///  For "Translate with → Exported directory" only.
-        ///  @warning  Useless when cannot save
+        ///  @warning  Needs both IMPORT and EXPORT flags
         ///  @warning  The object must be self-sufficient, i.e. do not rely
         ///    on the existence of FileFormat caller
         std::unique_ptr<FormatQueryObj> doImportAsQuery(
