@@ -2,9 +2,11 @@
 
 // Libs
 #include "u_EnumSize.h"
+#include "u_OpenSaveStrings.h"
 
 // C++
 #include <filesystem>
+#include <vector>
 
 namespace tr {
 
@@ -48,5 +50,14 @@ namespace tr {
     void switchOriginalAndTranslation(Project& prj, const eo::Sets2& sets);
     void resetKnownOriginal(Project& prj);
     void translateWithOriginal(Project& prj, const tw::Sets& sets);
+
+    enum class CombinedFilterWorkState {
+        NONE, PARTLY, FULLY,
+    };
+    struct CombinedFilter {
+        std::vector<filedlg::Filter> filters;
+        CombinedFilterWorkState state;
+    };
+    CombinedFilter combinedFilter(const Project& prj);
 
 }   // namespace tu

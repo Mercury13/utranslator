@@ -26,7 +26,7 @@ public:
     explicit FmTranslateWithOriginal(QWidget *parent = nullptr);
     ~FmTranslateWithOriginal() override;;
 
-    std::optional<tr::tw::Sets> exec(int dummy = 0);
+    std::optional<tr::tw::Sets> exec(const char* head);
 
 private:
     Ui::FmTranslateWithOriginal *ui;

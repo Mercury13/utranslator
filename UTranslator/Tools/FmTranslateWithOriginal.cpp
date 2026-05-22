@@ -26,8 +26,9 @@ FmTranslateWithOriginal::~FmTranslateWithOriginal()
     delete ui;
 }
 
-std::optional<tr::tw::Sets> FmTranslateWithOriginal::exec(int)
+std::optional<tr::tw::Sets> FmTranslateWithOriginal::exec(const char* head)
 {
+    setWindowTitle(head);
     ui->chkIsOriginal->setFocus();
     if (!Super::exec())
         return std::nullopt;

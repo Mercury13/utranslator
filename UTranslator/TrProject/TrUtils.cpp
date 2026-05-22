@@ -4,6 +4,9 @@
 // Project
 #include "TrProject.h"
 
+// C++
+#include <unordered_set>
+
 
 namespace {
 
@@ -298,4 +301,80 @@ void tr::translateWithOriginal(Project& prj, const tw::Sets& sets)
         prj.stats(StatsMode::DIRECT, CascadeDropCache::NO);
         prj.modify();
     }
+}
+
+
+tr::CombinedFilter tr::combinedFilter(const Project& prj)
+{
+    tr::CombinedFilter r {
+        .filters {}, .state = CombinedFilterWorkState::FULLY };
+    // Collect files/filters and check capabilities
+    std::unordered_set<const tf::FormatProto*> countedProtos;
+    std::vector<const tf::FormatProto*> protosInOrder;
+    for (auto& file : prj.files) {
+        if (!file)
+            continue;  // should not happen
+        auto fmt = file->ownFileFormat();
+        if (!fmt) {
+            r.state = CombinedFilterWorkState::PARTLY;
+            continue;
+        }
+        auto& proto = (*fmt)->proto();
+        if (!proto.canTranslateWithLockit()) {
+            r.state = CombinedFilterWorkState::PARTLY;
+            continue;
+        }
+        auto [_, wasIns] = countedProtos.insert(&proto);
+        if (wasIns) {
+            protosInOrder.push_back(&proto);
+        }
+    }
+
+    if (countedProtos.empty()) {
+        r.state = CombinedFilterWorkState::NONE;
+        return r;
+    }
+
+    // Build filter
+    bool isStar = false;
+    for (auto& v : protosInOrder) {
+        auto filter = v->fileFilter();
+        if (filter.fileMask == L"*") {
+            isStar = true;
+            break;
+        }
+    }
+
+    if (!isStar) {
+        if (protosInOrder.size() == 1) {
+            r.filters.push_back(protosInOrder.front()->fileFilter());
+        } else {
+            std::unordered_set<std::wstring> countedFilters;
+            std::vector<std::wstring> filtersInOrder;
+            for (auto& v : protosInOrder) {
+                auto filter = v->fileFilter();
+                SafeVector<std::wstring_view> parts = str::splitSv(filter.fileMask, ' ');
+                for (auto v : parts) {
+                    std::wstring w(v);
+                    auto [_, wasIns] = countedFilters.emplace(w);
+                    if (wasIns)
+                        filtersInOrder.emplace_back(std::move(w));
+                }
+            }
+            filedlg::Filter finalFilter {
+                                        .description = L"Supported files",
+                                        .fileMask {},
+                                        };
+            for (auto& v : filtersInOrder) {
+                if (v.empty())
+                    continue;
+                if (!finalFilter.fileMask.empty())
+                    finalFilter.fileMask += ' ';
+                finalFilter.fileMask += v;
+            }
+            r.filters.push_back(finalFilter);
+        }
+    }
+    r.filters.push_back(filedlg::ALL_FILES);
+    return r;
 }

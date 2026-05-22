@@ -4,7 +4,6 @@
 
 // STL
 #include <deque>
-#include <unordered_set>
 
 // Qt
 #include <QItemSelectionModel>
@@ -1880,7 +1879,7 @@ void FmMain::translateWithOriginal()
             this, mojibake::toS<std::wstring>(HEAD), filters, WEXT_ORIGINAL,
             filedlg::AddToRecent::NO);
     if (!fileName.empty()) {
-        auto sets = fmTranslateWithOriginal.ensure(this).exec(0);
+        auto sets = fmTranslateWithOriginal.ensure(this).exec(HEAD);
         if (!sets)
             return;
         sets->origPath = fileName;
@@ -1900,86 +1899,25 @@ void FmMain::translateWithLockit()
         QMessageBox::information(this, HEAD, STR_NEED_BILINGUAL_TRANSLATION);
         return;
     }
-    // Collect files/filters and check capabilities
-    std::unordered_set<const tf::FormatProto*> countedProtos;
-    std::vector<const tf::FormatProto*> protosInOrder;
-    bool haveNonExportingFile = false;
-    for (auto& file : project->files) {
-        if (!file)
-            continue;  // should not happen
-        auto fmt = file->ownFileFormat();
-        if (!fmt) {
-            haveNonExportingFile = true;
-            continue;
-        }
-        auto& proto = (*fmt)->proto();
-        if (!proto.canTranslateWithLockit()) {
-            haveNonExportingFile = true;
-            continue;
-        }
-        auto [_, wasIns] = countedProtos.insert(&proto);
-        if (wasIns) {
-            protosInOrder.push_back(&proto);
-        }
-    }
-    if (countedProtos.empty()) {
+    auto cf = tr::combinedFilter(*project);
+    switch (cf.state) {
+    case tr::CombinedFilterWorkState::NONE:
         QMessageBox::critical(this, HEAD,
                 "None of your files can both import and export.");
         return;
-    }
-    if (haveNonExportingFile) {
+    case tr::CombinedFilterWorkState::PARTLY:
         QMessageBox::information(this, HEAD,
-                "Some files cannot both import and export, they will remain untouched. "
-                "I WARNED YOU.");
+                                 "Some files cannot both import and export, they will remain untouched. "
+                                 "I WARNED YOU.");
+        break;
+    case tr::CombinedFilterWorkState::FULLY: break;
     }
-    // Build filter
-    bool isStar = false;
-    for (auto& v : protosInOrder) {
-        auto filter = v->fileFilter();
-        if (filter.fileMask == L"*") {
-            isStar = true;
-            break;
-        }
-    }
-
-    std::vector<filedlg::Filter> filters;
-    if (!isStar) {
-        if (protosInOrder.size() == 1) {
-            filters.push_back(protosInOrder.front()->fileFilter());
-        } else {
-            std::unordered_set<std::wstring> countedFilters;
-            std::vector<std::wstring> filtersInOrder;
-            for (auto& v : protosInOrder) {
-                auto filter = v->fileFilter();
-                SafeVector<std::wstring_view> parts = str::splitSv(filter.fileMask, ' ');
-                for (auto v : parts) {
-                    std::wstring w(v);
-                    auto [_, wasIns] = countedFilters.emplace(w);
-                    if (wasIns)
-                        filtersInOrder.emplace_back(std::move(w));
-                }
-            }
-            filedlg::Filter finalFilter {
-                .description = L"Supported files",
-                .fileMask {},
-            };
-            for (auto& v : filtersInOrder) {
-                if (v.empty())
-                    continue;
-                if (!finalFilter.fileMask.empty())
-                    finalFilter.fileMask += ' ';
-                finalFilter.fileMask += v;
-            }
-            filters.push_back(finalFilter);
-        }
-    }
-    filters.push_back(filedlg::ALL_FILES);
 
     std::filesystem::path fileName = filedlg::open(
-        this, mojibake::toS<std::wstring>(HEAD), filters, L"",
+        this, mojibake::toS<std::wstring>(HEAD), cf.filters, L"",
         filedlg::AddToRecent::NO);
     if (!fileName.empty()) {
-        auto sets = fmTranslateWithOriginal.ensure(this).exec(0);
+        auto sets = fmTranslateWithOriginal.ensure(this).exec(HEAD);
         if (!sets)
             return;
         QMessageBox::information(this, HEAD, "Not implemented");
