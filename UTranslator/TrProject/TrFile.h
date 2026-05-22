@@ -103,6 +103,7 @@ namespace tf {
         std::u8string_view locSoftware() const override { return u8"—"; }
         std::u8string_view locIdType() const override { return u8"—"; }
         const char* iconName() const override { return "noformat"; }
+        filedlg::Filter fileFilter() const override { return {}; }
     };
 
     class Dummy final : public FileFormat
@@ -115,7 +116,6 @@ namespace tf {
         tr::WalkOrder walkOrder() const override { return tr::WalkOrder::ECONOMY; }
         void save(pugi::xml_node&) const override {}
         void load(const pugi::xml_node&) override {}
-        filedlg::Filter fileFilter() const override { return {}; }
 
         static Dummy INST;
     };
@@ -134,6 +134,7 @@ namespace tf {
         std::u8string_view locSoftware() const override { return u8"Various"; }
         std::u8string_view locIdType() const override { return u8"String, 1-nested"; }
         const char* iconName() const override { return "ini"; }
+        filedlg::Filter fileFilter() const override;
 
         static const IniProto INST;
     };
@@ -166,7 +167,6 @@ namespace tf {
         tr::WalkOrder walkOrder() const override { return tr::WalkOrder::ECONOMY; }
         void save(pugi::xml_node&) const override;
         void load(const pugi::xml_node&) override;
-        filedlg::Filter fileFilter() const override;
     };
 
     class UiProto : public FormatProto
@@ -182,6 +182,7 @@ namespace tf {
         std::u8string_view locSoftware() const override { return u8"Qt Creator, Qt UI compiler (uic)"; }
         std::u8string_view locIdType() const override { return u8"objectId:property"; }
         const char* iconName() const override { return "ui"; }
+        filedlg::Filter fileFilter() const override;
 
         static const UiProto INST;
     };
@@ -204,7 +205,6 @@ namespace tf {
         tr::WalkOrder walkOrder() const override { return tr::WalkOrder::ECONOMY; }
         void save(pugi::xml_node&) const override {}
         void load(const pugi::xml_node&) override {}
-        filedlg::Filter fileFilter() const override;
     };
 
     enum {

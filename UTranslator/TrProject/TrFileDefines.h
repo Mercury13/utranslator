@@ -140,6 +140,7 @@ namespace tr {
         virtual std::u8string_view locDescription() const = 0;
         virtual std::u8string_view locSoftware() const = 0;
         virtual std::u8string_view locIdType() const = 0;
+        virtual filedlg::Filter fileFilter() const = 0;
 
         // Utils
         /// @return [+] format can import/export
@@ -147,6 +148,9 @@ namespace tr {
         /// @return [+] format is dummy (= !isWorking, cannot import/export)
         bool isDummy() const { return !isWorking(); }
         bool isWithin(const ProtoFilter& filter) const;
+        /// @return [+] can translate with lockit
+        bool canTranslateWithLockit() const
+            { return caps().haveAll(Fcap::IMPORT | Fcap::EXPORT); }
     };
 
     struct QueryResult {
@@ -198,7 +202,6 @@ namespace tr {
 
         virtual void save(pugi::xml_node&) const = 0;
         virtual void load(const pugi::xml_node&) = 0;
-        virtual filedlg::Filter fileFilter() const = 0;
 
     protected:
         /// A common utility for unified saving.

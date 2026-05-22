@@ -142,6 +142,7 @@ private slots:
     void badShortcut();
     // Menu: Tools
     void translateWithOriginal();
+    void translateWithLockit();
     void extractOriginal();
     void switchOriginalAndTranslation();
     void resetKnownOriginals();

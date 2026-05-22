@@ -899,7 +899,7 @@ QLabel {
      <x>0</x>
      <y>0</y>
      <width>857</width>
-     <height>19</height>
+     <height>18</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -999,6 +999,7 @@ QLabel {
       <string>Translate with</string>
      </property>
      <addaction name="acTranslateWithOriginal"/>
+     <addaction name="acTranslateWithLockit"/>
     </widget>
     <addaction name="menuTranslate_with"/>
     <addaction name="menuConvertProjectType"/>
@@ -1317,6 +1318,11 @@ QLabel {
    </property>
    <property name="shortcut">
     <string>Ctrl+T</string>
+   </property>
+  </action>
+  <action name="acTranslateWithLockit">
+   <property name="text">
+    <string>Final lockit…</string>
    </property>
   </action>
  </widget>

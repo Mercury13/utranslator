@@ -4,6 +4,7 @@
 
 // STL
 #include <deque>
+#include <unordered_set>
 
 // Qt
 #include <QItemSelectionModel>
@@ -856,7 +857,7 @@ void FmMain::addSyncGroup()
                     tf::ProtoFilter::ALL_IMPORTING);
         if (isOk) {
             loadSetsCache.format = std::move(fileFormat);
-            auto filter = loadSetsCache.format->fileFilter();
+            auto filter = loadSetsCache.format->proto().fileFilter();
             filedlg::Filters filters { filter, filedlg::ALL_FILES };
             std::filesystem::path fileName = filedlg::open(
                     this, {}, filters, filter.extension(),
@@ -1489,7 +1490,7 @@ void FmMain::doLoadText()
         // Save as soon as we chose smth, even if we press Cancel afterwards
         loadSetsCache.format = std::move(fileFormat);
         loadSetsCache.fileKey = fileInfo.get();
-        auto filter = loadSetsCache.format->fileFilter();
+        auto filter = loadSetsCache.format->proto().fileFilter();
         filedlg::Filters filters { filter, filedlg::ALL_FILES };
         std::filesystem::path fileName = filedlg::open(
                 this, L"Load texts", filters, filter.extension(),
@@ -1886,6 +1887,41 @@ void FmMain::translateWithOriginal()
             QMessageBox::critical(this, "Translate with original", QString::fromStdString(e.what()));
         }
     }
+}
+
+
+void FmMain::translateWithLockit()
+{
+    if (!project->info.isTranslation()) {
+        QMessageBox::information(this, "Translate with lockit",
+                                 STR_NEED_BILINGUAL_TRANSLATION);
+        return;
+    }
+    // Collect files/filters and check capabilities
+    std::unordered_set<const tf::FormatProto*> allProtos;  // use as opaque list, no deref
+    for (auto& file : project->files) {
+        if (!file)
+            continue;  // should not happen
+        auto format = file->ownFileFormat();
+        allProtos.insert(&(*format)->proto());
+    }
+    /*
+    filedlg::Filters filters { FILTER_TRANSLATABLE, filedlg::ALL_FILES };
+    std::filesystem::path fileName = filedlg::open(
+        this, L"Translate with original", filters, WEXT_ORIGINAL,
+        filedlg::AddToRecent::NO);
+    if (!fileName.empty()) {
+        auto sets = fmTranslateWithOriginal.ensure(this).exec(0);
+        if (!sets)
+            return;
+        sets->origPath = fileName;
+        try {
+            tr::translateWithOriginal(*project, *sets);
+        } catch (const std::exception& e) {
+            QMessageBox::critical(this, "Translate with original", QString::fromStdString(e.what()));
+        }
+    }
+    */
 }
 
 

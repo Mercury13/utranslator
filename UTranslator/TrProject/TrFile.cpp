@@ -107,6 +107,9 @@ std::u8string_view tf::IniProto::locDescription() const
            "id2=String 2";
 }
 
+filedlg::Filter tf::IniProto::fileFilter() const
+{ return { L"INI files", L"*.ini" }; }
+
 ///// Ini //////////////////////////////////////////////////////////////////////
 
 
@@ -308,10 +311,6 @@ void tf::Ini::load(const pugi::xml_node& node)
     { unifiedLoad(node); }
 
 
-filedlg::Filter tf::Ini::fileFilter() const
-    { return { L"INI files", L"*.ini" }; }
-
-
 ///// UiProto //////////////////////////////////////////////////////////////////
 
 
@@ -324,6 +323,10 @@ std::u8string_view tf::UiProto::locDescription() const
     return u8"Visually-edited Qt form.<br>"
              "Properties “text” and “title” are omitted: object:text → object.";
 }
+
+
+filedlg::Filter tf::UiProto::fileFilter() const
+{ return { L"Qt UI files", L"*.ui" }; }
 
 
 ///// Ui ///////////////////////////////////////////////////////////////////////
@@ -533,9 +536,6 @@ namespace {
     }
 
 }   // anon namespace
-
-filedlg::Filter tf::Ui::fileFilter() const
-    { return { L"Qt UI files", L"*.ui" }; }
 
 
 void tf::Ui::doImport(Loader& loader, const std::filesystem::path& fname)
