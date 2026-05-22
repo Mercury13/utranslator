@@ -335,7 +335,7 @@ tr::CombinedFilter tr::combinedFilter(const Project& prj)
         return r;
     }
 
-    // Build filter
+    // Check whether some prototype has a star
     bool isStar = false;
     for (auto& v : protosInOrder) {
         auto filter = v->fileFilter();
