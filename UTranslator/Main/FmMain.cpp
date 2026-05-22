@@ -19,6 +19,7 @@
 // Libs
 #include "u_Qstrings.h"
 #include "i_OpenSave.h"
+#include "mojibake.h"
 
 // Translation
 #include "TrFinder.h"
@@ -162,6 +163,7 @@ FmMain::FmMain(QWidget *parent)
     setSearchAction(ui->acFindSpecialCommentedByTranslator, &This::goCommentedByTranslator);
     // Tools
     connect(ui->acTranslateWithOriginal, &QAction::triggered, this, &This::translateWithOriginal);
+    connect(ui->acTranslateWithLockit, &QAction::triggered, this, &This::translateWithLockit);
     connect(ui->acExtractOriginal, &QAction::triggered, this, &This::extractOriginal);
     connect(ui->acSwitchOriginalAndTranslation, &QAction::triggered, this, &This::switchOriginalAndTranslation);
     connect(ui->acResetKnownOriginals, &QAction::triggered, this, &This::resetKnownOriginals);
@@ -717,6 +719,7 @@ void FmMain::reenable()
 
     // Menu: Tools
     ui->acTranslateWithOriginal->setEnabled(isMainVisible);
+    ui->acTranslateWithLockit->setEnabled(isMainVisible);
     ui->acExtractOriginal->setEnabled(isMainVisible);
     ui->acSwitchOriginalAndTranslation->setEnabled(isMainVisible);
     ui->acResetKnownOriginals->setEnabled(isMainVisible);
@@ -1867,14 +1870,14 @@ void FmMain::resetKnownOriginals()
 
 void FmMain::translateWithOriginal()
 {
+    static constexpr const char* HEAD = "Translate with original";
     if (!project->info.isTranslation()) {
-        QMessageBox::information(this, "Translate with original",
-                    STR_NEED_BILINGUAL_TRANSLATION);
+        QMessageBox::information(this, HEAD, STR_NEED_BILINGUAL_TRANSLATION);
         return;
     }
     filedlg::Filters filters { FILTER_TRANSLATABLE, filedlg::ALL_FILES };
     std::filesystem::path fileName = filedlg::open(
-            this, L"Translate with original", filters, WEXT_ORIGINAL,
+            this, mojibake::toS<std::wstring>(HEAD), filters, WEXT_ORIGINAL,
             filedlg::AddToRecent::NO);
     if (!fileName.empty()) {
         auto sets = fmTranslateWithOriginal.ensure(this).exec(0);
@@ -1884,7 +1887,7 @@ void FmMain::translateWithOriginal()
         try {
             tr::translateWithOriginal(*project, *sets);
         } catch (const std::exception& e) {
-            QMessageBox::critical(this, "Translate with original", QString::fromStdString(e.what()));
+            QMessageBox::critical(this, HEAD, QString::fromStdString(e.what()));
         }
     }
 }
@@ -1892,36 +1895,94 @@ void FmMain::translateWithOriginal()
 
 void FmMain::translateWithLockit()
 {
+    static constexpr const char* HEAD = "Translate with lockit";
     if (!project->info.isTranslation()) {
-        QMessageBox::information(this, "Translate with lockit",
-                                 STR_NEED_BILINGUAL_TRANSLATION);
+        QMessageBox::information(this, HEAD, STR_NEED_BILINGUAL_TRANSLATION);
         return;
     }
     // Collect files/filters and check capabilities
-    std::unordered_set<const tf::FormatProto*> allProtos;  // use as opaque list, no deref
+    std::unordered_set<const tf::FormatProto*> countedProtos;
+    std::vector<const tf::FormatProto*> protosInOrder;
+    bool haveNonExportingFile = false;
     for (auto& file : project->files) {
         if (!file)
             continue;  // should not happen
-        auto format = file->ownFileFormat();
-        allProtos.insert(&(*format)->proto());
+        auto fmt = file->ownFileFormat();
+        if (!fmt) {
+            haveNonExportingFile = true;
+            continue;
+        }
+        auto& proto = (*fmt)->proto();
+        if (!proto.canTranslateWithLockit()) {
+            haveNonExportingFile = true;
+            continue;
+        }
+        auto [_, wasIns] = countedProtos.insert(&proto);
+        if (wasIns) {
+            protosInOrder.push_back(&proto);
+        }
     }
-    /*
-    filedlg::Filters filters { FILTER_TRANSLATABLE, filedlg::ALL_FILES };
+    if (countedProtos.empty()) {
+        QMessageBox::critical(this, HEAD,
+                "None of your files can both import and export.");
+        return;
+    }
+    if (haveNonExportingFile) {
+        QMessageBox::information(this, HEAD,
+                "Some files cannot both import and export, they will remain untouched. "
+                "I WARNED YOU.");
+    }
+    // Build filter
+    filedlg::Filter finalFilter;
+    bool isStar = false;
+    for (auto& v : protosInOrder) {
+        auto filter = v->fileFilter();
+        if (finalFilter.fileMask == L"*") {
+            isStar = true;
+            break;
+        }
+    }
+
+    if (!isStar) {
+        if (protosInOrder.size() == 1) {
+            finalFilter = protosInOrder.front()->fileFilter();
+        } else {
+            std::unordered_set<std::wstring> countedFilters;
+            std::vector<std::wstring> filtersInOrder;
+            for (auto& v : protosInOrder) {
+                auto filter = v->fileFilter();
+                SafeVector<std::wstring_view> parts = str::splitSv(filter.fileMask, ' ');
+                for (auto v : parts) {
+                    std::wstring w(v);
+                    auto [_, wasIns] = countedFilters.emplace(w);
+                    if (wasIns)
+                        filtersInOrder.emplace_back(std::move(w));
+                }
+            }
+            finalFilter.description = L"Supported files";
+            for (auto& v : filtersInOrder) {
+                if (v.empty())
+                    continue;
+                if (!finalFilter.description.empty())
+                    finalFilter.description += ' ';
+                finalFilter.description += v;
+            }
+        }
+    }
+    std::vector<filedlg::Filter> filters;
+    if (!isStar)
+        filters.push_back(finalFilter);
+    filters.push_back(filedlg::ALL_FILES);
+
     std::filesystem::path fileName = filedlg::open(
-        this, L"Translate with original", filters, WEXT_ORIGINAL,
+        this, mojibake::toS<std::wstring>(HEAD), filters, L"",
         filedlg::AddToRecent::NO);
     if (!fileName.empty()) {
         auto sets = fmTranslateWithOriginal.ensure(this).exec(0);
         if (!sets)
             return;
-        sets->origPath = fileName;
-        try {
-            tr::translateWithOriginal(*project, *sets);
-        } catch (const std::exception& e) {
-            QMessageBox::critical(this, "Translate with original", QString::fromStdString(e.what()));
-        }
+        QMessageBox::information(this, HEAD, "Not implemented");
     }
-    */
 }
 
 

@@ -1322,7 +1322,7 @@ QLabel {
   </action>
   <action name="acTranslateWithLockit">
    <property name="text">
-    <string>Final lockit…</string>
+    <string>Final lockit (*.ini etc)…</string>
    </property>
   </action>
  </widget>
