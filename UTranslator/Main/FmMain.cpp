@@ -1933,19 +1933,19 @@ void FmMain::translateWithLockit()
                 "I WARNED YOU.");
     }
     // Build filter
-    filedlg::Filter finalFilter;
     bool isStar = false;
     for (auto& v : protosInOrder) {
         auto filter = v->fileFilter();
-        if (finalFilter.fileMask == L"*") {
+        if (filter.fileMask == L"*") {
             isStar = true;
             break;
         }
     }
 
+    std::vector<filedlg::Filter> filters;
     if (!isStar) {
         if (protosInOrder.size() == 1) {
-            finalFilter = protosInOrder.front()->fileFilter();
+            filters.push_back(protosInOrder.front()->fileFilter());
         } else {
             std::unordered_set<std::wstring> countedFilters;
             std::vector<std::wstring> filtersInOrder;
@@ -1959,19 +1959,20 @@ void FmMain::translateWithLockit()
                         filtersInOrder.emplace_back(std::move(w));
                 }
             }
-            finalFilter.description = L"Supported files";
+            filedlg::Filter finalFilter {
+                .description = L"Supported files",
+                .fileMask {},
+            };
             for (auto& v : filtersInOrder) {
                 if (v.empty())
                     continue;
-                if (!finalFilter.description.empty())
-                    finalFilter.description += ' ';
-                finalFilter.description += v;
+                if (!finalFilter.fileMask.empty())
+                    finalFilter.fileMask += ' ';
+                finalFilter.fileMask += v;
             }
+            filters.push_back(finalFilter);
         }
     }
-    std::vector<filedlg::Filter> filters;
-    if (!isStar)
-        filters.push_back(finalFilter);
     filters.push_back(filedlg::ALL_FILES);
 
     std::filesystem::path fileName = filedlg::open(
