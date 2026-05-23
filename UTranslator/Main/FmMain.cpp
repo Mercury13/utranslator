@@ -1902,7 +1902,7 @@ void FmMain::translateWithLockit()
     auto cf = tr::combinedFilter(*project);
     if (cf.nFilesCan == 0) {
         QMessageBox::critical(this, HEAD,
-                              "None of your files can both import and export.");
+                "None of your files can both import and export.");
         return;
     }
     if (cf.nFilesCannot == 0) {
