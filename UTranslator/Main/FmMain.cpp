@@ -1878,23 +1878,23 @@ void FmMain::translateWithOriginal()
     std::filesystem::path fileName = filedlg::open(
             this, mojibake::toS<std::wstring>(HEAD), filters, WEXT_ORIGINAL,
             filedlg::AddToRecent::NO);
-    if (!fileName.empty()) {
-        auto sets = fmTranslateWithOriginal.ensure(this).exec(HEAD);
-        if (!sets)
-            return;
-        sets->origPath = fileName;
-        try {
-            tr::translateWithOriginal(*project, *sets);
-        } catch (const std::exception& e) {
-            QMessageBox::critical(this, HEAD, QString::fromStdString(e.what()));
-        }
+    if (fileName.empty())
+        return;
+    auto sets = fmTranslateWithOriginal.ensure(this).exec(HEAD);
+    if (!sets)
+        return;
+    sets->origPath = fileName;
+    try {
+        tr::translateWithOriginal(*project, *sets);
+    } catch (const std::exception& e) {
+        QMessageBox::critical(this, HEAD, QString::fromStdString(e.what()));
     }
 }
 
 
 void FmMain::translateWithLockit()
 {
-    static constexpr const char* HEAD = "Translate with lockit";
+    static constexpr const char* HEAD = "Translate with resource";
     if (!project->info.isTranslation()) {
         QMessageBox::information(this, HEAD, STR_NEED_BILINGUAL_TRANSLATION);
         return;
@@ -1905,7 +1905,7 @@ void FmMain::translateWithLockit()
                 "None of your files can both import and export.");
         return;
     }
-    if (cf.nFilesCannot == 0) {
+    if (cf.nFilesCannot != 0) {
         auto msg = loc::FmtL(
                 "{1|one=# file|many=# files} cannot both import and export, "
                 "they will remain untouched. I WARNED YOU.")
@@ -1916,11 +1916,18 @@ void FmMain::translateWithLockit()
     std::filesystem::path fileName = filedlg::open(
         this, mojibake::toS<std::wstring>(HEAD), cf.filters, L"",
         filedlg::AddToRecent::NO);
-    if (!fileName.empty()) {
-        auto sets = fmTranslateWithOriginal.ensure(this).exec(HEAD);
-        if (!sets)
-            return;
+    if (!fileName.empty())
+        return;
+
+    auto sets = fmTranslateWithOriginal.ensure(this).exec(HEAD);
+    if (!sets)
+        return;
+    sets->origPath = fileName.parent_path();
+    try {
+        //tr::translateWithOriginal(*project, *sets);
         QMessageBox::information(this, HEAD, "Not implemented");
+    } catch (const std::exception& e) {
+        QMessageBox::critical(this, HEAD, QString::fromStdString(e.what()));
     }
 }
 
