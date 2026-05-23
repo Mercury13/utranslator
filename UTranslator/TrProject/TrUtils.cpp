@@ -4,6 +4,9 @@
 // Project
 #include "TrProject.h"
 
+// Libs
+#include "LocFmt.h"
+
 // C++
 #include <unordered_set>
 
@@ -212,15 +215,15 @@ namespace {
     /// Checks whether ext.original is translated text
     /// @return  [+] translated text  [-] untranslated hole
     ///
-    bool twHasText(tr::Translatable& text, tr::Translatable& ext,  const tr::tw::Sets& sets)
+    bool twHasText(tr::Translatable& text, std::u8string_view ext,  const tr::tw::Sets& sets)
     {
         // Check sign after sign
         if (sets.holeSigns.origIsExt) {
-            if (text.original == ext.original)
+            if (text.original == ext)
                 return false;
         }
         if (sets.holeSigns.emptyString) {
-            if (ext.original.empty())
+            if (ext.empty())
                 return false;
         }
         return true;
@@ -229,15 +232,15 @@ namespace {
     /// Checks whether we replace text.translation with ext.original
     /// @return  [+] replace [-] keep
     ///
-    bool twIsEligible(tr::Text& text, tr::Text& ext, const tr::tw::Sets& sets)
+    bool twIsEligible(tr::Text& text, std::u8string_view ext, const tr::tw::Sets& sets)
     {
         switch (sets.priority) {
         case tr::tw::Priority::EXISTING:
             // Only when translation is absent and anything is present at ext
-            return !text.tr.translation && twHasText(text.tr, ext.tr, sets);
+            return !text.tr.translation && twHasText(text.tr, ext, sets);
         case tr::tw::Priority::EXTERNAL:
             // Always when text is present
-            return twHasText(text.tr, ext.tr, sets);
+            return twHasText(text.tr, ext, sets);
         }
         __builtin_unreachable();
     }
@@ -245,7 +248,7 @@ namespace {
     void twWalkText(tr::Text& text, tr::Text& ext,
                     const tr::tw::Sets& sets, TwStats& stats)
     {
-        if (twIsEligible(text, ext, sets)) {
+        if (twIsEligible(text, ext.tr.original, sets)) {
             text.tr.translation = std::move(ext.tr.original);
             ++stats.nTextsTouched;
         }
@@ -288,6 +291,13 @@ namespace {
         }
     }
 
+    void twUpdateByStats(tr::Project& prj, TwStats& stats)
+    {
+        if (stats.nTextsTouched != 0) {
+            prj.stats(tr::StatsMode::DIRECT, tr::CascadeDropCache::NO);
+            prj.modify();
+        }
+    }
 }   // anon namespace
 
 
@@ -297,10 +307,7 @@ void tr::translateWithOriginal(Project& prj, const tw::Sets& sets)
     ext->load(sets.origPath);
     TwStats stats;
     twWalkProject(prj, *ext, sets, stats);
-    if (stats.nTextsTouched != 0) {
-        prj.stats(StatsMode::DIRECT, CascadeDropCache::NO);
-        prj.modify();
-    }
+    twUpdateByStats(prj, stats);
 }
 
 
@@ -376,4 +383,74 @@ tr::CombinedFilter tr::combinedFilter(const Project& prj)
     }
     r.filters.push_back(filedlg::ALL_FILES);
     return r;
+}
+
+
+namespace {
+
+    ///
+    ///  Translate with lockit (actually final L10n resource)
+    ///
+    class Twl final : public tr::TraverseListener
+    {
+    public:
+        Twl(const tr::tw::Sets& aSets, std::unique_ptr<tf::FormatQueryObj> aQry,
+                TwStats& aStats)
+            : sets(aSets), qry(std::move(aQry)), stats(aStats) {}
+        virtual void onText(const std::shared_ptr<tr::Text>&) override;
+        virtual void onEnterGroup(const std::shared_ptr<tr::VirtualGroup>&) override;
+        virtual void onLeaveGroup(const std::shared_ptr<tr::VirtualGroup>&) override;
+    private:
+        const tr::tw::Sets& sets;
+        std::unique_ptr<tf::FormatQueryObj> qry;
+        TwStats& stats;
+        std::vector<std::u8string_view> ids;
+    };
+
+    void Twl::onEnterGroup(const std::shared_ptr<tr::VirtualGroup>& x)
+    {
+        ids.push_back(x->id);
+    }
+
+    void Twl::onLeaveGroup(const std::shared_ptr<tr::VirtualGroup>&)
+    {
+        ids.pop_back();
+    }
+
+    void Twl::onText(const std::shared_ptr<tr::Text>& x)
+    {
+        ids.push_back(x->id);
+
+        if (auto response = qry->query(ids)) {
+            if (twIsEligible(*x, response->text, sets)) {
+                x->tr.translation = std::u8string{response->text};
+                ++stats.nTextsTouched;
+            }
+        }
+
+        ids.pop_back();
+    }
+
+}   // anon namespace
+
+
+void tr::translateWithLockit(Project& prj, const tw::Sets& sets)
+{
+    for (auto& file : prj.files) {
+        if (!file)
+            continue;   // should not happen
+        auto format = file->ownFileFormat();
+        if (!format || !*format)
+            continue;
+        auto qry = (*format)->doImportAsQuery(sets.origPath / file->id);
+        if (!qry) {
+            throw std::logic_error(
+                loc::Fmt("File '{1}' cannot import a query object for some reason")
+                        (str::toSv(file->id)).str());
+        }
+        TwStats stats;
+        Twl twl(sets, std::move(qry), stats);
+        file->traverse(twl, tr::WalkOrder::ECONOMY, tr::EnterMe::NO);
+        twUpdateByStats(prj, stats);
+    }
 }

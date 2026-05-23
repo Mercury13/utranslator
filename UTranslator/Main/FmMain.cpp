@@ -1916,7 +1916,7 @@ void FmMain::translateWithLockit()
     std::filesystem::path fileName = filedlg::open(
         this, mojibake::toS<std::wstring>(HEAD), cf.filters, L"",
         filedlg::AddToRecent::NO);
-    if (!fileName.empty())
+    if (fileName.empty())
         return;
 
     auto sets = fmTranslateWithOriginal.ensure(this).exec(HEAD);
@@ -1924,8 +1924,7 @@ void FmMain::translateWithLockit()
         return;
     sets->origPath = fileName.parent_path();
     try {
-        //tr::translateWithOriginal(*project, *sets);
-        QMessageBox::information(this, HEAD, "Not implemented");
+        tr::translateWithLockit(*project, *sets);
     } catch (const std::exception& e) {
         QMessageBox::critical(this, HEAD, QString::fromStdString(e.what()));
     }

@@ -1,5 +1,7 @@
 #include "u_XmlUtils.h"
 
+#include "LocFmt.h"
+
 pugi::xml_node rqChild(pugi::xml_node node, const char* name)
 {
     auto child = node.child(name);
@@ -43,12 +45,25 @@ int parseEnumIntRq(const char* text, int n, const char* const names[])
 }
 
 
-void xmlThrowIf(const pugi::xml_parse_result& result)
+void xmlThrowIf(
+    const pugi::xml_parse_result& result, std::string_view fname)
 {
     if (!result) {
-        if (result.offset)
-            throw std::logic_error(std::string{result.description()}
-                + ", offset=" + std::to_string(result.offset));
-        throw std::logic_error(result.description());
+        if (result.offset >= 0) {
+            throw std::logic_error(
+                loc::Fmt("Cannot load {1} [{2}], offset={3}")
+                        (fname)(result.description())(result.offset).str());
+        } else {
+            throw std::logic_error(
+                loc::Fmt("Cannot load {1} [{2}]")
+                (fname)(result.description()).str());
+        }
     }
+}
+
+void xmlThrowIf(
+    const pugi::xml_parse_result& result,
+    std::u8string_view fname)
+{
+    xmlThrowIf(result, str::toSv(fname));
 }

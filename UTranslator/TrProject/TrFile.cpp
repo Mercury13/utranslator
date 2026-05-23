@@ -209,6 +209,15 @@ namespace {
         comment.clear();
     }
 
+    void streamThrowIf(
+            std::ifstream& is, const std::filesystem::path& fname)
+    {
+        if (!is.is_open()) {
+            throw std::runtime_error(
+                str::cat("Cannot open file ", str::toSv(fname.filename().u8string())));
+        }
+    }
+
 }   // anon namespace
 
 
@@ -216,15 +225,18 @@ void tf::Ini::doImport(Loader& loader,
             const std::filesystem::path& fname)
 {
     std::ifstream is(fname);
-    if (!is.is_open()) {
-        throw std::runtime_error("Cannot open file " + str::toStr(fname.filename().u8string()));
-    }
+    streamThrowIf(is, fname);
     IniImporter im(loader, textEscape, multitier);
     decode::ini(is, im);
 }
 
 
 namespace {
+
+    struct MyHash : public std::hash<std::u8string_view> {
+        using is_transparent = void;
+        using std::hash<std::u8string_view>::operator();
+    };
 
     class IniQuery final :
             public tf::FormatQueryObj,
@@ -234,8 +246,8 @@ namespace {
         IniQuery(const escape::Text& te,
                  const tf::MultitierStyle& mu);
 
-        using Group = std::unordered_map<std::u8string, std::u8string>;
-        std::unordered_map<std::u8string, Group> data;
+        using Group = std::unordered_map<std::u8string, std::u8string, MyHash, std::equal_to<>>;
+        std::unordered_map<std::u8string, Group> data;  // seemingly homogeneous only here
         // FormatQueryObj
         std::optional<tf::QueryResult> query(std::span<std::u8string_view> ids) override;
         // IniCallback
@@ -281,7 +293,7 @@ namespace {
             return {};
 
         auto& group = it1->second;
-        auto it2 = group.find(groupName);
+        auto it2 = group.find(ids.back());
         if (it2 == group.end())
             return {};
 
@@ -295,10 +307,9 @@ std::unique_ptr<tf::FormatQueryObj> tf::Ini::doImportAsQuery(
             const std::filesystem::path& fname)
 {
     std::ifstream is(fname);
-    if (!is.is_open()) {
-        throw std::runtime_error("Cannot open file " + str::toStr(fname.filename().u8string()));
-    }
+    streamThrowIf(is, fname);
     auto que = std::make_unique<IniQuery>(textEscape, multitier);
+    decode::ini(is, *que);
     return que;
 }
 
@@ -542,7 +553,7 @@ void tf::Ui::doImport(Loader& loader, const std::filesystem::path& fname)
 {
     pugi::xml_document doc;
     auto result = doc.load_file(fname.c_str());
-    xmlThrowIf(result);
+    xmlThrowIf(result, fname.u8string());
 
     auto hUi = doc.child("ui");
     if (!hUi)

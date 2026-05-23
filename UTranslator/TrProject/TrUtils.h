@@ -50,6 +50,8 @@ namespace tr {
     void switchOriginalAndTranslation(Project& prj, const eo::Sets2& sets);
     void resetKnownOriginal(Project& prj);
     void translateWithOriginal(Project& prj, const tw::Sets& sets);
+    /// @warning  sets.origPath is DIRECTORY
+    void translateWithLockit(Project& prj, const tw::Sets& sets);
 
     struct CombinedFilter {
         std::vector<filedlg::Filter> filters;
