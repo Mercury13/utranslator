@@ -7,13 +7,13 @@ template class loc::FmtL<char>;
 template class loc::FmtL<wchar_t>;
 template class loc::FmtL<char8_t>;
 
-
-const loc::DefaultQtyRule loc::DefaultQtyRule::INST;
-const loc::DefaultLocale loc::DefaultLocale::INST;
+constinit const loc::DefaultQtyRule loc::DefaultQtyRule::INST;
+constinit const loc::DefaultLocale loc::DefaultLocale::INST;
 const loc::Locale* loc::activeFmtLocale = &loc::DefaultLocale::INST;
 
-const std::string_view loc::pluralNames[loc::Plural_N] =
-    { "zero", "one", "two", "few", "many", "other" };
+const std::string_view loc::pluralNames[loc::Plural_N_Full] =
+    { key::ZERO, key::ONE, key::TWO, key::FEW, key::MANY, key::OTHER,
+      key::A, key::B, key::C, key::D, key::REST };
 
 ///// DefaultQtyRule ///////////////////////////////////////////////////////////
 
@@ -34,3 +34,8 @@ loc::Plural loc::ZsgnChecker::check(const PluralRule& plu) const
 
 loc::Plural loc::ZunsChecker::check(const PluralRule& plu) const
     { return plu.ofUint(v); }
+
+///// Checks, unit tests, etc //////////////////////////////////////////////////
+
+static_assert(loc::Plural::REST < loc::Plural::BAD);
+static_assert(loc::key::ST_ONE_OTHER == loc::key::OTHER[0]);

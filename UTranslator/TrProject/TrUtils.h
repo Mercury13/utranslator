@@ -51,12 +51,10 @@ namespace tr {
     void resetKnownOriginal(Project& prj);
     void translateWithOriginal(Project& prj, const tw::Sets& sets);
 
-    enum class CombinedFilterWorkState {
-        NONE, PARTLY, FULLY,
-    };
     struct CombinedFilter {
         std::vector<filedlg::Filter> filters;
-        CombinedFilterWorkState state;
+        unsigned nFilesCan = 0,     ///< # of files that CAN translate with lockit
+                 nFilesCannot = 0;  ///< # of files that CANNOT translate with lockit
     };
     CombinedFilter combinedFilter(const Project& prj);
 

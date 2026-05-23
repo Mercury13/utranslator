@@ -9,6 +9,9 @@
 #include "u_Qstrings.h"
 #include "BalloonTip.h"
 
+// Libs
+#include "LocFmt.h"
+
 
 const FindOptions::Channels FindOptions::Channels::NONE;
 
@@ -54,9 +57,8 @@ bool FindOptions::matchChan(bool isEnabled, std::u8string_view channel) const
 
 std::u8string FindOptions::caption() const
 {
-    std::u8string r = u8"Find “{1}”";
-    str::replace(r, u8"{1}", str::toU8sv(text.toStdString()));
-    return r;
+    return loc::FmtL(u8"Find “{1}”")
+            (str::toU8sv(text.toStdString())).giveStr();
 }
 
 FindIssue FindOptions::firstIssue() const

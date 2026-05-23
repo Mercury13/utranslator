@@ -931,7 +931,7 @@ void FmMain::doDelete()
                 else message = "Delete group w/o texts?";
             break;
         default:
-            message = loc::Fmt(u8"Delete {1|one=? text|many=? texts}?")(nTexts).q();
+            message = loc::Fmt(u8"Delete {1|one=# text|many=# texts}?")(nTexts).q();
         }
 
     }
@@ -1900,17 +1900,17 @@ void FmMain::translateWithLockit()
         return;
     }
     auto cf = tr::combinedFilter(*project);
-    switch (cf.state) {
-    case tr::CombinedFilterWorkState::NONE:
+    if (cf.nFilesCan == 0) {
         QMessageBox::critical(this, HEAD,
-                "None of your files can both import and export.");
+                              "None of your files can both import and export.");
         return;
-    case tr::CombinedFilterWorkState::PARTLY:
-        QMessageBox::information(this, HEAD,
-                                 "Some files cannot both import and export, they will remain untouched. "
-                                 "I WARNED YOU.");
-        break;
-    case tr::CombinedFilterWorkState::FULLY: break;
+    }
+    if (cf.nFilesCannot == 0) {
+        auto msg = loc::FmtL(
+                "{1|one=# file|many=# files} cannot both import and export, "
+                "they will remain untouched. I WARNED YOU.")
+                (cf.nFilesCannot).q();
+        QMessageBox::information(this, HEAD, msg);
     }
 
     std::filesystem::path fileName = filedlg::open(
@@ -1966,15 +1966,15 @@ void FmMain::removeAttentionCurrObject()
 namespace {
 
     constexpr std::string_view TMPL_TRANSLATION =
-        "{1}: {2|one=? string|many=? strings}, "
-             "{3|one=? char|many=? chars} original, "
-             "{4|one=? char|many=? chars} translation";
+        "{1}: {2|one=# string|many=# strings}, "
+             "{3|one=# char|many=# chars} original, "
+             "{4|one=# char|many=# chars} translation";
     constexpr std::string_view TMPL_UNTRANSLATED =
-        "{1}: {2|one=? string|many=? strings}, "
-             "{3|one=? char|many=? chars} original";
+        "{1}: {2|one=# string|many=# strings}, "
+             "{3|one=# char|many=# chars} original";
     constexpr std::string_view TMPL_ORIGINAL =
-        "{1}: {2|one=? string|many=? strings}, "
-             "{3|one=? char|many=? chars}";
+        "{1}: {2|one=# string|many=# strings}, "
+             "{3|one=# char|many=# chars}";
 
     void appendLine(
             QString& text,

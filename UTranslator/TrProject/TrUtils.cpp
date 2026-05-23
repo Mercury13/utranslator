@@ -306,8 +306,7 @@ void tr::translateWithOriginal(Project& prj, const tw::Sets& sets)
 
 tr::CombinedFilter tr::combinedFilter(const Project& prj)
 {
-    tr::CombinedFilter r {
-        .filters {}, .state = CombinedFilterWorkState::FULLY };
+    tr::CombinedFilter r;
     // Collect files/filters and check capabilities
     std::unordered_set<const tf::FormatProto*> countedProtos;
     std::vector<const tf::FormatProto*> protosInOrder;
@@ -316,14 +315,15 @@ tr::CombinedFilter tr::combinedFilter(const Project& prj)
             continue;  // should not happen
         auto fmt = file->ownFileFormat();
         if (!fmt) {
-            r.state = CombinedFilterWorkState::PARTLY;
+            ++r.nFilesCannot;
             continue;
         }
         auto& proto = (*fmt)->proto();
         if (!proto.canTranslateWithLockit()) {
-            r.state = CombinedFilterWorkState::PARTLY;
+            ++r.nFilesCannot;
             continue;
         }
+        ++r.nFilesCan;
         auto [_, wasIns] = countedProtos.insert(&proto);
         if (wasIns) {
             protosInOrder.push_back(&proto);
@@ -331,7 +331,6 @@ tr::CombinedFilter tr::combinedFilter(const Project& prj)
     }
 
     if (countedProtos.empty()) {
-        r.state = CombinedFilterWorkState::NONE;
         return r;
     }
 

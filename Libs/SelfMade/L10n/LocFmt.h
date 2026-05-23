@@ -8,6 +8,7 @@
 // STL
 #include <string>
 #include <vector>
+#include <tuple>
 
 // Libs
 #include "u_Strings.h"
@@ -18,9 +19,53 @@
 
 namespace loc {
 
-    enum class Plural { ZERO, ONE, TWO, FEW, MANY, OTHER };
-    constexpr unsigned Plural_N = static_cast<unsigned>(Plural::OTHER) + 1;
-    extern const std::string_view pluralNames[Plural_N];
+    /// @warning  As we counted EIGHT different endings in Turkish,
+    ///           made 10 channels; custom are just A to D
+    /// @warning  Locales should NEVER return SPECIAL and BAD
+    ///           SPECIAL may be used:
+    ///           • in strings (as REST)
+    ///           • in decimal lookups (as NO_DECISION)
+    enum class Plural : unsigned char {
+        ZERO, ONE, TWO, FEW, MANY, OTHER, A, B, C, D,
+        SPECIAL,
+        BAD = 13,
+        LAST = SPECIAL,
+        REST = SPECIAL,
+        NO_DECISION = SPECIAL,
+    };
+    /// Full #, with SPECIAL (=REST)
+    constexpr unsigned Plural_N_Full = static_cast<unsigned>(Plural::SPECIAL) + 1;
+    /// Normal values only: zero, one, two, few, many, other
+    constexpr unsigned Plural_N_Normal = static_cast<unsigned>(Plural::OTHER) + 1;
+    extern const std::string_view pluralNames[Plural_N_Full];
+    inline Plural& operator ++ (Plural& x) {
+        x = static_cast<Plural>(static_cast<unsigned char>(x) + 1);
+        return x;
+    }
+    inline Plural& operator -- (Plural& x) {
+        x = static_cast<Plural>(static_cast<unsigned char>(x) - 1);
+        return x;
+    }
+
+    namespace key {
+        constexpr std::string_view ZERO = "zero";
+        constexpr std::string_view ONE = "one";
+        constexpr std::string_view TWO = "two";
+        constexpr std::string_view FEW = "few";
+        constexpr std::string_view MANY = "many";
+        constexpr std::string_view OTHER = "other";
+        constexpr std::string_view A = "a";
+        constexpr std::string_view B = "b";
+        constexpr std::string_view C = "c";
+        constexpr std::string_view D = "d";
+        constexpr std::string_view REST = "rest";
+        constexpr char ST_ZERO = ZERO[0];
+        constexpr char ST_ONE_OTHER = ONE[0];
+        constexpr char ST_FEW = FEW[0];
+        constexpr char ST_TWO = TWO[0];
+        constexpr char ST_MANY = MANY[0];
+        constexpr char ST_REST = REST[0];
+    }
 
     class PluralRule {   // interface
     public:
@@ -32,7 +77,7 @@ namespace loc {
     ///  1 lap (one), 2+ laps (many)
     ///  Dubbed as default rule for basic plural
     ///
-    class DefaultQtyRule : public PluralRule
+    class DefaultQtyRule final : public PluralRule
     {
     public:
         Plural ofUint(unsigned long long n) const override;
@@ -90,7 +135,17 @@ namespace loc {
         unsigned long long v;
     };
 
-    template <class Ch>
+    template <class T>
+    concept Char = std::integral<T>;
+
+    /// Preformatted integer: both string and integral value
+    template <Char Ch, std::integral Int>
+    struct PreformN {
+        std::basic_string_view<Ch> str;
+        Int val;
+    };
+
+    template <Char Ch>
     class Fmt
     {
     public:
@@ -146,6 +201,9 @@ namespace loc {
         Fmt& operator() (Sv x)                 { ss(x); return *this; }
         Fmt& operator() ()                     { return *this; }
 
+        template <std::integral Int>
+        Fmt& operator() (const PreformN<Ch, Int>& x)  { preformN(x.str, x.val); }
+
         Fmt& emptyStr() { ss(Sv{}); return *this; }
 
         template <class First, class Second, class... Rest>
@@ -165,19 +223,34 @@ namespace loc {
         void eat(unsigned long x)      { nn(x); }
         void eat(long long x)          { nn(x); }
         void eat(unsigned long long x) { nn(x); }
+        void eat(Ch x) { ss({&x, 1}); }
         void eat(Sv x) { ss(x); }
         void eat() {}
+        template <std::integral Int>
+        void eat(const PreformN<Ch, Int>& x)  { preformN(x.str, x.val); }
+
+        /// Can also eat tuples, dismantling them into separate params
+        template <class... T>
+        void eat(const std::tuple<T...>& x) { eatTup<0>(x); }
+
+        /// Preformatted number: both preformatted string and numeric value
+        void preformN(Sv preform, unsigned char x) { prefN(preform, static_cast<unsigned>(x)); }
+        void preformN(Sv preform, signed char x) { prefN(preform, static_cast<int>(x)); }
+        void preformN(Sv preform, unsigned short x) { prefN(preform, static_cast<unsigned>(x)); }
+        void preformN(Sv preform, signed short x) { prefN(preform, static_cast<int>(x)); }
+        void preformN(Sv preform, unsigned int x) { prefN(preform, x); }
+        void preformN(Sv preform, signed int x) { prefN(preform, x); }
+        void preformN(Sv preform, unsigned long x) { prefN(preform, x); }
+        void preformN(Sv preform, signed long x) { prefN(preform, x); }
+        void preformN(Sv preform, unsigned long long x) { prefN(preform, x); }
+        void preformN(Sv preform, signed long long x) { prefN(preform, x); }
 
         /// 1. Stops substituting.
         /// 2. Returns temporary link to data.
         Str&& giveStr() { lnkFirst = NO_LINK; return std::move(d); }
     protected:
-        void nn(int x);
-        void nn(unsigned int x);
-        void nn(long x);
-        void nn(unsigned long x);
-        void nn(long long x);
-        void nn(unsigned long long x);
+        template <std::integral T>
+            void nn(T x);
         ///  Why such an architecture?
         ///  There will be three modes:
         ///  • cardinal (5 laps)
@@ -186,8 +259,19 @@ namespace loc {
         ///  Currently cardinal only. All modes are stored in substitutions.
         ///  Everything is parsed on substituting, just for simplicity.
         ///  We see ordinal substitution → ask ordinal plural rule
-        void nnn(std::string_view x, const Zchecker& chk);
+        template <class Sv1>
+            void nnnSv(Sv1 x, const Zchecker& chk);
+        template <std::integral T>
+            void prefN(Sv sv, T x);
         void ss(Sv x);
+
+        template <size_t Index, class Tup>
+        inline void eatTup(const Tup& x) {
+            if constexpr (Index < std::tuple_size_v<Tup>) {
+                eat(std::get<Index>(x));
+                eatTup<Index + 1, Tup>(x);
+            }
+        }
     private:
         struct Kv {
             Sv key;
@@ -223,13 +307,17 @@ namespace loc {
         /// Smartly replaces substitution with byWhat,
         ///   unescaping data and replacing ? with value
         /// @return addition to “advance” variable
-        size_t replaceQuestion(
+        template <class Sv1>
+        size_t replaceHash(
                 const Zsubst& sub,
                 size_t pos,
                 const Kv& byWhat,
-                std::string_view value);
+                Sv1 value);
 
         const Kv* findVal(std::string_view key) const noexcept;
+        const Kv* findExactPluralVal(Plural num) const noexcept;
+        static Plural parsePluralKey(const Kv& kv);
+        const Kv* findPluralVal(Plural num) const noexcept;
     };
 
     extern const loc::Locale* activeFmtLocale;
@@ -270,25 +358,25 @@ extern template class loc::FmtL<char>;
 extern template class loc::FmtL<wchar_t>;
 extern template class loc::FmtL<char8_t>;
 
-template <class Ch>
+template <loc::Char Ch>
 loc::Fmt<Ch>::Fmt(Str x) : loc(DefaultLocale::INST), d(std::move(x)) { init(); }
 
-template <class Ch>
+template <loc::Char Ch>
 loc::Fmt<Ch>::Fmt(const Locale& lc, Str x) : loc(lc), d(std::move(x)) { init(); }
 
-template <class Ch>
+template <loc::Char Ch>
 loc::Fmt<Ch>::Fmt(Sv x) : loc(DefaultLocale::INST), d(x) { init(); }
 
-template <class Ch>
+template <loc::Char Ch>
 loc::Fmt<Ch>::Fmt(const Locale& lc, Sv x) : loc(lc), d(x) { init(); }
 
-template <class Ch>
+template <loc::Char Ch>
 loc::Fmt<Ch>::Fmt(const Ch* x) : loc(DefaultLocale::INST), d(x) { init(); }
 
-template <class Ch>
+template <loc::Char Ch>
 loc::Fmt<Ch>::Fmt(const Locale& lc, const Ch* x) : loc(lc), d(x) { init(); }
 
-template <class Ch>
+template <loc::Char Ch>
 void loc::Fmt<Ch>::init()
 {
     size_t lastSubstPos = 0;
@@ -389,80 +477,37 @@ void loc::Fmt<Ch>::init()
 }   // init()
 
 
-template <class Ch>
-void loc::Fmt<Ch>::nn(int x)
+template <loc::Char Ch> template <std::integral T>
+void loc::Fmt<Ch>::nn(T x)
 {
     if (lnkFirst == NO_LINK)
         return;
     char buf[std::numeric_limits<int>::digits10 + 4];
     auto q = std::to_chars(buf, buf + std::size(buf), x);
     std::string_view sv(buf, q.ptr);
-    nnn(sv, ZsgnChecker(x));
+    if constexpr (std::is_signed_v<T>) {
+        nnnSv(sv, ZsgnChecker(x));
+    } else {
+        nnnSv(sv, ZunsChecker(x));
+    }
 }
 
 
-template <class Ch>
-void loc::Fmt<Ch>::nn(unsigned int x)
+template <loc::Char Ch> template <std::integral T>
+void loc::Fmt<Ch>::prefN(Sv sv, T x)
 {
     if (lnkFirst == NO_LINK)
         return;
-    char buf[std::numeric_limits<unsigned>::digits10 + 4];
-    auto q = std::to_chars(buf, buf + std::size(buf), x);
-    std::string_view sv(buf, q.ptr);
-    nnn(sv, ZunsChecker(x));
+    if constexpr (std::is_signed_v<T>) {
+        nnnSv(sv, ZsgnChecker(x));
+    } else {
+        nnnSv(sv, ZunsChecker(x));
+    }
 }
 
 
-template <class Ch>
-void loc::Fmt<Ch>::nn(long x)
-{
-    if (lnkFirst == NO_LINK)
-        return;
-    char buf[std::numeric_limits<long>::digits10 + 4];
-    auto q = std::to_chars(buf, buf + std::size(buf), x);
-    std::string_view sv(buf, q.ptr);
-    nnn(sv, ZsgnChecker(x));
-}
-
-
-template <class Ch>
-void loc::Fmt<Ch>::nn(unsigned long x)
-{
-    if (lnkFirst == NO_LINK)
-        return;
-    char buf[std::numeric_limits<unsigned long>::digits10 + 4];
-    auto q = std::to_chars(buf, buf + std::size(buf), x);
-    std::string_view sv(buf, q.ptr);
-    nnn(sv, ZunsChecker(x));
-}
-
-
-template <class Ch>
-void loc::Fmt<Ch>::nn(long long x)
-{
-    if (lnkFirst == NO_LINK)
-        return;
-    char buf[std::numeric_limits<long long>::digits10 + 4];
-    auto q = std::to_chars(buf, buf + std::size(buf), x);
-    std::string_view sv(buf, q.ptr);
-    nnn(sv, ZsgnChecker(x));
-}
-
-
-template <class Ch>
-void loc::Fmt<Ch>::nn(unsigned long long x)
-{
-    if (lnkFirst == NO_LINK)
-        return;
-    char buf[std::numeric_limits<unsigned long long>::digits10 + 4];
-    auto q = std::to_chars(buf, buf + std::size(buf), x);
-    std::string_view sv(buf, q.ptr);
-    nnn(sv, ZunsChecker(x));
-}
-
-
-template <class Ch>
-void loc::Fmt<Ch>::nnn(std::string_view x, const Zchecker& chk)
+template <loc::Char Ch> template <class Sv1>
+void loc::Fmt<Ch>::nnnSv(Sv1 x, const Zchecker& chk)
 {
     size_t lnkPrev = NO_LINK;
     size_t lnkCurr = lnkFirst;
@@ -484,10 +529,9 @@ void loc::Fmt<Ch>::nnn(std::string_view x, const Zchecker& chk)
                 ///    ordinal (5th lap completed), simple plural (laps completed)
                 /// @todo [future] short cardinal: {1|q=lap:s} completed
                 auto plural = chk.check(loc.cardinalRule());
-                auto kk = pluralNames[static_cast<int>(plural)];
-                const Kv* tmpl = findVal(kk);
+                const Kv* tmpl = findPluralVal(plural);
                 if (tmpl) {
-                    newAdvance = replaceQuestion(currSub, currPos, *tmpl, x);
+                    newAdvance = replaceHash(currSub, currPos, *tmpl, x);
                 } else {
                     newAdvance = dumbReplace(currSub, currPos, x);
                 }
@@ -517,7 +561,7 @@ void loc::Fmt<Ch>::nnn(std::string_view x, const Zchecker& chk)
 }
 
 
-template <class Ch>
+template <loc::Char Ch>
 void loc::Fmt<Ch>::parseSubst(const Zsubst& sub, size_t pos)
 {
     values.clear();
@@ -570,7 +614,7 @@ brk1:
 }
 
 
-template <class Ch>
+template <loc::Char Ch>
 bool loc::Fmt<Ch>::Kv::isKey(std::string_view x) const noexcept
 {
     return (x.length() == key.length()
@@ -578,7 +622,7 @@ bool loc::Fmt<Ch>::Kv::isKey(std::string_view x) const noexcept
 }
 
 
-template <class Ch> template <class Ch2>
+template <loc::Char Ch> template <class Ch2>
 size_t loc::Fmt<Ch>::dumbReplace(
         const Zsubst& sub, size_t pos, std::basic_string_view<Ch2> byWhat)
 {
@@ -593,7 +637,7 @@ size_t loc::Fmt<Ch>::dumbReplace(
 }
 
 
-template <class Ch>
+template <loc::Char Ch>
 void loc::Fmt<Ch>::ss(Sv x)
 {
     size_t lnkPrev = NO_LINK;
@@ -629,7 +673,7 @@ void loc::Fmt<Ch>::ss(Sv x)
 }
 
 
-template <class Ch>
+template <loc::Char Ch>
 auto loc::Fmt<Ch>::findVal(std::string_view key) const noexcept -> const Kv*
 {
     for (const Kv& v : values) {
@@ -641,9 +685,90 @@ auto loc::Fmt<Ch>::findVal(std::string_view key) const noexcept -> const Kv*
 }
 
 
-template <class Ch>
-size_t loc::Fmt<Ch>::replaceQuestion(
-        const Zsubst& sub, size_t pos, const Kv& byWhat, std::string_view value)
+template <loc::Char Ch>
+auto loc::Fmt<Ch>::findExactPluralVal(loc::Plural plural) const noexcept -> const Kv*
+{
+    return findVal(pluralNames[static_cast<unsigned char>(plural)]);
+}
+
+
+template <loc::Char Ch>
+loc::Plural loc::Fmt<Ch>::parsePluralKey(const Kv& kv)
+{
+    if (kv.key.empty())
+        return Plural::BAD;
+    switch (kv.key[0]) {
+    case key::ST_ZERO:
+        if (kv.isKey(key::ZERO))
+            return Plural::ZERO;
+        break;
+    case key::ST_ONE_OTHER:
+        if (kv.isKey(key::ONE))
+            return Plural::ONE;
+        if (kv.isKey(key::OTHER))
+            return Plural::OTHER;
+        break;
+    case key::ST_TWO:
+        if (kv.isKey(key::TWO))
+            return Plural::TWO;
+        break;
+    case key::ST_FEW:
+        if (kv.isKey(key::FEW))
+            return Plural::FEW;
+        break;
+    case key::ST_MANY:
+        if (kv.isKey(key::MANY))
+            return Plural::MANY;
+        break;
+    case key::ST_REST:
+        if (kv.isKey(key::REST))
+            return Plural::REST;
+        break;
+    default: ;
+    }
+    return Plural::BAD;
+}
+
+
+template <loc::Char Ch>
+auto loc::Fmt<Ch>::findPluralVal(loc::Plural plural) const noexcept -> const Kv*
+{
+    auto mainKey = pluralNames[static_cast<unsigned char>(plural)];
+    const Kv* fallbacks[Plural_N_Full] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+    bool hasFallback = false;
+    for (const Kv& v : values) {
+        if (v.isKey(mainKey)) {
+            return &v;
+        }
+        // Otherwise parse
+        if (auto newKey = parsePluralKey(v); newKey != Plural::BAD) {
+            fallbacks[static_cast<unsigned char>(newKey)] = &v;
+            hasFallback = true;
+        }
+    }
+    // Most substitutions have no fallbacks
+    if (!hasFallback)
+        return nullptr;
+    // Check Rest
+    if (auto q = fallbacks[static_cast<unsigned char>(Plural::REST)])
+        return q;
+    // Go forward
+    for (loc::Plural p = plural; p < Plural::OTHER;) { ++p;
+        if (auto q = fallbacks[static_cast<unsigned char>(p)])
+            return q;
+    }
+    // Go back
+    for (loc::Plural p = plural; p > Plural::ZERO;) { --p;
+        if (auto q = fallbacks[static_cast<unsigned char>(p)])
+            return q;
+    }
+    return nullptr;
+}
+
+
+template <loc::Char Ch> template <class Sv1>
+size_t loc::Fmt<Ch>::replaceHash(
+        const Zsubst& sub, size_t pos, const Kv& byWhat, Sv1 value)
 {
     // byWhat is empty?
     if (byWhat.isValEmpty()) {
@@ -661,7 +786,7 @@ size_t loc::Fmt<Ch>::replaceQuestion(
                 goto brk;
             d[pOut++] = *ptrIn;
             break;
-        case '?':   // Replacement
+        case '#':   // Replacement
             smartSpans.push_back(pOut);
             break;
         default:
@@ -693,7 +818,7 @@ brk:
 }
 
 #ifdef QT_STRINGS
-template <class Ch>
+template <loc::Char Ch>
 QString loc::Fmt<Ch>::q() const
 {
     if constexpr (sizeof(Ch) == sizeof(char)) {
