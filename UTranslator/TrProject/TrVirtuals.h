@@ -125,13 +125,18 @@ namespace tr {
         EXPANDED         ///< expanded
     };
 
+    struct StoringIdChain {
+        std::u8string fileName;
+        std::vector<std::u8string> ids;
+    };
+
     /// A simple object intended for checking: are we working
     ///   with the same project? Used mainly for trash.
     struct Passport {};
 
     struct Trash {
         struct Line {
-            std::vector<std::u8string> idChain;
+            StoringIdChain ids;
             Translatable tr;
         };
 
@@ -350,6 +355,7 @@ namespace tr {
         bool moveDown(UiObject* aChild);
         void swapChildren(size_t index1, size_t index2);
         BigStats bigStats() const;
+        StoringIdChain idChain();
 
         void traverseTexts1(const EvText1&);
         void traverseCTexts1(const EvCText1&) const;

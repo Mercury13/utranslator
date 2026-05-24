@@ -592,8 +592,7 @@ tr::UpdateInfo tr::VirtualGroup::vgStealDataFrom(
             if (auto* tr = w->translatable()) {
                 if (tr->translation) {
                     auto& lastTrash = ctx.trash->data.emplace_back();
-                    /// @todo [urgent, trash] set IDs
-                    lastTrash.idChain.push_back(w->id);
+                    lastTrash.ids = w->idChain();
                     lastTrash.tr = *tr;
                 }
             }

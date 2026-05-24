@@ -525,3 +525,19 @@ const tr::Stats& tr::UiObject::stats(StatsMode mode, CascadeDropCache cascade)
 
     return resetCacheIf(r, cascade);
 }
+
+
+tr::StoringIdChain tr::UiObject::idChain()
+{
+    StoringIdChain r;
+    auto q = selfUi();
+    while (q) {
+        if (q->objType() == ObjType::FILE) {
+            r.fileName = q->idColumn();
+            break;
+        }
+        r.ids.emplace_back(std::u8string{q->idColumn()});
+    }
+    std::ranges::reverse(r.ids);
+    return r;
+}
