@@ -140,6 +140,9 @@ private slots:
     void doLoadText();
     void clearGroup();
     void badShortcut();
+    // Menu: View
+    void syncShowReference();
+    void showReference();
     // Menu: Tools
     void translateWithOriginal();
     void translateWithLockit();

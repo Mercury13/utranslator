@@ -142,6 +142,8 @@ FmMain::FmMain(QWidget *parent)
         // Edit — special shortcuts
         shMarkAttention = new QShortcut(ui->acMarkAttention->shortcut(), this);
         connect(shMarkAttention, &QShortcut::activated, this, &This::markAttentionCurrObject);
+    // View
+    connect(ui->acShowReference, &QAction::triggered, this, &This::syncShowReference);
     // Go
     connect(ui->acGoBack, &QAction::triggered, this, &This::goBack);
     connect(ui->acGoNext, &QAction::triggered, this, &This::goNext);
@@ -166,6 +168,9 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->acExtractOriginal, &QAction::triggered, this, &This::extractOriginal);
     connect(ui->acSwitchOriginalAndTranslation, &QAction::triggered, this, &This::switchOriginalAndTranslation);
     connect(ui->acResetKnownOriginals, &QAction::triggered, this, &This::resetKnownOriginals);
+
+    // Links
+    connect(ui->lbShowReference, &QLabel::linkActivated, this, &This::showReference);
 
     // Shortcuts
     shAddGroup = addBadShortcut(ui->acAddHostedGroup);
@@ -439,6 +444,27 @@ void FmMain::clearReference()
 }
 
 
+void FmMain::syncShowReference()
+{
+    // Reference
+    if (project && project->prjInfo().hasReference()) {
+        bool needRef = ui->acShowReference->isChecked();
+        ui->grpReference->setVisible(needRef);
+        ui->wiShowReference->setVisible(!needRef);
+    } else {  // No reference
+        ui->grpReference->hide();
+        ui->wiShowReference->hide();
+    }
+}
+
+
+void FmMain::showReference()
+{
+    ui->acShowReference->setChecked(true);
+    syncShowReference();
+}
+
+
 void FmMain::loadObject(tr::UiObject& obj)
 {
     if (search.result) {
@@ -448,8 +474,7 @@ void FmMain::loadObject(tr::UiObject& obj)
         }
     }
 
-    // Reference
-    ui->grpReference->setVisible(obj.vproject()->prjInfo().hasReference());
+    syncShowReference();
 
     bugCache.copyFrom(obj);
 
@@ -704,6 +729,10 @@ void FmMain::reenable()
     ui->acAcceptChanges->setEnabled(isMainVisible);
     ui->acRevertChanges->setEnabled(isMainVisible);
     ui->acTrash->setEnabled(hasProject);
+
+    // Menu: View
+    ui->acShowReference->setEnabled(isMainVisible && hasProject
+            && project->info.hasReference());
 
     // Menu: Go
     ui->acGoBack->setEnabled(isMainVisible);
