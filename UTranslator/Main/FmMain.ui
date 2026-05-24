@@ -217,7 +217,7 @@ QLabel {
             </property>
             <item>
              <widget class="QWidget" name="wiEditors" native="true">
-              <layout class="QVBoxLayout" name="layEditors" stretch="0,3,3,2,1">
+              <layout class="QVBoxLayout" name="layEditors" stretch="0,3,0,3,2,1">
                <property name="spacing">
                 <number>0</number>
                </property>
@@ -541,6 +541,25 @@ QLabel {
                    </item>
                   </layout>
                  </widget>
+                </widget>
+               </item>
+               <item>
+                <widget class="QWidget" name="wiShowReference" native="true">
+                 <layout class="QHBoxLayout" name="horizontalLayout_7">
+                  <property name="topMargin">
+                   <number>1</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>1</number>
+                  </property>
+                  <item>
+                   <widget class="QLabel" name="lbShowReference">
+                    <property name="text">
+                     <string>&lt;a href=&quot;ac:showref&quot; style=&quot;color:mediumblue; text-decoration:none&quot;&gt;Show reference translation&lt;/a&gt;</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
                 </widget>
                </item>
                <item>
@@ -1004,9 +1023,16 @@ QLabel {
     <addaction name="menuTranslate_with"/>
     <addaction name="menuConvertProjectType"/>
    </widget>
+   <widget class="QMenu" name="menu_View">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+    <addaction name="acShowReference"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuOriginal"/>
    <addaction name="menuEdit"/>
+   <addaction name="menu_View"/>
    <addaction name="menuGo"/>
    <addaction name="menu_Tools"/>
   </widget>
@@ -1323,6 +1349,17 @@ QLabel {
   <action name="acTranslateWithLockit">
    <property name="text">
     <string>Final L10n resource (*.ini etc)…</string>
+   </property>
+  </action>
+  <action name="acShowReference">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show reference translation</string>
    </property>
   </action>
  </widget>
