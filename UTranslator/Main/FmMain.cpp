@@ -1885,9 +1885,10 @@ void FmMain::resetKnownOriginals()
 {
     if (QMessageBox::question(this,
             "Reset known originals",
-            "You will get rid of all warnings about changed original, whether true or erroneous." "\n"
-                "For example, you may do this due to changed original language, "
-                              "or massive grammar checks in original." "\n"
+            "You will eliminate all warnings about changes to the original, "
+                              "whether true or erroneous." "\n"
+                "For example, you may do this due to migration to another original language, "
+                              "or extensive grammar checks in the original." "\n"
                 "Do you really want to do this?",
             QMessageBox::Yes | QMessageBox::No,
             QMessageBox::No) == QMessageBox::Yes) {
