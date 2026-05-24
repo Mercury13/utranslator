@@ -93,7 +93,7 @@ QVariant TrashModel::headerData(
         return {};
     }
     static constinit const char* names[] {
-        "Id", "Original", "Translation",
+        "ID", "Original", "Translation",
     };
     static_assert(std::size(names) == COL_N);
     if (auto sec = toUnsigned(section); sec < COL_N) {
