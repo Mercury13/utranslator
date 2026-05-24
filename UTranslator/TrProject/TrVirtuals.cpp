@@ -537,6 +537,7 @@ tr::StoringIdChain tr::UiObject::idChain()
             break;
         }
         r.ids.emplace_back(std::u8string{q->idColumn()});
+        q = q->parent();
     }
     std::ranges::reverse(r.ids);
     return r;

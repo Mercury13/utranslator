@@ -5,6 +5,9 @@
 #include <QDialog>
 #include <QAbstractTableModel>
 
+// C++
+#include <concepts>
+
 namespace Ui {
 class FmTrash;
 }
@@ -13,6 +16,7 @@ class StrObject;
 
 namespace tr {
     struct Trash;
+    struct TrashLine;
     struct Passport;
 }
 
@@ -33,6 +37,14 @@ public:
     void setTrash(tr::Trash& x);
     void removeTrash();
     size_t knownSize() const { return oldTrash.size; }
+    bool isRowGood(int) const;
+    bool isRowGood(unsigned) const = delete;
+    bool isRowBad(int x) const { return !isRowGood(x); }
+    bool isRowBad(unsigned) const = delete;
+
+    // Actually model-local
+    template <std::integral T>
+    const tr::TrashLine* at (T rw) const;
 private:
     const tr::Trash* trash = nullptr;
 
@@ -67,6 +79,7 @@ private:
     using Super::exec;
 private slots:
     void treeDblClicked(const QModelIndex& index);
+    void treeCurrentChanged(const QModelIndex& newSel);
 };
 
 #endif // FMTRASH_H

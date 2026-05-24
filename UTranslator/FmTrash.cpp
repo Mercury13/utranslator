@@ -20,16 +20,18 @@ template <std::integral T>
 auto toUnsigned(T x) -> std::make_unsigned_t<T>
     { return x; }
 
-///  Saturating conversion signed → unsigned (neg→0)
-template <std::integral T>
-auto satUnsigned(T x) -> std::make_unsigned_t<T>
-{
-    static_assert(std::is_signed_v<T>);
-    return (x < 0) ? 0 : x;
-}
-
 
 ///// TrashModel ///////////////////////////////////////////////////////////////
+
+
+template <std::integral T>
+const tr::TrashLine* TrashModel::at (T rw) const {
+    if (trash && isRowGood(rw)) {
+        return &trash->data[rw];
+    } else {
+        return nullptr;
+    }
+}
 
 
 int TrashModel::rowCount(const QModelIndex&) const
@@ -50,22 +52,29 @@ int TrashModel::columnCount(const QModelIndex&) const
 }
 
 
+bool TrashModel::isRowGood(int x) const
+{
+    auto rc = rowCount({});
+    return (rc > 0 && x < rc);
+}
+
+
 QVariant TrashModel::data(const QModelIndex &index, int role) const
 {
-    if (!trash || toUnsigned(index.row()) >= satUnsigned(rowCount({})))
-        return {};
     switch (role) {
     case Qt::DisplayRole: {
-            const auto& line = trash->data[index.row()];
+            const auto line = at(index.row());
+            if (!line)
+                return {};
             switch (index.column()) {
             case COL_ID:
-                if (line.chain.ids.empty())
+                if (line->chain.ids.empty())
                     return {};
-                return str::toQ(line.chain.ids.back());
+                return str::toQ(line->chain.ids.back());
             case COL_ORIG:
-                return str::toQ(line.tr.original);
+                return str::toQ(line->tr.original);
             case COL_TRANSL:
-                return str::toQ(line.tr.translationSv());
+                return str::toQ(line->tr.translationSv());
             default:
                 return {};
             }
@@ -152,6 +161,8 @@ FmTrash::FmTrash(QWidget *parent) :
     ui->treeAll->setModel(&model);
 
     connect(ui->treeAll, &QTreeView::doubleClicked, this, &This::treeDblClicked);
+    connect(ui->treeAll->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, &This::treeCurrentChanged);
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &This::accept);
     connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &This::reject);
 }
@@ -201,4 +212,42 @@ void FmTrash::exec(tr::Trash& trash, StrObject* obj, TrashChannel channel)
     }
 
     model.removeTrash();
+}
+
+
+namespace {
+
+    QString chainToString(const tr::StoringIdChain& x)
+    {
+        auto r = str::toQ(x.fileName);
+        if (!x.ids.empty()) {
+            if (!r.isEmpty()) {
+                // Both non-empty file and ID chain
+                r += ": ";
+            }
+            for (auto& v : x.ids) {
+                if (&v != &x.ids.front())
+                    r += " → ";
+                if (v.empty()) {
+                    r += "⌀";
+                } else {
+                    r += str::toQ(v);
+                }
+            }
+        }
+        return r;
+    }
+
+}   // anon namespace
+
+
+void FmTrash::treeCurrentChanged(const QModelIndex& newSel)
+{
+    if (auto line = model.at(newSel.row())) {
+        // Have line
+        ui->edIdChain->setText(chainToString(line->chain));
+    } else {
+        // No line
+        ui->edIdChain->clear();
+    }
 }

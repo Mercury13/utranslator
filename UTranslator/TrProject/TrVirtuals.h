@@ -134,13 +134,13 @@ namespace tr {
     ///   with the same project? Used mainly for trash.
     struct Passport {};
 
-    struct Trash {
-        struct Line {
-            StoringIdChain chain;
-            Translatable tr;
-        };
+    struct TrashLine {
+        StoringIdChain chain;
+        Translatable tr;
+    };
 
-        SafeVector<Line> data;
+    struct Trash {
+        SafeVector<TrashLine> data;
         std::shared_ptr<Passport> passport = std::make_shared<Passport>();
 
         bool isEmpty() const noexcept { return data.empty(); }
