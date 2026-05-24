@@ -713,6 +713,7 @@ void FmMain::reenable()
     // Menu: Original; always isOriginal
     ui->acAddHostedFile->setEnabled(canAddFiles);
     ui->acAddHostedGroup->setEnabled(isOriginal);
+    ui->acAddSyncGroup->setEnabled(isOriginal);
     ui->acAddText->setEnabled(isOriginal);
     ui->acDelete->setEnabled(canAddFiles);
     ui->acClone->setEnabled(isOriginal);
