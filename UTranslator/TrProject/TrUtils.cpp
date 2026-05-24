@@ -229,7 +229,7 @@ namespace {
         return true;
     }
 
-    /// Checks whether we replace text.translation with ext.original
+    /// Checks whether we replace text.translation with ext
     /// @return  [+] replace [-] keep
     ///
     bool twIsEligible(tr::Text& text, std::u8string_view ext, const tr::tw::Sets& sets)
