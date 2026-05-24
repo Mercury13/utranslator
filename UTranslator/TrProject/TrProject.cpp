@@ -592,7 +592,7 @@ tr::UpdateInfo tr::VirtualGroup::vgStealDataFrom(
             if (auto* tr = w->translatable()) {
                 if (tr->translation) {
                     auto& lastTrash = ctx.trash->data.emplace_back();
-                    lastTrash.ids = w->idChain();
+                    lastTrash.chain = w->idChain();
                     lastTrash.tr = *tr;
                 }
             }

@@ -136,7 +136,7 @@ namespace tr {
 
     struct Trash {
         struct Line {
-            StoringIdChain ids;
+            StoringIdChain chain;
             Translatable tr;
         };
 

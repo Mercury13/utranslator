@@ -59,9 +59,9 @@ QVariant TrashModel::data(const QModelIndex &index, int role) const
             const auto& line = trash->data[index.row()];
             switch (index.column()) {
             case COL_ID:
-                if (line.ids.ids.empty())
+                if (line.chain.ids.empty())
                     return {};
-                return str::toQ(line.ids.ids.back());
+                return str::toQ(line.chain.ids.back());
             case COL_ORIG:
                 return str::toQ(line.tr.original);
             case COL_TRANSL:
