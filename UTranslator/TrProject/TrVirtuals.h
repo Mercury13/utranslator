@@ -85,6 +85,8 @@ namespace tr {
                     translation;    ///< Translation for known original (if present) or original
         bool forceAttention = false;
         bool wasChangedToday = false;  ///<
+        std::u8string_view referenceSv() const
+            { return reference ? *reference : std::u8string_view(); }
         std::u8string_view translationSv() const
             { return translation ? *translation : std::u8string_view(); }
         AttentionMode attentionMode(const tr::PrjInfo& prjInfo) const;

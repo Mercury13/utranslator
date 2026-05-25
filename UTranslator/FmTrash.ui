@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Trash</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0">
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="1,0,0">
    <item>
     <widget class="QTreeView" name="treeAll">
      <property name="indentation">
@@ -26,7 +26,10 @@
    </item>
    <item>
     <widget class="QWidget" name="wiIds" native="true">
-     <layout class="QHBoxLayout" name="horizontalLayout">
+     <layout class="QFormLayout" name="formLayout">
+      <property name="verticalSpacing">
+       <number>2</number>
+      </property>
       <property name="leftMargin">
        <number>0</number>
       </property>
@@ -39,14 +42,14 @@
       <property name="bottomMargin">
        <number>0</number>
       </property>
-      <item>
+      <item row="0" column="0">
        <widget class="QLabel" name="lbIdChain">
         <property name="text">
          <string>ID chain</string>
         </property>
        </widget>
       </item>
-      <item>
+      <item row="0" column="1">
        <widget class="QLineEdit" name="edIdChain">
         <property name="styleSheet">
          <string notr="true">QLineEdit {background-color: palette(button); }</string>
@@ -56,28 +59,58 @@
         </property>
        </widget>
       </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="lbOriginal">
+        <property name="text">
+         <string>Original</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="edOriginal">
+        <property name="styleSheet">
+         <string notr="true">QLineEdit {background-color: palette(button); }</string>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="lbReference">
+        <property name="text">
+         <string>Reference</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="edReference">
+        <property name="styleSheet">
+         <string notr="true">QLineEdit {background-color: palette(button); }</string>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="lbTranslation">
+        <property name="text">
+         <string>Translation</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLineEdit" name="edTranslation">
+        <property name="styleSheet">
+         <string notr="true">QLineEdit {background-color: palette(button); }</string>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
      </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="grpOrig">
-     <property name="title">
-      <string>Original</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="grpRef">
-     <property name="title">
-      <string>Reference</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="grpTransl">
-     <property name="title">
-      <string>Translation</string>
-     </property>
     </widget>
    </item>
    <item>

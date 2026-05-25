@@ -59,6 +59,18 @@ bool TrashModel::isRowGood(int x) const
 }
 
 
+namespace {
+
+    QString brushLineEnds(std::u8string_view x)
+    {
+        auto r = str::toQ(x);
+        r.replace('\n', QChar{L'¶'});
+        return r;
+    }
+
+}   // anon namespace
+
+
 QVariant TrashModel::data(const QModelIndex &index, int role) const
 {
     switch (role) {
@@ -72,9 +84,9 @@ QVariant TrashModel::data(const QModelIndex &index, int role) const
                     return {};
                 return str::toQ(line->chain.ids.back());
             case COL_ORIG:
-                return str::toQ(line->tr.original);
+                return brushLineEnds(line->tr.original);
             case COL_TRANSL:
-                return str::toQ(line->tr.translationSv());
+                return brushLineEnds(line->tr.translationSv());
             default:
                 return {};
             }
@@ -238,6 +250,18 @@ namespace {
         return r;
     }
 
+    void setEdit(QLineEdit* ed, const QString& x)
+    {
+        ed->setText(x);
+        ed->setCursorPosition(0);
+    }
+
+    ///  setEdit + multiline
+    void setMlEdit(QLineEdit* ed, std::u8string_view x)
+    {
+        setEdit(ed, brushLineEnds(x));
+    }
+
 }   // anon namespace
 
 
@@ -245,9 +269,15 @@ void FmTrash::treeCurrentChanged(const QModelIndex& newSel)
 {
     if (auto line = model.at(newSel.row())) {
         // Have line
-        ui->edIdChain->setText(chainToString(line->chain));
+        ui->edIdChain->setText(chainToString(line->chain));  // leave end visible
+        setMlEdit(ui->edOriginal, line->tr.original);
+        setMlEdit(ui->edReference, line->tr.referenceSv());
+        setMlEdit(ui->edTranslation, line->tr.translationSv());
     } else {
         // No line
         ui->edIdChain->clear();
+        ui->edOriginal->clear();
+        ui->edReference->clear();
+        ui->edTranslation->clear();
     }
 }
