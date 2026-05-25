@@ -34,5 +34,11 @@
    </text>
   </group>
   <group id="G2" />
+  <group id="Known">
+   <text id="a">
+    <orig>alpha</orig>
+    <transl>Roger, Alpha!</transl>
+   </text>
+  </group>
  </file>
 </ut>

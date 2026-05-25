@@ -1,6 +1,7 @@
 **Features:** Trash
 - Basic existence
 - Handling of multiline strings by the Trash window
+- And some things related to Known originals
 
 **Method of reproduction:**
 1. Open ``trash-qps.utran``
