@@ -1,5 +1,5 @@
 **Bug:**
-A very common scenario: a developer w/o language knowlegde sloppily (analogy/AI) translates a new string, marks it as bad and gets a wrong discrepancy
+A very common scenario: a developer w/o language knowledge sloppily (analogy/AI) translates a new string, marks it as bad and gets a wrong discrepancy
 
 **Method of reproduction:**
 1. Open ``ea-ru.utran``
@@ -8,9 +8,9 @@ A very common scenario: a developer w/o language knowlegde sloppily (analogy/AI)
 4. Write something
 5. Mark as bad (F8)
 
-Desired bhv: bad
+Desired bhv: 1 red badge, bad
 
-Actual bhv: bad + untranslated
+Actual bhv: 2 red badges, bad + untranslated
 
 **Ticket:** #72
 
