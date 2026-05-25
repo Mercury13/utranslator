@@ -94,7 +94,8 @@ namespace tr {
 
             std::optional<std::u8string_view> active() const;
             void reset() { text.reset(); isSuppressed = false; }
-            /// Same as active(), but a bit more efficient
+            /// Same as active(), but a bit more efficient and
+            ///   only returns bool
             /// @return [+] has unsuppressed string
             operator bool() const noexcept { return text && !isSuppressed; }
         } knownOriginal;
