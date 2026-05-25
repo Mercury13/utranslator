@@ -94,7 +94,7 @@ namespace {
     void writeTextInTag(
             pugi::xml_node root,
             const char* name,
-            const std::u8string& text,
+            std::u8string_view text,
             tr::WrCache& cache)
     {
         const char8_t* data = text.data();
@@ -141,7 +141,7 @@ namespace {
     void writeTextInTagOpt(
             pugi::xml_node root,
             const char* name,
-            const std::optional<std::u8string>& text,
+            const std::optional<std::u8string_view>& text,
             tr::WrCache& cache)
     {
         if (text.has_value())
@@ -916,7 +916,7 @@ void tr::Text::writeToXml(pugi::xml_node& root, WrCache& c) const
     writeTextInTag(node, "orig", tr.original, c);
     writeImportersAuthorsComment(node, c);
     if (c.info.isTranslation()) {
-        writeTextInTagOpt(node, "known-orig", tr.knownOriginal, c);
+        writeTextInTagOpt(node, "known-orig", tr.knownOriginal.active(), c);
         writeTextInTagOpt(node, "transl", tr.translation, c);
         writeTranslatorsComment(node, c);
     }
@@ -932,11 +932,12 @@ void tr::Text::readFromXml(const pugi::xml_node& node, const ReadContext& ctx)
     //   Read:  au-cmt, tr-cmt, orig, known-orig, transl
     readComments(node, ctx.info);
     tr.original = readTextInTag(node, "orig");
+    tr.knownOriginal.isSuppressed = false;
     switch (ctx.info.type) {
     case PrjType::ORIGINAL:
         break;
     case PrjType::FULL_TRANSL:
-        tr.knownOriginal = readTextInTagOpt(node, "known-orig");
+        tr.knownOriginal.text = readTextInTagOpt(node, "known-orig");
         tr.translation = readTextInTagOpt(node, "transl");
         break;
     }
@@ -1019,6 +1020,7 @@ void tr::Text::removeTranslChannel()
     entityRemoveTranslChannel();
     tr.forceAttention = false;  // attention is probably in the translation channel
     tr.knownOriginal.reset();
+    tr.knownOriginal.reset();
     tr.translation.reset();
 }
 
@@ -1066,19 +1068,20 @@ tr::UpdateInfo::ByState tr::Text::stealDataFrom(
             // External software has no access to knownOriginal,
             //   as this field is designed to solve contradictions between software
             //   and hand-translation
-            if (x.tr.knownOriginal) {
+            if (x.tr.knownOriginal.active()) {
                 this->tr.knownOriginal = std::move(x.tr.knownOriginal);
             }
 
             if (isOrigChanged) {
                 // And then make knownOriginal unless background
-                if (this->tr.knownOriginal) {    // HAVE known original — maybe remove?
-                    if (*this->tr.knownOriginal == this->tr.original) {
+                if (auto ko = this->tr.knownOriginal.active()) {    // HAVE known original — maybe remove?
+                    if (*ko == this->tr.original) {
                         this->tr.knownOriginal.reset();
                     }
                 } else {       // HAVE NO known original — maybe add?
                     if (this->tr.translation) {  // But add only if have translation
-                        this->tr.knownOriginal = std::move(x.tr.original);
+                        this->tr.knownOriginal.text = std::move(x.tr.original);
+                        this->tr.knownOriginal.isSuppressed = false;
                     }
                 }
             }

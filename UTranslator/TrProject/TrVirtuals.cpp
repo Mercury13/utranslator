@@ -50,12 +50,20 @@ void tr::BigStats::LittleBigStats::add(const Translatable::Info& info)
 ///// Translatable /////////////////////////////////////////////////////////////
 
 
+std::optional<std::u8string_view> tr::Translatable::KnownOriginal::active() const
+{
+    if (isSuppressed)
+        return {};
+    return text;
+}
+
+
 tr::AttentionMode tr::Translatable::baseAttentionMode(const tr::PrjInfo& prjInfo) const
 {
     // Translation → check for translation
     if (prjInfo.isTranslation()) {
         // Original changed → attention!
-        if (knownOriginal || trashState != TrashState::NONE)
+        if (knownOriginal.active() || trashState != TrashState::NONE)
             return tr::AttentionMode::AUTO_PROBLEM;
         // No translation: full → attention, patch → just BG
         if (!translation) {
@@ -269,11 +277,11 @@ bool tr::UiObject::setTranslation(
 }
 
 
-bool tr::UiObject::removeKnownOriginal(tr::Modify wantModify)
+bool tr::UiObject::suppressKnownOriginal(tr::Modify wantModify)
 {
     if (auto t = translatable()) {
-        if (t->knownOriginal) {
-            t->knownOriginal.reset();
+        if (t->knownOriginal.active()) {
+            t->knownOriginal.isSuppressed = true;
             if (wantModify != Modify::NO) {
                 doModify(Mch::ORIG);
             }

@@ -26,8 +26,8 @@ void tr::BugCache::copyFrom(tr::UiObject& x)
         if (isProjectOriginal && !mojibake::isValid(tr->original))
             moji |= Mjf::ORIGINAL;
         original = mojibake::toM<std::u32string>(tr->original);
-        if (tr->knownOriginal) {
-            knownOriginal = mojibake::toM<std::u32string>(*tr->knownOriginal);
+        if (auto ko = tr->knownOriginal.active()) {
+            knownOriginal = mojibake::toM<std::u32string>(*ko);
         }
         if (tr->reference) {
             reference = mojibake::toM<std::u32string>(*tr->reference);
@@ -80,7 +80,7 @@ void tr::BugCache::copyTo(
     }
 
     if (bugsToRemove.have(tr::Bug::TR_ORIG_CHANGED)) {
-        if (x.removeKnownOriginal(tr::Modify::YES))
+        if (x.suppressKnownOriginal(tr::Modify::YES))
             knownOriginal.reset();
     }
 

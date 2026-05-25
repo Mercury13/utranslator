@@ -187,7 +187,8 @@ namespace {
 
     void ResetKnownOriginals::onText(const std::shared_ptr<tr::Text>& x)
     {
-        if (x->tr.knownOriginal) {
+        // Use text here, either active or suppressed
+        if (x->tr.knownOriginal.text) {
             x->tr.knownOriginal.reset();
             ++n;
         }

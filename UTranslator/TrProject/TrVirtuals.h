@@ -86,8 +86,15 @@ namespace tr {
 
     struct Translatable {
         std::u8string original;     ///< Current original string
+        struct KnownOriginal {  ///< Known original string we translated (never == original!)
+            std::optional<std::u8string> text;
+            bool isSuppressed = false;  ///< [+] is known original suppressed
+
+            std::optional<std::u8string_view> active() const;
+            void reset() { text.reset(); isSuppressed = false; }
+        } knownOriginal;
+
         std::optional<std::u8string>
-                    knownOriginal,  ///< Known original string we translated (never == original!)
                     reference,      ///< Reference string in other language (see PrjInfo.canHaveReference)
                     translation;    ///< Translation for known original (if present) or original
         bool forceAttention = false;
@@ -340,7 +347,7 @@ namespace tr {
         /// @return [+] was actually changed
         bool setTranslation(std::optional<std::u8string_view> x, tr::Modify wantModify);
         /// @return [+] was actually changed
-        bool removeKnownOriginal(tr::Modify wantModify);
+        bool suppressKnownOriginal(tr::Modify wantModify);
         /// @return [+] was actually changed
         bool setTranslatorsComment(std::u8string_view x, tr::Modify wantModify);
         /// @return [+] was actually changed
