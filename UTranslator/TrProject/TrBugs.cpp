@@ -4,9 +4,11 @@
 // Utils
 #include "mojibake.h"
 
+const tr::BugCache tr::BugCache::EMPTY;
+
 void tr::BugCache::copyFrom(tr::UiObject& x)
 {
-    *this = This{};
+    *this = EMPTY;
     obj = x.selfUi();
 
     // ID
@@ -20,7 +22,7 @@ void tr::BugCache::copyFrom(tr::UiObject& x)
     isProjectOriginal = !prj || prj->prjInfo().canEditOriginal();
 
     // Translatable
-    if (auto tr = x.translatable()) {
+    if (auto* tr = x.translatable()) {
         hasTranslatable = true;
         isProjectTranslation = prj && prj->prjInfo().isTranslation();
         if (isProjectOriginal && !mojibake::isValid(tr->original))
@@ -29,6 +31,7 @@ void tr::BugCache::copyFrom(tr::UiObject& x)
         if (auto ko = tr->knownOriginal.active()) {
             knownOriginal = mojibake::toM<std::u32string>(*ko);
         }
+        isKnownSuppressed = tr->knownOriginal.isActuallySuppressed();
         if (tr->reference) {
             reference = mojibake::toM<std::u32string>(*tr->reference);
         }
@@ -242,6 +245,8 @@ Flags<tr::Bug> tr::BugCache::bugs() const
         }
         if (knownOriginal)
             r |= Bug::TR_ORIG_CHANGED;
+        if (isKnownSuppressed)
+            r |= Bug::TR_ORIG_SUPPRESSED;
     }
 
     // Comment

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "TrProject.h"
+#include "TrVirtuals.h"
 
 namespace tr {
 
@@ -19,6 +19,7 @@ namespace tr {
         COM_INVISIBLE   = 1<<11,    ///< common: invisible chars only
         COM_MOJIBAKE    = 1<<12,    ///< common: replacement character found
         OR_EMPTY       = 1<<13,     ///< original: empty string
+        TR_ORIG_SUPPRESSED = 1<<14, ///< original: known is suppressed, can restore
 
         ALL_SERIOUS = TR_EMPTY | TR_ORIG_CHANGED | COM_ATTENTION,
     };
@@ -52,6 +53,7 @@ namespace tr {
         bool hasComments = false;
         bool isProjectTranslation = false;
         bool isTranslationEmpty = false;
+        bool isKnownSuppressed = false;  /// mut-ex with knownOriginal
         /// Which editable fields have mojibake
         Flags<Mjf> moji {};
 
@@ -76,6 +78,8 @@ namespace tr {
         Flags<Bug> origBugsOf(std::u32string_view x) const;
         Flags<Bug> doubleBugsOf(std::u32string_view ori, std::u32string_view tra) const;
         Flags<Bug> bugs() const;
+
+        static const BugCache EMPTY;
     private:
         using This = BugCache;
     };

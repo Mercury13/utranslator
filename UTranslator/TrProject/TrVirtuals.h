@@ -98,6 +98,9 @@ namespace tr {
             ///   only returns bool
             /// @return [+] has unsuppressed string
             operator bool() const noexcept { return text && !isSuppressed; }
+            /// @return [+] isSuppressed actually does something,
+            ///          suppressing a non-null text
+            bool isActuallySuppressed() const noexcept { return text && isSuppressed; }
         } knownOriginal;
 
         std::optional<std::u8string>

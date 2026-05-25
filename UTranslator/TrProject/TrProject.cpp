@@ -932,7 +932,7 @@ void tr::Text::readFromXml(const pugi::xml_node& node, const ReadContext& ctx)
     //   Read:  au-cmt, tr-cmt, orig, known-orig, transl
     readComments(node, ctx.info);
     tr.original = readTextInTag(node, "orig");
-    tr.knownOriginal.isSuppressed = false;
+    tr.knownOriginal.isSuppressed = false;  // is not stored in file
     switch (ctx.info.type) {
     case PrjType::ORIGINAL:
         break;
@@ -1074,7 +1074,7 @@ tr::UpdateInfo::ByState tr::Text::stealDataFrom(
 
             if (isOrigChanged) {
                 // And then make knownOriginal unless background
-                if (auto ko = this->tr.knownOriginal.active()) {    // HAVE known original — maybe remove?
+                if (auto ko = this->tr.knownOriginal.active()) {  // HAVE known original — maybe remove?
                     if (*ko == this->tr.original) {
                         this->tr.knownOriginal.reset();
                     }
