@@ -88,7 +88,9 @@ namespace tr {
         std::u8string original;     ///< Current original string
         struct KnownOriginal {  ///< Known original string we translated (never == original!)
             std::optional<std::u8string> text;
-            bool isSuppressed = false;  ///< [+] is known original suppressed
+            bool isSuppressed = false;  ///< [+] known original is suppressed
+            // Let it be this way, in not-really-efficient
+            // storage layout (isSuppressed could be lower)
 
             std::optional<std::u8string_view> active() const;
             void reset() { text.reset(); isSuppressed = false; }
