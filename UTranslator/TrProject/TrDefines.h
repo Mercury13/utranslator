@@ -123,6 +123,8 @@ namespace tr {
         ///      But Ukrainian is close to Russian, and it’s better to translate
         ///      to Ukrainian from Russian → we may have reference channel.
         ///      Original is EN, translation is UK, reference is RU.
+        ///      References CAN form vicious cycles: RU’s is UK,
+        ///        and UK’s is RU.
         static bool canHaveReference(PrjType type);
         bool canHaveReference() const { return canHaveReference(type); }
 

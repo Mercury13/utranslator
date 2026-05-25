@@ -77,6 +77,13 @@ namespace tr {
     };
     constexpr auto AttentionMode_N = static_cast<int>(AttentionMode::AUTO_PROBLEM) + 1;
 
+    enum class TrashState : unsigned char {
+        NONE,   // the translation is not trash-related
+        SURE,   // the trash manager is sure what to take
+        UNSURE, // there are several equally good strings
+        UNSURE_GONE, // same but the trash is gone, and cannot check
+    };
+
     struct Translatable {
         std::u8string original;     ///< Current original string
         std::optional<std::u8string>
@@ -84,7 +91,8 @@ namespace tr {
                     reference,      ///< Reference string in other language (see PrjInfo.canHaveReference)
                     translation;    ///< Translation for known original (if present) or original
         bool forceAttention = false;
-        bool wasChangedToday = false;  ///<
+        bool wasChangedToday = false;  ///< [+] today = since load
+        TrashState trashState = TrashState::NONE;
         std::u8string_view referenceSv() const
             { return reference ? *reference : std::u8string_view(); }
         std::u8string_view translationSv() const
