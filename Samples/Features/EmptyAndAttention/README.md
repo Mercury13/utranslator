@@ -17,3 +17,5 @@ Actual bhv: bad + untranslated
 **Version/existed:** 0.4 (all the time since Bad mark)
 
 **Version/created:** 0.5.2
+
+**Version/covered:** 0.5.3

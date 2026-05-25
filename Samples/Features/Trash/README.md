@@ -12,3 +12,7 @@
 **Version/existed:** none
 
 **Version/created:** 0.5.2
+
+**Version/covered:**
+- 0.5.3: basic existence
+- 0.5.4: multiline strings
