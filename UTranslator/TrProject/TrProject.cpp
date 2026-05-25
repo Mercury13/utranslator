@@ -1068,7 +1068,7 @@ tr::UpdateInfo::ByState tr::Text::stealDataFrom(
             // External software has no access to knownOriginal,
             //   as this field is designed to solve contradictions between software
             //   and hand-translation
-            if (x.tr.knownOriginal.active()) {
+            if (x.tr.knownOriginal) {
                 this->tr.knownOriginal = std::move(x.tr.knownOriginal);
             }
 
