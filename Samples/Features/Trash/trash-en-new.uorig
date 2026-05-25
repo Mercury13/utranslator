@@ -16,6 +16,14 @@
    <text id="3">
     <orig>Three</orig>
    </text>
+   <text id="Jabberwocky">
+    <orig>
+     <p>'Twas brillig, and the slithy toves</p>
+     <p>Did gyre and gimble in the wabe,</p>
+     <p>And mimsy were the borogoves,</p>
+     <p>And the mome raths outgrabe</p>
+    </orig>
+   </text>
   </group>
  </file>
 </ut>

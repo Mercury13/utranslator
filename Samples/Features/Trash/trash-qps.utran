@@ -18,6 +18,20 @@
     <orig>Three</orig>
     <transl>-three-</transl>
    </text>
+   <text id="Jabberwocky">
+    <orig>
+     <p>'Twas brillig, and the slithy toves</p>
+     <p>Did gyre and gimble in the wabe,</p>
+     <p>And mimsy were the borogoves,</p>
+     <p>And the mome raths outgrabe</p>
+    </orig>
+    <transl>
+     <p>Beware of Jabberwock, my son,</p>
+     <p>The jaws that bite, the claws that catch,</p>
+     <p>Beware of Jubjub bird, and shun</p>
+     <p>The frumious Bandersnatch!</p>
+    </transl>
+   </text>
   </group>
   <group id="G2" />
  </file>
