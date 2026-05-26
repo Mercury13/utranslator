@@ -485,13 +485,13 @@ void FmMain::loadOriginalFromBugCache()
         doc->clear();
         QTextCursor cursor(doc);
         if (bugCache.knownOriginal) {
-            origState = OrigState::SIMPLE;
+            origState = OrigState::DIFF;
             qdif::write2(cursor,
                          *bugCache.knownOriginal,
                          bugCache.original,
                          "<font size='-1' style='color:gray;'>== Used to be ==</font>");
         } else {
-            origState = OrigState::DIFF;
+            origState = OrigState::SIMPLE;
             qdif::write1(cursor, bugCache.original);
         }
     }

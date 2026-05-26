@@ -33,7 +33,7 @@ void tr::BugCache::markSuppressedKnownOriginal()
 void tr::BugCache::copyKnownOriginalFrom(const tr::Translatable* tr)
 {
     if (tr) {
-        copyKnownOriginalFrom(tr);
+        copyKnownOriginalFrom(*tr);
     } else {
         resetKnownOriginal();
     }
