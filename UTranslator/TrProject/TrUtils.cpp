@@ -201,7 +201,7 @@ void tr::resetKnownOriginal(Project& prj)
     ResetKnownOriginals listener;
     prj.traverse(listener, WalkOrder::ECONOMY, EnterMe::NO);
     if (listener.count() != 0) {
-        prj.stats(StatsMode::DIRECT, CascadeDropCache::NO);
+        prj.stats(StatsMode::ALL_CHILDREN, CascadeDropCache::NO);
         prj.modify();
     }
 }
@@ -295,7 +295,7 @@ namespace {
     void twUpdateByStats(tr::Project& prj, TwStats& stats)
     {
         if (stats.nTextsTouched != 0) {
-            prj.stats(tr::StatsMode::DIRECT, tr::CascadeDropCache::NO);
+            prj.stats(tr::StatsMode::ALL_CHILDREN, tr::CascadeDropCache::NO);
             prj.modify();
         }
     }

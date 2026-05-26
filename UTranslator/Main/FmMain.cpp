@@ -137,6 +137,7 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->acTrash, &QAction::triggered, this, &This::runTrash);
         // Edit — double clicks
         connect(imgBug.origChanged, &DblClickSvgWidget::doubleClicked, this, &This::acceptCurrObjectOrigChanged);
+        connect(imgBug.revertOrigChanged, &DblClickSvgWidget::doubleClicked, this, &This::acceptCurrObjectOrigSuppressed);
         connect(imgBug.emptyTransl, &DblClickSvgWidget::doubleClicked, this, &This::acceptCurrObjectEmptyTransl);
         connect(imgBug.attention  , &DblClickSvgWidget::doubleClicked, this, &This::removeAttentionCurrObject);
         // Edit — special shortcuts
@@ -224,6 +225,10 @@ void FmMain::loadBugImages()
             "<p><b>Do not</b> chase this sign: "
                 "sometimes extra spaces and line breaks are your intentions.");
     // Critical
+    imgBug.revertOrigChanged = loadBugWidget(":/Discrep/to_review.svg",
+            "<b>Reviewed</b>" "\n"
+            "<p>The original text was changed, and then reviewed. "
+            "To return to the previous state, double-click this icon.");
     imgBug.origChanged = loadBugWidget(":/Discrep/review.svg",
             "<b>Review needed</b>" "\n"
             "<p>The original text was changed. "
@@ -465,6 +470,34 @@ void FmMain::showReference()
 }
 
 
+void FmMain::loadOriginalFromBugCache()
+{
+    origState = OrigState::NONE;
+
+    if (bugCache.isProjectOriginal) {
+        ui->richedOriginal->clear();
+        ui->stackOriginal->setCurrentWidget(ui->pageOriginal);
+        setMemo(ui->grpOriginal, ui->memoOriginal, {}, bugCache.original);
+    } else {
+        ui->memoOriginal->clear();
+        ui->stackOriginal->setCurrentWidget(ui->pageUneditableOriginal);
+        auto doc = ui->richedOriginal->document();
+        doc->clear();
+        QTextCursor cursor(doc);
+        if (bugCache.knownOriginal) {
+            origState = OrigState::SIMPLE;
+            qdif::write2(cursor,
+                         *bugCache.knownOriginal,
+                         bugCache.original,
+                         "<font size='-1' style='color:gray;'>== Used to be ==</font>");
+        } else {
+            origState = OrigState::DIFF;
+            qdif::write1(cursor, bugCache.original);
+        }
+    }
+}
+
+
 void FmMain::loadObject(tr::UiObject& obj)
 {
     if (search.result) {
@@ -481,6 +514,7 @@ void FmMain::loadObject(tr::UiObject& obj)
     auto id = str::toQ(obj.idColumn());
     ui->edId->setText(id);
     // File/Original/translation
+    loadOriginalFromBugCache();
     if (auto file = dynamic_cast<tr::File*>(&obj)) {
         // FILE
         ui->stackOriginal->setCurrentWidget(ui->pageFile);
@@ -503,23 +537,6 @@ void FmMain::loadObject(tr::UiObject& obj)
     } else if (bugCache.hasTranslatable) {
         // ORIGINAL, mutually exclusive with fileInfo
         ui->wiId->setEnabled(project->info.canEditOriginal());
-        if (bugCache.isProjectOriginal) {
-            ui->stackOriginal->setCurrentWidget(ui->pageOriginal);
-            setMemo(ui->grpOriginal, ui->memoOriginal, {}, bugCache.original);
-        } else {
-            ui->stackOriginal->setCurrentWidget(ui->pageUneditableOriginal);
-            auto doc = ui->richedOriginal->document();
-            doc->clear();
-            QTextCursor cursor(doc);
-            if (bugCache.knownOriginal) {
-                qdif::write2(cursor,
-                             *bugCache.knownOriginal,
-                             bugCache.original,
-                             "<font size='-1' style='color:gray;'>== Used to be ==</font>");
-            } else {
-                qdif::write1(cursor, bugCache.original);
-            }
-        }
         if (bugCache.reference) {
             ui->memoReference->setEnabled(true);
             ui->memoReference->setPlainText(str::toQ(*bugCache.reference));
@@ -608,7 +625,7 @@ void FmMain::acceptObject(tr::UiObject& obj, Flags<tr::Bug> bugsToRemove)
     tr::BugCache newCache;
     uiToCache(newCache);
 
-    newCache.copyTo(obj, bugCache, bugsToRemove);
+    auto whatsDone = newCache.copyTo(obj, bugCache, bugsToRemove);
     if (project) {
         if (project->info.canAddFiles()) {
             obj.setIdless(ui->chkIdless->isChecked(), tr::Modify::YES);
@@ -621,13 +638,19 @@ void FmMain::acceptObject(tr::UiObject& obj, Flags<tr::Bug> bugsToRemove)
         }
         project->tempRevert();
     }
-    obj.stats(tr::StatsMode::SEMICACHED, tr::CascadeDropCache::YES);
+    obj.stats(tr::StatsMode::ME_ONLY, tr::CascadeDropCache::YES);
     emit treeModel.dataChanged({}, {});
 
     // “Bugs to remove” is also the sign that we go on editing
     if (bugsToRemove) {
         bugCache = std::move(newCache);
         showBugs(bugCache.bugs());
+    }
+    if (whatsDone.have(tr::Bug::TR_ORIG_SUPPRESSED)) {
+        // We do not shrink diff to simple, but expand simple to diff!
+        if (origState == OrigState::SIMPLE) {
+            loadOriginalFromBugCache();
+        }
     }
 }
 
@@ -650,6 +673,12 @@ tr::UiObject* FmMain::acceptCurrObjectNone()
 tr::UiObject* FmMain::acceptCurrObjectOrigChanged()
 {
     return acceptCurrObject(tr::Bug::TR_ORIG_CHANGED);
+}
+
+
+tr::UiObject* FmMain::acceptCurrObjectOrigSuppressed()
+{
+    return acceptCurrObject(tr::Bug::TR_ORIG_SUPPRESSED);
 }
 
 
@@ -1771,6 +1800,7 @@ void FmMain::showBugs(Flags<tr::Bug> x)
     ShowNone sh(x);
     // Problems
     sh.showIfBug(imgBug.emptyTransl , tr::Bug::TR_EMPTY );
+    sh.showIfBug(imgBug.revertOrigChanged, tr::Bug::TR_ORIG_SUPPRESSED);
     sh.showIfBug(imgBug.origChanged , tr::Bug::TR_ORIG_CHANGED);
     sh.showIfBug(imgBug.attention   , tr::Bug::COM_ATTENTION);
     // Warnings
@@ -1981,7 +2011,7 @@ void FmMain::markAttentionCurrObjectEx(FuncBoolBool x)
         obj->doModify(tr::Mch::META);
     }
         // Let it be YES for now (cascade is for children, and they are absent)
-    obj->stats(tr::StatsMode::DIRECT, tr::CascadeDropCache::YES);
+    obj->stats(tr::StatsMode::ALL_CHILDREN, tr::CascadeDropCache::YES);
     reenableOnSelect(obj);
     showBugsAsVisible();
     emit treeModel.dataChanged({}, {});

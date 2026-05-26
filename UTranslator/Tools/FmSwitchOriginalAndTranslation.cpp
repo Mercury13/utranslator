@@ -51,7 +51,7 @@ std::optional<tr::eo::Sets2> FmSwitchOriginalAndTranslation::exec(tr::Project& p
     bool hasPath = project.info.hasOriginalPath();
     ui->edOrigFile->clear();
     ui->grpOriginal->setEnabled(hasPath);
-    auto stats = project.stats(tr::StatsMode::DIRECT, tr::CascadeDropCache::YES);
+    auto stats = project.stats(tr::StatsMode::ALL_CHILDREN, tr::CascadeDropCache::YES);
     if (stats.text.nAutoProblem == 0) {
         ui->imgOk->show();
         ui->imgBad->hide();

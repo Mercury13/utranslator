@@ -207,7 +207,7 @@ bool tr::UiObject::setOriginal(std::u8string_view x, tr::Modify wantModify)
     if (auto t = translatable()) {
         if (t->original != x) {
             t->original = x;
-            stats(StatsMode::DIRECT, CascadeDropCache::YES);
+            stats(StatsMode::ALL_CHILDREN, CascadeDropCache::YES);
             if (wantModify != Modify::NO) {
                 doModify(Mch::ORIG);
             }
@@ -266,7 +266,7 @@ bool tr::UiObject::setTranslation(
     if (auto t = translatable()) {
         if (t->translation != x) {
             t->translation = x;
-            stats(StatsMode::DIRECT, CascadeDropCache::YES);
+            stats(StatsMode::ALL_CHILDREN, CascadeDropCache::YES);
             if (wantModify != Modify::NO) {
                 doModify(Mch::TRANSL);
             }
@@ -280,8 +280,23 @@ bool tr::UiObject::setTranslation(
 bool tr::UiObject::suppressKnownOriginal(tr::Modify wantModify)
 {
     if (auto t = translatable()) {
-        if (t->knownOriginal) {
+        if (t->knownOriginal) {  // op bool here
             t->knownOriginal.isSuppressed = true;
+            if (wantModify != Modify::NO) {
+                doModify(Mch::ORIG);
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
+
+bool tr::UiObject::revertKnownOriginal(tr::Modify wantModify)
+{
+    if (auto t = translatable()) {
+        if (t->knownOriginal.isActuallySuppressed()) {
+            t->knownOriginal.isSuppressed = false;
             if (wantModify != Modify::NO) {
                 doModify(Mch::ORIG);
             }
@@ -386,7 +401,7 @@ tr::UpdateInfo tr::UiObject::addedInfo(CascadeDropCache cascade)
 tr::UpdateInfo::ByState tr::UiObject::deletedInfo(CascadeDropCache cascade)
 {
     tr::UpdateInfo::ByState r;
-    auto& st = stats(StatsMode::DIRECT, cascade);
+    auto& st = stats(StatsMode::ALL_CHILDREN, cascade);
     r.nTranslated = st.text.nTranslated;
     r.nUntranslated = st.text.nUntranslated;
     return r;
@@ -518,7 +533,7 @@ const tr::Stats& tr::UiObject::stats(StatsMode mode, CascadeDropCache cascade)
     if (cache.stats && mode == StatsMode::CACHED)
         return *cache.stats;
 
-    if (mode == StatsMode::SEMICACHED)
+    if (mode == StatsMode::ME_ONLY)
         mode = StatsMode::CACHED;
 
     Stats r;

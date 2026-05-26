@@ -6,6 +6,40 @@
 
 const tr::BugCache tr::BugCache::EMPTY;
 
+
+void tr::BugCache::copyKnownOriginalFrom(const tr::Translatable& tr)
+{
+    if (auto ko = tr.knownOriginal.active()) {
+        knownOriginal = mojibake::toM<std::u32string>(*ko);
+    }
+    isKnownSuppressed = tr.knownOriginal.isActuallySuppressed();
+}
+
+
+void tr::BugCache::resetKnownOriginal()
+{
+    knownOriginal.reset();
+    isKnownSuppressed = false;
+}
+
+
+void tr::BugCache::markSuppressedKnownOriginal()
+{
+    knownOriginal.reset();
+    isKnownSuppressed = true;
+}
+
+
+void tr::BugCache::copyKnownOriginalFrom(const tr::Translatable* tr)
+{
+    if (tr) {
+        copyKnownOriginalFrom(tr);
+    } else {
+        resetKnownOriginal();
+    }
+
+}
+
 void tr::BugCache::copyFrom(tr::UiObject& x)
 {
     *this = EMPTY;
@@ -28,10 +62,7 @@ void tr::BugCache::copyFrom(tr::UiObject& x)
         if (isProjectOriginal && !mojibake::isValid(tr->original))
             moji |= Mjf::ORIGINAL;
         original = mojibake::toM<std::u32string>(tr->original);
-        if (auto ko = tr->knownOriginal.active()) {
-            knownOriginal = mojibake::toM<std::u32string>(*ko);
-        }
-        isKnownSuppressed = tr->knownOriginal.isActuallySuppressed();
+        copyKnownOriginalFrom(*tr);
         if (tr->reference) {
             reference = mojibake::toM<std::u32string>(*tr->reference);
         }
@@ -54,9 +85,10 @@ void tr::BugCache::copyFrom(tr::UiObject& x)
 }
 
 
-void tr::BugCache::copyTo(
+Flags<tr::Bug> tr::BugCache::copyTo(
         tr::UiObject& x, const BugCache& oldCache, Flags<tr::Bug> bugsToRemove)
 {
+    Flags<tr::Bug> r;
     // ID
     if (hasId() && id != oldCache.id)
         x.setId(mojibake::toM<std::u8string>(id), tr::Modify::YES);
@@ -83,8 +115,15 @@ void tr::BugCache::copyTo(
     }
 
     if (bugsToRemove.have(tr::Bug::TR_ORIG_CHANGED)) {
-        if (x.suppressKnownOriginal(tr::Modify::YES))
-            knownOriginal.reset();
+        if (x.suppressKnownOriginal(tr::Modify::YES)) {
+            markSuppressedKnownOriginal();
+            r |= tr::Bug::TR_ORIG_CHANGED;
+        }
+    } else if (bugsToRemove.have(tr::Bug::TR_ORIG_SUPPRESSED)) {
+        if (x.revertKnownOriginal(tr::Modify::YES)) {
+            copyKnownOriginalFrom(x.translatable());
+            r |= tr::Bug::TR_ORIG_SUPPRESSED;
+        }
     }
 
     // Comment
@@ -96,6 +135,7 @@ void tr::BugCache::copyTo(
             x.setTranslatorsComment(tmp, tr::Modify::YES);
         }
     }
+    return r;
 }
 
 
@@ -126,7 +166,7 @@ namespace {
         switch (c) {
         case 0x0020:    // space
         case 0x00A0:    // nbsp
-            // ogham space mark is NOT whitespace here
+            // Ogham space mark is NOT whitespace here
         case 0x2000:    // En Quad
         case 0x2001:    // Em Quad
         case 0x2002:    // En Space

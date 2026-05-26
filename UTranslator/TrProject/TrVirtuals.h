@@ -124,8 +124,8 @@ namespace tr {
 
     enum class StatsMode : unsigned char {
         CACHED,         ///< Use cache if present
-        SEMICACHED,     ///< Mine is computed, subobjects cached
-        DIRECT          ///< Totally computed, both mine and subobjects
+        ME_ONLY,        ///< Mine is computed, subobjects cached
+        ALL_CHILDREN    ///< Totally computed, both mine and subobjects
     };
 
     struct Stats {
@@ -355,8 +355,10 @@ namespace tr {
         bool setAuthorsComment(std::u8string_view x, tr::Modify wantModify);
         /// @return [+] was actually changed
         bool setTranslation(std::optional<std::u8string_view> x, tr::Modify wantModify);
-        /// @return [+] was actually changed
+        /// @return [+] was actually suppressed
         bool suppressKnownOriginal(tr::Modify wantModify);
+        /// @return [+] was actually reverted
+        bool revertKnownOriginal(tr::Modify wantModify);
         /// @return [+] was actually changed
         bool setTranslatorsComment(std::u8string_view x, tr::Modify wantModify);
         /// @return [+] was actually changed

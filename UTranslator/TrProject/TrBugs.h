@@ -65,7 +65,8 @@ namespace tr {
         void copyFrom(tr::UiObject& x);
         /// @param [in] oldCache  condition when we copied FROM
         /// @warning  updates isTranslationEmpty flag
-        void copyTo(tr::UiObject& x, const BugCache& oldCache, Flags<tr::Bug> bugsToRemove);
+        /// @return  Some removed bugs
+        Flags<tr::Bug> copyTo(tr::UiObject& x, const BugCache& oldCache, Flags<tr::Bug> bugsToRemove);
         void updateTransientFlags();
 
         /// Only for ID and comment
@@ -82,6 +83,11 @@ namespace tr {
         static const BugCache EMPTY;
     private:
         using This = BugCache;
+
+        void copyKnownOriginalFrom(const tr::Translatable& tr);
+        void copyKnownOriginalFrom(const tr::Translatable* tr);
+        void resetKnownOriginal();
+        void markSuppressedKnownOriginal();
     };
 
 }

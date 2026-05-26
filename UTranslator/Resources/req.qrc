@@ -15,6 +15,7 @@
         <file>Discrep/space_add_end.svg</file>
         <file>Discrep/space_del_beg.svg</file>
         <file>Discrep/space_del_end.svg</file>
+        <file>Discrep/to_review.svg</file>
         <file>Status/ok.svg</file>
         <file>Status/stop.svg</file>
     </qresource>

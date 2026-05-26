@@ -106,7 +106,9 @@ private slots:
     // Menu: Edit
     /// accept curr object, no bugs gagged
     tr::UiObject* acceptCurrObjectNone();
+    /// accept curr object, gags bug "Original changed", etc
     tr::UiObject* acceptCurrObjectOrigChanged();
+    tr::UiObject* acceptCurrObjectOrigSuppressed();
     tr::UiObject* acceptCurrObjectEmptyTransl();
     /// accept curr object, all bugs gagged
     tr::UiObject* acceptCurrObjectAll();
@@ -158,6 +160,7 @@ private:
     struct ImgBug {
         DblClickSvgWidget* ok = nullptr;
         DblClickSvgWidget* origChanged = nullptr;
+        DblClickSvgWidget* revertOrigChanged = nullptr;
         DblClickSvgWidget* emptyTransl = nullptr;
         DblClickSvgWidget* attention = nullptr;
         DblClickSvgWidget* mojibake = nullptr;
@@ -205,12 +208,17 @@ private:
     QShortcut *shAddGroup = nullptr, *shAddText = nullptr,
               *shMarkAttention = nullptr;
 
+    enum class OrigState : unsigned char {
+        NONE, SIMPLE, DIFF
+    } origState = OrigState::NONE;
+
     /// Adapts window’s layout to project type:
     /// original / full translation / (someday) patch translation
     void adaptLayout();
 
     /// Loads an UI object
     void loadObject(tr::UiObject& obj);
+    void loadOriginalFromBugCache();
     void loadContext(tr::UiObject* lastSon);
     /// Writes UI to BugCache
     void uiToCache(tr::BugCache& r);

@@ -875,7 +875,7 @@ tr::UpdateInfo tr::Group::updateData_Original()
 
     // Stats will always be funked up!
     updateParent(savedParent);
-    stats(StatsMode::DIRECT, CascadeDropCache::YES);
+    stats(StatsMode::ALL_CHILDREN, CascadeDropCache::YES);
     return r;
 }
 
@@ -1727,7 +1727,7 @@ tr::UpdateInfo tr::Project::updateData_FullTransl(TrashMode mode)
     auto r = this->stealDataFrom(*tempPrj, ctx);
     // Stats will always be funked up!
     updateParents();
-    stats(StatsMode::DIRECT, CascadeDropCache::NO);
+    stats(StatsMode::ALL_CHILDREN, CascadeDropCache::NO);
     return r;
 }
 
