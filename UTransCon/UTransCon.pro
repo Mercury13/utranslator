@@ -16,6 +16,7 @@ DEFINES += AT_RANGE_CHECK
 
 SOURCES += \
         ../Libs/PugiXml/pugixml.cpp \
+        ../Libs/SelfMade/L10n/LocFmt.cpp \
         ../Libs/SelfMade/Strings/u_Decoders.cpp \
         ../Libs/SelfMade/Strings/u_Strings.cpp \
         ../Libs/SelfMade/u_Args.cpp \
@@ -23,6 +24,7 @@ SOURCES += \
         ../UTranslator/TrProject/Modifiable.cpp \
         ../UTranslator/TrProject/TrDefines.cpp \
         ../UTranslator/TrProject/TrFile.cpp \
+        ../UTranslator/TrProject/TrFileDefines.cpp \
         ../UTranslator/TrProject/TrProject.cpp \
         ../UTranslator/TrProject/TrVirtuals.cpp \
         main.cpp
@@ -33,6 +35,7 @@ INCLUDEPATH += \
     ../Libs/MagicEnum \
     ../Libs/PugiXml \
     ../Libs/SelfMade \
+    ../Libs/SelfMade/L10n \
     ../Libs/SelfMade/Mojibake \
     ../Libs/SelfMade/Strings \
     ../Libs/Unicode \
@@ -41,6 +44,7 @@ INCLUDEPATH += \
 HEADERS += \
     ../Libs/PugiXml/pugiconfig.hpp \
     ../Libs/PugiXml/pugixml.hpp \
+    ../Libs/SelfMade/L10n/LocFmt.h \
     ../Libs/SelfMade/Strings/u_Decoders.h \
     ../Libs/SelfMade/Strings/u_Strings.h \
     ../Libs/SelfMade/u_Args.h \
@@ -50,6 +54,7 @@ HEADERS += \
     ../UTranslator/TrProject/Modifiable.h \
     ../UTranslator/TrProject/TrDefines.h \
     ../UTranslator/TrProject/TrFile.h \
+    ../UTranslator/TrProject/TrFileDefines.h \
     ../UTranslator/TrProject/TrProject.h \
     ../UTranslator/TrProject/TrVirtuals.h
 

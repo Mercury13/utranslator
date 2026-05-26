@@ -88,7 +88,9 @@ namespace tr {
         std::u8string original;     ///< Current original string
         struct KnownOriginal {  ///< Known original string we translated (never == original!)
             std::optional<std::u8string> text;
-            bool isSuppressed = false;  ///< [+] known original is suppressed
+            /// [+] known original is suppressed
+            /// @warning  Not saved! The program saves just lack of known
+            bool isSuppressed = false;
             // Let it be this way, in not-really-efficient
             // storage layout (isSuppressed could be lower)
 
