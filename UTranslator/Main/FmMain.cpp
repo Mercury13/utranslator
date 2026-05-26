@@ -2095,12 +2095,17 @@ void FmMain::runTrash()
 {
     if (!project)
         return;
-    std::unique_ptr<QstrObject> obj;
+    std::unique_ptr<QstrObject> obj = nullptr;  // empty object by default
     TrashChannel channel = TrashChannel::NOMATTER;
-    if (ui->memoOriginal->hasFocus()) {
-        obj = std::make_unique<MemoObject>(ui->memoOriginal);
-        channel = TrashChannel::ORIGINAL;
-    } else if (ui->memoTranslation->hasFocus()) {
+    /// @todo [bilingual, #28] Invent something for bilinguals
+    bool seeOriginal = ui->memoOriginal->isVisible();
+    bool seeTranslation = ui->memoTranslation->isVisible();
+    if (seeOriginal) {
+        if (!seeTranslation) {  // Original only
+            obj = std::make_unique<MemoObject>(ui->memoOriginal);
+            channel = TrashChannel::ORIGINAL;
+        }
+    } else if (seeTranslation) {
         obj = std::make_unique<MemoObject>(ui->memoTranslation);
         channel = TrashChannel::TRANSLATION;
     }
