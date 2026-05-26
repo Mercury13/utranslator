@@ -35,22 +35,27 @@ constexpr const std::string_view langList[] = {
     "it", "ja", "ru", "uk"
 };
 
+
+/// @todo [bilingual, #28] the strings refers to bilingual
 constexpr const char* STR_NEED_BILINGUAL_TRANSLATION =
-        "This is possible for bilinguals/translations only.";
+        "This is possible for translations only.";
+        //"This is possible for bilinguals/translations only.";
 
 #define STR_SPACE_MAY_LEAD \
     "This may lead to problems in window composition, building of meaningful phrases."
 
-#define STR_FIND_TRANSL \
-    "This criterion works for translations only.\n"  \
-        "It will find nothing in originals."
+constexpr const char* STR_FIND_TRANSL =
+    "This criterion works for translations only.\n"
+        "It will find nothing in originals.";
         /// @todo [bilingual] STR_FIND_TRANSL text for bilinguals
         //"In bilinguals it’s meaningful if portions of original are managed "
         //    "with external software (e.g. UI messages with form editor) "
         //    "and work as translation."
 
-#define STR_FIND_FULL_TRANSL \
-    "This criterion works for full translations only.\n"  \
-        "It will find nothing in originals."
+/// #todo [patch, #23] Needs full translation: what about patch?
+/// #todo [bilingual, #28] Check what's in bilinguals
+constexpr const char* STR_FIND_FULL_TRANSL =
+    "This criterion works for full translations only.\n"
+        "It will find nothing in originals.";
 
 #define TAG_BR "<br>"
