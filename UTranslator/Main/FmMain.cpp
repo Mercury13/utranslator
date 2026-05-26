@@ -163,6 +163,7 @@ FmMain::FmMain(QWidget *parent)
     setSearchAction(ui->acFindSpecialMismatchNumber, &This::goMismatchNumber);
     setSearchAction(ui->acFindSpecialCommentedByAuthor, &This::goCommentedByAuthor);
     setSearchAction(ui->acFindSpecialCommentedByTranslator, &This::goCommentedByTranslator);
+    setSearchAction(ui->acFindSpecialSuppressed, &This::goSuppressed);
     // Tools
     connect(ui->acTranslateWithOriginal, &QAction::triggered, this, &This::translateWithOriginal);
     connect(ui->acTranslateWithLockit, &QAction::triggered, this, &This::translateWithLockit);
@@ -1417,9 +1418,9 @@ void FmMain::goChangedToday()
 void FmMain::goMismatchNumber()
 {
     if (!project->info.isTranslation()) {
-        QMessageBox::information(this, "Mismatching # of lines",
-                    "This criterion works for bilinguals/translations only, "
-                            "and will find nothing in originals.");
+        /// @todo [bilingual, #28] Will also work in bilinguals
+        QMessageBox::information(this,
+                "Mismatching # of lines", STR_FIND_TRANSL);
     } else {
         auto cond = std::make_unique<ts::CritMismatchNumber>();
         findBy(std::move(cond));
@@ -1437,11 +1438,22 @@ void FmMain::goCommentedByAuthor()
 void FmMain::goCommentedByTranslator()
 {
     if (!project->info.isTranslationCommentable()) {
-        QMessageBox::information(this, "Commented by translator",
-                    "This criterion works for translations only, "
-                            "and will find nothing in originals/bilinguals.");
+        QMessageBox::information(this,
+                "Commented by translator", STR_FIND_TRANSL);
     } else {
         auto cond = std::make_unique<ts::CritCommentedByTranslator>();
+        findBy(std::move(cond));
+    }
+}
+
+
+void FmMain::goSuppressed()
+{
+    if (!project->info.isTranslation()) {
+        QMessageBox::information(this,
+                "Original changed + reviewed", STR_FIND_TRANSL);
+    } else {
+        auto cond = std::make_unique<ts::CritSuppressed>();
         findBy(std::move(cond));
     }
 }

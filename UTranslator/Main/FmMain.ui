@@ -976,6 +976,7 @@ QLabel {
      <addaction name="acFindSpecialMismatchNumber"/>
      <addaction name="acFindSpecialCommentedByAuthor"/>
      <addaction name="acFindSpecialCommentedByTranslator"/>
+     <addaction name="acFindSpecialSuppressed"/>
     </widget>
     <addaction name="acGoBack"/>
     <addaction name="acGoNext"/>
@@ -1360,6 +1361,11 @@ QLabel {
    </property>
    <property name="text">
     <string>Show reference translation</string>
+   </property>
+  </action>
+  <action name="acFindSpecialSuppressed">
+   <property name="text">
+    <string>Original changed+reviewed</string>
    </property>
   </action>
  </widget>

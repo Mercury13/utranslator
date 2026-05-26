@@ -132,6 +132,7 @@ private slots:
     void goMismatchNumber();
     void goCommentedByAuthor();
     void goCommentedByTranslator();
+    void goSuppressed();
     // Menu: Original
     void addHostedFile();
     void addHostedGroup();

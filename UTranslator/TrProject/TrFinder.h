@@ -98,6 +98,17 @@ namespace ts {  // translation search
     };
 
     ///
+    /// Criterion: commented by translator
+    ///
+    class CritSuppressed : public tr::FindCriterion
+    {
+    public:
+        bool matchText(const tr::Text& x) const override
+            { return x.tr.knownOriginal.isActuallySuppressed(); }
+        std::u8string caption() const override { return u8"Original changed, then reviewed"; }
+    };
+
+    ///
     /// Criterion: mismatching # of lines
     ///
     class CritMismatchNumber : public tr::FindCriterion
