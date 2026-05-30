@@ -9,3 +9,11 @@
 @set QTDIR=c:\Qt\6.2.4\mingw_64
 @set MINGW=c:\msys64\mingw64\bin
 @set SEVENZIP="c:\Program Files\7-zip\7z.exe"
+
+@rem As 7-zip is banned sometimes, but it's ubiquitous...
+@if exist %SEVENZIP% goto szexists
+
+@set SEVENZIP1="C:\Program Files\PeaZip\res\bin\7z\7z.exe"
+@if exist %SEVENZIP1% set SEVENZIP=%SEVENZIP1%
+
+:szexists
