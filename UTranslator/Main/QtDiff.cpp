@@ -184,7 +184,7 @@ namespace {
         // Forward move
         size_t ii = 0, jj = 0;
         while (ii != a.length() || jj != b.length()) {
-            if (ii > a.length() || ii > b.length()) {
+            if (ii > a.length() || jj > b.length()) {
                 throw std::logic_error("Went too far away");
             }
             const char32_t* pA = a.data() + ii;

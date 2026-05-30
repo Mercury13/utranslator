@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ut type="original">
+ <info>
+  <orig lang="en" />
+ </info>
+ <file name="file0.txt" idless="false">
+  <text id="Text">
+   <orig>long long long</orig>
+  </text>
+ </file>
+</ut>

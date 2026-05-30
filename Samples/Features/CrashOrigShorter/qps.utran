@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ut type="full-transl">
+ <info>
+  <orig lang="en" fname="en-new.uorig" />
+  <transl lang="qps" pseudoloc="false" />
+ </info>
+ <file name="file0.txt" idless="false">
+  <text id="Text">
+   <orig>long long long</orig>
+   <transl>(translation here)</transl>
+  </text>
+ </file>
+</ut>
