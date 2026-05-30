@@ -1,6 +1,10 @@
 @rem Settings
 @call xsetup.bat
-@if exist ~setup_local.bat call ~setup_local.bat
+@set SLOCAL=~setup_local.bat
+@if not exist %SLOCAL% goto no_local
+@echo Some settings overridden
+@call %SLOCAL%
+:no_local
 
 @rem Rest things
 @set /p VERSION=<VERSION.
