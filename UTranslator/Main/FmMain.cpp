@@ -258,8 +258,8 @@ void FmMain::loadBugImages()
                 "Beware, concatenating strings is usually bad, "
                     "substitution marks are better, "
                     "and self-sufficient strings are the best."
-            "<p>Horrible: British + Grand Prix"   TAG_BR
-                "Poor: British + Grand Prix + ⌀"  TAG_BR
+            "<p>Horrible: British␣ + Grand Prix"   TAG_BR
+                "Poor: British␣ + Grand Prix + ⌀"  TAG_BR
                 "Better: %s Grand Prix"           TAG_BR
                 "Best: British Grand Prix");
     imgBug.invisible = loadBugWidget(":/Discrep/invisible.svg",
@@ -268,23 +268,23 @@ void FmMain::loadBugImages()
                     "such as line breaks and spaces.");
     imgBug.multiline = loadBugWidget(":/Discrep/multiline.svg",
             "<b>Multiline translation</b>" "\n"
-            "<p>Translation is multiline, original isn’t. "
+            "<p>The translation is multiline, the original isn’t. "
                 "Check for yourself whether it’s OK.");
     imgBug.space.addBeg = loadBugWidget(":/Discrep/space_add_beg.svg",
             "<b>Added heading spaces</b>" "\n"
-            "<p>Original has no initial spaces, translation has. "
+            "<p>The original has no initial spaces, the translation has. "
                 STR_SPACE_MAY_LEAD);
     imgBug.space.delBeg = loadBugWidget(":/Discrep/space_del_beg.svg",
             "<b>Removed heading spaces</b>" "\n"
-            "<p>Original has initial spaces, translation hasn’t. "
+            "<p>The original has initial spaces, the translation hasn’t. "
                 STR_SPACE_MAY_LEAD);
     imgBug.space.addEnd = loadBugWidget(":/Discrep/space_add_end.svg",
             "<b>Added trailing spaces</b>" "\n"
-            "<p>Original has no final spaces, translation has. "
+            "<p>The original has no final spaces, the translation has. "
                 STR_SPACE_MAY_LEAD);
     imgBug.space.delEnd = loadBugWidget(":/Discrep/space_del_end.svg",
             "<b>Removed trailing spaces</b>" "\n"
-            "<p>Original has final spaces, translation hasn’t. "
+            "<p>The original has final spaces, the translation hasn’t. "
                 STR_SPACE_MAY_LEAD);
 }
 
