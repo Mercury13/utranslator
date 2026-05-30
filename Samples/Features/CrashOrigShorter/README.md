@@ -2,7 +2,7 @@
 When the new string is shorter than the old one, UTranslator crashes
 
 **Method of reproduction:**
-1. Open ``short-qps.utran``
+1. Open ``qps.utran``
 2. Update data (^F5)
 3. That should suffice.
 
