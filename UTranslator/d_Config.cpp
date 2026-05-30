@@ -15,7 +15,7 @@
 ///// Vars /////////////////////////////////////////////////////////////////////
 
 // progsets
-progsets::DirMode progsets::dirMode = progsets::DirMode::INSTALLED;
+progsets::DirMode progsets::dirMode = progsets::DirMode::PORTABLE;
 
 // fname
 std::filesystem::path fname::config;
