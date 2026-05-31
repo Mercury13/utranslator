@@ -196,6 +196,12 @@ FmMain::~FmMain()
 }
 
 
+void FmMain::reflectPortable()
+{
+    ui->lbPortable->setVisible(progsets::dirMode != progsets::DirMode::INSTALLED);
+}
+
+
 DblClickSvgWidget* FmMain::loadBugWidget(
         const char* path, const char* description)
 {

@@ -67,6 +67,7 @@ class FmMain :
 public:
     FmMain(QWidget *parent = nullptr);
     ~FmMain() override;
+    void reflectPortable();
 
     // ModListener
     void modStateChanged(ModState oldState, ModState newState) override;

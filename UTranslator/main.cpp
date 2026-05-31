@@ -27,6 +27,7 @@ int main(int argc, char *argv[])
         config::window::State state(w);
         config::init(state);
         config::window::setGeometry(w, state);
+        w.reflectPortable();
     }
 
     w.show();
