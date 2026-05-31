@@ -39,7 +39,7 @@ namespace {
 
     void loadProgSets()
     {
-        progsets::dirMode = progsets::DirMode::INSTALLED;
+        progsets::dirMode = progsets::DirMode::DEFAULT;
 
         if (fname::progsets.empty() || !std::filesystem::exists(fname::progsets))
             return;
