@@ -11,7 +11,10 @@
 
 
 namespace progsets {
-    enum class DirMode { INSTALLED, PORTABLE };
+    enum class DirMode : unsigned char {
+        INSTALLED = false, PORTABLE = true, DEFAULT = PORTABLE };
+    constexpr bool DEFAULT_PORTABLE = static_cast<bool>(DirMode::DEFAULT);
+    static_assert(static_cast<int>(DirMode::PORTABLE) == 1);
     extern DirMode dirMode;
 }
 
