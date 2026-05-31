@@ -38,6 +38,7 @@ SOURCES += \
     History.cpp \
     Main/DiffBrowser.cpp \
     Main/FmMain.cpp \
+    Main/PortableDiff.cpp \
     Main/PrjTreeModel.cpp \
     Main/QtDiff.cpp \
     Main/WiFind.cpp \
@@ -97,6 +98,7 @@ HEADERS += \
     History.h \
     Main/DiffBrowser.h \
     Main/FmMain.h \
+    Main/PortableDiff.h \
     Main/PrjTreeModel.h \
     Main/QtDiff.h \
     Main/WiFind.h \
