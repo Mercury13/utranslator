@@ -13,20 +13,24 @@ SOURCES += \
     ../Libs/GoogleTest/src/gtest_main.cc \
     ../Libs/SelfMade/Strings/u_Strings.cpp \
     ../Libs/SelfMade/Strings/u_Decoders.cpp \
+    ../UTranslator/Main/PortableDiff.cpp \
     test_DecodeBr.cpp \
     test_DecodeCpp.cpp \
     test_DecodeIni.cpp \
     test_DecodeQuoted.cpp \
     test_DetectBom.cpp \
+    test_Diff.cpp \
     test_EscapeCpp.cpp \
     test_EscapeText.cpp
 
 HEADERS += \
-    ../Libs/SelfMade/Strings/u_Decoders.h
+    ../Libs/SelfMade/Strings/u_Decoders.h \
+    ../UTranslator/Main/PortableDiff.h
 
 INCLUDEPATH += \
     ../Libs/GoogleTest \
     ../Libs/GoogleTest/include \
     ../Libs/SelfMade \
     ../Libs/SelfMade/Strings \
+    ../UTranslator/Main \
     ../UTranslator/TrProject
