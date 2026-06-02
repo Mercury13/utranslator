@@ -486,7 +486,9 @@ void FmMain::loadOriginalFromBugCache()
         ui->stackOriginal->setCurrentWidget(ui->pageOriginal);
         setMemo(ui->grpOriginal, ui->memoOriginal, {}, bugCache.original);
     } else {
+        isChangingProgrammatically = true;
         ui->memoOriginal->clear();
+        isChangingProgrammatically = false;
         ui->stackOriginal->setCurrentWidget(ui->pageUneditableOriginal);
         auto doc = ui->richedOriginal->document();
         doc->clear();
