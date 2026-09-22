@@ -108,6 +108,14 @@ namespace tr {
         std::optional<std::u8string>
                     reference,      ///< Reference string in other language (see PrjInfo.canHaveReference)
                     translation;    ///< Translation for known original (if present) or original
+
+        struct TrashSuggestion {
+            size_t count = 0;
+            std::u8string value;
+
+            operator bool() const noexcept { return count; }
+        } trashSuggestion;
+
         bool forceAttention = false;
         bool wasChangedToday = false;  ///< [+] today = since load
         TrashState trashState = TrashState::NONE;
