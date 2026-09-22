@@ -72,6 +72,14 @@ void tr::BugCache::copyFrom(tr::UiObject& x)
             translation = mojibake::toM<std::u32string>(*tr->translation);
             isTranslationEmpty = tr->translation->empty();
         }
+
+        // Suggestions
+        if (translation.empty() && isTranslationEmpty) {
+            if (tr->trashSuggestion) {
+                bugLikes.suggestionSource = SuggestionSource::TRASH;
+                translation = mojibake::toM<std::u32string>(tr->trashSuggestion.value);
+            }
+        }
     }
 
     if (auto com = x.comments()) {

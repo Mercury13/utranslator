@@ -63,7 +63,7 @@ tr::AttentionMode tr::Translatable::baseAttentionMode(const tr::PrjInfo& prjInfo
     // Translation → check for translation
     if (prjInfo.isTranslation()) {
         // Original changed → attention!
-        if (knownOriginal || trashState != TrashState::NONE)
+        if (knownOriginal || (!translation && trashSuggestion))
             return tr::AttentionMode::AUTO_PROBLEM;
         // No translation: full → attention, patch → just BG
         if (!translation) {

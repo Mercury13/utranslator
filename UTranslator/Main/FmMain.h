@@ -264,7 +264,7 @@ private:
             std::unique_ptr<tr::FindCriterion> criterion,
             std::unique_ptr<ts::Result> x);
     void reflectUpdateInfo();
-    void showBugs(Flags<tr::Bug> x);
+    void showBugs(Flags<tr::Bug> x, const tr::BugCache::BugLikes& bugLikes);
     [[nodiscard]] PrjTreeModel::LockAll lockAll(RememberCurrent rem);
     tr::UiObject* acceptCurrObject(Flags<tr::Bug> bugsToRemove);
     void findBy(std::unique_ptr<tr::FindCriterion> crit);

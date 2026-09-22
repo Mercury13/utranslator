@@ -34,6 +34,11 @@ namespace tr {
         COMMENT = 8
     };
 
+    enum class SuggestionSource : unsigned char {
+        NONE,
+        TRASH
+    };
+
     struct BugCache
     {
         std::u32string id {}, original {};
@@ -53,7 +58,10 @@ namespace tr {
         bool hasComments = false;
         bool isProjectTranslation = false;
         bool isTranslationEmpty = false;
-        bool isKnownSuppressed = false;  /// mut-ex with knownOriginal
+        bool isKnownSuppressed = false;  ///< mut-ex with knownOriginal
+        struct BugLikes {
+            SuggestionSource suggestionSource = SuggestionSource::NONE;
+        } bugLikes;
         /// Which editable fields have mojibake
         Flags<Mjf> moji {};
 
@@ -67,7 +75,6 @@ namespace tr {
         /// @warning  updates isTranslationEmpty flag
         /// @return  Some removed bugs
         Flags<tr::Bug> copyTo(tr::UiObject& x, const BugCache& oldCache, Flags<tr::Bug> bugsToRemove);
-        void updateTransientFlags();
 
         /// Only for ID and comment
         Flags<Bug> smallBugsOf(

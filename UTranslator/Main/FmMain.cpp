@@ -66,7 +66,7 @@ FmMain::FmMain(QWidget *parent)
       timerBug->setInterval(600);
       timerBug->setSingleShot(true);
     connect(timerBug.get(), &QTimer::timeout, this, &This::bugTicked);
-    showBugs({});
+    showBugs({}, tr::BugCache::EMPTY.bugLikes);
 
     // Splitter
     auto h = height();
@@ -591,7 +591,7 @@ void FmMain::loadObject(tr::UiObject& obj)
     }
 
     reenableOnSelect(obj);
-    showBugs(bugCache.bugs());
+    showBugs(bugCache.bugs(), bugCache.bugLikes);
 }
 
 
@@ -658,7 +658,7 @@ void FmMain::acceptObject(tr::UiObject& obj, Flags<tr::Bug> bugsToRemove)
     // “Bugs to remove” is also the sign that we go on editing
     if (bugsToRemove) {
         bugCache = std::move(newCache);
-        showBugs(bugCache.bugs());
+        showBugs(bugCache.bugs(), bugCache.bugLikes);
     }
     if (whatsDone.have(tr::Bug::TR_ORIG_SUPPRESSED)) {
         // We do not shrink diff to simple, but expand simple to diff!
@@ -1819,7 +1819,9 @@ namespace {
 }   // anon namespace
 
 
-void FmMain::showBugs(Flags<tr::Bug> x)
+void FmMain::showBugs(
+    Flags<tr::Bug> x,
+    const tr::BugCache::BugLikes& bugLikes)
 {
     stopBugTimer();
     ShowNone sh(x);
@@ -1831,7 +1833,8 @@ void FmMain::showBugs(Flags<tr::Bug> x)
     // Warnings
     sh.showIfBug(imgBug.mojibake    , tr::Bug::COM_MOJIBAKE);
     // Suggestions
-    imgBug.suggTrash->show();
+    sh.showIf   (imgBug.suggTrash,
+                    bugLikes.suggestionSource != tr::SuggestionSource::NONE);
     // Info
     sh.showIfBug(imgBug.emptyOrig   , tr::Bug::OR_EMPTY);
     sh.showIfBug(imgBug.invisible   , tr::Bug::COM_INVISIBLE);
@@ -1895,7 +1898,7 @@ void FmMain::showBugsAsVisible()
     stopBugTimer();
     tr::BugCache tmp;
     uiToCache(tmp);
-    showBugs(tmp.bugs());
+    showBugs(tmp.bugs(), tmp.bugLikes);
 }
 
 
