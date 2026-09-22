@@ -161,11 +161,16 @@ private:
     // Discrepancy images, completely programmatic now
     struct ImgBug {
         DblClickSvgWidget* ok = nullptr;
+        // Critical
         DblClickSvgWidget* origChanged = nullptr;
         DblClickSvgWidget* revertOrigChanged = nullptr;
         DblClickSvgWidget* emptyTransl = nullptr;
         DblClickSvgWidget* attention = nullptr;
+        // Important
         DblClickSvgWidget* mojibake = nullptr;
+        // Suggestions
+        DblClickSvgWidget* suggTrash = nullptr;
+        // Info
         DblClickSvgWidget* emptyOrig = nullptr;
         DblClickSvgWidget* invisible = nullptr;
         DblClickSvgWidget* multiline = nullptr;

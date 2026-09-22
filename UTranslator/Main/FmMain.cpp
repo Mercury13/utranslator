@@ -257,6 +257,11 @@ void FmMain::loadBugImages()
             "<b>Mojibake</b>" "\n"
             "<p>One of fields was not decoded properly. "
                 "Check it twice before accepting.");
+    // Suggestions
+    imgBug.suggTrash = loadBugWidget(":/Discrep/trash.svg",
+            "<b>Suggested by trash</b>" "\n"
+            "<p>The original was seemingly moved rather than deleted. "
+                "Double-click to accept.");
     // Information
     imgBug.emptyOrig = loadBugWidget(":/Discrep/empty_b.svg",
             "<b>Empty original</b>" "\n"
@@ -1825,6 +1830,8 @@ void FmMain::showBugs(Flags<tr::Bug> x)
     sh.showIfBug(imgBug.attention   , tr::Bug::COM_ATTENTION);
     // Warnings
     sh.showIfBug(imgBug.mojibake    , tr::Bug::COM_MOJIBAKE);
+    // Suggestions
+    imgBug.suggTrash->show();
     // Info
     sh.showIfBug(imgBug.emptyOrig   , tr::Bug::OR_EMPTY);
     sh.showIfBug(imgBug.invisible   , tr::Bug::COM_INVISIBLE);
