@@ -1,11 +1,6 @@
 #pragma once
 
-// Portable part
-#include "PortableDiff.h"
-
 #include <QTextCursor>
-
-#include "u_Vector.h"
 
 namespace qdif {
     struct FmtLib {

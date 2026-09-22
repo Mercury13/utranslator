@@ -4,6 +4,9 @@
 // Qt ex
 #include "u_Qstrings.h"
 
+// Portable diff
+#include "PortableDiff.h"
+
 
 qdif::FmtLib::FmtLib(const QTextCharFormat& x)
     : normal(x) {}
