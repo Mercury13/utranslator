@@ -2157,6 +2157,7 @@ void FmMain::agreeToSuggestion()
 {
     if (canAgreeToSuggestion()) {
         ui->memoTranslation->setPlainText(ui->memoTranslation->placeholderText());
+        showBugsAsVisible();
         reenableOnEdit();
     }
 }
