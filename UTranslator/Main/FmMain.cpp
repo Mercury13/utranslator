@@ -135,11 +135,13 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->acMarkAttention, &QAction::triggered, this, &This::markAttentionCurrObject);
     connect(ui->acDecoder, &QAction::triggered, this, &This::runDecoder);
     connect(ui->acTrash, &QAction::triggered, this, &This::runTrash);
+    connect(ui->acAgreeToSuggestion, &QAction::triggered, this, &This::agreeToSuggestion);
         // Edit — double clicks
         connect(imgBug.origChanged, &DblClickSvgWidget::doubleClicked, this, &This::acceptCurrObjectOrigChanged);
         connect(imgBug.revertOrigChanged, &DblClickSvgWidget::doubleClicked, this, &This::acceptCurrObjectOrigSuppressed);
         connect(imgBug.emptyTransl, &DblClickSvgWidget::doubleClicked, this, &This::acceptCurrObjectEmptyTransl);
         connect(imgBug.attention  , &DblClickSvgWidget::doubleClicked, this, &This::removeAttentionCurrObject);
+        connect(imgBug.suggTrash, &DblClickSvgWidget::doubleClicked, this, &This::agreeToSuggestion);
         // Edit — special shortcuts
         shMarkAttention = new QShortcut(ui->acMarkAttention->shortcut(), this);
         connect(shMarkAttention, &QShortcut::activated, this, &This::markAttentionCurrObject);
@@ -261,7 +263,8 @@ void FmMain::loadBugImages()
     imgBug.suggTrash = loadBugWidget(":/Discrep/trash.svg",
             "<b>Suggested by trash</b>" "\n"
             "<p>The original was seemingly moved rather than deleted. "
-                "Double-click to accept.");
+                "To accept, double-click this icon, "
+                    "or press “Edit → Agree to suggestion”.");
     // Information
     imgBug.emptyOrig = loadBugWidget(":/Discrep/empty_b.svg",
             "<b>Empty original</b>" "\n"
@@ -592,6 +595,7 @@ void FmMain::loadObject(tr::UiObject& obj)
     }
 
     reenableOnSelect(obj);
+    reenableOnEdit();
     showBugs(bugCache.bugs(), bugCache.bugLikes);
 }
 
@@ -714,6 +718,7 @@ void FmMain::tempModify()
     if (project && !isChangingProgrammatically) {
         project->tempModify();
         windBugTimer();
+        reenableOnEdit();
     }
 }
 
@@ -798,6 +803,7 @@ void FmMain::reenable()
     ui->acResetKnownOriginals->setEnabled(isMainVisible);
 
     reenableOnSelect();
+    reenableOnEdit();
 }
 
 
@@ -819,6 +825,20 @@ void FmMain::reenableOnSelect()
     auto index = treeIndex();
     auto obj = treeModel.toObjOr(index, nullptr);
     reenableOnSelect(obj);
+}
+
+
+bool FmMain::canAgreeToSuggestion()
+{
+    return ui->memoTranslation->isVisible()
+        && ui->memoTranslation->document()->isEmpty()
+        && !ui->memoTranslation->placeholderText().isEmpty();
+}
+
+
+void FmMain::reenableOnEdit()
+{
+    ui->acAgreeToSuggestion->setEnabled(canAgreeToSuggestion());
 }
 
 
@@ -1835,7 +1855,8 @@ void FmMain::showBugs(
     sh.showIfBug(imgBug.mojibake    , tr::Bug::COM_MOJIBAKE);
     // Suggestions
     sh.showIf   (imgBug.suggTrash,
-                    bugLikes.suggestion.source != tr::SuggestionSource::NONE);
+                canAgreeToSuggestion()
+                  && bugLikes.suggestion.source == tr::SuggestionSource::TRASH);
     // Info
     sh.showIfBug(imgBug.emptyOrig   , tr::Bug::OR_EMPTY);
     sh.showIfBug(imgBug.invisible   , tr::Bug::COM_INVISIBLE);
@@ -2129,4 +2150,13 @@ void FmMain::runTrash()
         channel = TrashChannel::TRANSLATION;
     }
     fmTrash.ensure(this).exec(project->trash, obj.get(), channel);
+}
+
+
+void FmMain::agreeToSuggestion()
+{
+    if (canAgreeToSuggestion()) {
+        ui->memoTranslation->setPlainText(ui->memoTranslation->placeholderText());
+        reenableOnEdit();
+    }
 }

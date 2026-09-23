@@ -115,6 +115,7 @@ private slots:
     tr::UiObject* acceptCurrObjectAll();
     void revertCurrObject();
     void markAttentionCurrObject();
+    void agreeToSuggestion();
     void removeAttentionCurrObject();
     void runDecoder();
     void runTrash();
@@ -236,6 +237,8 @@ private:
     void reenableOnSelect();
     void reenableOnSelect(tr::UiObject* obj);
     void reenableOnSelect(tr::UiObject& obj) { reenableOnSelect(&obj); }
+    bool canAgreeToSuggestion();
+    void reenableOnEdit();
     void updateCaption();
     /// Returns parent group for addition, probably calling dialog form
     std::optional<std::shared_ptr<tr::VirtualGroup>> disambigGroup(std::u8string_view title);

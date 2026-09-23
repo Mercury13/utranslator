@@ -1005,6 +1005,7 @@ QLabel {
     <addaction name="acAcceptChanges"/>
     <addaction name="acRevertChanges"/>
     <addaction name="acMarkAttention"/>
+    <addaction name="acAgreeToSuggestion"/>
     <addaction name="separator"/>
     <addaction name="acTrash"/>
     <addaction name="acDecoder"/>
@@ -1373,6 +1374,14 @@ QLabel {
   <action name="acFindSpecialSuppressed">
    <property name="text">
     <string>Original changed+reviewed</string>
+   </property>
+  </action>
+  <action name="acAgreeToSuggestion">
+   <property name="text">
+    <string>Agree to suggestion</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+U</string>
    </property>
   </action>
  </widget>
