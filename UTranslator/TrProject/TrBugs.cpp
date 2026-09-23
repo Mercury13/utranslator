@@ -74,10 +74,10 @@ void tr::BugCache::copyFrom(tr::UiObject& x)
         }
 
         // Suggestions
-        if (translation.empty() && isTranslationEmpty) {
+        if (!tr->translation) {
             if (tr->trashSuggestion) {
-                bugLikes.suggestionSource = SuggestionSource::TRASH;
-                translation = mojibake::toM<std::u32string>(tr->trashSuggestion.value);
+                bugLikes.suggestion.source = SuggestionSource::TRASH;
+                bugLikes.suggestion.value = mojibake::toM<std::u32string>(tr->trashSuggestion.value);
             }
         }
     }

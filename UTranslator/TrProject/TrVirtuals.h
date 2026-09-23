@@ -106,7 +106,7 @@ namespace tr {
             size_t count = 0;
             std::u8string value;
 
-            operator bool() const noexcept { return count; }
+            operator bool() const noexcept { return (count != 0); }
         } trashSuggestion;
 
         bool forceAttention = false;

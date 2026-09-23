@@ -1123,7 +1123,22 @@ void tr::Text::traverseCTexts(const EvCText& ev) const
 
 void tr::Text::suggestTrash(const Trash& trash, size_t origSize)
 {
-    /// @todo [urgent] Text::suggestTrash
+    // Do not suggest trash on…
+    if (tr.translation          // translated
+            || state != ObjState::ADDED   // existing
+            || tr.trashSuggestion.count != 0)  // more existing
+        return;
+    for (size_t i = origSize; i < trash.size(); ++i) {
+        // Right now the algorithm is the simplest:
+        // take te 1st
+        auto& item = trash.data[i];
+        if (item.tr.original == tr.original
+                && item.tr.translation) {
+            if (tr.trashSuggestion.count == 0)
+                tr.trashSuggestion.value = *item.tr.translation;
+            ++tr.trashSuggestion.count;
+        }
+    }
 }
 
 

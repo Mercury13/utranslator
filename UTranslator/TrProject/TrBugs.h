@@ -59,11 +59,14 @@ namespace tr {
         bool isProjectTranslation = false;
         bool isTranslationEmpty = false;
         bool isKnownSuppressed = false;  ///< mut-ex with knownOriginal
-        struct BugLikes {
-            SuggestionSource suggestionSource = SuggestionSource::NONE;
-        } bugLikes;
         /// Which editable fields have mojibake
         Flags<Mjf> moji {};
+        struct BugLikes {
+            struct Suggestion {
+                std::u32string value {};
+                SuggestionSource source = SuggestionSource::NONE;
+            } suggestion;
+        } bugLikes;
 
         bool canEditId() const { return isProjectOriginal; }
         bool canEditOriginal() const { return isProjectOriginal && hasTranslatable; }

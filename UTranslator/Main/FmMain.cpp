@@ -559,6 +559,7 @@ void FmMain::loadObject(tr::UiObject& obj)
             ui->memoReference->setPlainText(STR_UNTRANSLATED);
         }
         setMemo(ui->grpTranslation, ui->memoTranslation, {}, bugCache.translation);
+        ui->memoTranslation->setPlaceholderText(str::toQ(bugCache.bugLikes.suggestion.value));
     } else {
         // GROUP
         ui->wiId->setEnabled(project->info.canEditOriginal());
@@ -1834,7 +1835,7 @@ void FmMain::showBugs(
     sh.showIfBug(imgBug.mojibake    , tr::Bug::COM_MOJIBAKE);
     // Suggestions
     sh.showIf   (imgBug.suggTrash,
-                    bugLikes.suggestionSource != tr::SuggestionSource::NONE);
+                    bugLikes.suggestion.source != tr::SuggestionSource::NONE);
     // Info
     sh.showIfBug(imgBug.emptyOrig   , tr::Bug::OR_EMPTY);
     sh.showIfBug(imgBug.invisible   , tr::Bug::COM_INVISIBLE);
