@@ -166,6 +166,7 @@ namespace tr {
         virtual void readFromXml(const pugi::xml_node& node, const ReadContext& ctx) = 0;
         virtual std::shared_ptr<Entity> vclone(
                 const std::shared_ptr<VirtualGroup>& parent) const = 0;
+        virtual void suggestTrash(const Trash& trash, size_t origSize) = 0;
     protected:
         friend class VirtualGroup;
         virtual void updateParent(const std::shared_ptr<VirtualGroup>& x) = 0;
@@ -222,6 +223,7 @@ namespace tr {
         void markChildrenAsAddedToday() override;
         void traverseTexts(const EvText&) override;
         void traverseCTexts(const EvCText&) const override;
+        void suggestTrash(const Trash& trash, size_t origSize) override;
     protected:
         friend class Project;
         void doSwapChildren(size_t index1, size_t index2) override;
@@ -271,6 +273,7 @@ namespace tr {
         void markChildrenAsAddedToday() override { tr.wasChangedToday = true; }
         void traverseTexts(const EvText&) override;
         void traverseCTexts(const EvCText&) const override;
+        virtual void suggestTrash(const Trash& trash, size_t origSize) override;
         ///  @return  CHANGED data
         UpdateInfo::ByState stealDataFrom(
                 Text& x, UiObject* myParent, const StealContext& ctx);
@@ -420,6 +423,7 @@ namespace tr {
         void traverseCTexts(const EvCText&) const override;
         const PrjInfo& prjInfo() const override { return info; }
         void updateParents();
+        void suggestTrash(size_t origSize);
 
         void save();
         void save(const std::filesystem::path& aFname);

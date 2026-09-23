@@ -678,6 +678,15 @@ void tr::VirtualGroup::traverseCTexts(const EvCText& ev) const
 }
 
 
+
+void tr::VirtualGroup::suggestTrash(const Trash& trash, size_t origSize)
+{
+    for (auto& v : children) {
+        v->suggestTrash(trash, origSize);
+    }
+}
+
+
 ///// Group ////////////////////////////////////////////////////////////////////
 
 
@@ -1110,6 +1119,12 @@ void tr::Text::traverseTexts(const EvText& ev)
 
 void tr::Text::traverseCTexts(const EvCText& ev) const
     { ev(*this, tr); }
+
+
+void tr::Text::suggestTrash(const Trash& trash, size_t origSize)
+{
+    /// @todo [urgent] Text::suggestTrash
+}
 
 
 ///// File /////////////////////////////////////////////////////////////////////
@@ -1724,9 +1739,13 @@ tr::UpdateInfo tr::Project::updateData_FullTransl(TrashMode mode)
         .orig = tf::StealOrig::KEEP_WARN,
         .trash = (mode == TrashMode::FILL) ? &this->trash : nullptr,
     };
+    size_t origTrashSize = this->trash.size();
     auto r = this->stealDataFrom(*tempPrj, ctx);
     // Stats will always be funked up!
     updateParents();
+    if (mode == TrashMode::FILL) {
+        suggestTrash(origTrashSize);
+    }
     stats(StatsMode::ALL_CHILDREN, CascadeDropCache::NO);
     return r;
 }
@@ -1770,5 +1789,13 @@ void tr::Project::traverseCTexts(const EvCText& ev) const
 {
     for (auto& v : files) {
         v->traverseCTexts(ev);
+    }
+}
+
+
+void tr::Project::suggestTrash(size_t origSize)
+{
+    for (auto& v : files) {
+        v->suggestTrash(trash, origSize);
     }
 }
