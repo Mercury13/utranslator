@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:2.0" version="2.0" srcLang="en" trgLang="fr">
+  <file id="f1" original="greeting.txt">
+    <unit id="u1">
+      <segment id="s1">
+        <source>Hello World!</source>
+        <target>Bonjour le Monde !</target>
+      </segment>
+    </unit>
+    <unit id="u2">
+      <segment id="s2">
+        <source>Goodbye</source>
+        <target>Au revoir</target>
+      </segment>
+    </unit>
+  </file>
+</xliff>
