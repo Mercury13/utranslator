@@ -733,6 +733,29 @@ void FmMain::revertCurrObject()
 }
 
 
+namespace {
+
+    /// Enables the entire menu by structure
+    /// @param [in] value  [+] enabled
+    void enableEntireMenu(QMenu* menu, bool value)
+    {
+        for (auto& v : menu->actions()) {
+            if (auto itsMenu = v->menu();
+                    itsMenu && !itsMenu->isEmpty()) {
+                // Have menu — walk recursively
+                if (itsMenu != menu) {
+                    enableEntireMenu(itsMenu, value);
+                }
+            } else {
+                // Have NO menu — enable
+                v->setEnabled(value);
+            }
+        }
+    }
+
+}
+
+
 void FmMain::reenable()
 {
     bool isStartVisible = (ui->stackMain->currentWidget() == ui->pageStart);
@@ -760,16 +783,10 @@ void FmMain::reenable()
     ui->acStats->setEnabled(hasProject);
 
     // Menu: Original; always isOriginal
+    enableEntireMenu(ui->menuOriginal, isOriginal);
+    // Except…
     ui->acAddHostedFile->setEnabled(canAddFiles);
-    ui->acAddHostedGroup->setEnabled(isOriginal);
-    ui->acAddSyncGroup->setEnabled(isOriginal);
-    ui->acAddText->setEnabled(isOriginal);
     ui->acDelete->setEnabled(canAddFiles);
-    ui->acClone->setEnabled(isOriginal);
-    ui->acClearGroup->setEnabled(isOriginal);
-    ui->acMoveUp->setEnabled(isOriginal);
-    ui->acMoveDown->setEnabled(isOriginal);
-    ui->acLoadTexts->setEnabled(isOriginal);
 
     // Menu: Original
     shAddGroup->setEnabled(isNotOriginal);
@@ -796,11 +813,7 @@ void FmMain::reenable()
     ui->acGoSearchAgain->setEnabled(canSearch);
 
     // Menu: Tools
-    ui->acTranslateWithOriginal->setEnabled(isMainVisible);
-    ui->acTranslateWithLockit->setEnabled(isMainVisible);
-    ui->acExtractOriginal->setEnabled(isMainVisible);
-    ui->acSwitchOriginalAndTranslation->setEnabled(isMainVisible);
-    ui->acResetKnownOriginals->setEnabled(isMainVisible);
+    enableEntireMenu(ui->menuTools, isMainVisible);
 
     reenableOnSelect();
     reenableOnEdit();

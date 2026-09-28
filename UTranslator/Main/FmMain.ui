@@ -1010,7 +1010,7 @@ QLabel {
     <addaction name="acTrash"/>
     <addaction name="acDecoder"/>
    </widget>
-   <widget class="QMenu" name="menu_Tools">
+   <widget class="QMenu" name="menuTools">
     <property name="title">
      <string>&amp;Tools</string>
     </property>
@@ -1029,10 +1029,17 @@ QLabel {
      <addaction name="acTranslateWithOriginal"/>
      <addaction name="acTranslateWithLockit"/>
     </widget>
+    <widget class="QMenu" name="menuExport_to">
+     <property name="title">
+      <string>Export to</string>
+     </property>
+     <addaction name="acExportToXliff"/>
+    </widget>
+    <addaction name="menuExport_to"/>
     <addaction name="menuTranslate_with"/>
     <addaction name="menuConvertProjectType"/>
    </widget>
-   <widget class="QMenu" name="menu_View">
+   <widget class="QMenu" name="menuView">
     <property name="title">
      <string>&amp;View</string>
     </property>
@@ -1041,9 +1048,9 @@ QLabel {
    <addaction name="menuFile"/>
    <addaction name="menuOriginal"/>
    <addaction name="menuEdit"/>
-   <addaction name="menu_View"/>
+   <addaction name="menuView"/>
    <addaction name="menuGo"/>
-   <addaction name="menu_Tools"/>
+   <addaction name="menuTools"/>
   </widget>
   <action name="acNew">
    <property name="text">
@@ -1382,6 +1389,11 @@ QLabel {
    </property>
    <property name="shortcut">
     <string>Ctrl+U</string>
+   </property>
+  </action>
+  <action name="acExportToXliff">
+   <property name="text">
+    <string>XLIFF…</string>
    </property>
   </action>
  </widget>
