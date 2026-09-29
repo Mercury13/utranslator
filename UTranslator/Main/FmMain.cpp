@@ -22,6 +22,7 @@
 
 // Translation
 #include "TrFinder.h"
+#include "TrXliff.h"
 
 // L10n
 #include "LocFmt.h"
@@ -167,7 +168,8 @@ FmMain::FmMain(QWidget *parent)
     setSearchAction(ui->acFindSpecialCommentedByTranslator, &This::goCommentedByTranslator);
     setSearchAction(ui->acFindSpecialSuppressed, &This::goSuppressed);
     // Tools
-    connect(ui->acTranslateWithOriginal, &QAction::triggered, this, &This::translateWithOriginal);
+		connect(ui->acExportToXliff, &QAction::triggered, this, &This::exportToXliff);
+		connect(ui->acTranslateWithOriginal, &QAction::triggered, this, &This::translateWithOriginal);
     connect(ui->acTranslateWithLockit, &QAction::triggered, this, &This::translateWithLockit);
     connect(ui->acExtractOriginal, &QAction::triggered, this, &This::extractOriginal);
     connect(ui->acSwitchOriginalAndTranslation, &QAction::triggered, this, &This::switchOriginalAndTranslation);
@@ -967,7 +969,7 @@ void FmMain::addSyncGroup()
         if (isOk) {
             loadSetsCache.format = std::move(fileFormat);
             auto filter = loadSetsCache.format->proto().fileFilter();
-            filedlg::Filter filters[] = { filter, filedlg::ALL_FILES };
+						filedlg::Filter filters[] = { filter, filedlg::ALL_FILES };
             std::filesystem::path fileName = filedlg::open(
                     this, {}, filters, filter.extension(),
                     filedlg::AddToRecent::NO);
@@ -1080,7 +1082,7 @@ bool FmMain::doSaveAs()
 {
     if (!project)
         return false;
-    std::vector<filedlg::Filter> filters;
+		std::vector<filedlg::Filter> filters;
     const wchar_t* extension = nullptr;
     switch (project->info.type) {
     case tr::PrjType::ORIGINAL:
@@ -1220,7 +1222,7 @@ void FmMain::doOpen()
 {
     if (!checkSave("Open"))
         return;
-    filedlg::Filter filters[] = { FILTER_UTRANSL, filedlg::ALL_FILES };
+		filedlg::Filter filters[] = { FILTER_UTRANSL, filedlg::ALL_FILES };
     auto fname = filedlg::open(
                 this, nullptr, filters, {},
                 filedlg::AddToRecent::YES);
@@ -1610,7 +1612,7 @@ void FmMain::doLoadText()
         loadSetsCache.format = std::move(fileFormat);
         loadSetsCache.fileKey = fileInfo.get();
         auto filter = loadSetsCache.format->proto().fileFilter();
-        filedlg::Filter filters[] = { filter, filedlg::ALL_FILES };
+				filedlg::Filter filters[] = { filter, filedlg::ALL_FILES };
         std::filesystem::path fileName = filedlg::open(
                 this, L"Load texts", filters, filter.extension(),
                 filedlg::AddToRecent::NO);
@@ -1999,7 +2001,7 @@ void FmMain::translateWithOriginal()
         QMessageBox::information(this, HEAD, STR_NEED_BILINGUAL_TRANSLATION);
         return;
     }
-    filedlg::Filter filters[] = { FILTER_TRANSLATABLE, filedlg::ALL_FILES };
+		filedlg::Filter filters[] = { FILTER_TRANSLATABLE, filedlg::ALL_FILES };
     std::filesystem::path fileName = filedlg::open(
             this, mojibake::toS<std::wstring>(HEAD), filters, WEXT_ORIGINAL,
             filedlg::AddToRecent::NO);
@@ -2172,4 +2174,14 @@ void FmMain::agreeToSuggestion()
         showBugsAsVisible();
         reenableOnEdit();
     }
+}
+
+
+void FmMain::exportToXliff()
+{
+	/// @todo [urgent] Need to speed up the bug timer??
+	if (!project)
+		return;
+	tr::XliffSets sets;
+	project->exportToXliff("test.xliff", sets);
 }

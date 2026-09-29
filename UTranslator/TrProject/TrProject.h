@@ -465,7 +465,7 @@ namespace tr {
                 : Project(std::forward<T>(x)...) {}
 
         std::vector<std::shared_ptr<Group>> syncGroups();
-    protected:        
+    protected:
         void doSwapChildren(size_t index1, size_t index2) override;
     private:
         /// Ctors are private, use make!

@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ut type="original">
+ <info>
+  <orig lang="en" />
+ </info>
+ <file name="file0.txt" idless="false">
+  <text id="Sandbox">
+   <orig>You can tinker here!</orig>
+  </text>
+  <group id="Id">
+   <text id="Id">
+    <orig>Normal</orig>
+   </text>
+   <text id="Id!">
+    <orig>With excl.marks</orig>
+   </text>
+   <text id="alpha bravo">
+    <orig>With spaces</orig>
+   </text>
+  </group>
+  <group id="Text">
+   <text id="Quotes">
+    <orig>Text with "quotes", "quotes"</orig>
+   </text>
+   <text id="Tags">
+    <orig>Tags: &lt;a href={1}&gt;link&lt;/a&gt;, &lt;br&gt;</orig>
+   </text>
+   <text id="Enters">
+    <orig>
+     <p>’Twas brillig, and the slithy toves</p>
+     <p>Did gyre and gimble in the wabe,</p>
+     <p>And mimsy were the borogoves,</p>
+     <p>And the mome raths outgrabe.</p>
+    </orig>
+   </text>
+   <text id="CdataTail">
+    <orig>Left angle &lt;, CDATA end ]]&gt;, left again &lt;</orig>
+   </text>
+  </group>
+ </file>
+</ut>

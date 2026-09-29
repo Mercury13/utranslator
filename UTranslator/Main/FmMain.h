@@ -154,6 +154,7 @@ private slots:
     void extractOriginal();
     void switchOriginalAndTranslation();
     void resetKnownOriginals();
+    void exportToXliff();
 protected:
     void closeEvent(QCloseEvent *event) override;
 private:

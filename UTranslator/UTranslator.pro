@@ -58,6 +58,7 @@ SOURCES += \
     TrProject/TrUtils.cpp \
     TrProject/TrVirtuals.cpp \
     TrProject/TrWrappers.cpp \
+    TrProject/TrXliff.cpp \
     d_Config.cpp \
     FmNew.cpp \
     main.cpp
@@ -118,6 +119,7 @@ HEADERS += \
     TrProject/TrUtils.h \
     TrProject/TrVirtuals.h \
     TrProject/TrWrappers.h \
+    TrProject/TrXliff.h \
     d_Config.h \
     FmNew.h \
     d_Strings.h
