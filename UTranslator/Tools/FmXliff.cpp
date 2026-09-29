@@ -14,3 +14,10 @@ FmXliff::~FmXliff()
 {
     delete ui;
 }
+
+int FmXliff::exec(XliffMode mode)
+{
+    bool isEx = (mode == XliffMode::EXPORT);
+    ui->grpTexts->setEnabled(isEx);
+    return Super::exec();
+}

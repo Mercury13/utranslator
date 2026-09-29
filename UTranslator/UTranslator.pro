@@ -35,7 +35,6 @@ SOURCES += \
     FmMessage.cpp \
     FmProjectSettings.cpp \
     FmTrash.cpp \
-    FmXliff.cpp \
     History.cpp \
     Main/DiffBrowser.cpp \
     Main/FmMain.cpp \
@@ -48,6 +47,7 @@ SOURCES += \
     Tools/FmTranslateWithOriginal.cpp \
     Tools/FmSwitchOriginalAndTranslation.cpp \
     Tools/FmExtractOriginal.cpp \
+    Tools/FmXliff.cpp \
     Tools/QstrObject.cpp \
     TrProject/Modifiable.cpp \
     TrProject/TrBugs.cpp \
@@ -97,7 +97,6 @@ HEADERS += \
     FmMessage.h \
     FmProjectSettings.h \
     FmTrash.h \
-    FmXliff.h \
     History.h \
     Main/DiffBrowser.h \
     Main/FmMain.h \
@@ -111,6 +110,7 @@ HEADERS += \
     Tools/FmSwitchOriginalAndTranslation.h \
     Tools/FmTranslateWithOriginal.h \
     Tools/QstrObject.h \
+    Tools/FmXliff.h \
     TrProject/Modifiable.h \
     TrProject/TrBugs.h \
     TrProject/TrDefines.h \
@@ -143,13 +143,13 @@ INCLUDEPATH += \
 
 FORMS += \
     FmTrash.ui \
-    FmXliff.ui \
     Main/FmMain.ui \
     Main/WiFind.ui \
     Tools/FmDecoder.ui \
     Tools/FmExtractOriginal.ui \
     Tools/FmSwitchOriginalAndTranslation.ui \
     Tools/FmTranslateWithOriginal.ui \
+    Tools/FmXliff.ui \
     FmAboutFormat.ui \
     FmDisambigPair.ui \
     FmFileFormat.ui \
