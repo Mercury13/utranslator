@@ -79,7 +79,7 @@ std::optional<tr::eo::Sets2> FmSwitchOriginalAndTranslation::exec(tr::Project& p
 
 void FmSwitchOriginalAndTranslation::chooseOriginal()
 {
-    filedlg::Filters filters {
+    filedlg::Filter filters[] = {
         FILTER_TRANSLATABLE, filedlg::ALL_FILES,
     };
     auto fname = filedlg::open(

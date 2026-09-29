@@ -119,7 +119,7 @@ FmNew::~FmNew()
 
 bool FmNew::chooseOriginal()
 {
-    filedlg::Filters filters {
+    filedlg::Filter filters[] = {
         FILTER_TRANSLATABLE, filedlg::ALL_FILES,
     };
     auto fname = filedlg::open(this, L"Choose original", filters, WEXT_TRANSLATABLE,

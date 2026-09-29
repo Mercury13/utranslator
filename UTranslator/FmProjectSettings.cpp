@@ -90,13 +90,15 @@ void FmProjectSettings::copyTo(tr::PrjInfo& r)
 void FmProjectSettings::browseOriginal()
 {
     filedlg::browseLineEdit(this,  L"Choose original",
-                FILTER_TRANSLATABLE, WEXT_TRANSLATABLE, ui->edOrigFile);
+                FILTER_TRANSLATABLE, WEXT_TRANSLATABLE,
+                filedlg::BrowseMode::FILE, ui->edOrigFile);
 }
 
 void FmProjectSettings::browseReference()
 {
     filedlg::browseLineEdit(this,  L"Choose reference translation",
-                FILTER_TRANSLATION, WEXT_TRANSLATION, ui->edReference);
+                FILTER_TRANSLATION, WEXT_TRANSLATION,
+                filedlg::BrowseMode::FILE, ui->edReference);
 }
 
 bool FmProjectSettings::exec(tr::PrjInfo& info)
