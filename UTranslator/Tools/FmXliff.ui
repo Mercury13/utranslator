@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>202</width>
-    <height>183</height>
+    <height>241</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -45,6 +45,9 @@
         <property name="text">
          <string>Single underscore (bad are sporadic)</string>
         </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item>
@@ -66,6 +69,9 @@
             <width>48</width>
             <height>0</height>
            </size>
+          </property>
+          <property name="text">
+           <string>,</string>
           </property>
          </widget>
         </item>
@@ -104,12 +110,50 @@
         <property name="text">
          <string>Write translations</string>
         </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item>
        <widget class="QCheckBox" name="chkCdata">
         <property name="text">
          <string>Use CDATA for &lt;&gt; (Crowdin)</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="grpPrio">
+     <property name="title">
+      <string>Priority</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_4">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>2</number>
+      </property>
+      <item>
+       <widget class="QRadioButton" name="radioPrioThis">
+        <property name="text">
+         <string>This project</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radioPrioXliff">
+        <property name="text">
+         <string>Loaded XLIFF</string>
         </property>
        </widget>
       </item>

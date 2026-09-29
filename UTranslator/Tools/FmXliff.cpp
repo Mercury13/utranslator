@@ -15,9 +15,23 @@ FmXliff::~FmXliff()
     delete ui;
 }
 
-int FmXliff::exec(XliffMode mode)
+std::optional<tr::XliffSets> FmXliff::exec(XliffMode mode, bool hasTranslation)
 {
     bool isEx = (mode == XliffMode::EXPORT);
+    // Available in export mode only
     ui->grpTexts->setEnabled(isEx);
-    return Super::exec();
+    ui->chkWriteTranslation->setEnabled(hasTranslation);
+    // Available in translate mode only
+    ui->grpPrio->setEnabled(!isEx);
+    // Go!
+    if (Super::exec()) {
+        tr::XliffSets r;
+        /// @todo [urgent] copy to r
+        r.idSeparator = ui->edSeparator->text().toStdString();
+        r.writeCdata = ui->chkCdata->isChecked();
+        r.writeTranslation = ui->chkWriteTranslation->isChecked();
+        return r;
+    } else {
+        return std::nullopt;
+    }
 }
