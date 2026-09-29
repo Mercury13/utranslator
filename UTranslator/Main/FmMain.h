@@ -88,6 +88,7 @@ private slots:
     void stopBugTimer();
     void windBugTimer();
     void bugTicked();
+    void speedUpBugTimer();
 
     // Starting screen
     void goEdit();

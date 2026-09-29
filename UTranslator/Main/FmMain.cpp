@@ -1270,6 +1270,7 @@ void FmMain::runDecoder()
 
 void FmMain::doClone()
 {
+    speedUpBugTimer();
     auto res = treeModel.doClone(treeIndex());
     if (res.index.isValid()) {
         ui->treeStrings->expand(res.index);
@@ -1949,6 +1950,16 @@ void FmMain::bugTicked()
 }
 
 
+void FmMain::speedUpBugTimer()
+{
+    if (timerBug->isActive()) {
+        stopBugTimer();
+        bugTicked();
+    }
+}
+
+
+
 void FmMain::extractOriginal()
 {
     if (!project->info.isTranslation()) {
@@ -2179,9 +2190,10 @@ void FmMain::agreeToSuggestion()
 
 void FmMain::exportToXliff()
 {
-	/// @todo [urgent] Need to speed up the bug timer??
-	if (!project)
+    /// @todo [urgent, XLIFF] Settings window?
+    if (!project)
 		return;
-	tr::XliffSets sets;
-	project->exportToXliff("test.xliff", sets);
+    speedUpBugTimer();
+    tr::XliffSets sets;
+    tr::exportToXliff(*project, "test.xliff", sets);
 }

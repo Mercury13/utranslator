@@ -19,7 +19,7 @@ namespace tr {
     };
 
     void exportToXliff(
-            const tr::Project project,
+            const tr::Project& project,
             const std::filesystem::path& fname,
             XliffSets& sets);
 

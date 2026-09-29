@@ -15,6 +15,9 @@ namespace {
         void onEnterGroup(const std::shared_ptr<tr::VirtualGroup>&) override;
         void onLeaveGroup(const std::shared_ptr<tr::VirtualGroup>&) override;
         void onText(const std::shared_ptr<tr::Text>&) override;
+        std::string fixupId(std::string_view id) const;
+        std::string fixupId(std::u8string_view id) const
+            { return fixupId(str::toSv(id)); }
     private:
         struct Frame {
             pugi::xml_node node;
@@ -22,6 +25,10 @@ namespace {
         };
         std::vector<Frame> stack;
         const tr::XliffSets& sets;
+
+        std::string stickIds(const std::string& pile, std::string_view id);
+        std::string stickIds(const std::string& pile, std::u8string_view id)
+            { return stickIds(pile, str::toSv(id)); }
     };
 
     ToXliffWalker::ToXliffWalker(pugi::xml_node aUpperNode, const tr::XliffSets& aSets)
@@ -67,15 +74,32 @@ namespace {
         return r;
     }
 
-    std::string toNmToken(std::u8string_view s)
+    std::string ToXliffWalker::stickIds(const std::string& pile, std::string_view id)
     {
-        return toNmToken(str::toSv(s));
+        switch (sets.badIdPolicy) {
+        case tr::BadIdPolicy::KEEP:
+            return str::cat(pile, id);
+        case tr::BadIdPolicy::UNDERSCORE:
+            return pile + toNmToken(id);
+        }
+        __builtin_unreachable();
+    }
+
+    std::string ToXliffWalker::fixupId(std::string_view id) const
+    {
+        switch (sets.badIdPolicy) {
+        case tr::BadIdPolicy::KEEP:
+            return std::string{id};
+        case tr::BadIdPolicy::UNDERSCORE:
+            return toNmToken(id);
+        }
+        __builtin_unreachable();
     }
 
     void ToXliffWalker::onEnterGroup(const std::shared_ptr<tr::VirtualGroup>& x)
     {
         auto& bk = stack.back();
-        auto myId = bk.idPlusSep + toNmToken(x->id);
+        auto myId = stickIds(bk.idPlusSep, x->id);
         auto hGroup = bk.node.append_child("group");
         hGroup.append_attribute("id") = myId.c_str();
         stack.emplace_back(hGroup, myId + sets.idSeparator);
@@ -113,7 +137,7 @@ namespace {
         auto s = str::toSv(text);
         if (writeCdata && hasCdataChars(s)) {
                 // Data() is c_str() here
-                // PugiXML automatically splits CDATA into chunks w/o ]]>
+                // PugiXML automatically splits CDATA by ]]>
                 hLower.append_child(pugi::node_cdata).set_value(s.data());
             } else {
                 hLower.append_child(pugi::node_pcdata).set_value(s.data());
@@ -123,7 +147,7 @@ namespace {
     void ToXliffWalker::onText(const std::shared_ptr<tr::Text>& x)
     {
         auto& bk = stack.back();
-        auto myId = bk.idPlusSep + toNmToken(x->id);
+        auto myId = stickIds(bk.idPlusSep, x->id);
         // Unit
         auto hUnit = bk.node.append_child("unit");
         hUnit.append_attribute("id") = myId.c_str();
@@ -141,7 +165,7 @@ namespace {
 
 
 void tr::exportToXliff(
-        const tr::Project project,
+        const tr::Project& project,
         const std::filesystem::path& fname,
         XliffSets& sets)
 {
@@ -159,8 +183,8 @@ void tr::exportToXliff(
     // Files
     for (auto& v : project.files) {
         auto hFile = hRoot.append_child("file");
-        hFile.append_attribute("id") = toNmToken(v->id).c_str();
         ToXliffWalker xw(hFile, sets);
+        hFile.append_attribute("id") = xw.fixupId(v->id).c_str();
         v->traverse(xw, WalkOrder::EXACT, EnterMe::NO);
     }
     // Finally!
