@@ -1,11 +1,8 @@
 #pragma once
 
-#include <string>
-#include <filesystem>
+#include "TrProject.h"
 
-namespace tr {
-
-    class Project;
+namespace xlf {
 
     /// @todo [future] More bad ID policies
     enum class BadIdPolicy : unsigned char {
@@ -14,7 +11,7 @@ namespace tr {
     enum class Priority : unsigned char {
         PROJECT, XLIFF };
 
-    struct XliffSets {
+    struct Sets {
         std::string idSeparator = ".";
         BadIdPolicy badIdPolicy = BadIdPolicy::UNDERSCORE;
         bool writeTranslation = true;  ///< [+] write translation if present
@@ -22,9 +19,9 @@ namespace tr {
         Priority priority = Priority::PROJECT;
     };
 
-    void exportToXliff(
+    void exportMe(
             const tr::Project& project,
             const std::filesystem::path& fname,
-            XliffSets& sets);
+            Sets& sets);
 
-}   // namespace tr
+}   // namespace xlf

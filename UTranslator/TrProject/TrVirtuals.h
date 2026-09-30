@@ -275,6 +275,13 @@ namespace tr {
         virtual const PrjInfo& prjInfo() const = 0;
     };
 
+    struct RepeatingIds {
+        std::shared_ptr<tr::UiObject> x1, x2;
+        explicit operator bool() const noexcept { return static_cast<bool>(x1); }
+    };
+
+    enum class IdThresholdType : unsigned char {
+        NONE, THRESHOLD, ROOT };
 
     class UiObject : public CanaryObject
     {
@@ -306,6 +313,7 @@ namespace tr {
         virtual std::shared_ptr<UiObject> extractChild(size_t, Modify) { return {}; }
         virtual void traverseTexts(const EvText&) = 0;
         virtual void traverseCTexts(const EvCText&) const = 0;
+        virtual IdThresholdType idThresholdType() const noexcept = 0;
 
         /// @return  ptr to comments, or null
         virtual Comments* comments() { return nullptr; }
@@ -374,6 +382,7 @@ namespace tr {
                 std::u8string_view prefix,
                 std::u8string_view suffix) const;
         std::u8string makeTextId(const IdLib& idlib) const;
+        bool isRoot() const noexcept { return (idThresholdType() == IdThresholdType::ROOT); }
 
         /// @return  [+] s_p to this  [0] nothing happened
         std::shared_ptr<UiObject> extract(Modify wantModify);
@@ -393,6 +402,10 @@ namespace tr {
         /// Removes everything related to reference translation, leaving only original
         ///   (reference, known reference if I have someday)
         void removeReferenceChannel();
+
+        /// @post  x1 and x2, if both are present,
+        RepeatingIds checkRepeatingIdsMy() const;
+        RepeatingIds checkRepeatingIdsRecursive() const;
 
         // Const verions
         std::shared_ptr<const FileInfo> ownFileInfo() const

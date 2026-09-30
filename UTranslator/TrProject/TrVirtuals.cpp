@@ -565,3 +565,35 @@ tr::StoringIdChain tr::UiObject::idChain()
     std::ranges::reverse(r.ids);
     return r;
 }
+
+tr::RepeatingIds tr::UiObject::checkRepeatingIdsMy() const
+{
+    if (auto n = nChildren(); n > 0) {
+        std::unordered_map<std::u8string_view, std::shared_ptr<tr::UiObject>> m;
+        for (size_t i = 0; i < n; ++i) {
+            auto ch = child(i);
+            auto id = ch->idColumn();
+            if (id.empty())
+                return { .x1 = ch, .x2 {} };
+            if (auto& q = m[ch->idColumn()]) {
+                return { .x1 = q, .x2 = ch };
+            } else {
+                q = ch;
+            }
+        }
+    }
+    return { .x1 = nullptr, .x2 = nullptr };
+}
+
+tr::RepeatingIds tr::UiObject::checkRepeatingIdsRecursive() const
+{
+    if (auto r = checkRepeatingIdsMy())
+        return r;
+    size_t n = nChildren();
+    for (size_t i = 0; i < n; ++i) {
+        auto ch = child(i);
+        if (auto r = ch->checkRepeatingIdsRecursive())
+            return r;
+    }
+    return { .x1 = nullptr, .x2 = nullptr };
+}

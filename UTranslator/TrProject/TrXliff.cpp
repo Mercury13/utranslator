@@ -1,9 +1,6 @@
 // My header
 #include "TrXliff.h"
 
-// Translation
-#include "TrProject.h"
-
 #include "pugixml.hpp"
 
 namespace {
@@ -11,7 +8,7 @@ namespace {
     class ToXliffWalker : public tr::TraverseListener
     {
     public:
-        ToXliffWalker(pugi::xml_node aUpperNode, const tr::XliffSets& aSets);
+        ToXliffWalker(pugi::xml_node aUpperNode, const xlf::Sets& aSets);
         void onEnterGroup(const std::shared_ptr<tr::VirtualGroup>&) override;
         void onLeaveGroup(const std::shared_ptr<tr::VirtualGroup>&) override;
         void onText(const std::shared_ptr<tr::Text>&) override;
@@ -24,14 +21,14 @@ namespace {
             std::string idPlusSep;
         };
         std::vector<Frame> stack;
-        const tr::XliffSets& sets;
+        const xlf::Sets& sets;
 
         std::string stickIds(const std::string& pile, std::string_view id);
         std::string stickIds(const std::string& pile, std::u8string_view id)
             { return stickIds(pile, str::toSv(id)); }
     };
 
-    ToXliffWalker::ToXliffWalker(pugi::xml_node aUpperNode, const tr::XliffSets& aSets)
+    ToXliffWalker::ToXliffWalker(pugi::xml_node aUpperNode, const xlf::Sets& aSets)
         : sets(aSets)
     {
         stack.emplace_back(aUpperNode, std::string{});
@@ -77,9 +74,9 @@ namespace {
     std::string ToXliffWalker::stickIds(const std::string& pile, std::string_view id)
     {
         switch (sets.badIdPolicy) {
-        case tr::BadIdPolicy::KEEP:
+        case xlf::BadIdPolicy::KEEP:
             return str::cat(pile, id);
-        case tr::BadIdPolicy::UNDERSCORE:
+        case xlf::BadIdPolicy::UNDERSCORE:
             return pile + toNmToken(id);
         }
         __builtin_unreachable();
@@ -88,9 +85,9 @@ namespace {
     std::string ToXliffWalker::fixupId(std::string_view id) const
     {
         switch (sets.badIdPolicy) {
-        case tr::BadIdPolicy::KEEP:
+        case xlf::BadIdPolicy::KEEP:
             return std::string{id};
-        case tr::BadIdPolicy::UNDERSCORE:
+        case xlf::BadIdPolicy::UNDERSCORE:
             return toNmToken(id);
         }
         __builtin_unreachable();
@@ -164,10 +161,10 @@ namespace {
 }	// anon namespace
 
 
-void tr::exportToXliff(
+void xlf::exportMe(
         const tr::Project& project,
         const std::filesystem::path& fname,
-        XliffSets& sets)
+        Sets& sets)
 {
     if (!project.info.isTranslation())
         sets.writeTranslation = false;
@@ -185,7 +182,7 @@ void tr::exportToXliff(
         auto hFile = hRoot.append_child("file");
         ToXliffWalker xw(hFile, sets);
         hFile.append_attribute("id") = xw.fixupId(v->id).c_str();
-        v->traverse(xw, WalkOrder::EXACT, EnterMe::NO);
+        v->traverse(xw, tr::WalkOrder::EXACT, tr::EnterMe::NO);
     }
     // Finally!
     doc.save_file(fname.c_str(), "\t",

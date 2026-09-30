@@ -37,5 +37,13 @@
     <orig>Left angle &lt;, CDATA end ]]&gt;, left again &lt;</orig>
    </text>
   </group>
+  <group id="RepId">
+   <group id="Child">
+    <group id="a1" />
+    <text id="a2">
+     <orig>Change to a1 and see what happens</orig>
+    </text>
+   </group>
+  </group>
  </file>
 </ut>

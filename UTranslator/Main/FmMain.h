@@ -289,4 +289,6 @@ private:
     void markAttentionCurrObjectEx(FuncBoolBool func);
     /// Shows bugs as visible on the screen
     void showBugsAsVisible();
+    /// @return [+] OK [-] repeat
+    bool checkRepeatingIds();
 };

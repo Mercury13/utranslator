@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>225</width>
-    <height>243</height>
+    <width>275</width>
+    <height>253</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -89,6 +89,13 @@
          </spacer>
         </item>
        </layout>
+      </item>
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Export and Translate &lt;b&gt;must&lt;/b&gt; use the same settings.</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>

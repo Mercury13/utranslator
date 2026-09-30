@@ -47,6 +47,8 @@
 #include "Tools/FmSwitchOriginalAndTranslation.h"
 #include "Tools/FmXliff.h"
 
+using namespace std::string_view_literals;
+
 ///// FmMain ///////////////////////////////////////////////////////////////////
 
 
@@ -2188,11 +2190,56 @@ void FmMain::agreeToSuggestion()
 }
 
 
+namespace {
+
+    std::u8string getReadableIdChain(std::shared_ptr<tr::UiObject> obj)
+    {
+        std::u8string r;
+        while (!obj->isRoot()) {
+            if (!r.empty())
+                r = u8" → " + r;
+            r = str::cat(obj->idColumn(), r);
+            obj = obj->parent();
+        }
+        return r;
+    }
+
+}   // anon namespace
+
+
+bool FmMain::checkRepeatingIds()
+{
+    if (!project)
+        return false;
+    if (auto repIds = project->checkRepeatingIdsRecursive()) {
+        auto chain = getReadableIdChain(repIds.x1->parent());
+        std::u8string msg;
+        if (repIds.x2) {
+            // Repeating
+            msg = loc::Fmt(u8"Repeating ID <{2}>!" "\n" "Father: <{1}>"sv)
+                    (chain)(repIds.x1->idColumn()).str();
+        } else {
+            // Empty
+            msg = loc::Fmt(u8"Empty ID!" "\n" "Father: <{1}>"sv)(chain).str();
+        }
+        QMessageBox msgBox(QMessageBox::Critical, "ID check", str::toQ(msg),
+                QMessageBox::Ok, this);
+        msgBox.setTextFormat(Qt::PlainText);
+        msgBox.exec();
+        return false;
+    } else {
+        return true;
+    }
+}
+
+
 void FmMain::exportToXliff()
 {
     if (!project)
 		return;
     speedUpBugTimer();
+    if (!checkRepeatingIds())
+        return;
     filedlg::Filter filters[] = { FILTER_XLIFF, filedlg::ALL_FILES };
     auto fname = filedlg::save(
             this, L"Export to XLIFF", filters, L".xliff", {},
@@ -2203,5 +2250,5 @@ void FmMain::exportToXliff()
             XliffMode::EXPORT, project->info.isTranslation());
     if (!sets)
         return;
-    tr::exportToXliff(*project, fname, *sets);
+    xlf::exportMe(*project, fname, *sets);
 }

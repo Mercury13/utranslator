@@ -273,7 +273,8 @@ namespace tr {
         void markChildrenAsAddedToday() override { tr.wasChangedToday = true; }
         void traverseTexts(const EvText&) override;
         void traverseCTexts(const EvCText&) const override;
-        virtual void suggestTrash(const Trash& trash, size_t origSize) override;
+        void suggestTrash(const Trash& trash, size_t origSize) override;
+        IdThresholdType idThresholdType() const noexcept override { return IdThresholdType::NONE; }
         ///  @return  CHANGED data
         UpdateInfo::ByState stealDataFrom(
                 Text& x, UiObject* myParent, const StealContext& ctx);
@@ -310,6 +311,7 @@ namespace tr {
         Pair<VirtualGroup> additionParents() override
                 { return { fParentGroup.lock(), fSelf.lock() }; }
         void writeToXml(pugi::xml_node&, WrCache&) const override;
+        IdThresholdType idThresholdType() const noexcept override { return IdThresholdType::NONE; }
         void readFromXml(const pugi::xml_node& node, const ReadContext& ctx) override;
         std::shared_ptr<Group> clone(
                 const std::shared_ptr<VirtualGroup>& parent,
@@ -351,6 +353,7 @@ namespace tr {
         std::shared_ptr<File> file() override
             { return std::dynamic_pointer_cast<File>(fSelf.lock()); }
         Pair<VirtualGroup> additionParents() override { return fSelf.lock(); }
+        IdThresholdType idThresholdType() const noexcept override { return IdThresholdType::THRESHOLD; }
 
         File(std::weak_ptr<Project> aProject, size_t aIndex, const PassKey&);
         void writeToXml(pugi::xml_node&, WrCache&) const override;
@@ -403,6 +406,7 @@ namespace tr {
         std::shared_ptr<UiObject> selfUi() override { return fSelf.lock(); }
 
         ObjType objType() const noexcept override { return ObjType::PROJECT; }
+        IdThresholdType idThresholdType() const noexcept override { return IdThresholdType::ROOT; }
         std::shared_ptr<File> file() override { return {}; }
         size_t nChildren() const noexcept override { return files.size(); };
         std::shared_ptr<UiObject> child(size_t i) const override;
