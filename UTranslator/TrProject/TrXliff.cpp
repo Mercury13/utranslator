@@ -87,6 +87,7 @@ namespace {
         case xlf::BadIdPolicy::UNDERSCORE:
             return std::make_unique<UnderIdObj>(aSets.separator);
         }
+        __builtin_unreachable();
     }
 
     class ToXliffWalker : public tr::TraverseListener
@@ -289,7 +290,7 @@ namespace {
                 // Move data to another place
                 auto content = std::move(firstV);
                 r.clear();
-                r[std::string{*onlyFname}] = std::move(firstV);
+                r[std::string{*onlyFname}] = std::move(content);
             }
         }
         return r;
