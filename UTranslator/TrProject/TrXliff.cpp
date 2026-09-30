@@ -228,6 +228,14 @@ namespace {
     using MKeyEntry = std::unordered_map<std::string, XliffEntry>;
     using MFile = std::unordered_map<std::string, MKeyEntry>;
 
+    std::u8string normalizeEols(std::string_view x)
+    {
+        std::u8string r{str::toU8sv(x)};
+        str::replace(r, u8"\r\n", u8"\n");
+        str::replace(r, u8'\r', u8'\n');
+        return r;
+    }
+
     void recurseXliffVgroup(MKeyEntry& r, pugi::xml_node hNode)
     {
         // Subgroups
@@ -247,7 +255,7 @@ namespace {
                 }
                 if (auto hTarget = hSeg.child("target")) {
                     auto& data = r[std::string(id)];
-                    data.val = str::toU8sv(hTarget.value());
+                    data.val = normalizeEols(hTarget.value());
                 }
             }
         }
@@ -290,7 +298,9 @@ namespace {
     class FromXliffWalker : public tr::TraverseListener
     {
     public:
-        FromXliffWalker(const IdObject& aIdObj, const MKeyEntry& aKe);
+        FromXliffWalker(
+                const IdObject& aIdObj, const MKeyEntry& aKe,
+                xlf::Priority prio);
         void onEnterGroup(const std::shared_ptr<tr::VirtualGroup>&) override;
         void onLeaveGroup(const std::shared_ptr<tr::VirtualGroup>&) override;
         void onText(const std::shared_ptr<tr::Text>&) override;
@@ -301,10 +311,13 @@ namespace {
         std::vector<Frame> stack;
         const IdObject& idObj;
         const MKeyEntry& ke;
+        xlf::Priority prio;
     };
 
-    FromXliffWalker::FromXliffWalker(const IdObject& aIdObj, const MKeyEntry& aKe)
-        : idObj(aIdObj), ke(aKe)
+    FromXliffWalker::FromXliffWalker(
+            const IdObject& aIdObj, const MKeyEntry& aKe,
+            xlf::Priority aPrio)
+        : idObj(aIdObj), ke(aKe), prio(aPrio)
     {
         stack.emplace_back(std::string{});
     }
@@ -323,8 +336,15 @@ namespace {
 
     void FromXliffWalker::onText(const std::shared_ptr<tr::Text>& x)
     {
+        // Priority
+        if (prio == xlf::Priority::PROJECT && x->tr.translation)
+            return;
         auto& bk = stack.back();
         auto myId = idObj.stickIds(bk.idPlusSep, x->id);
+        auto it = ke.find(myId);
+        if (it != ke.end()) {
+            x->tr.translation = it->second.val;
+        }
     }
 
 }   // anon namespace
@@ -345,6 +365,7 @@ void xlf::translate(
         auto itMap = fm.find(idObj->fixupId(file->id));
         if (itMap == fm.end())
             continue;
-        FromXliffWalker walker(*idObj, itMap->second);
+        FromXliffWalker walker(*idObj, itMap->second, sets.translate.priority);
+        file->traverse(walker, tr::WalkOrder::EXACT, tr::EnterMe::NO);
     }
 }
