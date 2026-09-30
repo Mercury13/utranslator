@@ -395,6 +395,7 @@ namespace tr {
         void swapChildren(size_t index1, size_t index2);
         BigStats bigStats() const;
         StoringIdChain idChain();
+        std::optional<std::u8string_view> onlyChildId() const;
 
         void traverseTexts1(const EvText1&);
         void traverseCTexts1(const EvCText1&) const;

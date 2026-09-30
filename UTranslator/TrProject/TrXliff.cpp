@@ -192,22 +192,79 @@ void xlf::exportMe(
 }
 
 
+namespace {
+
+    struct XliffEntry {
+        std::u8string val;
+    };
+
+    using MKeyEntry = std::unordered_map<std::u8string, XliffEntry>;
+    using MFile = std::unordered_map<std::u8string, MKeyEntry>;
+
+    void recurseXliffVgroup(MKeyEntry& r, pugi::xml_node hNode)
+    {
+        for (auto hGroup : hNode.children("group")) {
+            recurseXliffVgroup(r, hGroup);
+        }
+        for (auto hUnit : hNode.children("unit")) {
+            std::string_view id = hUnit.attribute("id").as_string();
+            if (id.empty())
+                continue;
+            unsigned nSegs = 0;
+            for (auto hSeg : hUnit.children("segment")) {
+                ++nSegs;
+                if (nSegs > 1) {
+                    throw std::logic_error("Segmented XLIFFs are unsupported");
+                }
+                if (auto hTarget = hSeg.child("target")) {
+                    auto& data = r[std::u8string{str::toU8sv(id)}];
+                    data.val = str::toU8sv(hTarget.value());
+                }
+            }
+        }
+    }
+
+    MFile createXliffMap(
+            const std::filesystem::path& fname,
+            std::optional<std::u8string_view> onlyFname)
+    {
+        pugi::xml_document doc;
+        auto result = doc.load_file(fname.c_str());
+        if (!result)
+            throw std::logic_error(result.description());
+        auto hRoot = doc.root();
+        // No version is OK
+        std::string_view svVersion = hRoot.attribute("version").as_string("3.0");
+        if (svVersion != "2.0")
+            throw std::logic_error("Support only XLIFF 2.0.");
+        MFile r;
+        for (auto hFile : hRoot.children("file")) {
+            std::string_view itsId = hFile.attribute("id").as_string();
+            if (itsId.empty())
+                continue;
+            auto& file = r[std::u8string{str::toU8sv(itsId)}];
+            recurseXliffVgroup(file, hFile);
+        }
+        // If 1 file and 1 file, give one more chance
+        if (r.size() == 1 && onlyFname) {
+            auto& [firstK, firstV] = *r.begin();
+            if (firstK != onlyFname) {
+                // Move data to another place
+                auto content = std::move(firstV);
+                r.clear();
+                r[std::u8string{*onlyFname}] = std::move(firstV);
+            }
+        }
+        return r;
+    }
+
+}   // anon namespace
+
+
 void xlf::translate(
         tr::Project& project,
         const std::filesystem::path& fname,
         const Sets& sets)
 {
-    pugi::xml_document doc;
-    auto result = doc.load_file(fname.c_str());
-    if (!result)
-        throw std::logic_error(result.description());
-    auto hRoot = doc.root();
-    // No version is OK
-    std::string_view svVersion = hRoot.attribute("version").as_string("3.0");
-    if (svVersion != "2.0")
-        throw std::logic_error("Support only XLIFF 2.0.");
-    /// @todo [future] If 1 file and 1 file, give one more cance
-    for (auto& v : project.files) {
-
-    }
+    MFile fm = createXliffMap(fname, project.onlyChildId());
 }

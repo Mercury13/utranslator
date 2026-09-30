@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>275</width>
-    <height>253</height>
+    <height>249</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -110,7 +110,7 @@
        <number>0</number>
       </property>
       <property name="topMargin">
-       <number>2</number>
+       <number>0</number>
       </property>
       <item>
        <widget class="QCheckBox" name="chkWriteTranslation">
@@ -145,12 +145,12 @@
        <number>0</number>
       </property>
       <property name="topMargin">
-       <number>2</number>
+       <number>0</number>
       </property>
       <item>
        <widget class="QRadioButton" name="radioPrioThis">
         <property name="text">
-         <string>This project</string>
+         <string>This project (keep already translated)</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -160,7 +160,7 @@
       <item>
        <widget class="QRadioButton" name="radioPrioXliff">
         <property name="text">
-         <string>Loaded XLIFF</string>
+         <string>Loaded XLIFF (overwrite aggressively)</string>
         </property>
        </widget>
       </item>

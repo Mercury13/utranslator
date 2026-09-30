@@ -33,9 +33,11 @@
 #define FILTER_XLIFF { PAIR_XLIFF }
 
 constexpr const std::string_view langList[] = {
-    "be", "cz", "cn", "de", "en", "es", "fr", "he", // Hebrew
+    "be",   // Belarussian
+    "cz", "de", "en", "es", "fr", "he", // Hebrew
     "hi",   // Hindi
-    "it", "ja", "ru", "uk"
+    "it", "ja", "ru", "uk",
+    "zh",   // Chinese
 };
 
 

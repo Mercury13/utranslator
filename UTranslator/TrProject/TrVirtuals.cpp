@@ -597,3 +597,12 @@ tr::RepeatingIds tr::UiObject::checkRepeatingIdsRecursive() const
     }
     return { .x1 = nullptr, .x2 = nullptr };
 }
+
+std::optional<std::u8string_view> tr::UiObject::onlyChildId() const
+{
+    if (nChildren() == 1) {
+        return child(0)->idColumn();
+    } else {
+        return std::nullopt;
+    }
+}
