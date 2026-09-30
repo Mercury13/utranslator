@@ -20,6 +20,7 @@ class FmXliff : public QDialog
 {
     Q_OBJECT
     using Super = QDialog;
+    using This = FmXliff;
 public:
     explicit FmXliff(QWidget *parent = nullptr);
     ~FmXliff() override;

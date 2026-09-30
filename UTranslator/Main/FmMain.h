@@ -43,6 +43,7 @@ class FmSwitchOriginalAndTranslation;
 class FmTranslateWithOriginal;
 class FmMessage;
 class FmTrash;
+class FmXliff;
 class QPlainTextEdit;
 class QTreeView;
 class QShortcut;
@@ -206,6 +207,7 @@ private:
     Uptr<FmTranslateWithOriginal> fmTranslateWithOriginal;
     Uptr<FmMessage> fmMessage;
     Uptr<FmTrash> fmTrash;
+    Uptr<FmXliff> fmXliff;
 
     struct loadSetsCache {
         const void* fileKey = nullptr;

@@ -45,7 +45,7 @@
 #include "Tools/FmTranslateWithOriginal.h"
 #include "Tools/FmExtractOriginal.h"
 #include "Tools/FmSwitchOriginalAndTranslation.h"
-
+#include "Tools/FmXliff.h"
 
 ///// FmMain ///////////////////////////////////////////////////////////////////
 
@@ -969,7 +969,7 @@ void FmMain::addSyncGroup()
         if (isOk) {
             loadSetsCache.format = std::move(fileFormat);
             auto filter = loadSetsCache.format->proto().fileFilter();
-						filedlg::Filter filters[] = { filter, filedlg::ALL_FILES };
+            filedlg::Filter filters[] = { filter, filedlg::ALL_FILES };
             std::filesystem::path fileName = filedlg::open(
                     this, {}, filters, filter.extension(),
                     filedlg::AddToRecent::NO);
@@ -1082,7 +1082,7 @@ bool FmMain::doSaveAs()
 {
     if (!project)
         return false;
-		std::vector<filedlg::Filter> filters;
+    std::vector<filedlg::Filter> filters;
     const wchar_t* extension = nullptr;
     switch (project->info.type) {
     case tr::PrjType::ORIGINAL:
@@ -1222,7 +1222,7 @@ void FmMain::doOpen()
 {
     if (!checkSave("Open"))
         return;
-		filedlg::Filter filters[] = { FILTER_UTRANSL, filedlg::ALL_FILES };
+    filedlg::Filter filters[] = { FILTER_UTRANSL, filedlg::ALL_FILES };
     auto fname = filedlg::open(
                 this, nullptr, filters, {},
                 filedlg::AddToRecent::YES);
@@ -1613,7 +1613,7 @@ void FmMain::doLoadText()
         loadSetsCache.format = std::move(fileFormat);
         loadSetsCache.fileKey = fileInfo.get();
         auto filter = loadSetsCache.format->proto().fileFilter();
-				filedlg::Filter filters[] = { filter, filedlg::ALL_FILES };
+        filedlg::Filter filters[] = { filter, filedlg::ALL_FILES };
         std::filesystem::path fileName = filedlg::open(
                 this, L"Load texts", filters, filter.extension(),
                 filedlg::AddToRecent::NO);
@@ -2012,7 +2012,7 @@ void FmMain::translateWithOriginal()
         QMessageBox::information(this, HEAD, STR_NEED_BILINGUAL_TRANSLATION);
         return;
     }
-		filedlg::Filter filters[] = { FILTER_TRANSLATABLE, filedlg::ALL_FILES };
+    filedlg::Filter filters[] = { FILTER_TRANSLATABLE, filedlg::ALL_FILES };
     std::filesystem::path fileName = filedlg::open(
             this, mojibake::toS<std::wstring>(HEAD), filters, WEXT_ORIGINAL,
             filedlg::AddToRecent::NO);
@@ -2190,10 +2190,18 @@ void FmMain::agreeToSuggestion()
 
 void FmMain::exportToXliff()
 {
-    /// @todo [urgent, XLIFF] Settings window?
     if (!project)
 		return;
     speedUpBugTimer();
-    tr::XliffSets sets;
-    tr::exportToXliff(*project, "test.xliff", sets);
+    filedlg::Filter filters[] = { FILTER_XLIFF, filedlg::ALL_FILES };
+    auto fname = filedlg::save(
+            this, L"Export to XLIFF", filters, L".xliff", {},
+            filedlg::AddToRecent::NO);
+    if (fname.empty())
+        return;
+    auto sets = fmXliff.ensure(this).exec(
+            XliffMode::EXPORT, project->info.isTranslation());
+    if (!sets)
+        return;
+    tr::exportToXliff(*project, fname, *sets);
 }
