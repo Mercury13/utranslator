@@ -8,6 +8,10 @@ FmXliff::FmXliff(QWidget *parent) :
     ui(new Ui::FmXliff)
 {
     ui->setupUi(this);
+    radioPolicy.setRadio(xlf::BadIdPolicy::KEEP, ui->radioKeep);
+    radioPolicy.setRadio(xlf::BadIdPolicy::UNDERSCORE, ui->radioUnderscore);
+    radioPriority.setRadio(xlf::Priority::PROJECT, ui->radioPrioThis);
+    radioPriority.setRadio(xlf::Priority::XLIFF, ui->radioPrioXliff);
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &This::accept);
     connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &This::reject);
 }
@@ -28,9 +32,11 @@ std::optional<xlf::Sets> FmXliff::exec(XliffMode mode, bool hasTranslation)
     // Go!
     if (Super::exec()) {
         xlf::Sets r;
-        r.idSeparator = ui->edSeparator->text().toStdString();
-        r.writeCdata = ui->chkCdata->isChecked();
-        r.writeTranslation = ui->chkWriteTranslation->isChecked();
+        r.id.badPolicy = radioPolicy.get(xlf::BadIdPolicy::UNDERSCORE);
+        r.id.separator = ui->edSeparator->text().toStdString();
+        r.writeText.cdata = ui->chkCdata->isChecked();
+        r.writeText.translation = ui->chkWriteTranslation->isChecked();
+        r.translate.priority = radioPriority.get(xlf::Priority::PROJECT);
         return r;
     } else {
         return std::nullopt;

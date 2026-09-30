@@ -12,11 +12,17 @@ namespace xlf {
         PROJECT, XLIFF };
 
     struct Sets {
-        std::string idSeparator = ".";
-        BadIdPolicy badIdPolicy = BadIdPolicy::UNDERSCORE;
-        bool writeTranslation = true;  ///< [+] write translation if present
-        bool writeCdata = true;        ///< [+] write CDATA if see &lt; or &gt;
-        Priority priority = Priority::PROJECT;
+        struct Id {
+            std::string separator = ".";
+            BadIdPolicy badPolicy = BadIdPolicy::UNDERSCORE;
+        } id;
+        struct WriteText {
+            bool translation = true;  ///< [+] write translation if present
+            bool cdata = true;        ///< [+] write CDATA if see &lt; or &gt;
+        } writeText;
+        struct Translate {
+            Priority priority = Priority::PROJECT;
+        } translate;
     };
 
     void exportMe(

@@ -5,34 +5,33 @@
 
 namespace {
 
-    class ToXliffWalker : public tr::TraverseListener
+    class IdObject  // interface
     {
     public:
-        ToXliffWalker(pugi::xml_node aUpperNode, const xlf::Sets& aSets);
-        void onEnterGroup(const std::shared_ptr<tr::VirtualGroup>&) override;
-        void onLeaveGroup(const std::shared_ptr<tr::VirtualGroup>&) override;
-        void onText(const std::shared_ptr<tr::Text>&) override;
-        std::string fixupId(std::string_view id) const;
-        std::string fixupId(std::u8string_view id) const
-            { return fixupId(str::toSv(id)); }
-    private:
-        struct Frame {
-            pugi::xml_node node;
-            std::string idPlusSep;
-        };
-        std::vector<Frame> stack;
-        const xlf::Sets& sets;
-
-        std::string stickIds(const std::string& pile, std::string_view id);
-        std::string stickIds(const std::string& pile, std::u8string_view id)
-            { return stickIds(pile, str::toSv(id)); }
+        virtual std::string fixupId(std::u8string_view id) const = 0;
+        virtual std::string stickIds(const std::string& pile, std::u8string_view id) const = 0;
+        virtual std::string_view idSeparator() const = 0;
+        virtual ~IdObject() = default;
     };
 
-    ToXliffWalker::ToXliffWalker(pugi::xml_node aUpperNode, const xlf::Sets& aSets)
-        : sets(aSets)
+    class IdObjFather : public IdObject
     {
-        stack.emplace_back(aUpperNode, std::string{});
-    }
+    public:
+        IdObjFather(std::string aIdSep) : idSep(aIdSep) {}
+        std::string_view idSeparator() const final { return idSep; }
+    private:
+        std::string idSep;
+    };
+
+    class KeepIdObj final : public IdObjFather
+    {
+    public:
+        using IdObjFather::IdObjFather;
+        virtual std::string fixupId(std::u8string_view id) const override
+            { return std::string{str::toSv(id)}; }
+        std::string stickIds(const std::string& pile, std::u8string_view id) const override
+            { return str::cat(pile, str::toSv(id)); }
+    };
 
     bool isBadChar(unsigned char c)
     {
@@ -56,7 +55,6 @@ namespace {
 
     std::string toNmToken(std::string_view s)
     {
-        /// @todo [urgent, XLIFF] More tokenizations
         if (!hasBadChars(s))
             return std::string{s};
         std::string r;
@@ -71,35 +69,59 @@ namespace {
         return r;
     }
 
-    std::string ToXliffWalker::stickIds(const std::string& pile, std::string_view id)
+    class UnderIdObj final : public IdObjFather
     {
-        switch (sets.badIdPolicy) {
+    public:
+        using IdObjFather::IdObjFather;
+        std::string fixupId(std::u8string_view id) const override
+            { return toNmToken(str::toSv(id)); }
+        std::string stickIds(const std::string& pile, std::u8string_view id) const override
+            { return pile + toNmToken(str::toSv(id)); }
+    };
+
+    std::unique_ptr<IdObject> getIdObj(const xlf::Sets::Id& aSets)
+    {
+        switch (aSets.badPolicy) {
         case xlf::BadIdPolicy::KEEP:
-            return str::cat(pile, id);
+            return std::make_unique<KeepIdObj>(aSets.separator);
         case xlf::BadIdPolicy::UNDERSCORE:
-            return pile + toNmToken(id);
+            return std::make_unique<UnderIdObj>(aSets.separator);
         }
-        __builtin_unreachable();
     }
 
-    std::string ToXliffWalker::fixupId(std::string_view id) const
+    class ToXliffWalker : public tr::TraverseListener
     {
-        switch (sets.badIdPolicy) {
-        case xlf::BadIdPolicy::KEEP:
-            return std::string{id};
-        case xlf::BadIdPolicy::UNDERSCORE:
-            return toNmToken(id);
-        }
-        __builtin_unreachable();
+    public:
+        ToXliffWalker(const IdObject& aIdObj, const xlf::Sets::WriteText& aSets,
+                      pugi::xml_node aUpperNode);
+        void onEnterGroup(const std::shared_ptr<tr::VirtualGroup>&) override;
+        void onLeaveGroup(const std::shared_ptr<tr::VirtualGroup>&) override;
+        void onText(const std::shared_ptr<tr::Text>&) override;
+    private:
+        const IdObject& idObj;
+        const xlf::Sets::WriteText& sets;
+        struct Frame {
+            pugi::xml_node node;
+            std::string idPlusSep;
+        };
+        std::vector<Frame> stack;
+    };
+
+    ToXliffWalker::ToXliffWalker(
+            const IdObject& aIdObj, const xlf::Sets::WriteText& aSets,
+            pugi::xml_node aUpperNode)
+        : idObj(aIdObj), sets(aSets)
+    {
+        stack.emplace_back(aUpperNode, std::string{});
     }
 
     void ToXliffWalker::onEnterGroup(const std::shared_ptr<tr::VirtualGroup>& x)
     {
         auto& bk = stack.back();
-        auto myId = stickIds(bk.idPlusSep, x->id);
+        auto myId = idObj.stickIds(bk.idPlusSep, x->id);
         auto hGroup = bk.node.append_child("group");
         hGroup.append_attribute("id") = myId.c_str();
-        stack.emplace_back(hGroup, myId + sets.idSeparator);
+        stack.emplace_back(hGroup, str::cat(myId, idObj.idSeparator()));
     }
 
     void ToXliffWalker::onLeaveGroup(const std::shared_ptr<tr::VirtualGroup>&)
@@ -144,17 +166,17 @@ namespace {
     void ToXliffWalker::onText(const std::shared_ptr<tr::Text>& x)
     {
         auto& bk = stack.back();
-        auto myId = stickIds(bk.idPlusSep, x->id);
+        auto myId = idObj.stickIds(bk.idPlusSep, x->id);
         // Unit
         auto hUnit = bk.node.append_child("unit");
         hUnit.append_attribute("id") = myId.c_str();
         // Segment (one)
         auto hSegment = hUnit.append_child("segment");
         // Source
-        writeTextTag(hSegment, "source", x->tr.original, sets.writeCdata);
+        writeTextTag(hSegment, "source", x->tr.original, sets.cdata);
         // Target
-        if (sets.writeTranslation && x->tr.translation) {
-            writeTextTag(hSegment, "target", *x->tr.translation, sets.writeCdata);
+        if (sets.translation && x->tr.translation) {
+            writeTextTag(hSegment, "target", *x->tr.translation, sets.cdata);
         }
     }
 
@@ -167,21 +189,22 @@ void xlf::exportMe(
         Sets sets)
 {
     if (!project.info.isTranslation())
-        sets.writeTranslation = false;
+        sets.writeText.translation = false;
     pugi::xml_document doc;
     // Head
     auto hRoot = doc.append_child("xliff");
     hRoot.append_attribute("xmlns") = "urn:oasis:names:tc:xliff:document:2.0";
     hRoot.append_attribute("version") = "2.0";
     hRoot.append_attribute("srcLang") = project.info.orig.lang.c_str();
-    if (sets.writeTranslation) {
+    if (sets.writeText.translation) {
         hRoot.append_attribute("trgLang") = project.info.transl.lang.c_str();
     }
     // Files
+    std::unique_ptr<IdObject> idObj = getIdObj(sets.id);
     for (auto& v : project.files) {
         auto hFile = hRoot.append_child("file");
-        ToXliffWalker xw(hFile, sets);
-        hFile.append_attribute("id") = xw.fixupId(v->id).c_str();
+        ToXliffWalker xw(*idObj, sets.writeText, hFile);
+        hFile.append_attribute("id") = idObj->fixupId(v->id).c_str();
         v->traverse(xw, tr::WalkOrder::EXACT, tr::EnterMe::NO);
     }
     // Finally!
@@ -198,14 +221,20 @@ namespace {
         std::u8string val;
     };
 
-    using MKeyEntry = std::unordered_map<std::u8string, XliffEntry>;
-    using MFile = std::unordered_map<std::u8string, MKeyEntry>;
+    struct HeteroCmp : public std::hash<std::string_view> {
+        using std::hash<std::string_view>::operator ();
+        using is_transparent = void;
+    };
+    using MKeyEntry = std::unordered_map<std::string, XliffEntry>;
+    using MFile = std::unordered_map<std::string, MKeyEntry>;
 
     void recurseXliffVgroup(MKeyEntry& r, pugi::xml_node hNode)
     {
+        // Subgroups
         for (auto hGroup : hNode.children("group")) {
             recurseXliffVgroup(r, hGroup);
         }
+        // Units
         for (auto hUnit : hNode.children("unit")) {
             std::string_view id = hUnit.attribute("id").as_string();
             if (id.empty())
@@ -217,7 +246,7 @@ namespace {
                     throw std::logic_error("Segmented XLIFFs are unsupported");
                 }
                 if (auto hTarget = hSeg.child("target")) {
-                    auto& data = r[std::u8string{str::toU8sv(id)}];
+                    auto& data = r[std::string(id)];
                     data.val = str::toU8sv(hTarget.value());
                 }
             }
@@ -226,7 +255,7 @@ namespace {
 
     MFile createXliffMap(
             const std::filesystem::path& fname,
-            std::optional<std::u8string_view> onlyFname)
+            std::optional<std::string_view> onlyFname)
     {
         pugi::xml_document doc;
         auto result = doc.load_file(fname.c_str());
@@ -242,7 +271,7 @@ namespace {
             std::string_view itsId = hFile.attribute("id").as_string();
             if (itsId.empty())
                 continue;
-            auto& file = r[std::u8string{str::toU8sv(itsId)}];
+            auto& file = r[std::string{itsId}];
             recurseXliffVgroup(file, hFile);
         }
         // If 1 file and 1 file, give one more chance
@@ -252,10 +281,50 @@ namespace {
                 // Move data to another place
                 auto content = std::move(firstV);
                 r.clear();
-                r[std::u8string{*onlyFname}] = std::move(firstV);
+                r[std::string{*onlyFname}] = std::move(firstV);
             }
         }
         return r;
+    }
+
+    class FromXliffWalker : public tr::TraverseListener
+    {
+    public:
+        FromXliffWalker(const IdObject& aIdObj, const MKeyEntry& aKe);
+        void onEnterGroup(const std::shared_ptr<tr::VirtualGroup>&) override;
+        void onLeaveGroup(const std::shared_ptr<tr::VirtualGroup>&) override;
+        void onText(const std::shared_ptr<tr::Text>&) override;
+    private:
+        struct Frame {
+            std::string idPlusSep;
+        };
+        std::vector<Frame> stack;
+        const IdObject& idObj;
+        const MKeyEntry& ke;
+    };
+
+    FromXliffWalker::FromXliffWalker(const IdObject& aIdObj, const MKeyEntry& aKe)
+        : idObj(aIdObj), ke(aKe)
+    {
+        stack.emplace_back(std::string{});
+    }
+
+    void FromXliffWalker::onEnterGroup(const std::shared_ptr<tr::VirtualGroup>& x)
+    {
+        auto& bk = stack.back();
+        auto myId = idObj.stickIds(bk.idPlusSep, x->id);
+        stack.emplace_back(str::cat(myId, idObj.idSeparator()));
+    }
+
+    void FromXliffWalker::onLeaveGroup(const std::shared_ptr<tr::VirtualGroup>&)
+    {
+        stack.pop_back();
+    }
+
+    void FromXliffWalker::onText(const std::shared_ptr<tr::Text>& x)
+    {
+        auto& bk = stack.back();
+        auto myId = idObj.stickIds(bk.idPlusSep, x->id);
     }
 
 }   // anon namespace
@@ -266,5 +335,16 @@ void xlf::translate(
         const std::filesystem::path& fname,
         const Sets& sets)
 {
-    MFile fm = createXliffMap(fname, project.onlyChildId());
+    auto childId = project.onlyChildId();
+    std::optional<std::string> fixChildId;
+    std::unique_ptr<IdObject> idObj = getIdObj(sets.id);
+    if (childId)
+        fixChildId = idObj->fixupId(*childId);
+    MFile fm = createXliffMap(fname, fixChildId);
+    for (auto& file : project.files) {
+        auto itMap = fm.find(idObj->fixupId(file->id));
+        if (itMap == fm.end())
+            continue;
+        FromXliffWalker walker(*idObj, itMap->second);
+    }
 }

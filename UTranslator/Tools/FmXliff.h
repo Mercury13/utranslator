@@ -4,6 +4,7 @@
 #include <QDialog>
 
 #include "TrXliff.h"
+#include "QtMultiRadio.h"
 
 namespace Ui {
 class FmXliff;
@@ -23,6 +24,9 @@ public:
     std::optional<xlf::Sets> exec(XliffMode mode, bool hasTranslation);
 private:
     Ui::FmXliff *ui;
+    EcRadio<xlf::BadIdPolicy> radioPolicy;
+    EcRadio<xlf::Priority> radioPriority;
+
     using Super::exec;
 };
 
