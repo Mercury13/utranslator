@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:2.0" version="2.0" srcLang="en" trgLang="ru">
+  <file id="file0.txt">
+    <group id="Id">
+      <unit id="Id.Id">
+        <segment state="final">
+          <source>Normal</source>
+          <target>Обычный</target>
+        </segment>
+      </unit>
+      <unit id="Id.Id_">
+        <segment state="final">
+          <source>With excl.marks</source>
+          <target>С восклицательными знаками</target>
+        </segment>
+      </unit>
+      <unit id="Id.alpha_bravo">
+        <segment state="final">
+          <source>With spaces</source>
+          <target>С пробелами</target>
+        </segment>
+      </unit>
+    </group>
+    <group id="Text">
+      <unit id="Text.Quotes">
+        <segment state="final">
+          <source>Text with "quotes", "quotes"</source>
+          <target>Текст с "кавычками", "кавычками"</target>
+        </segment>
+      </unit>
+      <unit id="Text.Tags">
+        <segment state="final">
+          <source><![CDATA[Tags: <a href={1}>link</a>, <br>]]></source>
+          <target><![CDATA[Тэги: <a href={1}>сцылка</a>, <br>]]></target>
+        </segment>
+      </unit>
+      <unit id="Text.Enters">
+        <segment state="final">
+          <source>’Twas brillig, and the slithy toves
+Did gyre and gimble in the wabe,
+And mimsy were the borogoves,
+And the mome raths outgrabe.</source>
+          <target>Варкалось. Хливкие шорьки
+Пырялись по наве,
+И хрюкотали зелюки,
+Как мюмзики в мове.</target>
+        </segment>
+      </unit>
+      <unit id="Text.CdataTail">
+        <segment state="final">
+          <source><![CDATA[Left angle <, CDATA end ]]]]><![CDATA[>, left again <]]></source>
+          <target><![CDATA[Левая угловая <, конец CDATA ]]]]><![CDATA[>, снова левая <]]></target>
+        </segment>
+      </unit>
+    </group>
+  </file>
+</xliff>
