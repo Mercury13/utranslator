@@ -256,7 +256,7 @@ namespace {
                 }
                 if (auto hTarget = hSeg.child("target")) {
                     auto& data = r[std::string(id)];
-                    data.val = normalizeEols(hTarget.value());
+                    data.val = normalizeEols(hTarget.text().as_string());
                 }
             }
         }
@@ -270,9 +270,11 @@ namespace {
         auto result = doc.load_file(fname.c_str());
         if (!result)
             throw std::logic_error(result.description());
-        auto hRoot = doc.root();
+        auto hRoot = doc.document_element();
+        if (!hRoot)
+            throw std::logic_error("The document must have root.");
         // No version is OK
-        std::string_view svVersion = hRoot.attribute("version").as_string("3.0");
+        std::string_view svVersion = hRoot.attribute("version").as_string("2.0");
         if (svVersion != "2.0")
             throw std::logic_error("Support only XLIFF 2.0.");
         MFile r;
@@ -369,4 +371,5 @@ void xlf::translate(
         FromXliffWalker walker(*idObj, itMap->second, sets.translate.priority);
         file->traverse(walker, tr::WalkOrder::EXACT, tr::EnterMe::NO);
     }
+    project.stats(tr::StatsMode::ALL_CHILDREN, tr::CascadeDropCache::YES);
 }
