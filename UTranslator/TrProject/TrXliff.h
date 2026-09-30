@@ -22,11 +22,11 @@ namespace xlf {
     void exportMe(
             const tr::Project& project,
             const std::filesystem::path& fname,
-            Sets& sets);
+            Sets sets);
 
     void translate(
             tr::Project& project,
             const std::filesystem::path& fname,
-            Sets& sets);
+            const Sets& sets);
 
 }   // namespace xlf

@@ -1351,6 +1351,7 @@ void FmMain::goEdit()
 
 void FmMain::goStart()
 {
+    speedUpBugTimer();
     ui->stackMain->setCurrentWidget(ui->pageStart);
     ui->pageStart->setFocus();
     reenable();
@@ -2244,6 +2245,7 @@ bool FmMain::checkRepeatingIds()
 
 void FmMain::exportToXliff()
 {
+#define HEAD "Translate with XLIFF"
     if (!project)
 		return;
     speedUpBugTimer();
@@ -2251,7 +2253,7 @@ void FmMain::exportToXliff()
         return;
     filedlg::Filter filters[] = { FILTER_XLIFF, filedlg::ALL_FILES };
     auto fname = filedlg::save(
-            this, L"Export to XLIFF", filters, L".xliff", {},
+            this, L"" HEAD, filters, L".xliff", {},
             filedlg::AddToRecent::NO);
     if (fname.empty())
         return;
@@ -2259,7 +2261,15 @@ void FmMain::exportToXliff()
             XliffMode::EXPORT, project->info.isTranslation());
     if (!sets)
         return;
-    xlf::exportMe(*project, fname, *sets);
+    try {
+        xlf::exportMe(*project, fname, *sets);
+    } catch (const std::exception& ex) {
+        auto text = QString::fromStdString(ex.what());
+        QMessageBox mb(QMessageBox::Critical, HEAD, text);
+        mb.setTextFormat(Qt::PlainText);
+        mb.exec();
+    }
+#undef HEAD
 }
 
 

@@ -86,9 +86,13 @@ private slots:
     void showUpdateInfo();
 
     // Bugs
+    /// If the bug timer is wound, stops it doing nothing.
+    /// @warning If you have done this, you would probably like to wind
+    ///   it again, or instantly apply its effect.
     void stopBugTimer();
     void windBugTimer();
     void bugTicked();
+    /// If the bug timer is wound, instantly applies its effect
     void speedUpBugTimer();
 
     // Starting screen
@@ -107,14 +111,13 @@ private slots:
     void doUpdateData();
     void doProjectStats();
     // Menu: Edit
-    /// accept curr object, no bugs gagged
-    tr::UiObject* acceptCurrObjectNone();
     /// accept curr object, gags bug "Original changed", etc
-    tr::UiObject* acceptCurrObjectOrigChanged();
-    tr::UiObject* acceptCurrObjectOrigSuppressed();
-    tr::UiObject* acceptCurrObjectEmptyTransl();
+    /// Types are currently fully-qualified, IDK what CLazy complains about
+    tr::UiObject* acceptCurrObjectOrigChanged();    // NOLINT(clazy-fully-qualified-moc-types)
+    tr::UiObject* acceptCurrObjectOrigSuppressed(); // NOLINT(clazy-fully-qualified-moc-types)
+    tr::UiObject* acceptCurrObjectEmptyTransl();    // NOLINT(clazy-fully-qualified-moc-types)
     /// accept curr object, all bugs gagged
-    tr::UiObject* acceptCurrObjectAll();
+    tr::UiObject* acceptCurrObjectAll();            // NOLINT(clazy-fully-qualified-moc-types)
     void revertCurrObject();
     void markAttentionCurrObject();
     void agreeToSuggestion();
@@ -237,6 +240,8 @@ private:
     void uiToCache(tr::BugCache& r);
     /// Saves an UI object to project
     void acceptObject(tr::UiObject& obj, Flags<tr::Bug> bugsToRemove);
+    /// accept curr object, no bugs gagged
+    tr::UiObject* acceptCurrObjectNone();
     /// Enables-disables UI actions according to current things edited
     void reenable();
     void reenableOnSelect();

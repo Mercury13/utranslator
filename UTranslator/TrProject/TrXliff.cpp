@@ -164,7 +164,7 @@ namespace {
 void xlf::exportMe(
         const tr::Project& project,
         const std::filesystem::path& fname,
-        Sets& sets)
+        Sets sets)
 {
     if (!project.info.isTranslation())
         sets.writeTranslation = false;
@@ -185,15 +185,29 @@ void xlf::exportMe(
         v->traverse(xw, tr::WalkOrder::EXACT, tr::EnterMe::NO);
     }
     // Finally!
-    doc.save_file(fname.c_str(), "\t",
-                  pugi::format_save_file_text | pugi::format_indent);
+    auto res = doc.save_file(fname.c_str(), "\t",
+            pugi::format_save_file_text | pugi::format_indent);
+    if (!res)
+        throw std::logic_error("Cannot save file.");
 }
 
 
 void xlf::translate(
         tr::Project& project,
         const std::filesystem::path& fname,
-        Sets& sets)
+        const Sets& sets)
 {
+    pugi::xml_document doc;
+    auto result = doc.load_file(fname.c_str());
+    if (!result)
+        throw std::logic_error(result.description());
+    auto hRoot = doc.root();
+    // No version is OK
+    std::string_view svVersion = hRoot.attribute("version").as_string("3.0");
+    if (svVersion != "2.0")
+        throw std::logic_error("Support only XLIFF 2.0.");
+    /// @todo [future] If 1 file and 1 file, give one more cance
+    for (auto& v : project.files) {
 
+    }
 }
