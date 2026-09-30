@@ -24,4 +24,9 @@ namespace xlf {
             const std::filesystem::path& fname,
             Sets& sets);
 
+    void translate(
+            tr::Project& project,
+            const std::filesystem::path& fname,
+            Sets& sets);
+
 }   // namespace xlf

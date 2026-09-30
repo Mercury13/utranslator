@@ -188,3 +188,12 @@ void xlf::exportMe(
     doc.save_file(fname.c_str(), "\t",
                   pugi::format_save_file_text | pugi::format_indent);
 }
+
+
+void xlf::translate(
+        tr::Project& project,
+        const std::filesystem::path& fname,
+        Sets& sets)
+{
+
+}

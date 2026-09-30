@@ -170,9 +170,10 @@ FmMain::FmMain(QWidget *parent)
     setSearchAction(ui->acFindSpecialCommentedByTranslator, &This::goCommentedByTranslator);
     setSearchAction(ui->acFindSpecialSuppressed, &This::goSuppressed);
     // Tools
-		connect(ui->acExportToXliff, &QAction::triggered, this, &This::exportToXliff);
-		connect(ui->acTranslateWithOriginal, &QAction::triggered, this, &This::translateWithOriginal);
+    connect(ui->acExportToXliff, &QAction::triggered, this, &This::exportToXliff);
+    connect(ui->acTranslateWithOriginal, &QAction::triggered, this, &This::translateWithOriginal);
     connect(ui->acTranslateWithLockit, &QAction::triggered, this, &This::translateWithLockit);
+    connect(ui->acTranslateWithXliff, &QAction::triggered, this, &This::translateWithXliff);
     connect(ui->acExtractOriginal, &QAction::triggered, this, &This::extractOriginal);
     connect(ui->acSwitchOriginalAndTranslation, &QAction::triggered, this, &This::switchOriginalAndTranslation);
     connect(ui->acResetKnownOriginals, &QAction::triggered, this, &This::resetKnownOriginals);
@@ -1964,6 +1965,7 @@ void FmMain::speedUpBugTimer()
 
 void FmMain::extractOriginal()
 {
+    speedUpBugTimer();
     if (!project->info.isTranslation()) {
         QMessageBox::information(this, "Extract original",
                     STR_NEED_BILINGUAL_TRANSLATION);
@@ -1978,6 +1980,7 @@ void FmMain::extractOriginal()
 
 void FmMain::switchOriginalAndTranslation()
 {
+    speedUpBugTimer();
     if (!project->info.isTranslation()) {
         QMessageBox::information(this, "Switch original and translation",
                     STR_NEED_BILINGUAL_TRANSLATION);
@@ -2009,11 +2012,14 @@ void FmMain::resetKnownOriginals()
 
 void FmMain::translateWithOriginal()
 {
+    speedUpBugTimer();
     static constexpr const char* HEAD = "Translate with original";
     if (!project->info.isTranslation()) {
         QMessageBox::information(this, HEAD, STR_NEED_BILINGUAL_TRANSLATION);
         return;
     }
+    if (!checkRepeatingIds())
+        return;
     filedlg::Filter filters[] = { FILTER_TRANSLATABLE, filedlg::ALL_FILES };
     std::filesystem::path fileName = filedlg::open(
             this, mojibake::toS<std::wstring>(HEAD), filters, WEXT_ORIGINAL,
@@ -2034,6 +2040,9 @@ void FmMain::translateWithOriginal()
 
 void FmMain::translateWithLockit()
 {
+    speedUpBugTimer();
+    if (!checkRepeatingIds())
+        return;
     static constexpr const char* HEAD = "Translate with resource";
     if (!project->info.isTranslation()) {
         QMessageBox::information(this, HEAD, STR_NEED_BILINGUAL_TRANSLATION);
@@ -2251,4 +2260,36 @@ void FmMain::exportToXliff()
     if (!sets)
         return;
     xlf::exportMe(*project, fname, *sets);
+}
+
+
+void FmMain::translateWithXliff()
+{
+#define HEAD "Translate with XLIFF"
+    speedUpBugTimer();
+    if (!project->info.isTranslation()) {
+        QMessageBox::information(this, HEAD, STR_NEED_BILINGUAL_TRANSLATION);
+        return;
+    }
+    if (!checkRepeatingIds())
+        return;
+    filedlg::Filter filters[] = { FILTER_XLIFF, filedlg::ALL_FILES };
+    auto fname = filedlg::open(
+            this, L"" HEAD, filters, L".xliff",
+            filedlg::AddToRecent::NO);
+    if (fname.empty())
+        return;
+    auto sets = fmXliff.ensure(this).exec(
+            XliffMode::TRANSLATE, project->info.isTranslation());
+    if (!sets)
+        return;
+    try {
+        xlf::translate(*project, fname, *sets);
+    } catch (const std::exception& e) {
+        auto text = QString::fromStdString(e.what());
+        QMessageBox mb(QMessageBox::Critical, HEAD, text);
+        mb.setTextFormat(Qt::PlainText);
+        mb.exec();
+    }
+#undef HEAD
 }

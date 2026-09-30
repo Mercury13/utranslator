@@ -151,12 +151,13 @@ private slots:
     void syncShowReference();
     void showReference();
     // Menu: Tools
+    void exportToXliff();
     void translateWithOriginal();
     void translateWithLockit();
+    void translateWithXliff();
     void extractOriginal();
     void switchOriginalAndTranslation();
     void resetKnownOriginals();
-    void exportToXliff();
 protected:
     void closeEvent(QCloseEvent *event) override;
 private:
