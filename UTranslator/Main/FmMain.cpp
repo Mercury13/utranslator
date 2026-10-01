@@ -17,6 +17,7 @@
 
 // Libs
 #include "u_Qstrings.h"
+#include "u_TypedFlags.h"
 #include "i_OpenSave.h"
 #include "mojibake.h"
 
@@ -690,7 +691,7 @@ tr::UiObject* FmMain::acceptCurrObject(Flags<tr::Bug> bugsToRemove)
 
 tr::UiObject* FmMain::acceptCurrObjectNone()
 {
-    return acceptCurrObject({});
+    return acceptCurrObject(NO_FLAGS);
 }
 
 
@@ -1946,22 +1947,14 @@ void FmMain::showBugsAsVisible()
 void FmMain::bugTicked()
 {
     QModelIndex index = ui->treeStrings->currentIndex();
+    if (!index.isValid())
+        return;
     auto obj = treeModel.toObj(index);
     auto lkBug = bugCache.obj.lock();
     if (obj == lkBug.get()) {
         showBugsAsVisible();
     }
 }
-
-
-void FmMain::speedUpBugTimer()
-{
-    if (timerBug->isActive()) {
-        stopBugTimer();
-        bugTicked();
-    }
-}
-
 
 
 void FmMain::extractOriginal()

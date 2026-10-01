@@ -92,8 +92,8 @@ private slots:
     void stopBugTimer();
     void windBugTimer();
     void bugTicked();
-    /// If the bug timer is wound, instantly applies its effect
-    void speedUpBugTimer();
+    /// Accepts current object
+    void acceptCurrObj();
 
     // Starting screen
     void goEdit();
