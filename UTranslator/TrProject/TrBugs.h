@@ -21,7 +21,8 @@ namespace tr {
         OR_EMPTY       = 1<<13,     ///< original: empty string
         TR_ORIG_SUPPRESSED = 1<<14, ///< original: known is suppressed, can restore
 
-        TECH_MOVE_OUT  = 1u<<31,    ///< Technical: move out instead of staying
+        TECH_MOVE_OUT  = 1u<<31,    ///< Technical: move out instead of staying;
+                                    ///<   not actually a bug
         ALL_SERIOUS = TR_EMPTY | TR_ORIG_CHANGED | COM_ATTENTION,
     };
 
