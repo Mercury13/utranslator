@@ -92,8 +92,6 @@ private slots:
     void stopBugTimer();
     void windBugTimer();
     void bugTicked();
-    /// Accepts current object
-    void acceptCurrObj();
 
     // Starting screen
     void goEdit();

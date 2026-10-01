@@ -405,7 +405,7 @@ void FmMain::treeCurrentChanged(
     if (current.isValid()) {
         if (auto currentPrj = currentObj->vproject()) {
             if (formerObj->vproject() == currentPrj)
-                acceptObject(*formerObj, {});
+                acceptObject(*formerObj, tr::Bug::TECH_MOVE_OUT);
             setEditorsEnabled(true);
             loadObject(*currentObj);
             return;
@@ -667,7 +667,7 @@ void FmMain::acceptObject(tr::UiObject& obj, Flags<tr::Bug> bugsToRemove)
     emit treeModel.dataChanged({}, {});
 
     // “Bugs to remove” is also the sign that we go on editing
-    if (bugsToRemove) {
+    if (bugsToRemove != tr::Bug::TECH_MOVE_OUT) {
         bugCache = std::move(newCache);
         showBugs(bugCache.bugs(), bugCache.bugLikes);
     }
@@ -682,6 +682,8 @@ void FmMain::acceptObject(tr::UiObject& obj, Flags<tr::Bug> bugsToRemove)
 
 tr::UiObject* FmMain::acceptCurrObject(Flags<tr::Bug> bugsToRemove)
 {
+    if (!project)
+        return nullptr;
     auto index = treeIndex();
     auto obj = treeModel.toObj(index);
     acceptObject(*obj, bugsToRemove);
@@ -1274,7 +1276,7 @@ void FmMain::runDecoder()
 
 void FmMain::doClone()
 {
-    speedUpBugTimer();
+    acceptCurrObjectNone();
     auto res = treeModel.doClone(treeIndex());
     if (res.index.isValid()) {
         ui->treeStrings->expand(res.index);
@@ -1352,7 +1354,7 @@ void FmMain::goEdit()
 
 void FmMain::goStart()
 {
-    speedUpBugTimer();
+    acceptCurrObjectNone();
     ui->stackMain->setCurrentWidget(ui->pageStart);
     ui->pageStart->setFocus();
     reenable();
@@ -1959,7 +1961,7 @@ void FmMain::bugTicked()
 
 void FmMain::extractOriginal()
 {
-    speedUpBugTimer();
+    acceptCurrObjectNone();
     if (!project->info.isTranslation()) {
         QMessageBox::information(this, "Extract original",
                     STR_NEED_BILINGUAL_TRANSLATION);
@@ -1974,7 +1976,7 @@ void FmMain::extractOriginal()
 
 void FmMain::switchOriginalAndTranslation()
 {
-    speedUpBugTimer();
+    acceptCurrObjectNone();
     if (!project->info.isTranslation()) {
         QMessageBox::information(this, "Switch original and translation",
                     STR_NEED_BILINGUAL_TRANSLATION);
@@ -2006,7 +2008,7 @@ void FmMain::resetKnownOriginals()
 
 void FmMain::translateWithOriginal()
 {
-    speedUpBugTimer();
+    acceptCurrObjectNone();
     static constexpr const char* HEAD = "Translate with original";
     if (!project->info.isTranslation()) {
         QMessageBox::information(this, HEAD, STR_NEED_BILINGUAL_TRANSLATION);
@@ -2034,7 +2036,7 @@ void FmMain::translateWithOriginal()
 
 void FmMain::translateWithLockit()
 {
-    speedUpBugTimer();
+    acceptCurrObjectNone();
     if (!checkRepeatingIds())
         return;
     static constexpr const char* HEAD = "Translate with resource";
@@ -2241,7 +2243,7 @@ void FmMain::exportToXliff()
 #define HEAD "Translate with XLIFF"
     if (!project)
 		return;
-    speedUpBugTimer();
+    acceptCurrObjectNone();
     if (!checkRepeatingIds())
         return;
     filedlg::Filter filters[] = { FILTER_XLIFF, filedlg::ALL_FILES };
@@ -2269,7 +2271,7 @@ void FmMain::exportToXliff()
 void FmMain::translateWithXliff()
 {
 #define HEAD "Translate with XLIFF"
-    speedUpBugTimer();
+    acceptCurrObjectNone();
     if (!project->info.isTranslation()) {
         QMessageBox::information(this, HEAD, STR_NEED_BILINGUAL_TRANSLATION);
         return;

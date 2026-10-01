@@ -4,7 +4,7 @@
 
 namespace tr {
 
-    enum class Bug : unsigned short {
+    enum class Bug : unsigned int {
         TR_EMPTY        = 1<<0,     ///< empty translation
         TR_ORIG_CHANGED = 1<<1,     ///< translation needs review
         COM_ATTENTION   = 1<<2,     ///< manual warning
@@ -21,6 +21,7 @@ namespace tr {
         OR_EMPTY       = 1<<13,     ///< original: empty string
         TR_ORIG_SUPPRESSED = 1<<14, ///< original: known is suppressed, can restore
 
+        TECH_MOVE_OUT  = 1u<<31,    ///< Technical: move out instead of staying
         ALL_SERIOUS = TR_EMPTY | TR_ORIG_CHANGED | COM_ATTENTION,
     };
 
