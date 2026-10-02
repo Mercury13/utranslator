@@ -12,6 +12,7 @@
    <text id="Id">
     <orig>Normal</orig>
     <transl>Норм, блин</transl>
+    <tr-cmt>Intentionally written in such a rude way, to test priority</tr-cmt>
    </text>
    <text id="Id!">
     <orig>With excl.marks</orig>
