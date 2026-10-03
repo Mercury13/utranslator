@@ -12,4 +12,9 @@ namespace sav {
             const tr::Project& project,
             const std::filesystem::path& fname);
 
+    void load(
+            const pugi::xml_document& doc,
+            const std::filesystem::path& basePath);
+    void load(const std::filesystem::path& aFname);
+
 }   // namespace sav

@@ -89,67 +89,6 @@ namespace {
 
     /// @todo [urgent, standalone save] delete completely
 
-    /// Write text in tag
-    /// @param root   an upper element
-    /// @param name   tag name
-    /// @param text   text itself
-    void writeTextInTag(
-            pugi::xml_node root,
-            const char* name,
-            std::u8string_view text,
-            tr::WrCache& cache)
-    {
-        const char8_t* data = text.data();
-        const char8_t* end = data + text.length();
-
-        auto node = root.append_child(name);
-
-        auto pBreak = std::find(data, end, '\n');
-        if (pBreak == end) {
-            // Simple write
-            auto tx = node.append_child(pugi::node_pcdata);
-                tx.set_value(str::toC(data));
-        } else {
-            // Paragraphs
-            do {
-                auto nextLine = node.append_child("p");
-                if (pBreak != data) {
-                    // Even empty pcdata kills <p /> → only when non-empty
-                    auto tx = nextLine.append_child(pugi::node_pcdata);
-                    tx.set_value(cache.ntsC(data, pBreak));
-                }
-                data = pBreak + 1;
-                pBreak = std::find(data, end, '\n');
-            } while (pBreak != end);
-            // Last line
-            auto lastLine = node.append_child("p");
-            auto tx = lastLine.append_child(pugi::node_pcdata);
-            tx.set_value(str::toC(data));
-        }
-    }
-
-    /// Write text in tag if the text is not empty (for comments)
-    void writeTextInTagIf(
-            pugi::xml_node root,
-            const char* name,
-            const std::u8string& text,
-            tr::WrCache& cache)
-    {
-        if (!text.empty())
-            writeTextInTag(root, name, text, cache);
-    }
-
-    /// Write text in tag if the optional is not empty (for known text, translation)
-    void writeTextInTagOpt(
-            pugi::xml_node root,
-            const char* name,
-            const std::optional<std::u8string_view>& text,
-            tr::WrCache& cache)
-    {
-        if (text.has_value())
-            writeTextInTag(root, name, *text, cache);
-    }
-
     std::u8string parseTextInTagOld(pugi::xml_node tag)
     {
         std::u8string r;
@@ -205,27 +144,10 @@ namespace {
 }   // anon namespace
 
 
-void tr::Entity::writeImportersAuthorsComment(
-        pugi::xml_node& node, WrCache& c) const
-{
-    /// @todo [urgent, standalone save] delete completely
-    writeTextInTagIf(node, "im-cmt", comm.importers, c);
-    writeTextInTagIf(node, "au-cmt", comm.authors, c);
-}
-
 void tr::Entity::readAuthorsComment(const pugi::xml_node& node)
 {
     comm.importers = readTextInTag(node, "im-cmt");
     comm.authors = readTextInTag(node, "au-cmt");
-}
-
-void tr::Entity::writeTranslatorsComment(
-        pugi::xml_node& node, WrCache& c) const
-{
-    /// @todo [urgent, standalone save] delete completely
-    if (c.info.isTranslation()) {
-        writeTextInTagIf(node, "tr-cmt", comm.translators, c);
-    }
 }
 
 void tr::Entity::readTranslatorsComment(const pugi::xml_node& node, const PrjInfo& info)
@@ -233,14 +155,6 @@ void tr::Entity::readTranslatorsComment(const pugi::xml_node& node, const PrjInf
     if (info.isTranslation()) {
         comm.translators = readTextInTag(node, "tr-cmt");
     }
-}
-
-void tr::Entity::writeComments(
-        pugi::xml_node& node, WrCache& c) const
-{
-    /// @todo [urgent, standalone save] delete completely
-    writeImportersAuthorsComment(node, c);
-    writeTranslatorsComment(node, c);
 }
 
 void tr::Entity::readComments(

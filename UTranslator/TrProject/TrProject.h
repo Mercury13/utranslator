@@ -177,10 +177,6 @@ namespace tr {
     protected:
         friend class VirtualGroup;
         virtual void updateParent(const std::shared_ptr<VirtualGroup>& x) = 0;
-        // write comments
-        void writeImportersAuthorsComment(pugi::xml_node& node, WrCache& c) const;
-        void writeTranslatorsComment(pugi::xml_node& node, WrCache& c) const;
-        void writeComments(pugi::xml_node& node, WrCache&) const;
         // read comments
         void readAuthorsComment(const pugi::xml_node& node);
         void readTranslatorsComment(const pugi::xml_node& node, const PrjInfo& info);
