@@ -1520,18 +1520,6 @@ void tr::Project::updateReference()
 }
 
 
-tr::UpdateInfo tr::Project::updateData(TrashMode mode)
-{
-    switch (info.type) {
-    case tr::PrjType::ORIGINAL:
-        return { .isOriginal = true };
-    case tr::PrjType::FULL_TRANSL:
-        return updateData_FullTransl(mode);
-    }
-    throw std::logic_error("[updateData] Strange project type");
-}
-
-
 void tr::Project::removeTranslChannel()
 {
     for (auto& v : files)
@@ -1572,32 +1560,6 @@ void tr::Project::stealReferenceFrom(tr::Project& x)
             v->stealReferenceFrom(*xFile);
         }
     }
-}
-
-
-tr::UpdateInfo tr::Project::updateData_FullTransl(TrashMode mode)
-{
-    auto tempPrj = tr::Project::make();
-    tempPrj->load(this->info.orig.absPath);
-    // Info and fname are left intact
-    std::swap(this->files, tempPrj->files);
-    // Copy original language
-    if (!tempPrj->info.orig.lang.empty())
-        this->info.orig.lang = tempPrj->info.orig.lang;
-    this->removeTranslChannel();    // Do not forget, we swapped!
-    StealContext ctx {
-        .orig = tf::StealOrig::KEEP_WARN,
-        .trash = (mode == TrashMode::FILL) ? &this->trash : nullptr,
-    };
-    size_t origTrashSize = this->trash.size();
-    auto r = this->stealDataFrom(*tempPrj, ctx);
-    // Stats will always be funked up!
-    updateParents();
-    if (mode == TrashMode::FILL) {
-        suggestTrash(origTrashSize);
-    }
-    stats(StatsMode::ALL_CHILDREN, CascadeDropCache::NO);
-    return r;
 }
 
 

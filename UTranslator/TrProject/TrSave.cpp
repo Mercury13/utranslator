@@ -292,3 +292,49 @@ void sav::save(tr::Project& project, const std::filesystem::path& fname)
     project.fname = fname;
     project.unmodify(Forced::YES);
 }
+
+
+///// Update ///////////////////////////////////////////////////////////////////
+
+namespace {
+
+    tr::UpdateInfo updateData_FullTransl(
+            tr::Project& project, tr::TrashMode mode)
+    {
+        auto tempPrj = tr::Project::make();
+        tempPrj->load(project.info.orig.absPath);
+        // Info and fname are left intact
+        std::swap(project.files, tempPrj->files);
+        // Copy original language
+        if (!tempPrj->info.orig.lang.empty())
+            project.info.orig.lang = tempPrj->info.orig.lang;
+        project.removeTranslChannel();    // Do not forget, we swapped!
+        tr::StealContext ctx {
+            .orig = tf::StealOrig::KEEP_WARN,
+            .trash = (mode == tr::TrashMode::FILL) ? &project.trash : nullptr,
+        };
+        size_t origTrashSize = project.trash.size();
+        auto r = project.stealDataFrom(*tempPrj, ctx);
+        // Stats will always be funked up!
+        project.updateParents();
+        if (mode == tr::TrashMode::FILL) {
+            project.suggestTrash(origTrashSize);
+        }
+        project.stats(tr::StatsMode::ALL_CHILDREN, tr::CascadeDropCache::NO);
+        return r;
+    }
+
+}   // anon namespace
+
+
+tr::UpdateInfo sav::updateData(
+        tr::Project& project, tr::TrashMode trashMode)
+{
+    switch (project.info.type) {
+    case tr::PrjType::ORIGINAL:
+        return { .isOriginal = true };
+    case tr::PrjType::FULL_TRANSL:
+        return updateData_FullTransl(project, trashMode);
+    }
+    throw std::logic_error("[updateData] Strange project type");
+}

@@ -450,7 +450,6 @@ namespace tr {
 
         std::u8string shownFname(std::u8string_view fallback);
 
-        UpdateInfo updateData(TrashMode mode);
         void updateReference();
         tr::UpdateInfo stealDataFrom(tr::Project& x, const StealContext& ctx);
         void stealReferenceFrom(tr::Project& x);
@@ -476,7 +475,6 @@ namespace tr {
         Project(const Project&) = delete;
         Project(Project&&) = default;
         Project(PrjInfo&& aInfo) noexcept : info(std::move(aInfo)) {}
-        UpdateInfo updateData_FullTransl(TrashMode mode);
     };
 
     ///  To prevent TrFinder from including everywhere

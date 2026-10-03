@@ -17,4 +17,7 @@ namespace sav {
             const std::filesystem::path& basePath);
     void load(const std::filesystem::path& aFname);
 
+    tr::UpdateInfo updateData(
+            tr::Project& project, tr::TrashMode trashMode);
+
 }   // namespace sav
