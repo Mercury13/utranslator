@@ -6,7 +6,11 @@
 ///  But may draw L10n from outside using some function
 ///
 
-#include "TrProject.h"
+#include <string>
+
+#include "u_EnumSize.h"
+
+#include "TrVirtuals.h"
 
 namespace tw {
 
@@ -18,6 +22,7 @@ namespace tw {
     struct L10n {
         std::u8string_view untranslated;
         std::u8string_view emptyString;
+        std::u8string_view trash;
     };
 
 
@@ -40,6 +45,7 @@ namespace tw {
     {
     public:
         std::u8string_view s {};
+        std::u8string store {};
         Fg f = Fg::NORMAL;
 
         // TranslObj
@@ -52,6 +58,13 @@ namespace tw {
             s = aS;
             f = aFg;
             return *this;
+        }
+
+        const DumbString& setStr(const std::u8string& aS, Fg aFg) = delete;
+        const DumbString& setStr(std::u8string&& aS, Fg aFg)
+        {
+            store = std::move(aS);
+            return set(store, aFg);
         }
     };
 

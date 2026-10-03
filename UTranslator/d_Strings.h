@@ -7,6 +7,7 @@
 #define STR_UNTITLED       "(Untitled)"
 #define STR_UNTRANSLATED   "(Not yet translated)"
 #define STR_EMPTY_STRING   "(Empty string)"
+#define STR_TRASH          "(Trash: {1})"
 
 #define EXT_ORIGINAL ".uorig"
 #define WEXT_ORIGINAL W(EXT_ORIGINAL)

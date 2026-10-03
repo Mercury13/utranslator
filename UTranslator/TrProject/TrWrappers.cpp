@@ -1,5 +1,8 @@
 #include "TrWrappers.h"
 
+#include "u_Strings.h"
+#include "LocFmt.h"
+
 const tw::NoString tw::NoString::INST;
 
 
@@ -56,7 +59,12 @@ auto tw::Flyweight::getTransl(tr::UiObject& x) -> const TranslObj&
             // Untranslated
             /// @todo [patch, #23] Write smth like “Untouched”
             ///     (use attention mode)
-            return dumb.set(l10n.untranslated, foregnd);
+            if (tr->trashSuggestion) {
+                return dumb.setStr(
+                        loc::Fmt(l10n.trash)(tr->trashSuggestion.value).giveStr(), foregnd);
+            } else {
+                return dumb.set(l10n.untranslated, foregnd);
+            }
         }
     } else {
         auto& stats = x.stats(tr::StatsMode::CACHED, tr::CascadeDropCache::YES);

@@ -164,6 +164,7 @@ namespace {
     constinit const tw::L10n treeL10n {
         .untranslated = S8(STR_UNTRANSLATED),
         .emptyString = S8(STR_EMPTY_STRING),
+        .trash = S8(STR_TRASH),
     };
 
 }   // anon namespace
