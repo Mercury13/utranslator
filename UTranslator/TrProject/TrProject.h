@@ -64,6 +64,13 @@ namespace tr {
         virtual void onLeaveGroup(const std::shared_ptr<VirtualGroup>&) {}
     };
 
+    class ConstTraverseListener {    // interface
+    public:
+        virtual void onText(const std::shared_ptr<const Text>&) = 0;
+        virtual void onEnterGroup(const std::shared_ptr<const VirtualGroup>&) {}
+        virtual void onLeaveGroup(const std::shared_ptr<const VirtualGroup>&) {}
+    };
+
     class Traversable : public UiObject
     {
     public:
@@ -71,6 +78,9 @@ namespace tr {
         /// mainly called from Project only
         virtual void traverse(
                 TraverseListener& x, tr::WalkOrder order, EnterMe enterMe) = 0;
+        virtual void traverse(
+                ConstTraverseListener& x, tr::WalkOrder order, EnterMe enterMe) const = 0;
+
         /// @return  ptr to file
         virtual std::shared_ptr<File> file() = 0;
         /// @return  ptr to project
@@ -103,6 +113,7 @@ namespace tr {
     };
 
     /// Simple cache to speed up writing
+    /// @todo [urgent, standalone save] move to TrSave
     struct WrCache {
         const PrjInfo& info;
         std::filesystem::path baseDir;
@@ -156,10 +167,6 @@ namespace tr {
         Comments* comments() override { return &comm; }
         bool setId(std::u8string_view x, tr::Modify wantModify) override;
 
-        /// Writes object to XML
-        /// @param [in,out] root  tag ABOVE, should create a new one for entity
-        /// @param [in] c         some info that speeds up saving
-        virtual void writeToXml(pugi::xml_node& root, WrCache& c) const = 0;
         /// Reads object from XML
         /// @param [in] node   tag of THIS OBJECT
         /// @param [in] info   project info for speed
@@ -200,6 +207,8 @@ namespace tr {
         std::shared_ptr<UiObject> extractChild(size_t i, Modify wantModify) override;
         void traverse(
                 TraverseListener& x, tr::WalkOrder order, EnterMe enterMe) override;
+        void traverse(
+                ConstTraverseListener& x, tr::WalkOrder order, EnterMe enterMe) const override;
 
         using Super::Super;
 
@@ -228,7 +237,6 @@ namespace tr {
         friend class Project;
         void doSwapChildren(size_t index1, size_t index2) override;
 
-        void writeCommentsAndChildren(pugi::xml_node&, WrCache&) const;
         void readCommentsAndChildren(const pugi::xml_node& node, const ReadContext& ctx);
         void vgRemoveTranslChannel();
         tr::UpdateInfo vgStealDataFrom(
@@ -253,10 +261,11 @@ namespace tr {
         std::shared_ptr<File> file() override;
         std::shared_ptr<Project> project() override;
             using Entity::project;
-        void writeToXml(pugi::xml_node&, WrCache&) const override;
         void readFromXml(const pugi::xml_node& node, const ReadContext& ctx) override;
         bool isCloneable() const noexcept { return true; }
         void traverse(TraverseListener& x, tr::WalkOrder, EnterMe) override
+            { x.onText(fSelf.lock()); }
+        void traverse(ConstTraverseListener& x, tr::WalkOrder, EnterMe) const override
             { x.onText(fSelf.lock()); }
         std::shared_ptr<VirtualGroup> nearestGroup() override { return fParentGroup.lock(); }
         std::shared_ptr<Text> clone(
@@ -310,7 +319,6 @@ namespace tr {
         std::shared_ptr<File> file() override { return fFile.lock(); }
         Pair<VirtualGroup> additionParents() override
                 { return { fParentGroup.lock(), fSelf.lock() }; }
-        void writeToXml(pugi::xml_node&, WrCache&) const override;
         IdThresholdType idThresholdType() const noexcept override { return IdThresholdType::NONE; }
         void readFromXml(const pugi::xml_node& node, const ReadContext& ctx) override;
         std::shared_ptr<Group> clone(
@@ -356,7 +364,6 @@ namespace tr {
         IdThresholdType idThresholdType() const noexcept override { return IdThresholdType::THRESHOLD; }
 
         File(std::weak_ptr<Project> aProject, size_t aIndex, const PassKey&);
-        void writeToXml(pugi::xml_node&, WrCache&) const override;
         void readFromXml(const pugi::xml_node& node, const ReadContext& ctx) override;
         using Super::ownFileInfo;
         std::shared_ptr<FileInfo> ownFileInfo() override { return { selfUi(), &info }; }
@@ -415,11 +422,9 @@ namespace tr {
         std::shared_ptr<Project> project() override { return fSelf.lock(); }
         Pair<VirtualGroup> additionParents() override { return {}; }
         std::shared_ptr<UiObject> extractChild(size_t i, Modify wantModify) override;
-        void writeToXml(
-                pugi::xml_node&,
-                const std::filesystem::path& basePath) const;
         bool unmodify(Forced forced) override;
         void traverse(TraverseListener& x, tr::WalkOrder order, EnterMe enterMe) override;
+        void traverse(ConstTraverseListener& x, tr::WalkOrder order, EnterMe enterMe) const override;
         std::shared_ptr<VirtualGroup> nearestGroup() override { return {}; }
         void removeTranslChannel() override;
         void markChildrenAsAddedToday() override;
@@ -429,9 +434,7 @@ namespace tr {
         void updateParents();
         void suggestTrash(size_t origSize);
 
-        void save();
         void save(const std::filesystem::path& aFname);
-        void saveCopy(const std::filesystem::path& aFname) const;
         void readFromXml(
                 const pugi::xml_node& node,
                 const std::filesystem::path& basePath);

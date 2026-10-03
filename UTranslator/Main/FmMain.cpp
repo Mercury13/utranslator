@@ -24,6 +24,7 @@
 // Translation
 #include "TrFinder.h"
 #include "TrXliff.h"
+#include "TrSave.h"
 
 // L10n
 #include "LocFmt.h"
@@ -1109,7 +1110,7 @@ bool FmMain::doSaveAs()
     if (fname.empty())
         return false;
     try {
-        project->save(fname);
+        sav::save(*project, fname);
         config::history.pushFile(project->fname);
         doBuild();
         return true;
@@ -1248,7 +1249,7 @@ bool FmMain::doSave()
         acceptCurrObjectNone();
         dismissUpdateInfo();
         try {
-            project->save();
+            sav::save(*project);
             config::history.pushFile(project->fname);
             doBuild();
             return true;

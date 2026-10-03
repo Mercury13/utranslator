@@ -87,6 +87,8 @@ bool tr::Entity::setId(std::u8string_view x, tr::Modify wantModify)
 
 namespace {
 
+    /// @todo [urgent, standalone save] delete completely
+
     /// Write text in tag
     /// @param root   an upper element
     /// @param name   tag name
@@ -206,6 +208,7 @@ namespace {
 void tr::Entity::writeImportersAuthorsComment(
         pugi::xml_node& node, WrCache& c) const
 {
+    /// @todo [urgent, standalone save] delete completely
     writeTextInTagIf(node, "im-cmt", comm.importers, c);
     writeTextInTagIf(node, "au-cmt", comm.authors, c);
 }
@@ -219,6 +222,7 @@ void tr::Entity::readAuthorsComment(const pugi::xml_node& node)
 void tr::Entity::writeTranslatorsComment(
         pugi::xml_node& node, WrCache& c) const
 {
+    /// @todo [urgent, standalone save] delete completely
     if (c.info.isTranslation()) {
         writeTextInTagIf(node, "tr-cmt", comm.translators, c);
     }
@@ -234,6 +238,7 @@ void tr::Entity::readTranslatorsComment(const pugi::xml_node& node, const PrjInf
 void tr::Entity::writeComments(
         pugi::xml_node& node, WrCache& c) const
 {
+    /// @todo [urgent, standalone save] delete completely
     writeImportersAuthorsComment(node, c);
     writeTranslatorsComment(node, c);
 }
@@ -414,16 +419,6 @@ std::shared_ptr<tr::UiObject> tr::VirtualGroup::extractChild(
 }
 
 
-void tr::VirtualGroup::writeCommentsAndChildren(
-        pugi::xml_node& node, WrCache& c) const
-{
-    writeComments(node, c);
-    for (auto& v : children) {
-        v->writeToXml(node, c);
-    }
-}
-
-
 void tr::VirtualGroup::readCommentsAndChildren(
         const pugi::xml_node& node, const ReadContext& ctx)
 {
@@ -448,6 +443,41 @@ void tr::VirtualGroup::traverse(
     auto lk = fSelf.lock();
     if (!lk)
         throw std::logic_error("[VG.traverse] Did not lock ptr to this");
+
+    if (enterMe != EnterMe::NO)
+        x.onEnterGroup(lk);
+
+    switch (order) {
+    case tr::WalkOrder::EXACT:
+        for (auto& v : children) {
+            v->traverse(x, order, EnterMe::YES);
+        }
+        break;
+    case tr::WalkOrder::ECONOMY:
+        // First texts…
+        for (auto& v : children) {
+            if (v->translatable())
+                v->traverse(x, order, EnterMe::YES);
+        }
+        // …then subgroups
+        for (auto& v : children) {
+            if (!v->translatable())
+                v->traverse(x, order, EnterMe::YES);
+        }
+        break;
+    }
+
+    if (enterMe != EnterMe::NO)
+        x.onLeaveGroup(lk);
+}
+
+
+void tr::VirtualGroup::traverse(
+        ConstTraverseListener& x, tr::WalkOrder order, EnterMe enterMe) const
+{
+    auto lk = fSelf.lock();
+    if (!lk)
+        throw std::logic_error("[VG.traverse const] Did not lock ptr to this");
 
     if (enterMe != EnterMe::NO)
         x.onEnterGroup(lk);
@@ -704,15 +734,6 @@ tr::Group::Group(
 
 namespace {
 
-    void writeFormat(pugi::xml_node parent, tf::FileFormat* format)
-    {
-        if (format) {
-            auto hFormat = parent.append_child("format");
-            hFormat.append_attribute("name") = format->proto().techName().data();  // Tech names are const, so OK
-            format->save(hFormat);
-        }
-    }
-
     std::unique_ptr<tf::FileFormat> readFormat(pugi::xml_node parent)
     {
         if (auto nodeFormat = parent.child("format")) {
@@ -729,21 +750,6 @@ namespace {
         }
         return {};
     }
-}
-
-void tr::Group::writeToXml(pugi::xml_node& root, WrCache& c) const
-{
-    auto node = root.append_child("group");
-        node.append_attribute("id") = str::toC(id);
-    if (sync) {
-        auto hSync = node.append_child("sync");
-        hSync.append_attribute("text-owner") =
-                tf::textOwnerNames[static_cast<int>(sync.info.textOwner)];
-        hSync.append_attribute("fname") =
-                str::toC(c.toRelPath(sync.absPath).u8string());
-        writeFormat(hSync, sync.format.get());
-    }
-    writeCommentsAndChildren(node, c);
 }
 
 
@@ -912,23 +918,6 @@ std::shared_ptr<tr::Project> tr::Text::project()
     if (auto f = file())
         return f->project();
     return nullptr;
-}
-
-
-void tr::Text::writeToXml(pugi::xml_node& root, WrCache& c) const
-{
-    auto node = root.append_child("text");
-        node.append_attribute("id") = str::toC(id);
-        if (tr.forceAttention) {
-            node.append_attribute("force-attention") = true;
-        }
-    writeTextInTag(node, "orig", tr.original, c);
-    writeImportersAuthorsComment(node, c);
-    if (c.info.isTranslation()) {
-        writeTextInTagOpt(node, "known-orig", tr.knownOriginal.active(), c);
-        writeTextInTagOpt(node, "transl", tr.translation, c);
-        writeTranslatorsComment(node, c);
-    }
 }
 
 
@@ -1156,20 +1145,6 @@ tr::File::File(
 
 std::shared_ptr<tr::UiObject> tr::File::parent() const
     { return fProject.lock(); }
-
-
-void tr::File::writeToXml(pugi::xml_node& root, WrCache& c) const
-{
-    auto node = root.append_child("file");
-        node.append_attribute("name") = str::toC(id);
-        node.append_attribute("idless") = info.isIdless;
-        if (!info.origPath.empty())
-            node.append_attribute("orig-path") = str::toC(info.origPath.u8string());
-        if (!info.translPath.empty())
-            node.append_attribute("transl-path") = str::toC(info.translPath.u8string());
-        writeFormat(node, info.format.get());
-    writeCommentsAndChildren(node, c);
-}
 
 
 void tr::File::readFromXml(const pugi::xml_node& node, const ReadContext& ctx)
@@ -1438,56 +1413,6 @@ bool tr::Project::unmodify(Forced forced)
 }
 
 
-void tr::Project::save()
-{
-    saveCopy(fname);
-    unmodify(Forced::YES);
-}
-
-
-void tr::Project::save(const std::filesystem::path& aFname)
-{
-    saveCopy(aFname);
-    fname = aFname;
-    unmodify(Forced::YES);
-}
-
-
-void tr::Project::writeToXml(
-        pugi::xml_node& doc,
-        const std::filesystem::path& basePath) const
-{
-    auto root = doc.append_child("ut");
-    root.append_attribute("type") = prjTypeNames[info.type];
-    WrCache c(info, basePath);
-    auto nodeInfo = root.append_child("info");
-        auto nodeOrig = nodeInfo.append_child("orig");
-            nodeOrig.append_attribute("lang") = info.orig.lang.c_str();
-            if (info.hasOriginalPath()) {
-                if (!info.orig.absPath.empty()) {
-                    auto relPath = c.toRelPath(info.orig.absPath);
-                    nodeOrig.append_attribute("fname") = str::toC(relPath.u8string());
-                }
-            }
-    if (info.canHaveReference() && !info.ref.absPath.empty()) {
-        auto nodeRef = nodeInfo.append_child("ref");
-            auto relPath = c.toRelPath(info.ref.absPath);
-            nodeRef.append_attribute("fname") = str::toC(relPath.u8string());
-    }
-    if (info.isTranslation()) {
-        auto nodeTransl = nodeInfo.append_child("transl");
-            nodeTransl.append_attribute("lang") = info.transl.lang.c_str();
-            if (info.isFullTranslation()) {
-                bool hasPseudoloc = info.transl.pseudoloc.isOn();
-                nodeTransl.append_attribute("pseudoloc") = hasPseudoloc;
-            }
-    }
-    for (auto& file : files) {
-        file->writeToXml(root, c);
-    }
-}
-
-
 void tr::Project::readFromXml(
         const pugi::xml_node& node,
         const std::filesystem::path& basePath)
@@ -1521,17 +1446,6 @@ void tr::Project::readFromXml(
         auto file = addFile({}, Modify::NO);
         file->readFromXml(v, ctx);
     }
-}
-
-
-void tr::Project::saveCopy(const std::filesystem::path& aFname) const
-{
-    pugi::xml_document doc;
-    auto declaration = doc.append_child(pugi::node_declaration);
-        declaration.append_attribute("version") = "1.0";
-        declaration.append_attribute("encoding") = "utf-8";
-    writeToXml(doc, aFname.parent_path());
-    doc.save_file(aFname.c_str(), " ", pugi::format_indent | pugi::format_write_bom);
 }
 
 
@@ -1579,6 +1493,13 @@ size_t tr::Project::nOrigExportableFiles() const
 void tr::Project::traverse(TraverseListener& x, tr::WalkOrder order, tr::EnterMe)
 {
     for (auto& v : files)
+        v->traverse(x, order, EnterMe::YES);
+}
+
+
+void tr::Project::traverse(ConstTraverseListener& x, tr::WalkOrder order, tr::EnterMe) const
+{
+    for (const auto& v : files)
         v->traverse(x, order, EnterMe::YES);
 }
 

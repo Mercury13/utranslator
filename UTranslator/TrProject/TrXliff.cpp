@@ -192,6 +192,10 @@ void xlf::exportMe(
     if (!project.info.isTranslation())
         sets.writeText.translation = false;
     pugi::xml_document doc;
+    // Declaration
+    auto declaration = doc.append_child(pugi::node_declaration);
+    declaration.append_attribute("version") = "1.0";
+    declaration.append_attribute("encoding") = "utf-8";
     // Head
     auto hRoot = doc.append_child("xliff");
     hRoot.append_attribute("xmlns") = "urn:oasis:names:tc:xliff:document:2.0";
@@ -209,8 +213,8 @@ void xlf::exportMe(
         v->traverse(xw, tr::WalkOrder::EXACT, tr::EnterMe::NO);
     }
     // Finally!
-    auto res = doc.save_file(fname.c_str(), "\t",
-            pugi::format_save_file_text | pugi::format_indent);
+    auto res = doc.save_file(fname.c_str(), " ",
+            pugi::format_save_file_text | pugi::format_indent | pugi::format_write_bom);
     if (!res)
         throw std::logic_error("Cannot save file.");
 }

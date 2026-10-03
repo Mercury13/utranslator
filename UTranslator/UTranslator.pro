@@ -56,6 +56,7 @@ SOURCES += \
     TrProject/TrFileDefines.cpp \
     TrProject/TrFinder.cpp \
     TrProject/TrProject.cpp \
+    TrProject/TrSave.cpp \
     TrProject/TrUtils.cpp \
     TrProject/TrVirtuals.cpp \
     TrProject/TrWrappers.cpp \
@@ -118,6 +119,7 @@ HEADERS += \
     TrProject/TrFileDefines.h \
     TrProject/TrFinder.h \
     TrProject/TrProject.h \
+    TrProject/TrSave.h \
     TrProject/TrUtils.h \
     TrProject/TrVirtuals.h \
     TrProject/TrWrappers.h \
