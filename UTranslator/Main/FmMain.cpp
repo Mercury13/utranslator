@@ -1153,7 +1153,7 @@ void FmMain::openFileThrow(std::filesystem::path fname, OpenPlace& rPlace)
     rPlace = OpenPlace::PROJECT;
     dismissUpdateInfo();
     auto prj = tr::Project::make();
-    prj->load(fname);
+    sav::load(*prj, fname);
     ui->wiFind->close();
     rPlace = OpenPlace::REFERENCE;
 
@@ -1162,7 +1162,7 @@ void FmMain::openFileThrow(std::filesystem::path fname, OpenPlace& rPlace)
         config::history.pushFile(std::move(fname));
     };
     ExecAfter ea(EnableExec::YES, whatAfter);
-    prj->updateReference();
+    sav::updateReference(*prj);
     // ExecAfter will exec here!
 }
 
@@ -1804,7 +1804,7 @@ void FmMain::updateOriginal()
             updateInfo = sav::updateData(*project, tr::TrashMode::FILL);
             ex.enable();
             place = UpdatePlace::REFERENCE;
-            project->updateReference();
+            sav::updateReference(*project);
         }
     } catch (std::exception& e) {
         switch (place) {

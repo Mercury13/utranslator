@@ -4,6 +4,7 @@
 
 // Transl
 #include "TrProject.h"
+#include "TrSave.h"
 
 
 using namespace std;
@@ -45,7 +46,7 @@ int myMain(const Args<char8_t>& args)
             throw std::logic_error("File " + fname.string() + " not found");
 
         auto prj = tr::Project::make();
-        prj->load(fname);
+        sav::load(*prj, fname);
         std::cout << "Loaded project <" << fname.string() << ">." ENDL;
 
         bool didSmth = false;
@@ -53,7 +54,7 @@ int myMain(const Args<char8_t>& args)
         bool rqUpdate = args.hasParam(u8"-rqupdate", I_START);
         bool wantUpdate = rqUpdate || args.hasParam(u8"-update", I_START);
         if (wantUpdate) {
-            auto res = prj->updateData(tr::TrashMode::LEAVE);
+            auto res = sav::updateData(*prj, tr::TrashMode::LEAVE);
             if (res.isOriginal) {
                 std::cout << "WARN: the project is original, no update needed." ENDL;
             } else {

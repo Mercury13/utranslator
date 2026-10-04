@@ -1363,27 +1363,6 @@ void tr::Project::readFromXml(
 }
 
 
-void tr::Project::load(
-        const pugi::xml_document& doc,
-        const std::filesystem::path& basePath)
-{
-    clear();
-    auto root = rqChild(doc, "ut");
-    readFromXml(root, basePath);
-}
-
-
-void tr::Project::load(const std::filesystem::path& aFname)
-{
-    pugi::xml_document doc;
-    auto result = doc.load_file(aFname.c_str(),
-                pugi::parse_default | pugi::parse_ws_pcdata);
-    xmlThrowIf(result, aFname.u8string());
-    load(doc, aFname.parent_path());
-    fname = aFname;
-}
-
-
 size_t tr::Project::nOrigExportableFiles() const
 {
     size_t r = 0;
@@ -1505,18 +1484,6 @@ std::shared_ptr<tr::File> tr::Project::findFile(std::u8string_view aId)
             return v;
     }
     return nullptr;
-}
-
-
-void tr::Project::updateReference()
-{
-    removeReferenceChannel();
-    if (!info.hasReference())
-        return;
-
-    auto tempPrj = tr::Project::make();
-    tempPrj->load(this->info.ref.absPath);
-    stealReferenceFrom(*tempPrj);
 }
 
 

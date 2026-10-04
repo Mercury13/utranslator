@@ -49,9 +49,17 @@ namespace tr {
         /// Checks whether canary is OK
         void checkCanary() const;
     protected:
-        volatile std::atomic<uint32_t> canary  = 0;
-        uint32_t goodCanary() const;
+        class Dummy {};
+        using Canary = volatile std::atomic<uint32_t>;
+        /// Reason: how to get canary’s (or another nearby) address,
+        ///   if the compiler tracks initialization rules?
+        [[no_unique_address]] Dummy dummy {};
+        Canary canary = 0;
+        static uint32_t goodCanaryEx(const Dummy* addr);
+        uint32_t goodCanary() const { return goodCanaryEx(&dummy); }
     };
+
+    static_assert(sizeof(CanaryObject) == sizeof(uint32_t));
 
     struct Comments {
         std::u8string importers, authors, translators;

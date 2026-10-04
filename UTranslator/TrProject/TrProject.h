@@ -434,10 +434,6 @@ namespace tr {
         void readFromXml(
                 const pugi::xml_node& node,
                 const std::filesystem::path& basePath);
-        void load(
-                const pugi::xml_document& doc,
-                const std::filesystem::path& basePath);
-        void load(const std::filesystem::path& aFname);
         void doBuild(const std::filesystem::path& destDir);
         WalkChannel walkChannel() const;
 
@@ -450,7 +446,6 @@ namespace tr {
 
         std::u8string shownFname(std::u8string_view fallback);
 
-        void updateReference();
         tr::UpdateInfo stealDataFrom(tr::Project& x, const StealContext& ctx);
         void stealReferenceFrom(tr::Project& x);
         std::shared_ptr<tr::File> findFile(std::u8string_view aId);

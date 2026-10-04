@@ -12,6 +12,9 @@
 #include "u_Qstrings.h"
 #include "d_Strings.h"
 
+// Translate
+#include "TrSave.h"
+
 
 ///// WizardManager ////////////////////////////////////////////////////////////
 
@@ -128,7 +131,7 @@ bool FmNew::chooseOriginal()
         return false;
     try {
         project = tr::Project::make();
-        project->load(fname);
+        sav::load(*project, fname);
         project->info.type = tr::PrjType::FULL_TRANSL;
         project->info.orig.absPath = std::filesystem::weakly_canonical(fname);
         return true;

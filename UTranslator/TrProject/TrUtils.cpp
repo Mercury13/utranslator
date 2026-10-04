@@ -3,6 +3,7 @@
 
 // Project
 #include "TrProject.h"
+#include "TrSave.h"
 
 // Libs
 #include "LocFmt.h"
@@ -305,7 +306,7 @@ namespace {
 void tr::translateWithOriginal(Project& prj, const tw::Sets& sets)
 {
     std::shared_ptr<Project> ext = Project::make();
-    ext->load(sets.origPath);
+    sav::load(*ext, sets.origPath);
     TwStats stats;
     twWalkProject(prj, *ext, sets, stats);
     twUpdateByStats(prj, stats);

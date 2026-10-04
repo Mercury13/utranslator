@@ -11,15 +11,15 @@ constinit const tr::UpdateInfo tr::UpdateInfo::ZERO;
 
 ///// CanaryObject /////////////////////////////////////////////////////////////
 
-tr::CanaryObject::CanaryObject() : canary(goodCanary()) {}
+tr::CanaryObject::CanaryObject() : canary(goodCanaryEx(&dummy)) {}
 
 
-uint32_t tr::CanaryObject::goodCanary() const
+uint32_t tr::CanaryObject::goodCanaryEx(const Dummy* addr)
 {
     static constexpr size_t ALIGNMENT = alignof (uintptr_t);
     static constexpr size_t N_BITS = std::countr_zero(ALIGNMENT);
     static constexpr uint32_t SCRAMBLE = 0xC21330A5;
-    return static_cast<uint32_t>(reinterpret_cast<uintptr_t>(this) >> N_BITS) ^ SCRAMBLE;
+    return static_cast<uint32_t>(reinterpret_cast<uintptr_t>(addr) >> N_BITS) ^ SCRAMBLE;
 }
 
 

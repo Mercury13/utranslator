@@ -1,6 +1,7 @@
 #include "TrSave.h"
 
 #include "pugixml.hpp"
+#include "u_XmlUtils.h"
 
 namespace {
 
@@ -265,7 +266,10 @@ namespace {
         }
     }
 
-}
+}   // anon namespace
+
+
+///// Save /////////////////////////////////////////////////////////////////////
 
 void sav::saveCopy(const tr::Project& project, const std::filesystem::path& fname)
 {
@@ -293,6 +297,30 @@ void sav::save(tr::Project& project, const std::filesystem::path& fname)
     project.unmodify(Forced::YES);
 }
 
+///// Load /////////////////////////////////////////////////////////////////////
+
+void sav::load(
+        tr::Project& project,
+        const pugi::xml_document& doc,
+        const std::filesystem::path& basePath)
+{
+    project.clear();
+    auto root = rqChild(doc, "ut");
+    project.readFromXml(root, basePath);
+}
+
+void sav::load(
+        tr::Project& project,
+        const std::filesystem::path& aFname)
+{
+    pugi::xml_document doc;
+    auto result = doc.load_file(aFname.c_str(),
+                pugi::parse_default | pugi::parse_ws_pcdata);
+    xmlThrowIf(result, aFname.u8string());
+    load(project, doc, aFname.parent_path());
+    project.fname = aFname;
+}
+
 
 ///// Update ///////////////////////////////////////////////////////////////////
 
@@ -302,7 +330,7 @@ namespace {
             tr::Project& project, tr::TrashMode mode)
     {
         auto tempPrj = tr::Project::make();
-        tempPrj->load(project.info.orig.absPath);
+        sav::load(*tempPrj, project.info.orig.absPath);
         // Info and fname are left intact
         std::swap(project.files, tempPrj->files);
         // Copy original language
@@ -337,4 +365,16 @@ tr::UpdateInfo sav::updateData(
         return updateData_FullTransl(project, trashMode);
     }
     throw std::logic_error("[updateData] Strange project type");
+}
+
+
+void sav::updateReference(tr::Project& project)
+{
+    project.removeReferenceChannel();
+    if (!project.info.hasReference())
+        return;
+
+    auto tempPrj = tr::Project::make();
+    load(*tempPrj, project.info.ref.absPath);
+    project.stealReferenceFrom(*tempPrj);
 }

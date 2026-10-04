@@ -26,6 +26,7 @@ SOURCES += \
         ../UTranslator/TrProject/TrFile.cpp \
         ../UTranslator/TrProject/TrFileDefines.cpp \
         ../UTranslator/TrProject/TrProject.cpp \
+        ../UTranslator/TrProject/TrSave.cpp \
         ../UTranslator/TrProject/TrVirtuals.cpp \
         main.cpp
 
@@ -56,6 +57,7 @@ HEADERS += \
     ../UTranslator/TrProject/TrFile.h \
     ../UTranslator/TrProject/TrFileDefines.h \
     ../UTranslator/TrProject/TrProject.h \
+    ../UTranslator/TrProject/TrSave.h \
     ../UTranslator/TrProject/TrVirtuals.h
 
 VERSION_FILE = ../VERSION

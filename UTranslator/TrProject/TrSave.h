@@ -13,11 +13,15 @@ namespace sav {
             const std::filesystem::path& fname);
 
     void load(
+            tr::Project& project,
             const pugi::xml_document& doc,
             const std::filesystem::path& basePath);
-    void load(const std::filesystem::path& aFname);
+    void load(
+            tr::Project& project,
+            const std::filesystem::path& aFname);
 
     tr::UpdateInfo updateData(
             tr::Project& project, tr::TrashMode trashMode);
+    void updateReference(tr::Project& project);
 
 }   // namespace sav
