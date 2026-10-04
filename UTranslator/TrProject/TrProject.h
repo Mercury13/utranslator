@@ -124,17 +124,6 @@ namespace tr {
         Trash* trash;
     };
 
-    struct ReadContext {
-        const PrjInfo& info;
-        std::filesystem::path baseDir;
-
-        std::filesystem::path toAbsPath(const std::filesystem::path& x) const;
-        std::filesystem::path toAbsPath(std::string_view x) const
-            { return toAbsPath(str::toU8sv(x)); }
-        std::filesystem::path toAbsPath(const char* x) const
-            { return toAbsPath(str::toU8sv(x)); }
-    };
-
     class Entity : public Traversable
     {
     public:
@@ -208,7 +197,6 @@ namespace tr {
         friend class Project;
         void doSwapChildren(size_t index1, size_t index2) override;
 
-        void readCommentsAndChildren(const pugi::xml_node& node, const ReadContext& ctx);
         void vgRemoveTranslChannel();
         tr::UpdateInfo vgStealDataFrom(
                 VirtualGroup& x, UiObject* myParent, const StealContext& ctx);
@@ -232,7 +220,6 @@ namespace tr {
         std::shared_ptr<File> file() override;
         std::shared_ptr<Project> project() override;
             using Entity::project;
-        void readFromXml(const pugi::xml_node& node, const ReadContext& ctx);
         bool isCloneable() const noexcept { return true; }
         void traverse(TraverseListener& x, tr::WalkOrder, EnterMe) override
             { x.onText(fSelf.lock()); }
@@ -291,7 +278,6 @@ namespace tr {
         Pair<VirtualGroup> additionParents() override
                 { return { fParentGroup.lock(), fSelf.lock() }; }
         IdThresholdType idThresholdType() const noexcept override { return IdThresholdType::NONE; }
-        void readFromXml(const pugi::xml_node& node, const ReadContext& ctx);
         std::shared_ptr<Group> clone(
                 const std::shared_ptr<VirtualGroup>& parent,
                 const IdLib* idlib,

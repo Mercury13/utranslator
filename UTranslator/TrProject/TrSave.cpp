@@ -172,6 +172,13 @@ namespace {
         writeTextInTagIf(node, "au-cmt", entity.comm.authors, c);
     }
 
+    void readImportersAuthorsComment(
+            tr::Entity& entity, const pugi::xml_node& node)
+    {
+        entity.comm.importers = readTextInTag(node, "im-cmt");
+        entity.comm.authors = readTextInTag(node, "au-cmt");
+    }
+
     void writeTranslatorsComment(
             const tr::Entity& entity,
             pugi::xml_node& node, WrCache& c)
@@ -181,12 +188,30 @@ namespace {
         }
     }
 
+    void readTranslatorsComment(
+            tr::Entity& entity,
+            const pugi::xml_node& node, const tr::PrjInfo& info)
+    {
+        if (info.isTranslation()) {
+            entity.comm.translators = readTextInTag(node, "tr-cmt");
+        }
+    }
+
     void writeComments(
             const tr::Entity& entity,
             pugi::xml_node& node, WrCache& c)
     {
         writeImportersAuthorsComment(entity, node, c);
         writeTranslatorsComment(entity, node, c);
+    }
+
+    void readComments(
+            tr::Entity& entity,
+            const pugi::xml_node& node, const tr::PrjInfo& info)
+    {
+        /// @todo [urgent, standalone save] delete!
+        readImportersAuthorsComment(entity, node);
+        readTranslatorsComment(entity, node, info);
     }
 
     void writeFormat(pugi::xml_node parent, tf::FileFormat* format)
@@ -346,21 +371,45 @@ void sav::save(tr::Project& project, const std::filesystem::path& fname)
 
 namespace {
 
-    void readCommentsAndChildren(
-            tr::VirtualGroup& group, pugi::xml_node node,
-            const tr::ReadContext& ctx)
+    struct ReadContext {
+        const tr::PrjInfo& info;
+        std::filesystem::path baseDir;
+
+        std::filesystem::path toAbsPath(const std::filesystem::path& x) const;
+        std::filesystem::path toAbsPath(std::string_view x) const
+            { return toAbsPath(str::toU8sv(x)); }
+        std::filesystem::path toAbsPath(const char* x) const
+            { return toAbsPath(str::toU8sv(x)); }
+    };
+
+    std::filesystem::path ReadContext::toAbsPath(
+            const std::filesystem::path& x) const
     {
-        group.readComments(node, ctx.info);
-        for (auto v : node.children()) {
-            if (v.type() == pugi::node_element) {
-                if (strcmp(v.name(), "text") == 0) {
-                    auto text = group.addText({}, {}, tr::Modify::NO);
-                    text->readFromXml(v, ctx);
-                } if (strcmp(v.name(), "group") == 0) {
-                    auto subgroup = group.addGroup({}, tr::Modify::NO);
-                    subgroup->readFromXml(v, ctx);
-                }
-            }
+        if (x.empty())
+            return {};
+        auto thatPath = baseDir / x;
+        return std::filesystem::weakly_canonical(thatPath);
+    }
+
+    void readTextFromXml(
+            tr::Text& text, const pugi::xml_node& node,
+            const ReadContext& ctx)
+    {
+        text.id = str::toU8sv(rqAttr(node, "id").value());
+        text.tr.forceAttention = node.attribute("force-attention").as_bool(false);
+        // Our XML is DOM-like, so we can read not in order
+        //   Write: orig, au-cmt, known-orig, transl, tr-cmt
+        //   Read:  au-cmt, tr-cmt, orig, known-orig, transl
+        readComments(text, node, ctx.info);
+        text.tr.original = readTextInTag(node, "orig");
+        text.tr.knownOriginal.isSuppressed = false;  // is not stored in file
+        switch (ctx.info.type) {
+        case tr::PrjType::ORIGINAL:
+            break;
+        case tr::PrjType::FULL_TRANSL:
+            text.tr.knownOriginal.text = readTextInTagOpt(node, "known-orig");
+            text.tr.translation = readTextInTagOpt(node, "transl");
+            break;
         }
     }
 
@@ -381,8 +430,46 @@ namespace {
         return {};
     }
 
+    // forward
+    void readCommentsAndChildren(
+            tr::VirtualGroup& group, pugi::xml_node node,
+            const ReadContext& ctx);
+
+    void readGroupFromXml(
+            tr::Group& group, const pugi::xml_node& node,
+            const ReadContext& ctx)
+    {
+        group.id = str::toU8sv(rqAttr(node, "id").value());
+        if (auto hSync = node.child("sync")) {
+            group.sync.info.textOwner = parseEnumDef(
+                        hSync.attribute("text-owner").as_string(),
+                        tf::textOwnerNames, tf::TextOwner::ME);
+            group.sync.absPath = ctx.toAbsPath(hSync.attribute("fname").as_string());
+            group.sync.format = readFormat(hSync);
+        }
+        readCommentsAndChildren(group, node, ctx);
+    }
+
+    void readCommentsAndChildren(
+            tr::VirtualGroup& group, pugi::xml_node node,
+            const ReadContext& ctx)
+    {
+        group.readComments(node, ctx.info);
+        for (auto v : node.children()) {
+            if (v.type() == pugi::node_element) {
+                if (strcmp(v.name(), "text") == 0) {
+                    auto text = group.addText({}, {}, tr::Modify::NO);
+                    readTextFromXml(*text, v, ctx);
+                } if (strcmp(v.name(), "group") == 0) {
+                    auto subgroup = group.addGroup({}, tr::Modify::NO);
+                    readGroupFromXml(*subgroup, v, ctx);
+                }
+            }
+        }
+    }
+
     void readFileFromXml(tr::File& file, const pugi::xml_node& node,
-                         const tr::ReadContext& ctx)
+                         const ReadContext& ctx)
     {
         file.id = str::toU8sv(node.attribute("name").as_string());
         file.info.isIdless = node.attribute("idless").as_bool(false);
@@ -397,7 +484,7 @@ namespace {
             const pugi::xml_node& node,
             const std::filesystem::path& basePath)
     {
-        tr::ReadContext ctx {
+        ReadContext ctx {
             .info = project.info,
             .baseDir = basePath,
         };

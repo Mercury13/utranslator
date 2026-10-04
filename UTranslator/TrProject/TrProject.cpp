@@ -8,26 +8,13 @@
 
 // Pugixml
 #include "pugixml.hpp"
-#include "u_XmlUtils.h"
 
 // Project
 #include "TrFile.h"
 
 using namespace std::string_view_literals;
 
-///// ReadContext //////////////////////////////////////////////////////////////
-
-std::filesystem::path tr::ReadContext::toAbsPath(const std::filesystem::path& x) const
-{
-    if (x.empty())
-        return {};
-    auto thatPath = baseDir / x;
-    return std::filesystem::weakly_canonical(thatPath);
-}
-
-
-//// Traversable ///////////////////////////////////////////////////////////////
-
+///// Traversable //////////////////////////////////////////////////////////////
 
 std::shared_ptr<tr::VirtualProject> tr::Traversable::vproject()
 {
@@ -105,14 +92,6 @@ namespace {
         if (auto tag = root.child(name))
             return parseTextInTag(tag);
         return {};
-    }
-
-    std::optional<std::u8string> readTextInTagOpt(
-            pugi::xml_node root, const char* name)
-    {
-        if (auto tag = root.child(name))
-            return parseTextInTag(tag);
-        return std::nullopt;
     }
 
 }   // anon namespace
@@ -305,25 +284,6 @@ std::shared_ptr<tr::UiObject> tr::VirtualGroup::extractChild(
     if (wantModify != Modify::NO)
         doModify(Mch::META);
     return r;
-}
-
-
-void tr::VirtualGroup::readCommentsAndChildren(
-        const pugi::xml_node& node, const ReadContext& ctx)
-{
-    /// @todo [urgent, standalone save] delete!
-    readComments(node, ctx.info);
-    for (auto v : node.children()) {
-        if (v.type() == pugi::node_element) {
-            if (strcmp(v.name(), "text") == 0) {
-                auto text = addText({}, {}, Modify::NO);
-                text->readFromXml(v, ctx);
-            } if (strcmp(v.name(), "group") == 0) {
-                auto group = addGroup({}, Modify::NO);
-                group->readFromXml(v, ctx);
-            }
-        }
-    }
 }
 
 
@@ -624,41 +584,6 @@ tr::Group::Group(
 
 namespace {
 
-    std::unique_ptr<tf::FileFormat> readFormat(pugi::xml_node parent)
-    {
-        if (auto nodeFormat = parent.child("format")) {
-            std::string_view sName = nodeFormat.attribute("name").as_string();
-            if (!sName.empty()) {
-                for (auto v : tf::allWorkingProtos) {
-                    if (v->techName() == sName) {
-                        auto format = v->make();
-                        format->load(nodeFormat);
-                        return format;
-                    }
-                }
-            }
-        }
-        return {};
-    }
-}
-
-
-void tr::Group::readFromXml(const pugi::xml_node& node, const ReadContext& ctx)
-{
-    id = str::toU8sv(rqAttr(node, "id").value());
-    if (auto hSync = node.child("sync")) {
-        sync.info.textOwner = parseEnumDef(
-                    hSync.attribute("text-owner").as_string(),
-                    tf::textOwnerNames, tf::TextOwner::ME);
-        sync.absPath = ctx.toAbsPath(hSync.attribute("fname").as_string());
-        sync.format = readFormat(hSync);
-    }
-    readCommentsAndChildren(node, ctx);
-}
-
-
-namespace {
-
     template <tr::ObjType Objt>
     std::u8string cloneIdT(
             const tr::UiObject& that, const tr::IdLib* idlib,
@@ -673,7 +598,7 @@ namespace {
         }
     }
 
-}
+}   // anon namespace
 
 
 std::shared_ptr<tr::Group> tr::Group::clone(
@@ -808,27 +733,6 @@ std::shared_ptr<tr::Project> tr::Text::project()
     if (auto f = file())
         return f->project();
     return nullptr;
-}
-
-
-void tr::Text::readFromXml(const pugi::xml_node& node, const ReadContext& ctx)
-{
-    id = str::toU8sv(rqAttr(node, "id").value());
-    tr.forceAttention = node.attribute("force-attention").as_bool(false);
-    // Our XML is DOM-like, so we can read not in order
-    //   Write: orig, au-cmt, known-orig, transl, tr-cmt
-    //   Read:  au-cmt, tr-cmt, orig, known-orig, transl
-    readComments(node, ctx.info);
-    tr.original = readTextInTag(node, "orig");
-    tr.knownOriginal.isSuppressed = false;  // is not stored in file
-    switch (ctx.info.type) {
-    case PrjType::ORIGINAL:
-        break;
-    case PrjType::FULL_TRANSL:
-        tr.knownOriginal.text = readTextInTagOpt(node, "known-orig");
-        tr.translation = readTextInTagOpt(node, "transl");
-        break;
-    }
 }
 
 
