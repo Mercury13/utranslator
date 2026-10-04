@@ -13,35 +13,9 @@
 // Project
 #include "TrFile.h"
 
-
 using namespace std::string_view_literals;
 
-
-///// WrCache //////////////////////////////////////////////////////////////////
-
-
-void tr::WrCache::ensureU8(size_t length)
-{
-    length += 8;
-    if (u8.length() < length)
-        u8.resize(std::max<size_t>(64, length * 3 / 2));
-}
-
-
-const char8_t* tr::WrCache::nts(const char8_t* beg, const char8_t* end)
-{
-    auto len = end - beg;
-    if (len == 0)
-        return u8"";
-    ensureU8(end - beg);
-    auto e = std::copy(beg, end, u8.begin());
-    *e = 0;
-    return u8.data();
-}
-
-
 ///// ReadContext //////////////////////////////////////////////////////////////
-
 
 std::filesystem::path tr::ReadContext::toAbsPath(const std::filesystem::path& x) const
 {
@@ -1324,42 +1298,6 @@ bool tr::Project::unmodify(Forced forced)
     if (r)
         recursiveUnmodify();
     return r;
-}
-
-
-void tr::Project::readFromXml(
-        const pugi::xml_node& node,
-        const std::filesystem::path& basePath)
-{
-    ReadContext ctx {
-        .info = info,
-        .baseDir = basePath,
-    };
-    auto attrType = rqAttr(node, "type");
-    info.type = parseEnumRq<PrjType>(attrType.value(), tr::prjTypeNames.cArray());
-    auto nodeInfo = rqChild(node, "info");
-        auto nodeOrig = rqChild(nodeInfo, "orig");
-            info.orig.lang = nodeOrig.attribute("lang").as_string("en");
-            if (info.hasOriginalPath()) {
-                info.orig.absPath = ctx.toAbsPath(nodeOrig.attribute("fname").as_string());
-            }
-    if (info.canHaveReference()) {
-        auto nodeRef = nodeInfo.child("ref");
-        info.ref.absPath = ctx.toAbsPath(nodeRef.attribute("fname").as_string());
-    }
-    if (info.isTranslation()) {
-        auto nodeTransl = rqChild(nodeInfo, "transl");
-            info.transl.lang = rqAttr(nodeTransl, "lang").value();
-            if (nodeTransl.attribute("pseudoloc").as_bool(false)) {
-                info.transl.pseudoloc = tr::PrjInfo::Transl::Pseudoloc::DFLT;
-            } else {
-                info.transl.pseudoloc = tr::PrjInfo::Transl::Pseudoloc::OFF;
-            }
-    }
-    for (auto& v : node.children("file")) {
-        auto file = addFile({}, Modify::NO);
-        file->readFromXml(v, ctx);
-    }
 }
 
 

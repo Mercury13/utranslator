@@ -5,6 +5,46 @@
 
 namespace {
 
+    /// Simple cache to speed up writing
+    struct WrCache {
+        const tr::PrjInfo& info;
+        std::filesystem::path baseDir;
+        std::u8string u8;
+
+        WrCache(const tr::PrjInfo& aInfo, std::filesystem::path aBaseDir)
+            : info(aInfo), baseDir(std::move(aBaseDir)) {}
+
+        /// Ensures UTF-8 string length + 8 additional bytes
+        void ensureU8(size_t length);
+        /// Turns beg..end to null-terminated string
+        const char8_t* nts(const char8_t* beg, const char8_t* end);
+        const char* ntsC(const char8_t* beg, const char8_t* end)
+            { return reinterpret_cast<const char*>(nts(beg, end)); }
+
+        std::filesystem::path toRelPath(const std::filesystem::path& path)
+            { return std::filesystem::proximate(path, baseDir); }
+    };
+
+    void WrCache::ensureU8(size_t length)
+    {
+        length += 8;
+        if (u8.length() < length)
+            u8.resize(std::max<size_t>(64, length * 3 / 2));
+    }
+
+    const char8_t* WrCache::nts(const char8_t* beg, const char8_t* end)
+    {
+        auto len = end - beg;
+        if (len == 0)
+            return u8"";
+        ensureU8(end - beg);
+        auto e = std::copy(beg, end, u8.begin());
+        *e = 0;
+        return u8.data();
+    }
+
+    ///// Small write/reads ////////////////////////////////////////////////////
+
     /// Write text in tag
     /// @param root   an upper element
     /// @param name   tag name
@@ -13,7 +53,7 @@ namespace {
             pugi::xml_node root,
             const char* name,
             std::u8string_view text,
-            tr::WrCache& cache)
+            WrCache& cache)
     {
         const char8_t* data = text.data();
         const char8_t* end = data + text.length();
@@ -49,7 +89,7 @@ namespace {
             pugi::xml_node root,
             const char* name,
             const std::u8string& text,
-            tr::WrCache& cache)
+            WrCache& cache)
     {
         if (!text.empty())
             writeTextInTag(root, name, text, cache);
@@ -60,7 +100,7 @@ namespace {
             pugi::xml_node root,
             const char* name,
             const std::optional<std::u8string_view>& text,
-            tr::WrCache& cache)
+            WrCache& cache)
     {
         if (text.has_value())
             writeTextInTag(root, name, *text, cache);
@@ -120,7 +160,7 @@ namespace {
 
     void writeImportersAuthorsComment(
             const tr::Entity& entity,
-            pugi::xml_node& node, tr::WrCache& c)
+            pugi::xml_node& node, WrCache& c)
     {
         /// @todo [urgent, standalone save] delete completely
         writeTextInTagIf(node, "im-cmt", entity.comm.importers, c);
@@ -129,7 +169,7 @@ namespace {
 
     void writeTranslatorsComment(
             const tr::Entity& entity,
-            pugi::xml_node& node, tr::WrCache& c)
+            pugi::xml_node& node, WrCache& c)
     {
         if (c.info.isTranslation()) {
             writeTextInTagIf(node, "tr-cmt", entity.comm.translators, c);
@@ -138,7 +178,7 @@ namespace {
 
     void writeComments(
             const tr::Entity& entity,
-            pugi::xml_node& node, tr::WrCache& c)
+            pugi::xml_node& node, WrCache& c)
     {
         writeImportersAuthorsComment(entity, node, c);
         writeTranslatorsComment(entity, node, c);
@@ -156,19 +196,19 @@ namespace {
     class FileListener final : public tr::ConstTraverseListener
     {
     public:
-        FileListener(tr::WrCache& aCache, pugi::xml_node root);
+        FileListener(WrCache& aCache, pugi::xml_node root);
         void onText(const std::shared_ptr<const tr::Text>&) override;
         void onEnterGroup(const std::shared_ptr<const tr::VirtualGroup>&) override;
         void onLeaveGroup(const std::shared_ptr<const tr::VirtualGroup>&) override;
     private:
-        tr::WrCache& cache;
+        WrCache& cache;
         struct Entry {
             pugi::xml_node node;
         };
         std::vector<Entry> stack;
     };
 
-    FileListener::FileListener(tr::WrCache& aCache, pugi::xml_node root)
+    FileListener::FileListener(WrCache& aCache, pugi::xml_node root)
         : cache(aCache)
     {
         stack.emplace_back(root);
@@ -215,7 +255,7 @@ namespace {
     }
 
     void writeFileToXml(
-            const tr::File& file, pugi::xml_node& root, tr::WrCache& cache)
+            const tr::File& file, pugi::xml_node& root, WrCache& cache)
     {
         auto node = root.append_child("file");
             node.append_attribute("name") = str::toC(file.id);
@@ -238,7 +278,7 @@ namespace {
         auto root = doc.append_child("ut");
         /// @todo [urgent, standalone save] move prjTypeNames here
         root.append_attribute("type") = tr::prjTypeNames[project.info.type];
-        tr::WrCache c(project.info, basePath);
+        WrCache c(project.info, basePath);
         auto nodeInfo = root.append_child("info");
             auto nodeOrig = nodeInfo.append_child("orig");
                 nodeOrig.append_attribute("lang") = project.info.orig.lang.c_str();
@@ -299,6 +339,46 @@ void sav::save(tr::Project& project, const std::filesystem::path& fname)
 
 ///// Load /////////////////////////////////////////////////////////////////////
 
+namespace {
+
+    void readProjectFromXml(
+            tr::Project& project,
+            const pugi::xml_node& node,
+            const std::filesystem::path& basePath)
+    {
+        tr::ReadContext ctx {
+            .info = project.info,
+            .baseDir = basePath,
+        };
+        auto attrType = rqAttr(node, "type");
+        project.info.type = parseEnumRq<tr::PrjType>(attrType.value(), tr::prjTypeNames.cArray());
+        auto nodeInfo = rqChild(node, "info");
+            auto nodeOrig = rqChild(nodeInfo, "orig");
+                project.info.orig.lang = nodeOrig.attribute("lang").as_string("en");
+                if (project.info.hasOriginalPath()) {
+                    project.info.orig.absPath = ctx.toAbsPath(nodeOrig.attribute("fname").as_string());
+                }
+        if (project.info.canHaveReference()) {
+            auto nodeRef = nodeInfo.child("ref");
+            project.info.ref.absPath = ctx.toAbsPath(nodeRef.attribute("fname").as_string());
+        }
+        if (project.info.isTranslation()) {
+            auto nodeTransl = rqChild(nodeInfo, "transl");
+                project.info.transl.lang = rqAttr(nodeTransl, "lang").value();
+                if (nodeTransl.attribute("pseudoloc").as_bool(false)) {
+                    project.info.transl.pseudoloc = tr::PrjInfo::Transl::Pseudoloc::DFLT;
+                } else {
+                    project.info.transl.pseudoloc = tr::PrjInfo::Transl::Pseudoloc::OFF;
+                }
+        }
+        for (auto& v : node.children("file")) {
+            auto file = project.addFile({}, tr::Modify::NO);
+            file->readFromXml(v, ctx);
+        }
+    }
+
+}   // anon namespace
+
 void sav::load(
         tr::Project& project,
         const pugi::xml_document& doc,
@@ -306,7 +386,7 @@ void sav::load(
 {
     project.clear();
     auto root = rqChild(doc, "ut");
-    project.readFromXml(root, basePath);
+    readProjectFromXml(project, root, basePath);
 }
 
 void sav::load(

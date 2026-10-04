@@ -112,27 +112,6 @@ namespace tr {
         std::weak_ptr<T> fSelf;
     };
 
-    /// Simple cache to speed up writing
-    /// @todo [urgent, standalone save] move to TrSave
-    struct WrCache {
-        const PrjInfo& info;
-        std::filesystem::path baseDir;
-        std::u8string u8;
-
-        WrCache(const PrjInfo& aInfo, std::filesystem::path aBaseDir)
-            : info(aInfo), baseDir(std::move(aBaseDir)) {}
-
-        /// Ensures UTF-8 string length + 8 additional bytes
-        void ensureU8(size_t length);
-        /// Turns beg..end to null-terminated string
-        const char8_t* nts(const char8_t* beg, const char8_t* end);
-        const char* ntsC(const char8_t* beg, const char8_t* end)
-            { return reinterpret_cast<const char*>(nts(beg, end)); }
-
-        std::filesystem::path toRelPath(const std::filesystem::path& path)
-            { return std::filesystem::proximate(path, baseDir); }
-    };
-
     struct UiFileInfo {
         tr::FileInfo* info;
         tf::ProtoFilter filter;
@@ -431,9 +410,6 @@ namespace tr {
         void suggestTrash(size_t origSize);
 
         void save(const std::filesystem::path& aFname);
-        void readFromXml(
-                const pugi::xml_node& node,
-                const std::filesystem::path& basePath);
         void doBuild(const std::filesystem::path& destDir);
         WalkChannel walkChannel() const;
 
