@@ -146,10 +146,6 @@ namespace tr {
         Comments* comments() override { return &comm; }
         bool setId(std::u8string_view x, tr::Modify wantModify) override;
 
-        /// Reads object from XML
-        /// @param [in] node   tag of THIS OBJECT
-        /// @param [in] info   project info for speed
-        virtual void readFromXml(const pugi::xml_node& node, const ReadContext& ctx) = 0;
         virtual std::shared_ptr<Entity> vclone(
                 const std::shared_ptr<VirtualGroup>& parent) const = 0;
         virtual void suggestTrash(const Trash& trash, size_t origSize) = 0;
@@ -236,7 +232,7 @@ namespace tr {
         std::shared_ptr<File> file() override;
         std::shared_ptr<Project> project() override;
             using Entity::project;
-        void readFromXml(const pugi::xml_node& node, const ReadContext& ctx) override;
+        void readFromXml(const pugi::xml_node& node, const ReadContext& ctx);
         bool isCloneable() const noexcept { return true; }
         void traverse(TraverseListener& x, tr::WalkOrder, EnterMe) override
             { x.onText(fSelf.lock()); }
@@ -295,7 +291,7 @@ namespace tr {
         Pair<VirtualGroup> additionParents() override
                 { return { fParentGroup.lock(), fSelf.lock() }; }
         IdThresholdType idThresholdType() const noexcept override { return IdThresholdType::NONE; }
-        void readFromXml(const pugi::xml_node& node, const ReadContext& ctx) override;
+        void readFromXml(const pugi::xml_node& node, const ReadContext& ctx);
         std::shared_ptr<Group> clone(
                 const std::shared_ptr<VirtualGroup>& parent,
                 const IdLib* idlib,
@@ -339,7 +335,6 @@ namespace tr {
         IdThresholdType idThresholdType() const noexcept override { return IdThresholdType::THRESHOLD; }
 
         File(std::weak_ptr<Project> aProject, size_t aIndex, const PassKey&);
-        void readFromXml(const pugi::xml_node& node, const ReadContext& ctx) override;
         using Super::ownFileInfo;
         std::shared_ptr<FileInfo> ownFileInfo() override { return { selfUi(), &info }; }
         std::shared_ptr<Entity> vclone(
