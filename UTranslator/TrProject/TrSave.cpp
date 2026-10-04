@@ -1,7 +1,12 @@
+// My header
 #include "TrSave.h"
 
+// Libs
 #include "pugixml.hpp"
 #include "u_XmlUtils.h"
+
+// Project
+#include "TrFile.h"
 
 namespace {
 
@@ -341,6 +346,52 @@ void sav::save(tr::Project& project, const std::filesystem::path& fname)
 
 namespace {
 
+    void readCommentsAndChildren(
+            tr::VirtualGroup& group, pugi::xml_node node,
+            const tr::ReadContext& ctx)
+    {
+        group.readComments(node, ctx.info);
+        for (auto v : node.children()) {
+            if (v.type() == pugi::node_element) {
+                if (strcmp(v.name(), "text") == 0) {
+                    auto text = group.addText({}, {}, tr::Modify::NO);
+                    text->readFromXml(v, ctx);
+                } if (strcmp(v.name(), "group") == 0) {
+                    auto subgroup = group.addGroup({}, tr::Modify::NO);
+                    subgroup->readFromXml(v, ctx);
+                }
+            }
+        }
+    }
+
+    std::unique_ptr<tf::FileFormat> readFormat(pugi::xml_node parent)
+    {
+        if (auto nodeFormat = parent.child("format")) {
+            std::string_view sName = nodeFormat.attribute("name").as_string();
+            if (!sName.empty()) {
+                for (auto v : tf::allWorkingProtos) {
+                    if (v->techName() == sName) {
+                        auto format = v->make();
+                        format->load(nodeFormat);
+                        return format;
+                    }
+                }
+            }
+        }
+        return {};
+    }
+
+    void readFileFromXml(tr::File& file, const pugi::xml_node& node,
+                         const tr::ReadContext& ctx)
+    {
+        file.id = str::toU8sv(node.attribute("name").as_string());
+        file.info.isIdless = node.attribute("idless").as_bool(false);
+        file.info.origPath = str::toU8sv(node.attribute("orig-path").as_string());
+        file.info.translPath = str::toU8sv(node.attribute("transl-path").as_string());
+        file.info.format = readFormat(node);
+        readCommentsAndChildren(file, node, ctx);
+    }
+
     void readProjectFromXml(
             tr::Project& project,
             const pugi::xml_node& node,
@@ -373,7 +424,7 @@ namespace {
         }
         for (auto& v : node.children("file")) {
             auto file = project.addFile({}, tr::Modify::NO);
-            file->readFromXml(v, ctx);
+            readFileFromXml(*file, v, ctx);
         }
     }
 

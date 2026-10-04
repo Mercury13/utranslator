@@ -153,13 +153,13 @@ namespace tr {
         virtual std::shared_ptr<Entity> vclone(
                 const std::shared_ptr<VirtualGroup>& parent) const = 0;
         virtual void suggestTrash(const Trash& trash, size_t origSize) = 0;
+        void readComments(const pugi::xml_node& node, const PrjInfo& info);
     protected:
         friend class VirtualGroup;
         virtual void updateParent(const std::shared_ptr<VirtualGroup>& x) = 0;
         // read comments
         void readAuthorsComment(const pugi::xml_node& node);
         void readTranslatorsComment(const pugi::xml_node& node, const PrjInfo& info);
-        void readComments(const pugi::xml_node& node, const PrjInfo& info);
         void entityRemoveTranslChannel();
         void entityStealDataFrom(Entity& x, UiObject* myParent, const StealContext& ctx);
     };

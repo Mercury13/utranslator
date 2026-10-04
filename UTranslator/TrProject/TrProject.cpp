@@ -134,6 +134,7 @@ void tr::Entity::readTranslatorsComment(const pugi::xml_node& node, const PrjInf
 void tr::Entity::readComments(
         const pugi::xml_node& node, const PrjInfo& info)
 {
+    /// @todo [urgent, standalone save] delete!
     readAuthorsComment(node);
     readTranslatorsComment(node, info);
 }
@@ -310,6 +311,7 @@ std::shared_ptr<tr::UiObject> tr::VirtualGroup::extractChild(
 void tr::VirtualGroup::readCommentsAndChildren(
         const pugi::xml_node& node, const ReadContext& ctx)
 {
+    /// @todo [urgent, standalone save] delete!
     readComments(node, ctx.info);
     for (auto v : node.children()) {
         if (v.type() == pugi::node_element) {
@@ -1037,6 +1039,8 @@ std::shared_ptr<tr::UiObject> tr::File::parent() const
 
 void tr::File::readFromXml(const pugi::xml_node& node, const ReadContext& ctx)
 {
+    /// @todo [urgent, standalone save] File::readFromXml delete
+    throw std::logic_error("Should not call!");
     id = str::toU8sv(node.attribute("name").as_string());
     info.isIdless = node.attribute("idless").as_bool(false);
     info.origPath = str::toU8sv(node.attribute("orig-path").as_string());
