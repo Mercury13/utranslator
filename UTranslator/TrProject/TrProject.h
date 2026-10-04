@@ -520,4 +520,3 @@ template<class... T>
     r->fSelf = r;
     return r;
 }
-
