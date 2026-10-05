@@ -2,6 +2,7 @@
 #include "TrXliff.h"
 
 #include "pugixml.hpp"
+#include "u_XmlUtils.h"
 
 namespace {
 
@@ -272,8 +273,7 @@ namespace {
     {
         pugi::xml_document doc;
         auto result = doc.load_file(fname.c_str());
-        if (!result)
-            throw std::logic_error(result.description());
+        xmlThrowIf(result, fname.u8string());
         auto hRoot = doc.document_element();
         if (!hRoot)
             throw std::logic_error("The document must have root.");

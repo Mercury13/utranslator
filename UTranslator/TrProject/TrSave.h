@@ -20,6 +20,12 @@ namespace sav {
             tr::Project& project,
             const std::filesystem::path& aFname);
 
+    enum class DetectedFormat : unsigned char {
+        SAVE, XLIFF };
+    DetectedFormat smartLoad(
+            tr::Project& project,
+            const std::filesystem::path& aFname);
+
     tr::UpdateInfo updateData(
             tr::Project& project, tr::TrashMode trashMode);
     void updateReference(tr::Project& project);

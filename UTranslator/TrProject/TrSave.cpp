@@ -5,8 +5,13 @@
 #include "pugixml.hpp"
 #include "u_XmlUtils.h"
 
+// L10n
+#include "LocFmt.h"
+
 // Project
 #include "TrFile.h"
+
+using namespace std::string_view_literals;
 
 namespace {
 
@@ -537,6 +542,38 @@ void sav::load(
     xmlThrowIf(result, aFname.u8string());
     load(project, doc, aFname.parent_path());
     project.fname = aFname;
+}
+
+
+namespace {
+
+    bool detectSave(const pugi::xml_document& doc)
+    {
+        auto rt = doc.root();
+        return (rt && rt.name() == "ut"sv);
+    }
+
+}   // anon namespace
+
+
+sav::DetectedFormat sav::smartLoad(
+        tr::Project& project,
+        const std::filesystem::path& fname)
+{
+    pugi::xml_document doc;
+    auto result = doc.load_file(fname.c_str(),
+                pugi::parse_default | pugi::parse_ws_pcdata);
+    xmlThrowIf(result, fname.u8string());
+    if (detectSave(doc)) {
+        load(project, doc, fname.parent_path());
+        project.fname = fname;
+        return sav::DetectedFormat::SAVE;
+    } else {
+        throw std::logic_error(
+                loc::Fmt("Cannot load {1}: unknown format")
+                        (str::toSv(fname.u8string()))
+                        .str());
+    }
 }
 
 

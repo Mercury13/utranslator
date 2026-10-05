@@ -56,7 +56,7 @@ void xmlThrowIf(
         } else {
             throw std::logic_error(
                 loc::Fmt("Cannot load {1} [{2}]")
-                (fname)(result.description()).str());
+                        (fname)(result.description()).str());
         }
     }
 }
