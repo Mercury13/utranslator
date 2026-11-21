@@ -604,7 +604,7 @@ sav::DetectedFormat sav::smartLoad(
         return sav::DetectedFormat::SAVE;
     } else if (detectXliff(doc)) {
         loadXliff(project, doc, fname.parent_path());
-        project.fname = fname;
+        project.fname.clear();
         return sav::DetectedFormat::XLIFF;
     } else {
         throw std::logic_error(
