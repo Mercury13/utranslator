@@ -20,6 +20,11 @@ namespace sav {
             tr::Project& project,
             const std::filesystem::path& aFname);
 
+    void loadXliff(
+            tr::Project& project,
+            const pugi::xml_document& doc,
+            const std::filesystem::path& basePath);
+
     enum class DetectedFormat : unsigned char {
         SAVE, XLIFF };
     DetectedFormat smartLoad(

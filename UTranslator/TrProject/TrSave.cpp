@@ -547,6 +547,30 @@ void sav::load(
 
 namespace {
 
+    void readProjectFromXliff(
+            tr::Project& project,
+            const pugi::xml_node& node,
+            const std::filesystem::path& basePath)
+    {
+
+    }
+
+}   // anon namespace
+
+
+void sav::loadXliff(
+        tr::Project& project,
+        const pugi::xml_document& doc,
+        const std::filesystem::path& basePath)
+{
+    project.clear();
+    auto root = rqChild(doc, "xliff");
+    readProjectFromXliff(project, root, basePath);
+}
+
+
+namespace {
+
     ///
     /// Detects UTranslator’s save format
     /// @return [+] Found format
