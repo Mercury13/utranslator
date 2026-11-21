@@ -80,17 +80,17 @@ namespace tr {
     DEFINE_ENUM_TYPE_IN_NS(tr, PrefixSuffixMode, unsigned char,
         OFF, DFLT)
 
-    DEFINE_ENUM_TYPE_IN_NS(tr, IdSpace, unsigned char,
-        GROUP,  ///< IDs are group-unique
-        FILE    ///< IDs are file-unique
+    DEFINE_ENUM_TYPE_IN_NS(tr, SrcFormat, unsigned char,
+        UORIG,
+        XLIFF
     )
 
     struct PrjInfo {
         PrjType type = PrjType::ORIGINAL;
-        IdSpace idSpace = IdSpace::GROUP;
         struct Orig {
             std::string lang;
             std::filesystem::path absPath;
+            SrcFormat srcFormat = SrcFormat::UORIG;
             /// @todo [bilingual] do smth with it, always false right now!
             bool isBilingual = false;
             bool operator == (const Orig& x) const = default;

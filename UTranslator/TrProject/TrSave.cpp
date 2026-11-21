@@ -648,7 +648,7 @@ namespace {
 }   // anon namespace
 
 
-sav::DetectedFormat sav::smartLoad(
+void sav::smartLoad(
         tr::Project& project,
         const std::filesystem::path& fname)
 {
@@ -659,12 +659,11 @@ sav::DetectedFormat sav::smartLoad(
     if (detectSave(doc)) {
         load(project, doc, fname.parent_path());
         project.fname = fname;
-        return sav::DetectedFormat::SAVE;
+        project.info.orig.srcFormat = tr::SrcFormat::UORIG;
     } else if (detectXliff(doc)) {
         loadXliff(project, doc);
         project.fname.clear();   // We do not save XLIFF
-        project.info.idSpace = tr::IdSpace::FILE;
-        return sav::DetectedFormat::XLIFF;
+        project.info.orig.srcFormat = tr::SrcFormat::XLIFF;
     } else {
         throw std::logic_error(
                 loc::Fmt("Cannot load {1}: unknown format")

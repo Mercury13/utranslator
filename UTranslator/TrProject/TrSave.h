@@ -24,9 +24,8 @@ namespace sav {
             tr::Project& project,
             const pugi::xml_document& doc);
 
-    enum class DetectedFormat : unsigned char {
-        SAVE, XLIFF };
-    DetectedFormat smartLoad(
+    /// @warning  Read orig.srcFormat to check what we got
+    void smartLoad(
             tr::Project& project,
             const std::filesystem::path& aFname);
 
