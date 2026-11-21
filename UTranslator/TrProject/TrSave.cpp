@@ -547,6 +547,14 @@ void sav::load(
 
 namespace {
 
+    std::u8string normalizeEols(std::string_view x)
+    {
+        std::u8string r{str::toU8sv(x)};
+        str::replace(r, u8"\r\n", u8"\n");
+        str::replace(r, u8'\r', u8'\n');
+        return r;
+    }
+
     void readVgroupFromXliff(
             tr::VirtualGroup& group,
             pugi::xml_node node)
@@ -560,8 +568,31 @@ namespace {
                 readVgroupFromXliff(*newGroup, hIn);
             } else if (hIn.name() == "unit"sv) {
                 const char* id = hIn.attribute("id").as_string();
+                std::optional<std::u8string> original;
+                std::optional<std::u8string> translation;
+                for (auto _: hIn.children("ignorable")) {
+                    throw std::logic_error("Segmented XLIFFs are unsupported");
+                }
+                unsigned nSegs = 0;
+                for (auto hSeg : hIn.children("segment")) {
+                    ++nSegs;
+                    if (nSegs > 1) {
+                        throw std::logic_error("Segmented XLIFFs are unsupported");
+                    }
+                    if (auto hSource = hSeg.child("source")) {
+                        original = normalizeEols(hSource.text().as_string());
+                    }
+                    if (auto hTarget = hSeg.child("target")) {
+                        translation = normalizeEols(hTarget.text().as_string());
+                    }
+                }
+                if (!original)
+                    throw std::logic_error("Every unit of every XLIFF must have source");
                 auto newText = group.addText(str::toU8(id),
-                            u8"Original", tr::Modify::NO);
+                            *original, tr::Modify::NO);
+                if (translation) {
+                    newText->tr.translation = *translation;
+                }
             }
         }
     }
@@ -575,6 +606,8 @@ namespace {
             auto file = project.addFile(str::toU8sv(id), tr::Modify::NO);
             readVgroupFromXliff(*file, hFile);
         }
+        if (project.nChildren() == 0)
+            throw std::logic_error("No files loaded");
     }
 
 }   // anon namespace
@@ -585,7 +618,11 @@ void sav::loadXliff(
         const pugi::xml_document& doc)
 {
     project.clear();
+    project.info.type = tr::PrjType::FULL_TRANSL;
     auto root = rqChild(doc, "xliff");
+    std::string version = root.attribute("version").as_string();
+    if (version.starts_with("0") || version.starts_with("1."))
+        throw std::logic_error("XLIFFs v0 and 1 are unsupported");
     readProjectFromXliff(project, root);
 }
 

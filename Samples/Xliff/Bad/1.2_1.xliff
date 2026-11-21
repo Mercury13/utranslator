@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file original="messages.properties" source-language="en" target-language="uk" datatype="plaintext">
+    <header>
+      <tool tool-id="custom-exporter" tool-name="Custom Localization Exporter"/>
+    </header>
+    <body>
+      <trans-unit id="welcome_msg">
+        <source>Welcome to our store!</source>
+        <target state="translated">Ласкаво просимо до нашого магазину!</target>
+        <note>Greeting shown on the home screen</note>
+      </trans-unit>
+      <trans-unit id="checkout_btn" maxwidth="20" size-unit="char">
+        <source>Proceed to checkout</source>
+        <target state="needs-translation"></target>
+        <note>Button label; keep short for mobile UI</note>
+      </trans-unit>
+      <trans-unit id="brand_name" translate="no">
+        <source>ZhytomyrCrafts</source>
+        <target>ZhytomyrCrafts</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

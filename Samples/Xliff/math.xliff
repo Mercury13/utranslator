@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:2.0"
+       xmlns:xmrk="urn:xmarker"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="urn:oasis:names:tc:xliff:document:2.0 xliff_core_2.0.xsd"
+       version="2.0"
+       srcLang="en-US"
+       trgLang="uk-UA">
+  <file id="description.properties">
+    <unit id="1">
+      <segment>
+        <source>Various types of model.</source>
+        <target></target>
+      </segment>
+    </unit>
+    <unit id="2">
+      <segment>
+        <source>Machine Learning has drawn a lot of attention. Then we introduce the needed mathematical notation.</source>
+      </segment>
+    </unit>
+  </file>
+</xliff>
