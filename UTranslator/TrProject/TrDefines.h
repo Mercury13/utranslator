@@ -80,8 +80,14 @@ namespace tr {
     DEFINE_ENUM_TYPE_IN_NS(tr, PrefixSuffixMode, unsigned char,
         OFF, DFLT)
 
+    DEFINE_ENUM_TYPE_IN_NS(tr, IdSpace, unsigned char,
+        GROUP,  ///< IDs are group-unique
+        FILE    ///< IDs are file-unique
+    )
+
     struct PrjInfo {
         PrjType type = PrjType::ORIGINAL;
+        IdSpace idSpace = IdSpace::GROUP;
         struct Orig {
             std::string lang;
             std::filesystem::path absPath;

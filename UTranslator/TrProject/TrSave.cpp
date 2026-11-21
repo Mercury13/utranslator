@@ -547,12 +547,34 @@ void sav::load(
 
 namespace {
 
+    void readVgroupFromXliff(
+            tr::VirtualGroup& group,
+            pugi::xml_node node)
+    {
+        for (auto hIn : node.children()) {
+            if (hIn.type() != pugi::xml_node_type::node_element)
+                continue;
+            if (hIn.name() == "group"sv) {
+                const char* id = hIn.attribute("id").as_string();
+                auto newGroup = group.addGroup(str::toU8(id), tr::Modify::NO);
+                readVgroupFromXliff(*newGroup, hIn);
+            } else if (hIn.name() == "unit"sv) {
+                const char* id = hIn.attribute("id").as_string();
+                auto newText = group.addText(str::toU8(id),
+                            u8"Original", tr::Modify::NO);
+            }
+        }
+    }
+
     void readProjectFromXliff(
             tr::Project& project,
-            const pugi::xml_node& node,
-            const std::filesystem::path& basePath)
+            pugi::xml_node node)
     {
-        throw std::logic_error("XLIFF does not work for now");
+        for (auto hFile : node.children("file")) {
+            const char* id = hFile.attribute("id").as_string();
+            auto file = project.addFile(str::toU8sv(id), tr::Modify::NO);
+            readVgroupFromXliff(*file, hFile);
+        }
     }
 
 }   // anon namespace
@@ -560,12 +582,11 @@ namespace {
 
 void sav::loadXliff(
         tr::Project& project,
-        const pugi::xml_document& doc,
-        const std::filesystem::path& basePath)
+        const pugi::xml_document& doc)
 {
     project.clear();
     auto root = rqChild(doc, "xliff");
-    readProjectFromXliff(project, root, basePath);
+    readProjectFromXliff(project, root);
 }
 
 
@@ -603,8 +624,9 @@ sav::DetectedFormat sav::smartLoad(
         project.fname = fname;
         return sav::DetectedFormat::SAVE;
     } else if (detectXliff(doc)) {
-        loadXliff(project, doc, fname.parent_path());
-        project.fname.clear();
+        loadXliff(project, doc);
+        project.fname.clear();   // We do not save XLIFF
+        project.info.idSpace = tr::IdSpace::FILE;
         return sav::DetectedFormat::XLIFF;
     } else {
         throw std::logic_error(

@@ -22,8 +22,7 @@ namespace sav {
 
     void loadXliff(
             tr::Project& project,
-            const pugi::xml_document& doc,
-            const std::filesystem::path& basePath);
+            const pugi::xml_document& doc);
 
     enum class DetectedFormat : unsigned char {
         SAVE, XLIFF };
