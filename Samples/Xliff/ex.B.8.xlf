@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:2.0"
+       xmlns:xmrk="urn.xmarker.com"
+       version="2.0" srcLang="en" trgLang="es">
+  <file id="d1e1" original="index.html">
+    <skeleton>
+      <xmrk:h1 xmlns:xmrk="xmarker:skl" idref="d01">xxxxxx</xmrk:h1>
+      <xmrk:table xmlns:xmrk="xmarker:skl" idref="d11">
+        <xmrk:tr idref="d12">
+          <xmrk:td idref="d13">
+            <xmrk:a href="birds-in-oregon.html"
+                    idref="d14">xxxxxx</xmrk:a>
+          </xmrk:td>
+          <xmrk:td idref="d33">
+            <xmrk:a href="hummingbird.html"
+                    idref="d34">xxxxxx</xmrk:a>
+          </xmrk:td>
+          <xmrk:td idref="d53">
+            <xmrk:a href="ostrich.html"
+                    idref="d54">xxxxxx</xmrk:a>
+          </xmrk:td>
+          <xmrk:td idref="d73">
+            <xmrk:a href="swift.html"
+                    idref="d74">xxxxxx</xmrk:a>
+          </xmrk:td>
+          <xmrk:td idref="d93">
+            <xmrk:a href="about-bird-love.html"
+                    idref="d94">xxxxxx</xmrk:a>
+          </xmrk:td>
+        </xmrk:tr>
+      </xmrk:table>
+    </skeleton>
+    <unit xmlns:xmrk="xmarker:skl" id="d01" name="xmrk:h1d1e2">
+      <segment>
+        <source>Bird Love</source>
+        <target>Bird Love</target>
+      </segment>
+    </unit>
+    <unit xmlns:xmrk="xmarker:skl" id="d14" name="xmrk:ad1e7">
+      <segment>
+        <source>Birds in Oregon</source>
+        <target>Birds in Oregon</target>
+      </segment>
+    </unit>
+    <unit xmlns:xmrk="xmarker:skl" id="d34" name="xmrk:ad1e10">
+      <segment>
+        <source>Hummingbird</source>
+        <target>Hummingbird</target>
+      </segment>
+    </unit>
+    <unit xmlns:xmrk="xmarker:skl" id="d54" name="xmrk:ad1e13">
+      <segment>
+        <source>Ostrich</source>
+        <target>Ostrich</target>
+      </segment>
+    </unit>
+    <unit xmlns:xmrk="xmarker:skl" id="d74" name="xmrk:ad1e16">
+      <segment>
+        <source>Swift</source>
+        <target>Swift</target>
+      </segment>
+    </unit>
+    <unit xmlns:xmrk="xmarker:skl" id="d94" name="xmrk:ad1e19">
+      <segment>
+        <source>About Bird Love</source>
+        <target>About Bird Love</target>
+      </segment>
+    </unit>
+  </file>
+  <file original="birds-in-oregon.html" id="d1e7">
+    <skeleton>
+      <xmrk:html xmlns:xmrk="xmarker:skl" id="d1" idref="d00">
+        <xmrk:div id="s1" idref="d01">
+          <xmrk:h2 idref="d02">xxxxxx</xmrk:h2>
+          <xmrk:p idref="d12">xxxxxx</xmrk:p>
+          <xmrk:div id="s1a" idref="d22">
+            <xmrk:h2 idref="d23">xxxxxx</xmrk:h2>
+            <xmrk:p idref="d33">xxxxxx</xmrk:p>
+          </xmrk:div>
+          <xmrk:div id="s1b" idref="d52">
+            <xmrk:h2 idref="d53">xxxxxx</xmrk:h2>
+            <xmrk:p idref="d63">xxxxxx</xmrk:p>
+          </xmrk:div>
+          <xmrk:div id="s1c" idref="d82">
+            <xmrk:h2 idref="d83">xxxxxx</xmrk:h2>
+            <xmrk:p idref="d93">xxxxxx</xmrk:p>
+          </xmrk:div>
+        </xmrk:div>
+      </xmrk:html>
+    </skeleton>
+    <unit xmlns:xmrk="xmarker:skl" id="d02" name="xmrk:h2d2e3">
+      <segment>
+        <source>Birds in Oregon</source>
+        <target>Birds in Oregon</target>
+      </segment>
+    </unit>
+    <unit xmlns:xmrk="xmarker:skl" id="d12" name="xmrk:pd2e5">
+      <segment>
+        <source>Oregon is a mostly temperate state. There are many
+        different kinds of birds that thrive there.</source>
+        <target>Oregon is a mostly temperate state. There are many
+        different kinds of birds that thrive there.</target>
+      </segment>
+    </unit>
+    <unit xmlns:xmrk="xmarker:skl" id="d23" name="xmrk:h2d2e8">
+      <segment>
+        <source>High Altitude Birds</source>
+        <target>High Altitude Birds</target>
+      </segment>
+    </unit>
+    <unit xmlns:xmrk="xmarker:skl" id="d33" name="xmrk:pd2e10">
+      <segment>
+        <source>Birds that thrive in the high altitude include the
+        White-tailed Ptarmigan, Sharp-tailed Grouse, Yellow-billed Loon,
+        Cattle Egret, Gyrfalcon, Snowy Owl, Yellow-billed Cuckoo, and
+        Boreal Owl.</source>
+        <target>Birds that thrive in the high altitude include the
+        White-tailed Ptarmigan, Sharp-tailed Grouse, Yellow-billed Loon,
+        Cattle Egret, Gyrfalcon, Snowy Owl, Yellow-billed Cuckoo, and
+        Boreal Owl.</target>
+      </segment>
+    </unit>
+    <unit xmlns:xmrk="xmarker:skl" id="d53" name="xmrk:h2d2e13">
+      <segment>
+        <source>Ocean Birds</source>
+        <target>Ocean Birds</target>
+      </segment>
+    </unit>
+    <unit xmlns:xmrk="xmarker:skl" id="d63" name="xmrk:pd2e15">
+      <segment>
+        <source>Common ocean birds are Brandt's Cormorant, Double-crested
+        Cormorant, Pelagic Cormorant, Pigeon Guillemot, and Tufted
+        Puffin.</source>
+        <target>Common ocean birds are Brandt's Cormorant, Double-crested
+        Cormorant, Pelagic Cormorant, Pigeon Guillemot, and Tufted
+        Puffin.</target>
+      </segment>
+    </unit>
+    <unit xmlns:xmrk="xmarker:skl" id="d83" name="xmrk:h2d2e18">
+      <segment>
+        <source>Desert Birds</source>
+        <target>Desert Birds</target>
+      </segment>
+    </unit>
+    <unit xmlns:xmrk="xmarker:skl" id="d93" name="xmrk:pd2e20">
+      <segment>
+        <source>Birds you find in the desert include the Sage Grouse,
+        California Quail, and Prairie Falcon.</source>
+        <target>Birds you find in the desert include the Sage Grouse,
+        California Quail, and Prairie Falcon.</target>
+      </segment>
+    </unit>
+  </file>
+  <file original="hummingbird.html" id="d1e10">
+    <skeleton>
+      <xmrk:html xmlns:xmrk="xmarker:skl" id="hummingbird"
+                 xml:lang="en-US" idref="d00">
+        <xmrk:h2 idref="d01">xxxxxx</xmrk:h2>
+        <xmrk:p idref="d11">xxxxxx</xmrk:p>
+      </xmrk:html>
+    </skeleton>
+    <unit xmlns:xmrk="xmarker:skl" id="d01" name="xmrk:h2d3e2">
+      <segment>
+        <source>Hummingbird</source>
+        <target>Hummingbird</target>
+      </segment>
+    </unit>
+    <unit xmlns:xmrk="xmarker:skl" id="d11" name="xmrk:pd3e4">
+      <segment>
+        <source>Smallest bird: Bee hummingbird (2-1/4 in)</source>
+        <target>Smallest bird: Bee hummingbird (2-1/4 in)</target>
+      </segment>
+    </unit>
+  </file>
+  <file original="ostrich.html" id="d1e13">
+    <skeleton>
+      <xmrk:html xmlns:xmrk="xmarker:skl" id="ostrich"
+                 xml:lang="en-US" idref="d00">
+        <xmrk:h2 idref="d01">xxxxxx</xmrk:h2>
+        <xmrk:p idref="d11">xxxxxx</xmrk:p>
+      </xmrk:html>
+    </skeleton>
+    <unit xmlns:xmrk="xmarker:skl" id="d01" name="xmrk:h2d4e2">
+      <segment>
+        <source>Ostrich</source>
+        <target>Ostrich</target>
+      </segment>
+    </unit>
+    <unit xmlns:xmrk="xmarker:skl" id="d11" name="xmrk:pd4e4">
+      <segment>
+        <source>Heaviest bird: Ostrich (330 lb)</source>
+        <target>Heaviest bird: Ostrich (330 lb)</target>
+      </segment>
+    </unit>
+  </file>
+  <file original="swift.html" id="d1e16">
+    <skeleton>
+      <xmrk:html xmlns:xmrk="xmarker:skl" id="swift"
+                 xml:lang="en-US" idref="d00">
+        <xmrk:h2 idref="d01">xxxxxx</xmrk:h2>
+        <xmrk:p idref="d11">xxxxxx</xmrk:p>
+      </xmrk:html>
+    </skeleton>
+    <unit xmlns:xmrk="xmarker:skl" id="d01" name="xmrk:h2d5e2">
+      <segment>
+        <source>Swift</source>
+        <target>Swift</target>
+      </segment>
+    </unit>
+    <unit xmlns:xmrk="xmarker:skl" id="d11" name="xmrk:pd5e4">
+      <segment>
+        <source>Fastest bird flying: Common Swift (125 mi/hr)</source>
+        <target>Fastest bird flying: Common Swift (125 mi/hr)</target>
+      </segment>
+    </unit>
+  </file>
+  <file original="about-bird-love.html" id="d1e19">
+    <skeleton>
+      <xmrk:html xmlns:xmrk="xmarker:skl" id="abl"
+                 xml:lang="en-US" idref="d00">
+        <xmrk:h2 idref="d01">xxxxxx</xmrk:h2>
+        <xmrk:p idref="d11">xxxxxx</xmrk:p>
+      </xmrk:html>
+    </skeleton>
+    <unit xmlns:xmrk="xmarker:skl" id="d01" name="xmrk:h2d6e2">
+      <segment>
+        <source>About Bird Love</source>
+        <target>About Bird Love</target>
+      </segment>
+    </unit>
+    <unit xmlns:xmrk="xmarker:skl" id="d11" name="xmrk:pd6e4">
+      <segment>
+        <source>Bird Love is an organization that exists for the love of
+        birds.</source>
+        <target>Bird Love is an organization that exists for the love of
+        birds.</target>
+      </segment>
+    </unit>
+  </file>
+</xliff>
