@@ -547,10 +547,14 @@ void sav::load(
 
 namespace {
 
+    ///
+    /// Detects UTranslator’s save format
+    /// @return [+] Found format
+    ///
     bool detectSave(const pugi::xml_document& doc)
     {
         auto rt = doc.root();
-        return (rt && rt.name() == "ut"sv);
+        return rt.child("ut");
     }
 
 }   // anon namespace
@@ -585,7 +589,7 @@ namespace {
             tr::Project& project, tr::TrashMode mode)
     {
         auto tempPrj = tr::Project::make();
-        sav::load(*tempPrj, project.info.orig.absPath);
+        sav::smartLoad(*tempPrj, project.info.orig.absPath);
         // Info and fname are left intact
         std::swap(project.files, tempPrj->files);
         // Copy original language

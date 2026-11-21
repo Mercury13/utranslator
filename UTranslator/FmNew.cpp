@@ -131,7 +131,7 @@ bool FmNew::chooseOriginal()
         return false;
     try {
         project = tr::Project::make();
-        sav::load(*project, fname);
+        sav::smartLoad(*project, fname);
         project->info.type = tr::PrjType::FULL_TRANSL;
         project->info.orig.absPath = std::filesystem::weakly_canonical(fname);
         return true;
