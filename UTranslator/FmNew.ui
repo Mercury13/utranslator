@@ -50,7 +50,7 @@
           <item>
            <widget class="DblClickRadio" name="radioTranslation">
             <property name="text">
-             <string>Translation of *.uorig</string>
+             <string>Translation of *.uorig / *.xliff 2.0</string>
             </property>
            </widget>
           </item>
