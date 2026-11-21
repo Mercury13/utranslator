@@ -1396,12 +1396,15 @@ QLabel {
   </action>
   <action name="acExportToXliff">
    <property name="text">
-    <string>XLIFF…</string>
+    <string>XLIFF2…</string>
+   </property>
+   <property name="toolTip">
+    <string>XLIFF2</string>
    </property>
   </action>
   <action name="acTranslateWithXliff">
    <property name="text">
-    <string>XLIFF…</string>
+    <string>XLIFF2…</string>
    </property>
   </action>
   <action name="acTranslateWithRemove">
