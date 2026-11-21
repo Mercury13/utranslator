@@ -1398,9 +1398,6 @@ QLabel {
    <property name="text">
     <string>XLIFF2…</string>
    </property>
-   <property name="toolTip">
-    <string>XLIFF2</string>
-   </property>
   </action>
   <action name="acTranslateWithXliff">
    <property name="text">
