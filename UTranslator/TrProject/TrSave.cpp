@@ -552,7 +552,7 @@ namespace {
             const pugi::xml_node& node,
             const std::filesystem::path& basePath)
     {
-
+        throw std::logic_error("XLIFF does not work for now");
     }
 
 }   // anon namespace
@@ -603,7 +603,9 @@ sav::DetectedFormat sav::smartLoad(
         project.fname = fname;
         return sav::DetectedFormat::SAVE;
     } else if (detectXliff(doc)) {
-        throw std::logic_error("XLIFF does not work for now");
+        loadXliff(project, doc, fname.parent_path());
+        project.fname = fname;
+        return sav::DetectedFormat::XLIFF;
     } else {
         throw std::logic_error(
                 loc::Fmt("Cannot load {1}: unknown format")
