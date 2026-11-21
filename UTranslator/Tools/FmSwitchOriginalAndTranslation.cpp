@@ -83,7 +83,7 @@ void FmSwitchOriginalAndTranslation::chooseOriginal()
         FILTER_TRANSLATABLE, filedlg::ALL_FILES,
     };
     auto fname = filedlg::open(
-                this, L"Choose new original", filters, WEXT_TRANSLATABLE,
+                this, L"Choose new original", filters, WEXT_ORIGINAL,
                 filedlg::AddToRecent::NO);
     if (!fname.empty()) {
         ui->edOrigFile->setText(QString::fromStdWString(fname));

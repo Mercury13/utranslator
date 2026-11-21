@@ -123,9 +123,10 @@ FmNew::~FmNew()
 bool FmNew::chooseOriginal()
 {
     filedlg::Filter filters[] = {
-        FILTER_TRANSLATABLE, filedlg::ALL_FILES,
+        FILTER_TRANSLATABLE, FILTER_ORIGINAL,
+        FILTER_XLIFF, filedlg::ALL_FILES,
     };
-    auto fname = filedlg::open(this, L"Choose original", filters, WEXT_TRANSLATABLE,
+    auto fname = filedlg::open(this, L"Choose original", filters, WEXT_ORIGINAL,
                                 filedlg::AddToRecent::NO);
     if (fname.empty())
         return false;

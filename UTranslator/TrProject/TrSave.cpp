@@ -557,6 +557,12 @@ namespace {
         return rt.child("ut");
     }
 
+    bool detectXliff(const pugi::xml_document& doc)
+    {
+        auto rt = doc.root();
+        return rt.child("xliff");
+    }
+
 }   // anon namespace
 
 
@@ -572,6 +578,8 @@ sav::DetectedFormat sav::smartLoad(
         load(project, doc, fname.parent_path());
         project.fname = fname;
         return sav::DetectedFormat::SAVE;
+    } else if (detectXliff(doc)) {
+        throw std::logic_error("XLIFF does not work for now");
     } else {
         throw std::logic_error(
                 loc::Fmt("Cannot load {1}: unknown format")

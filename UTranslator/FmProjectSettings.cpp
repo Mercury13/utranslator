@@ -90,7 +90,7 @@ void FmProjectSettings::copyTo(tr::PrjInfo& r)
 void FmProjectSettings::browseOriginal()
 {
     filedlg::browseLineEdit(this,  L"Choose original",
-                FILTER_TRANSLATABLE, WEXT_TRANSLATABLE,
+                FILTER_TRANSLATABLE, WEXT_ORIGINAL,
                 filedlg::BrowseMode::FILE, ui->edOrigFile);
 }
 

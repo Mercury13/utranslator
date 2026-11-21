@@ -11,6 +11,8 @@
 
 #define EXT_ORIGINAL ".uorig"
 #define WEXT_ORIGINAL W(EXT_ORIGINAL)
+#define WMASK_XLIFF L"*.xliff *.xlf"
+#define WEXT_XLIFF W(EXT_XLIFF)
 #define EXT_TRANSLATION ".utran"
 #define WMASK(ext)  L"*" ext
 #define W(s) (L"" s)
@@ -18,9 +20,12 @@
 #define PAIR_ORIGINAL  L"Originals", WMASK(EXT_ORIGINAL)
 #define FILTER_ORIGINAL { PAIR_ORIGINAL }
 
+#define PAIR_XLIFF L"XLIFF files", WMASK_XLIFF
+#define FILTER_XLIFF { PAIR_XLIFF }
+
 // We now translate originals only, and other translations are used as reference only!
-#define FILTER_TRANSLATABLE FILTER_ORIGINAL
-#define WEXT_TRANSLATABLE W(EXT_ORIGINAL)
+#define PAIR_TRANSLATABLE  L"Translatable", WMASK(EXT_ORIGINAL) " " WMASK_XLIFF
+#define FILTER_TRANSLATABLE { PAIR_TRANSLATABLE }
 
 #define PAIR_TRANSLATION L"Translations", WMASK(EXT_TRANSLATION)
 #define FILTER_TRANSLATION { PAIR_TRANSLATION }
@@ -29,9 +34,6 @@
 #define PAIR_UTRANSL L"UTranslator files", \
     WMASK(EXT_ORIGINAL) L" " WMASK(EXT_TRANSLATION)
 #define FILTER_UTRANSL { PAIR_UTRANSL }
-
-#define PAIR_XLIFF L"XLIFF files", L"*.xliff *.xlf"
-#define FILTER_XLIFF { PAIR_XLIFF }
 
 constexpr const std::string_view langList[] = {
     "be",   // Belarussian
