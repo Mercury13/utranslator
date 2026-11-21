@@ -1029,6 +1029,8 @@ QLabel {
      <addaction name="acTranslateWithOriginal"/>
      <addaction name="acTranslateWithLockit"/>
      <addaction name="acTranslateWithXliff"/>
+     <addaction name="separator"/>
+     <addaction name="acTranslateWithRemove"/>
     </widget>
     <widget class="QMenu" name="menuExport_to">
      <property name="title">
@@ -1400,6 +1402,11 @@ QLabel {
   <action name="acTranslateWithXliff">
    <property name="text">
     <string>XLIFF…</string>
+   </property>
+  </action>
+  <action name="acTranslateWithRemove">
+   <property name="text">
+    <string>Remove translation</string>
    </property>
   </action>
  </widget>

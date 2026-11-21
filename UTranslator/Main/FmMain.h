@@ -156,6 +156,7 @@ private slots:
     void translateWithOriginal();
     void translateWithLockit();
     void translateWithXliff();
+    void translateWithRemove();
     void extractOriginal();
     void switchOriginalAndTranslation();
     void resetKnownOriginals();

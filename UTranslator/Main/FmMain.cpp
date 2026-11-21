@@ -176,6 +176,7 @@ FmMain::FmMain(QWidget *parent)
     connect(ui->acTranslateWithOriginal, &QAction::triggered, this, &This::translateWithOriginal);
     connect(ui->acTranslateWithLockit, &QAction::triggered, this, &This::translateWithLockit);
     connect(ui->acTranslateWithXliff, &QAction::triggered, this, &This::translateWithXliff);
+    connect(ui->acTranslateWithRemove, &QAction::triggered, this, &This::translateWithRemove);
     connect(ui->acExtractOriginal, &QAction::triggered, this, &This::extractOriginal);
     connect(ui->acSwitchOriginalAndTranslation, &QAction::triggered, this, &This::switchOriginalAndTranslation);
     connect(ui->acResetKnownOriginals, &QAction::triggered, this, &This::resetKnownOriginals);
@@ -2298,4 +2299,27 @@ void FmMain::translateWithXliff()
         mb.exec();
     }
 #undef HEAD
+}
+
+
+void FmMain::translateWithRemove()
+{
+    constexpr const char* HEAD = "Remove translation";
+    acceptCurrObjectNone();
+    if (!project->info.isTranslation()) {
+        QMessageBox::information(this, HEAD, STR_NEED_BILINGUAL_TRANSLATION);
+        return;
+    }
+    if (!checkRepeatingIds())
+        return;
+    filedlg::Filter filters[] = { FILTER_XLIFF, filedlg::ALL_FILES };
+    auto reply = QMessageBox::question(this, HEAD,
+            "THIS FEATURE IS HIGHLY DESTRUCTIVE." "\n"
+            "Do you still want to execute it?",
+            QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No,
+            QMessageBox::StandardButton::No);
+    if (reply != QMessageBox::StandardButton::Yes)
+        return;
+    project->removeTranslChannel();
+    project->modify();
 }
