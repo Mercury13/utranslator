@@ -2321,5 +2321,6 @@ void FmMain::translateWithRemove()
     if (reply != QMessageBox::StandardButton::Yes)
         return;
     project->removeTranslChannel();
+    project->stats(tr::StatsMode::ALL_CHILDREN, tr::CascadeDropCache::YES);
     project->modify();
 }
