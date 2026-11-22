@@ -234,14 +234,6 @@ namespace {
     using MKeyEntry = std::unordered_map<std::string, XliffEntry>;
     using MFile = std::unordered_map<std::string, MKeyEntry>;
 
-    std::u8string normalizeEols(std::string_view x)
-    {
-        std::u8string r{str::toU8sv(x)};
-        str::replace(r, u8"\r\n", u8"\n");
-        str::replace(r, u8'\r', u8'\n');
-        return r;
-    }
-
     void recurseXliffVgroup(MKeyEntry& r, pugi::xml_node hNode)
     {
         // Subgroups

@@ -67,3 +67,11 @@ void xmlThrowIf(
 {
     xmlThrowIf(result, str::toSv(fname));
 }
+
+std::u8string normalizeEols(std::string_view x)
+{
+    std::u8string r{str::toU8sv(x)};
+    str::replace(r, u8"\r\n", u8"\n");
+    str::replace(r, u8'\r', u8'\n');
+    return r;
+}

@@ -75,7 +75,6 @@ namespace tr {
     ///
     DEFINE_ENUM_TYPE_IN_NS(tr, PrjType, unsigned char,
         ORIGINAL, FULL_TRANSL)
-    extern const ec::Array<const char*, PrjType> prjTypeNames;
 
     DEFINE_ENUM_TYPE_IN_NS(tr, PrefixSuffixMode, unsigned char,
         OFF, DFLT)

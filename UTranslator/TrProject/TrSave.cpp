@@ -305,14 +305,18 @@ namespace {
         file.traverse(fl, tr::WalkOrder::EXACT, tr::EnterMe::NO);
     }
 
+    constinit const ec::Array<const char*, tr::PrjType> prjTypeNames {
+        "original", "full-transl" };
+    constinit const ec::Array<const char*, tr::SrcFormat> srcFormatNames {
+        "save", "xliff" };
+
     void writeProjectToXml(
             const tr::Project& project,
             pugi::xml_node& doc,
             const std::filesystem::path& basePath)
     {
         auto root = doc.append_child("ut");
-        /// @todo [urgent, standalone save] move prjTypeNames here
-        root.append_attribute("type") = tr::prjTypeNames[project.info.type];
+        root.append_attribute("type") = prjTypeNames[project.info.type];
         WrCache c(project.info, basePath);
         auto nodeInfo = root.append_child("info");
             auto nodeOrig = nodeInfo.append_child("orig");
@@ -321,6 +325,7 @@ namespace {
                     if (!project.info.orig.absPath.empty()) {
                         auto relPath = c.toRelPath(project.info.orig.absPath);
                         nodeOrig.append_attribute("fname") = str::toC(relPath.u8string());
+                        nodeOrig.append_attribute("format") = srcFormatNames[project.info.orig.srcFormat];
                     }
                 }
         if (project.info.canHaveReference() && !project.info.ref.absPath.empty()) {
@@ -494,12 +499,17 @@ namespace {
             .baseDir = basePath,
         };
         auto attrType = rqAttr(node, "type");
-        project.info.type = parseEnumRq<tr::PrjType>(attrType.value(), tr::prjTypeNames.cArray());
+        project.info.type = parseEnumRq<tr::PrjType>(attrType.value(), prjTypeNames.cArray());
         auto nodeInfo = rqChild(node, "info");
             auto nodeOrig = rqChild(nodeInfo, "orig");
                 project.info.orig.lang = nodeOrig.attribute("lang").as_string("en");
                 if (project.info.hasOriginalPath()) {
                     project.info.orig.absPath = ctx.toAbsPath(nodeOrig.attribute("fname").as_string());
+                    project.info.orig.srcFormat = parseEnumDef(
+                                nodeOrig.attribute("format").as_string(),
+                                srcFormatNames.cArray(), tr::SrcFormat::UORIG);
+                } else {
+                    project.info.orig.srcFormat = tr::SrcFormat::UORIG;
                 }
         if (project.info.canHaveReference()) {
             auto nodeRef = nodeInfo.child("ref");
@@ -546,14 +556,6 @@ void sav::load(
 
 
 namespace {
-
-    std::u8string normalizeEols(std::string_view x)
-    {
-        std::u8string r{str::toU8sv(x)};
-        str::replace(r, u8"\r\n", u8"\n");
-        str::replace(r, u8'\r', u8'\n');
-        return r;
-    }
 
     void readVgroupFromXliff(
             tr::VirtualGroup& group,

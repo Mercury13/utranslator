@@ -10,9 +10,6 @@ const tr::PrjInfo::Transl::Pseudoloc
         .prefixSuffixMode = tr::PrefixSuffixMode::DFLT };
 
 
-constinit const ec::Array<const char*, tr::PrjType> tr::prjTypeNames {
-    "original", "full-transl" };
-
 ///// PrjInfo //////////////////////////////////////////////////////////////////
 
 

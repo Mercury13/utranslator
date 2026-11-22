@@ -60,3 +60,5 @@ inline Ec parseEnumTechDef(const char* text, const Struc (&names)[N], Ec def)
 template <class Ec, size_t N> requires std::is_enum_v<Ec>
 inline Ec parseEnumRq(const char* text, const char* const (&names)[N])
     { return static_cast<Ec>(parseEnumIntRq(text, N, names)); }
+
+std::u8string normalizeEols(std::string_view x);
